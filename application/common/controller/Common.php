@@ -23,6 +23,7 @@ class Common extends Controller
      */
     public function __construct()
     {
+        echo '<pre>';
         parent::__construct();
     }
 
@@ -40,7 +41,22 @@ class Common extends Controller
                 return true;
             }
         }
-        exit('请求异常');
+        exit(['status' => '20', 'msg' => '请求异常']);
+    }
+
+
+    /**
+     * 验证下node_id
+     * @access public
+     */
+    public function check_nodeid()
+    {
+        $site_id = Request::instance()->param('site_id');
+        if ($site_id != Config::get('site.SITE_ID')) {
+            //发送过来的请求站点的id 是不是跟 配置文件中 一致
+            exit(['status' => '20', 'msg' => '请求异常，节点id不一致，忽略您的请求']);
+        }
+        return $site_id;
     }
 
 
@@ -68,6 +84,46 @@ class Common extends Controller
             return false;
         }
     }
+
+
+    /**
+     * 把返回的数据集转换成Tree  本函数使用引用传递  修改  数组的索引架构
+     *  可能比较难理解     函数中   $reffer    $list[]  $parent 等的信息实际上只是内存中地址的引用
+     * @access public
+     * @param array $list 要转换的数据集
+     * @param string $pid parent标记字段
+     * @param string $level level标记字段
+     * @return array
+     */
+    function list_to_tree($list, $pk = 'id', $pid = 'pid', $child = '_child', $root = 0) {
+        // 创建Tree
+        $tree = array();
+        if (is_array($list)) {
+            //创建基于主键的数组引用
+            $refer = array();
+            foreach ($list as $key => $data) {
+                $refer[$data[$pk]] = & $list[$key];
+            }
+            foreach ($list as $key => $data) {
+                // 判断是否存在parent
+                $parentId = $data[$pid];
+                if ($root == $parentId) {
+                    //根节点元素
+                    $tree[] = & $list[$key];
+                } else {
+                    if (isset($refer[$parentId])) {
+                        //当前正在遍历的父亲节点的数据
+                        $parent = & $refer[$parentId];
+                        //把当前正在遍历的数据赋值给父亲类的  children
+                        $parent[$child][] = & $list[$key];
+                    }
+                }
+            }
+        }
+        return $tree;
+    }
+
+
 
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * 文件相关操作 模板同步 活动同步等信息 文件复制 删除等相关操作
@@ -31,7 +32,9 @@ class Filemanage extends Common
     //因为需要递归操作文件
     static $arr_files = [];
 
-    //http://local.sitegroup.com/index.php/Site/uploadTemplateFile
+    //测试文件传递的路径
+    //http://节点域名/index.php/Site/uploadTemplateFile
+
 
     /**
      * 文件上传程序　
@@ -39,6 +42,7 @@ class Filemanage extends Common
      */
     public function uploadFile()
     {
+        ini_set('max_execution_time', '0');
         $this->checkOrigin();
         $type = request()->param('type');
         if ($type == 'template') {
@@ -92,7 +96,6 @@ class Filemanage extends Common
         $pathinfo = pathinfo($file_savename);
         // 文件名
         $file_name = $pathinfo['filename'];
-
         $status = '文件解压缩失败';
         //解压缩主题文件到指定的目录中
         $realTemplatePath = $zipTemplateFilePath . DIRECTORY_SEPARATOR . $file_savename;
@@ -139,6 +142,7 @@ class Filemanage extends Common
      * @param $source 源目录名
      * @param $destination 目的目录名
      * @param $child 复制时，是不是包含的子目录
+     * @return int
      */
     private static function copydir_recurse($source, $destination, $child, $directory = '')
     {
@@ -181,13 +185,8 @@ class Filemanage extends Common
      */
     private static function copy_only_file($aim_dir)
     {
-//        echo $aim_dir;
         foreach (self::$arr_files as $key => $value) {
-            try {
-                copy($key, $aim_dir . DIRECTORY_SEPARATOR . $value);
-            } catch (Exception $ex) {
-//                print_r($ex);
-            }
+            copy($key, $aim_dir . DIRECTORY_SEPARATOR . $value);
         }
     }
 
