@@ -22,11 +22,25 @@ class Menu extends Common
      */
     public static function getMenuInfo($menu_ids)
     {
+        //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
+        if ($menu = Cache::get(Config::get('site.CACHE_LIST')['MENU'])) {
+            return $menu;
+        }
         $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
         $menu = Db::name('menu')->where($where)->select();
         //利用文件缓存缓存下文件
         Cache::set(Config::get('site.CACHE_LIST')['MENU'], $menu, Config::get('site.CACHE_TIME'));
         return $menu;
+    }
+
+
+    /**
+     * 获取 env 配置中的菜单信息
+     * @access public
+     */
+    public static function getEnvMenuInfo()
+    {
+        return EnvMenu::getEnv();
     }
 
 

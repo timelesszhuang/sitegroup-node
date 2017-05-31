@@ -21,6 +21,10 @@ class Keyword extends Common
      */
     public static function getKeywordInfo($aKeyword_ids, $site_id, $site_name, $node_id)
     {
+        //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
+        if ($keyword = Cache::get(Config::get('site.CACHE_LIST')['KEYWORD'])) {
+            return $keyword;
+        }
         $field = 'id,name,parent_id,path';
         $keyword = [];
         //获取全部的a类 客户
@@ -46,7 +50,8 @@ class Keyword extends Common
         $keyword = (new Common())->list_to_tree(array_merge($aKeyword, $bcKeyword), 'id', 'parent_id', 'children', $parent_id = 0);
 //        print_r($tree);
         //利用文件缓存缓存下文件
-//        Cache::set(Config::get('site.CACHE_LIST')['MENU'], $menu, Config::get('site.CACHE_TIME'));
+        Cache::set(Config::get('site.CACHE_LIST')['KEYWORD'], $keyword, Config::get('site.CACHE_TIME'));
+
         return $keyword;
     }
 
