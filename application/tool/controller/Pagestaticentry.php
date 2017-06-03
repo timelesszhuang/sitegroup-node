@@ -24,6 +24,15 @@ class Pagestaticentry extends Common
             file_put_contents('a.html', $content);
         }*/
 
+    /**
+     * 清空缓存相关操作
+     * @access public
+     */
+    public function clearCache()
+    {
+        Cache::clear();
+    }
+
 
     /**
      * 页面静态化入口文件  第一次请求过来的 时候会请求
@@ -41,9 +50,10 @@ class Pagestaticentry extends Common
 
         /**该站点的相关设置信息获取******************************************/
 
-        $site_id = Config::get('site.SITE_ID');
+
         //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
-        $info = Db::name('site')->where('id', $site_id)->find();
+        $site_id = Config::get('site.SITE_ID');
+        $info = Site::getSiteInfo();
         print_r($info);
         $node_id = $info['node_id'];
         $site_name = $info['site_name'];
@@ -108,6 +118,8 @@ class Pagestaticentry extends Common
         } else {
             $type = 'm';
         }
+
+
         /***************************************************************************/
 
 

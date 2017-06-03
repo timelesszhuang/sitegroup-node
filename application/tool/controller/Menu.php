@@ -3,6 +3,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\tool\model\SiteErrorInfo;
 use think\Config;
 use think\Cache;
 use think\Db;
@@ -20,14 +21,26 @@ class Menu extends Common
      * @param string $menu 菜单id
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getMenuInfo($menu_ids)
+    public static function getMenuInfo($menu_ids, $site_id, $site_name, $node_id)
     {
         //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
         if ($menu = Cache::get(Config::get('site.CACHE_LIST')['MENU'])) {
             return $menu;
         }
         $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
-        $menu = Db::name('menu')->where($where)->select();
+        $field = 'name,title,generate_name,flag,type_id';
+        $menu = Db::name('menu')->where($where)->field($field)->select();
+        if (empty($menu)) {
+            //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
+            $site_info = new SiteErrorInfo();
+            $site_info->addError([
+                'msg' => "{$site_name} 站点没有选择菜单。",
+                'operator' => '页面静态化',
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'node_id' => $node_id,
+            ]);
+        }
         //利用文件缓存缓存下文件
         Cache::set(Config::get('site.CACHE_LIST')['MENU'], $menu, Config::get('site.CACHE_TIME'));
         return $menu;
@@ -41,6 +54,72 @@ class Menu extends Common
     public static function getEnvMenuInfo()
     {
         return EnvMenu::getEnv();
+    }
+
+
+    /**
+     * 获取合并之后的菜单信息
+     *
+     * @access public
+     */
+    public static function getMergedMenu($menu_ids, $site_id, $site_name, $node_id)
+    {
+        $menu = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
+        $env_menu = self::getEnvMenuInfo();
+        //把 配置的菜单 跟数据库中的菜单合并为数组
+        $merged_menu = [];
+        if ($menu && $env_menu) {
+            $merged_menu = array_merge($menu, $env_menu);
+        } else {
+            $merged_menu = $menu;
+        }
+        return $merged_menu;
+    }
+
+
+    /**
+     * 根据menu 获取文章所属的 type_id 跟句 type_id 不需要详情型的文章信息
+     * @access public
+     */
+    public static function getTypeIdInfo($menu_ids)
+    {
+        //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
+        if ($type_id_arr = Cache::get(Config::get('site.CACHE_LIST')['MENUTYPEID'])) {
+            return $type_id_arr;
+        }
+        $menu_id_arr = array_filter(explode(',', $menu_ids));
+        $field = 'flag,flag_name,type_id,type_name';
+        $where = [
+            'id' => ['in', $menu_id_arr],
+            'flag' => ['neq', 1],
+        ];
+        $menu = Db::name('menu')->where($where)->field($field)->select();
+        print_r($menu);
+        $type_id_arr = [];
+        foreach ($menu as $k => $v) {
+            switch ($v['flag']) {
+                case 2:
+                    $type = 'question';
+                    break;
+                case 3:
+                    $type = 'article';
+                    break;
+                case 4:
+                    $type = 'scatteredarticle';
+                    break;
+            }
+            $type_arr = [
+                'id' => $v['type_id'],
+                'name' => $v['type_name'],
+            ];
+            if (!array_key_exists($type, $type_id_arr)) {
+                $type_id_arr[$type] = [];
+            }
+            $type_id_arr[$type][] = $type_arr;
+        }
+        //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
+        Cache::set(Config::get('site.CACHE_LIST')['MENUTYPEID'], $type_id_arr, Config::get('site.CACHE_TIME'));
+        return $type_id_arr;
     }
 
 

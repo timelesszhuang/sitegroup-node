@@ -3,7 +3,9 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\tool\model\SiteErrorInfo;
 use think\Cache;
+use think\Config;
 use think\Db;
 
 
@@ -25,7 +27,7 @@ class Keyword extends Common
         if ($keyword = Cache::get(Config::get('site.CACHE_LIST')['KEYWORD'])) {
             return $keyword;
         }
-        $field = 'id,name,parent_id,path';
+        $field = 'id,name,parent_id,path,tag';
         $keyword = [];
         //获取全部的a类 客户
         $aKeyword_ids_arr = array_filter(explode(',', $aKeyword_ids));
@@ -41,9 +43,18 @@ class Keyword extends Common
         }
         //获取 a类 下的bc 类关键词
         $bcKeyword = $keywordModel->order('tag asc')->field($field)->select();
-        if ($bcKeyword) {
+        if (empty($bcKeyword)) {
             //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
-
+            $site_info = new SiteErrorInfo();
+            $site_info->addError([
+                'msg' => "{$site_name}站点所选择的关键词没有设置BC类关键词。",
+                'operator' => '页面静态化',
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'node_id' => $node_id,
+            ]);
+            //错误信息
+            exit;
         }
         //处理下 关键词 分出 B 类 C 类来
 //        print_r(array_merge($aKeyword, $bcKeyword));
@@ -51,9 +62,10 @@ class Keyword extends Common
 //        print_r($tree);
         //利用文件缓存缓存下文件
         Cache::set(Config::get('site.CACHE_LIST')['KEYWORD'], $keyword, Config::get('site.CACHE_TIME'));
-
         return $keyword;
     }
+
+
 
 
 }

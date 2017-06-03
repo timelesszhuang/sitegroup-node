@@ -14,6 +14,9 @@ use think\Route;
 // 文件管理
 Route::rule('filemanage/uploadFile', 'tool/Filemanage/uploadFile');
 
+//清理缓存
+Route::rule('clearcache', 'tool/Commontool/clearCache');
+
 //页面静态化第一次 的入口 无需传递数据
 Route::rule('pagestaticentry', 'tool/Pagestaticentry/index');
 
