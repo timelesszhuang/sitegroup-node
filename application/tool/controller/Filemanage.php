@@ -52,6 +52,7 @@ class Filemanage extends Common
             //活动相关操作
             $this->manageActivity();
         }
+        return 1;
     }
 
 
