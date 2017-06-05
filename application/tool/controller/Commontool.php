@@ -216,7 +216,7 @@ class Commontool extends Common
     public static function getCommonCode($code_ids)
     {
         $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code')->select();
-        return $code_ids;
+        return $code;
     }
 
 }
