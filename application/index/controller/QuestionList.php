@@ -39,10 +39,10 @@ class QuestionList extends Common
 
         //获取menu信息根据$id
 
-        $menu=\app\index\model\Menu::get($id);
+        $menu_info=\app\index\model\Menu::get($id);
 
         //然后获取 TDK 等数据  首先到数据库
-        list($title, $keyword, $description) = Commontool::getMenuPageTDK($keyword_info,$menu->generate_name,$site_id, $node_id, $siteinfo['com_name']);
+        list($title, $keyword, $description) = Commontool::getMenuPageTDK($keyword_info,$menu_info->generate_name,$site_id, $node_id, $siteinfo['com_name']);
         //获取首页中  会用到的 文章列表 问题列表 零散段落
         //配置的菜单信息  用于获取 文章的列表
         //$info = $menu_info;
