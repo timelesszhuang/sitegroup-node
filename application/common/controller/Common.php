@@ -17,6 +17,8 @@ use think\Db;
 class Common extends Controller
 {
 
+    public $separator = '||||||||||||||||||||||||';
+
     /**
      * 获取公共的数据
      * @access public
@@ -95,35 +97,34 @@ class Common extends Controller
      * @param string $level level标记字段
      * @return array
      */
-    function list_to_tree($list, $pk = 'id', $pid = 'pid', $child = '_child', $root = 0) {
+    function list_to_tree($list, $pk = 'id', $pid = 'pid', $child = '_child', $root = 0)
+    {
         // 创建Tree
         $tree = array();
         if (is_array($list)) {
             //创建基于主键的数组引用
             $refer = array();
             foreach ($list as $key => $data) {
-                $refer[$data[$pk]] = & $list[$key];
+                $refer[$data[$pk]] = &$list[$key];
             }
             foreach ($list as $key => $data) {
                 // 判断是否存在parent
                 $parentId = $data[$pid];
                 if ($root == $parentId) {
                     //根节点元素
-                    $tree[] = & $list[$key];
+                    $tree[] = &$list[$key];
                 } else {
                     if (isset($refer[$parentId])) {
                         //当前正在遍历的父亲节点的数据
-                        $parent = & $refer[$parentId];
+                        $parent = &$refer[$parentId];
                         //把当前正在遍历的数据赋值给父亲类的  children
-                        $parent[$child][] = & $list[$key];
+                        $parent[$child][] = &$list[$key];
                     }
                 }
             }
         }
         return $tree;
     }
-
-
 
 
 }

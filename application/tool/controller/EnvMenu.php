@@ -41,11 +41,11 @@ class EnvMenu extends Common
                 $buffer = trim(fgets($fp, 4096));
                 if ($buffer) {
                     //菜单相关设置
-                    list($menu_name, $generate_name, $menu_title) = array_filter(explode('|', $buffer));
+                    list($menu_name, $name, $title) = array_filter(explode('|', $buffer));
                     $menu_info[] = [
-                        'name' => $menu_name,
-                        'title' => $menu_title,
-                        'generate_name' => $generate_name,
+                        'genarate_name' => $menu_name,
+                        'title' => $title,
+                        'name' => $name,
                     ];
                 }
             }

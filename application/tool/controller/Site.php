@@ -4,6 +4,8 @@ namespace app\tool\controller;
 
 use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
+use think\Cache;
+use think\Config;
 use think\Db;
 
 
@@ -75,5 +77,25 @@ class Site extends Common
         return [$chain_type, $next_site, $main_site];
     }
 
+    /**
+     * 获取站点相关配置信息
+     * @access public
+     */
+    public static function getSiteInfo()
+    {
+        if ($info = Cache::get(Config::get('site.CACHE_LIST')['SITEINFO'])) {
+            return $info;
+        }
+        $site_id = Config::get('site.SITE_ID');
+        //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
+        $info = Db::name('site')->where('id', $site_id)->find();
+        if (empty($info)) {
+            //如果为空的话 处理方式
+            //表示该
+            exit(['status' => false, 'msg' => "未找到站点id {$site_id} 的配置信息"]);
+        }
+        Cache::set(Config::get('site.CACHE_LIST')['SITEINFO'], $info, Config::get('site.CACHE_TIME'));
+        return $info;
+    }
 
 }
