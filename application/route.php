@@ -25,7 +25,7 @@ Route::rule('pagestaticentry', 'tool/Pagestaticentry/index');
 Route::get('newslist/:id', 'index/NewsList/index', ['ext' => 'html']);
 
 //当请求列表 的时候 首先隐藏 index.php
-Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
+Route::get('questionlist/:id', 'index/QuestionList/index');
 
 //当请求列表 的时候 首先隐藏 index.php
-Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
+Route::get('articlelist/:id', 'index/ArticleList/index');
