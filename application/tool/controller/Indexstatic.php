@@ -26,7 +26,7 @@ class Indexstatic extends Common
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
-        $node_id=$siteinfo['node_id'];
+        $node_id = $siteinfo['node_id'];
 //      print_r($siteinfo);
         $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $site_id, $site_name, $node_id);
 //      print_r($keyword_info);
@@ -75,10 +75,23 @@ class Indexstatic extends Common
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
-
-        //获取代码　
         //获取公共代码
+        $commonjscode = Commontool::getCommonCode($siteinfo['public_code']);
 
+        //head前后的代码
+        $before_head = $siteinfo['before_header_jscode'];
+        $after_head = $siteinfo['other_jscode'];
+        //公司名称
+        $com_name = $siteinfo['com_name'];
+        $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'before_head', 'after_head', 'chain_type', 'next_site','main_site','common_site','partnersite','commonjscode','article_list','question_list','scatteredarticle_list');
+        file_put_contents('log/index.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+        //页面中还需要填写隐藏的 表单 node_id site_id
+        $content = (new View())->fetch('template/index.html',
+            [
+                'd' => $assign_data
+            ]
+        );
+        file_put_contents('index.html', $content);
     }
 
 

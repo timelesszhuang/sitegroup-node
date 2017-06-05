@@ -133,6 +133,9 @@ class Pagestaticentry extends Common
         }
         /**************************************************/
 
+
+
+
         exit;
     }
 

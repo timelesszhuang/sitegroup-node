@@ -190,6 +190,7 @@ class Commontool extends Common
      */
     public static function getScatteredArticleList($type_id, $site_id)
     {
+
         $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id])->field('id,title')->order('id desc')->select();
         return $article;
     }
@@ -205,6 +206,17 @@ class Commontool extends Common
         //友链信息
         $partnersite_info = Db::name('links')->where(['id' => ['in', array_filter(explode(',', $link_id))]])->field('id,name,domain')->select();
         return $partnersite_info;
+    }
+
+
+    /**
+     * 获取公共代码
+     * @access public
+     */
+    public static function getCommonCode($code_ids)
+    {
+        $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code')->select();
+        return $code_ids;
     }
 
 }
