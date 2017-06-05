@@ -10,17 +10,16 @@
 <body>
     <table border="1">
         <tr>
-            <td>question</td>
-            <td>content</td>
+            <td>title</td>
         </tr>
-        <?php foreach($d["question"] as $item):?>
+        <?php foreach($d["newslist"] as $item):?>
         <tr>
-            <td><a href="aaa">{$item["question"]}</a></td>
+            <td><a href="aaa">{$item["title"]}</a></td>
         </tr>
         <?php endforeach;?>
     </table>
     <p>
-        {$d["question"]->render()}
+        {$d["newslist"]->render()}
     </p>
 </body>
 </html>
