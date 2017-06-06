@@ -105,6 +105,7 @@ class Commontool extends Common
                 'page_id' => $page_id,
                 'page_name' => $page_name,
                 'title' => $title,
+                'keyword' => $keyword,
                 'description' => $description,
                 'site_id' => $site_id,
                 'site_name' => $site_name,
@@ -154,6 +155,7 @@ class Commontool extends Common
                 'page_id' => $page_id,
                 'page_name' => $page_name,
                 'title' => $title,
+                'keyword' => $keyword,
                 'description' => $description,
                 'akeyword_id' => $a_keyword_id,
             ]);
@@ -313,7 +315,7 @@ class Commontool extends Common
                 list($title, $keyword, $description) = self::getIndexPageTDK($keyword_info, $site_id, $site_name, $node_id, $siteinfo['com_name']);
                 break;
             case 'menu':
-                //菜单
+                //菜单 页面的TDK
                 $page_id = $param;
                 $menu_name = $param2;
                 $menu_id = $param3;

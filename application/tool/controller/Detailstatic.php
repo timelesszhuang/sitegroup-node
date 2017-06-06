@@ -23,9 +23,8 @@ class Detailstatic extends Common
         $node_id = $siteinfo['node_id'];
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
         $menu_ids = $siteinfo['menu'];
-        //
-        Db::name('SitePageinfo')->where(['site_id'=>$site_id])->field('page_id,akeyword_id,')->select();
-
+        print_r(Db::name('SitePageinfo')->where(['site_id'=>$site_id])->field('menu_id,akeyword_id')->select());
+        exit;
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
         foreach ($menu_typeid_arr as $detail_key => $v) {
             foreach ($v as $type) {
