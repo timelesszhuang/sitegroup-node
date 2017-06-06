@@ -21,6 +21,9 @@ return [
         'KEYWORD' => 'keyword',
         //该配置主要用于 获取菜单选择的 文章或者 零散文章 问答文章的分类
         'MENUTYPEID' => 'menutypeid',
+        //手机站点 网址  还有跳转链接
+        'MOBILE_SITE_INFO' => 'mobile_site_info',
+        //
 
     ],
 ];
