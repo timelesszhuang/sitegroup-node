@@ -19,18 +19,18 @@
     阅读量:
 </p>
 <p>
-    内容: {$article["content_paragraph"]}
+    内容: {$question["content_paragraph"]}
 </p>
 <p>
-    上一篇: <a><?php if(isset($pre_article->title)){
-        echo $pre_article["question"];
+    上一篇: <a><?php if(isset($pre_question->question)){
+        echo $pre_question["question"];
             }
       ?>
 </a>
 </p>
 <p>
-    下一篇: <a><?php if(isset($next_article["title"])){
-      echo $next_article["question"];
+    下一篇: <a><?php if(isset($next_question["question"])){
+      echo $next_question["question"];
         }
         ?>
    </a>
