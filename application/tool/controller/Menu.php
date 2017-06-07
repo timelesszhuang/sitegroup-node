@@ -28,7 +28,7 @@ class Menu extends Common
             return $menu;
         }
         $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
-        $field = 'name,title,generate_name,flag,type_id';
+        $field = 'id,name,title,generate_name,flag,type_id';
         $menu = Db::name('menu')->where($where)->field($field)->select();
         if (empty($menu)) {
             //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
@@ -88,13 +88,12 @@ class Menu extends Common
             return $type_id_arr;
         }
         $menu_id_arr = array_filter(explode(',', $menu_ids));
-        $field = 'flag,flag_name,type_id,type_name';
+        $field = 'id,flag,flag_name,type_id,type_name';
         $where = [
             'id' => ['in', $menu_id_arr],
             'flag' => ['neq', 1],
         ];
         $menu = Db::name('menu')->where($where)->field($field)->select();
-        print_r($menu);
         $type_id_arr = [];
         foreach ($menu as $k => $v) {
             switch ($v['flag']) {
@@ -111,6 +110,7 @@ class Menu extends Common
             $type_arr = [
                 'id' => $v['type_id'],
                 'name' => $v['type_name'],
+                'menu_id' => $v['id'],
             ];
             if (!array_key_exists($type, $type_id_arr)) {
                 $type_id_arr[$type] = [];

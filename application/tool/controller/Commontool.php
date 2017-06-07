@@ -99,6 +99,7 @@ class Commontool extends Common
             $title = implode('_', $a_keywordname_arr) . '-' . $com_name;
             $keyword = implode(',', $a_keywordname_arr);
             $description = implode('，', $a_keywordname_arr) . '，' . $com_name;
+
             Db::name('SitePageinfo')->insert([
                 'menu_id' => 0,
                 'node_id' => $node_id,
@@ -110,6 +111,8 @@ class Commontool extends Common
                 'site_id' => $site_id,
                 'site_name' => $site_name,
                 'akeyword_id' => '',
+                'create_time' => time(),
+                'update_time' => time()
             ]);
         }
         return [$title, $keyword, $description];
@@ -158,6 +161,8 @@ class Commontool extends Common
                 'keyword' => $keyword,
                 'description' => $description,
                 'akeyword_id' => $a_keyword_id,
+                'create_time' => time(),
+                'update_time' => time()
             ]);
         }
         return [$title, $keyword, $description];
@@ -198,15 +203,15 @@ class Commontool extends Common
         $c_keyword_arr = [];
         if (array_key_exists('children', $b_child_info)) {
             $c_child_info = $b_child_info['children'];
-            print_r($c_keyword_arr);
+//            print_r($c_keyword_arr);
             $c_rand_key = array_rand($c_child_info, 3);
             foreach ($c_rand_key as $v) {
                 $c_keyword_arr[] = $c_child_info[$v];
             }
         }
-        print_r($c_keyword_arr);
+//        print_r($c_keyword_arr);
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
-        print_r($c_keywordname_arr);
+//        print_r($c_keywordname_arr);
         $title = implode('-', $c_keywordname_arr) . $articletitle;
         $keyword = implode(',', $c_keywordname_arr);
         $description = $articlecontent;
@@ -301,6 +306,7 @@ class Commontool extends Common
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
+        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];

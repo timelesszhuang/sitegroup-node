@@ -23,7 +23,6 @@ class Indexstatic extends Common
         //  关键词
         //  栏目url  展现以下已经在数据库
         //  文章 或者 问答
-
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,
             $after_head, $chain_type, $next_site,
