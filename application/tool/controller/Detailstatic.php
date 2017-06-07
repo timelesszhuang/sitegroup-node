@@ -103,41 +103,54 @@ class Detailstatic extends Common
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
-        //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
-        //  关键词
-        //当前分类名称
-        $type_name = "article";
-        $where = [
-            'articletype_id' => $type_id,
-            'articletype_name' => $type_name,
-            "node_id" => $node_id,
-            "site_id" => $site_id
-        ];
-        $limit = 0;
-        $articleCount = ArticleSyncCount::where($where)->find();
-        if (isset($articleCount->count) && ($articleCount->count) > 0) {
-            $limit = $articleCount->count;
-        }
-        $count = \app\index\model\ScatteredArticle::where(["articletype_id" => $type_id, "node_id" => $node_id])->count();
-        $article_data = \app\index\model\ScatteredArticle::where(["articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $count)->select();
-        foreach ($article_data as $item) {
-            $temp_content = mb_substr(strip_tags($item->content), 0, 200);
-            list($com_name, $title, $keyword, $description,
-                $m_url, $redirect_code, $menu, $before_head,
-                $after_head, $chain_type, $next_site,
-                $main_site, $partnersite, $commonjscode,
-                $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-            $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
-//                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-            //页面中还需要填写隐藏的 表单 node_id site_id
-            $content = (new View())->fetch('template/article_make.html',
-                [
-                    'd' => $assign_data,
-                    'article' => $item
-                ]
-            );
-            file_put_contents('article/article' . $item["id"] . '.html', $content);
-        }
+        $type_name="scatteredarticle";
 
-}
+        $where=[
+            'articletype_id'=>$type_id,
+            'type_name'=>$type_name,
+            "node_id"=>$node_id,
+            "site_id"=>$site_id
+        ];
+        $limit=0;
+        $articleCount=ArticleSyncCount::where($where)->find();
+        if(isset($articleCount->count) && ($articleCount->count)>0){
+            $limit=$articleCount->count;
+        }
+        $count=\app\index\model\Article::where(["articletype_id"=>$type_id,"node_id"=>$node_id])->count();
+        $article_data=\app\index\model\Article::where(["articletype_id"=>$type_id,"node_id"=>$node_id])->order("id","asc")->limit($limit,$count)->select();
+                foreach($article_data as $item){
+                    $temp_content=mb_substr(strip_tags($item->content),0,200);
+                    list($com_name, $title, $keyword, $description,
+                        $m_url, $redirect_code, $menu, $before_head,
+                        $after_head, $chain_type, $next_site,
+                        $main_site, $partnersite, $commonjscode,
+                        $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail',$item->title,$temp_content,$a_keyword_id);
+                    $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+//                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+
+                    //获取上一篇和下一篇
+                    $pre_article=\app\index\model\Article::where(["id"=>["lt",$item["id"]]])->find();
+                    $next_article=\app\index\model\Article::where(["id"=>["gt",$item["id"]]])->find();
+                    //页面中还需要填写隐藏的 表单 node_id site_id
+                    $content = (new View())->fetch('template/article_make.html',
+                        [
+                            'd' => $assign_data,
+                            'article'=>$item,
+                            'pre_article'=>$pre_article,
+                            'next_article'=>$next_article
+                        ]
+                    );
+                    file_put_contents('article/article'.$item["id"].'.html', $content);
+                }
+        $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+        file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+        //页面中还需要填写隐藏的 表单 node_id site_id
+        $content = (new View())->fetch('template/newslist.html',
+            [
+                'd' => $assign_data
+            ]
+        );
+        file_put_contents('index.html', $content);
+    }
+
 }
