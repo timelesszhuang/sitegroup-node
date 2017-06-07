@@ -116,7 +116,7 @@ class Detailstatic extends Common
         ];
         $article_ids = (new ScatteredTitle())->where(["articletype_id"=>$site_id])->field('articletype_id')->select();
         $article_id = explode(",",$article_ids);
-        $content =
+//        $content =
         dump($article_ids);
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,
