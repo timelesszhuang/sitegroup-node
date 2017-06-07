@@ -5,6 +5,7 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
+use app\index\model\ScatteredTitle;
 use think\Db;
 use think\View;
 
@@ -101,11 +102,22 @@ class Detailstatic extends Common
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    public function scatteredarticle($type_id, $a_keyword_id)
+    public function scatteredarticle($site_id,$site_name,$node_id,$type_id=5, $a_keyword_id)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
+        $type_name="scatteredarticle";
 
+        $where=[
+            'articletype_id'=>$type_id,
+            'type_name'=>$type_name,
+            "node_id"=>$node_id,
+            "site_id"=>$site_id
+        ];
+        $article_ids = (new ScatteredTitle())->where(["articletype_id"=>$site_id])->field('articletype_id')->select();
+        $article_id = explode(",",$article_ids);
+        $content =
+        dump($article_ids);
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,
             $after_head, $chain_type, $next_site,
