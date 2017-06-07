@@ -99,7 +99,7 @@ class Detailstatic extends Common
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    public function scatteredarticle($site_id,$site_name,$node_id,$type_id=5, $a_keyword_id)
+    public function scatteredarticle($site_id,$site_name,$node_id,$type_id, $a_keyword_id)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -107,7 +107,7 @@ class Detailstatic extends Common
 
         $where=[
             'articletype_id'=>$type_id,
-            'type_name'=>$type_name,
+            'articletype_name'=>$type_name,
             "node_id"=>$node_id,
             "site_id"=>$site_id
         ];
