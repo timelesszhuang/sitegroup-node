@@ -3,11 +3,7 @@
 namespace app\index\controller;
 
 use app\common\controller\Common;
-use app\index\model\Question;
-use app\index\model\ScatteredTitle;
 use app\tool\controller\Commontool;
-use app\tool\controller\Keyword;
-use app\tool\controller\Menu;
 use app\tool\controller\Site;
 use think\View;
 
@@ -27,6 +23,7 @@ class NewsList extends Common
         if(empty($siteinfo['menu'])){
             exit("当前栏目为空");
         }
+
         $menu_info = \app\index\model\Menu::get($id);
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,

@@ -14,35 +14,41 @@ class Menustatic extends Common
 {
 
     /**
+     * 菜单首页
+     * @access public
+     */
+    public static function menuIndex($menu_id)
+    {
+        //第一次访问的时候  因为需要获取一些数据
+        $menu_info = \app\index\model\Menu::get($menu_id);
+        list($com_name, $title, $keyword, $description,
+            $m_url, $redirect_code, $menu, $before_head,
+            $after_head, $chain_type, $next_site,
+            $main_site, $partnersite, $commonjscode,
+            $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $siteinfo = Site::getSiteInfo();
+        $site_id = $siteinfo['id'];
+        $site_name = $siteinfo['site_name'];
+        $node_id = $siteinfo['node_id'];
+        $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $site_id, $site_name, $node_id);
+        //菜单 页面的TDK
+        Commontool::getMenuPageTDK($keyword_info, $menu_info->generate_name, $menu_info->name, $site_id, $site_name, $node_id, $menu_id, $menu_info->name);
+    }
+
+
+    /**
      * 栏目页面的静态化
      * @access public
      */
-    public function index()
+    public static function envIndex()
     {
         //  获取首页生成需要的资源
         //  关键词
         //  栏目url  展现以下已经在数据库
         //  文章 或者 问答
         $siteinfo = Site::getSiteInfo();
-//      print_r($siteinfo);
-        $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $siteinfo['id'], $siteinfo['site_name'], $siteinfo['node_id']);
-//      print_r($keyword_info);
-        $menu = Menu::getMergedMenu($siteinfo['menu'], $siteinfo['id'], $siteinfo['site_name'], $siteinfo['node_id']);
-//      print_r($menu);
-        //获取站点的类型 手机站的域名 手机站点的跳转链接
-        list($m_url, $redirect_code) = Commontool::getMobileSiteInfo();
-        //然后获取 TDK 等数据  首先到数据库
-        list($title, $keyword, $description) = Commontool::getMenuPageTDK($keyword_info, 'contact', $siteinfo['id'], $siteinfo['node_id'], '联系我们');
 
-        //获取栏目页面的TDK 返回值的话如果是空的  说明关键词有问题
-        //var_dump();
 
-        //
-
-        //页面中还需要填写隐藏的 表单 node_id site_id
-        $content = (new View())->fetch('template/index.html');
-        echo $content;
-        file_put_contents('a.html', $content);
     }
 
 
