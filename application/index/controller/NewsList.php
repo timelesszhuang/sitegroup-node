@@ -30,6 +30,7 @@ class NewsList extends Common
         if(empty(strstr($siteinfo["menu"],",".$id.","))){
             exit("当前网站无此栏目");
         }
+
         $menu_info = \app\index\model\Menu::get($id);
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,
