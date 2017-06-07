@@ -32,7 +32,6 @@ class Site extends Common
     {
         //首先获取当前的节点id
         $site_type = Db::name('site_type')->where('id', $site_type_id)->find();
-//        print_r($site_type);
         $chain_type = $site_type['chain_type'];
         //10表示循环链轮 20 表示 金字塔型链轮
         //获取主节点////////////////////////////////////////////
@@ -59,7 +58,6 @@ class Site extends Common
         $next_site = [];
         if ($chain_type == '10' && Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->count() > 2) {
             //如果该分类下的非主节点的数量小于 3个 则 不需要互相链接  否则形成的 互链 bug，容易被搜索引擎 K掉
-            $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10', 'id' => ['gt', $site_id]])->field('id,site_name,domain,url')->find();
             //链轮的时候为 id 小的 链接到id 大的，然后最终 id 最大的连接到 最小的id
             $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10', 'id' => ['gt', $site_id]])->field('id,site_name,domain,url')->find();
             if ($chain_site) {

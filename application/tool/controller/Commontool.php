@@ -89,7 +89,8 @@ class Commontool extends Common
         $description = '';
         $page_id = 'index';
         $page_name = '首页';
-        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id);
+        $page_type = 'index';
+        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             //tdk 是空的 需要 重新 从关键词中获取
             //首页的title ： A类关键词1_A类关键词2_A类关键词3-公司名
@@ -102,14 +103,15 @@ class Commontool extends Common
 
             Db::name('SitePageinfo')->insert([
                 'menu_id' => 0,
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'page_type' => $page_type,
                 'node_id' => $node_id,
                 'page_id' => $page_id,
                 'page_name' => $page_name,
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
-                'site_id' => $site_id,
-                'site_name' => $site_name,
                 'akeyword_id' => '',
                 'create_time' => time(),
                 'update_time' => time()
@@ -130,7 +132,8 @@ class Commontool extends Common
      */
     public static function getMenuPageTDK($keyword_info, $page_id, $page_name, $site_id, $site_name, $node_id, $menu_id, $menu_name)
     {
-        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id);
+        $page_type = 'menu';
+        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             // 栏目页面的 TDK 获取 A类关键词随机选择
             //栏目页的 title：B类关键词多个_A类关键词1-栏目名
@@ -154,6 +157,58 @@ class Commontool extends Common
                 'menu_id' => $menu_id,
                 'site_id' => $site_id,
                 'site_name' => $site_name,
+                'page_type' => $page_type,
+                'node_id' => $node_id,
+                'page_id' => $page_id,
+                'page_name' => $page_name,
+                'title' => $title,
+                'keyword' => $keyword,
+                'description' => $description,
+                'akeyword_id' => $a_keyword_id,
+                'create_time' => time(),
+                'update_time' => time()
+            ]);
+        }
+        return [$title, $keyword, $description];
+    }
+
+
+    /**
+     * 获取配置文件中的栏目页面的 tdk 相关数据
+     * @param $keyword_info 关键词相关
+     * @param $page_id 页面的id  比如 contactme
+     * @param $site_id 站点的id
+     * @param $node_id 节点的id
+     * @param $menu_name 栏目名
+     * @return array
+     */
+    public static function getEnvMenuPageTDK($keyword_info, $page_id, $page_name, $site_id, $site_name, $node_id, $menu_name)
+    {
+        $page_type = 'envmenu';
+        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        if (empty($title)) {
+            // 栏目页面的 TDK 获取 A类关键词随机选择
+            //栏目页的 title：B类关键词多个_A类关键词1-栏目名
+            //        keyword：B类关键词多个,A类关键词
+            //        description:拼接一段就可以栏目名
+            $a_keyword_key = array_rand($keyword_info, 1);
+            $a_child_info = $keyword_info[$a_keyword_key];
+            $a_name = $a_child_info['name'];
+            $a_keyword_id = $a_child_info['id'];
+            if (!array_key_exists('children', $a_child_info)) {
+                return ['', '', ''];
+            }
+            $b_keyword_info = $a_child_info['children'];
+            $b_keywordname_arr = array_column($b_keyword_info, 'name');
+            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
+            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
+            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
+            //选择好了 之后需要添加到数据库中 一定是新增
+            Db::name('SitePageinfo')->insert([
+                'menu_id' => 0,
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'page_type' => $page_type,
                 'node_id' => $node_id,
                 'page_id' => $page_id,
                 'page_name' => $page_name,
@@ -209,9 +264,7 @@ class Commontool extends Common
                 $c_keyword_arr[] = $c_child_info[$v];
             }
         }
-//        print_r($c_keyword_arr);
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
-//        print_r($c_keywordname_arr);
         $title = implode('-', $c_keywordname_arr) . $articletitle;
         $keyword = implode(',', $c_keywordname_arr);
         $description = $articlecontent;
@@ -223,10 +276,10 @@ class Commontool extends Common
      * 从数据库中获取页面的相关信息
      * @access public
      */
-    public static function getDbPageTDK($page_id, $node_id, $site_id)
+    public static function getDbPageTDK($page_id, $node_id, $site_id, $page_type)
     {
         $title = '';
-        $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id])->field('title,keyword,description')->find();
+        $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('title,keyword,description')->find();
         if ($page_info) {
             return [$page_info['title'], $page_info['keyword'], $page_info['description']];
         }
@@ -295,6 +348,47 @@ class Commontool extends Common
 
 
     /**
+     * 获取页面中 需要的文章列表 内容列表 问答列表
+     * @access public
+     */
+    public static function getDbArticleListId($menu_ids, $site_id, $tag, $page_id)
+    {
+        if ($tag != 'detail') {
+            //数据库中取出数据
+            $list = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->field('articletype_id,questiontype_id,scatteredarticletype_id')->find();
+            if ($list) {
+                return array_values($list);
+            }
+        }
+        //获取页面中  会用到的 文章列表 问题列表 零散段落列表
+        //配置的菜单信息  用于获取 文章的列表
+        $type_id_arr = Menu::getTypeIdInfo($menu_ids);
+        //获取十条　文章　问答　断句
+        if (array_key_exists('article', $type_id_arr)) {
+            $key = array_rand($type_id_arr['article']);
+            $article_id = $type_id_arr['article'][$key]['id'];
+        }
+        if (array_key_exists('question', $type_id_arr)) {
+            $key = array_rand($type_id_arr['question']);
+            $questiontype_id = $type_id_arr['question'][$key]['id'];
+        }
+        if (array_key_exists('scatteredarticle', $type_id_arr)) {
+            $key = array_rand($type_id_arr['scatteredarticle']);
+            $scatteredarticletype_id = $type_id_arr['scatteredarticle'][$key]['id'];
+        }
+        if ($tag != 'detail') {
+            //把获取到的数据存储到数据库中
+            Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->save([
+                'articletype_id' => $article_id,
+                'questiontype_id' => $questiontype_id,
+                'scatteredarticletype_id' => $scatteredarticletype_id
+            ]);
+        }
+        return [$article_id, $questiontype_id, $scatteredarticletype_id];
+    }
+
+
+    /**
      * 获取 页面中必须的元素
      *
      * @param string $tag index 或者 menu detail
@@ -306,7 +400,6 @@ class Commontool extends Common
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
-        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -317,6 +410,7 @@ class Commontool extends Common
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
         switch ($tag) {
             case 'index':
+                $page_id = 'index';
                 //然后获取 TDK 等数据  首先到数据库
                 list($title, $keyword, $description) = self::getIndexPageTDK($keyword_info, $site_id, $site_name, $node_id, $siteinfo['com_name']);
                 break;
@@ -334,29 +428,23 @@ class Commontool extends Common
                 $a_keyword_id = $param3;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $a_keyword_id);
                 break;
+            case 'envmenu':
+                //.env 文件中的配置菜单信息
+                $page_id = $param;
+                $menu_name = $param2;
+                list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
+                break;
         }
+
+
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
-        $type_id_arr = Menu::getTypeIdInfo($siteinfo['menu']);
-        //获取十条　文章　问答　断句
-        $article_list = [];
-        if (array_key_exists('article', $type_id_arr)) {
-            $key = array_rand($type_id_arr['article']);
-            $article_id = $type_id_arr['article'][$key]['id'];
-            $article_list = self::getArticleList($article_id, $site_id);
-        }
-        $question_list = [];
-        if (array_key_exists('question', $type_id_arr)) {
-            $key = array_rand($type_id_arr['question']);
-            $question_id = $type_id_arr['question'][$key]['id'];
-            $question_list = self::getQuestionList($question_id, $site_id);
-        }
-        $scatteredarticle_list = [];
-        if (array_key_exists('scatteredarticle', $type_id_arr)) {
-            $key = array_rand($type_id_arr['scatteredarticle']);
-            $scatteredarticle_id = $type_id_arr['scatteredarticle'][$key]['id'];
-            $scatteredarticle_list = self::getScatteredArticleList($scatteredarticle_id, $site_id);
-        }
+        list($article_id, $question_id, $scatteredarticle_id) = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
+        $article_list = self::getArticleList($article_id, $site_id);
+        $question_list = self::getQuestionList($question_id, $site_id);
+        $scatteredarticle_list = self::getScatteredArticleList($scatteredarticle_id, $site_id);
+
+
         //获取友链
         $partnersite = self::getPatternLink($siteinfo['link_id']);
         //链轮的类型
