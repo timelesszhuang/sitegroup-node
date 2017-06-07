@@ -21,6 +21,7 @@ class ArticleList extends Common
      */
     public function index($id)
     {
+
         $menu_info=\app\index\model\Menu::get($id);
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,
