@@ -26,20 +26,27 @@ class Detailstatic extends Common
         $node_id = $siteinfo['node_id'];
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
         //获取 site页面 中 menu 指向的 a_keyword_id
+        // 从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
         foreach ($menu_typeid_arr as $detail_key => $v) {
             foreach ($v as $type) {
+                if (!array_key_exists($type['menu_id'], $menu_akeyword_id_arr)) {
+                    //请求一下 该位置 可以把该菜单的 TDK 还有 相关 a_keyword_id  等信息存储到数据库中
+                    Menustatic::menuIndex($type['menu_id']);
+                    $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
+                }
+                $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
                     case'article':
                         $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
                         break;
-//                    case'question':
-//                        $this->questionstatic($type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
-//                        break;
-//                    case'scatteredarticle':
-//                        $this->scatteredarticlestatic($site_id, $site_name, $node_id,$type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
-//                        break;
+                    case'question':
+                        $this->questionstatic($type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
+                        break;
+                    case'scatteredarticle':
+                        $this->scatteredarticlestatic($site_id, $site_name, $node_id,$type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
+
                 }
             }
         }
@@ -170,6 +177,8 @@ class Detailstatic extends Common
             ]
         );
         file_put_contents('index.html', $content);
+
+
     }
 
     public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
