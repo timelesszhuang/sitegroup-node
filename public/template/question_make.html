@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$d["title"]}</title>
+    <meta name="keyword" content='{$d["keyword"]}'>
+
+    <meta name="description" content='{$d["description"]}'>
+</head>
+<body>
+<p>
+    问题:  {$question["question"]}
+</p>
+
+<p>
+    分类:
+</p>
+<p>
+    阅读量:
+</p>
+<p>
+    内容: {$article["content_paragraph"]}
+</p>
+<p>
+    上一篇: <a><?php if(isset($pre_article->title)){
+        echo $pre_article["question"];
+            }
+      ?>
+</a>
+</p>
+<p>
+    下一篇: <a><?php if(isset($next_article["title"])){
+      echo $next_article["question"];
+        }
+        ?>
+   </a>
+</p>
+</body>
+</html>
