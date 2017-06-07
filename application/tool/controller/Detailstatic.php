@@ -189,8 +189,8 @@ class Detailstatic extends Common
                 [
                     'd' => $assign_data,
                     'scatteredarticle' => $item,
-                    'pre_scatteredarticle' => $pre_article,
-                    'next_scatteredarticle' => $next_article
+                    'pre_article' => $pre_article,
+                    'next_article' => $next_article
                 ]
             );
             $make_web = file_put_contents('newslist/newslist' . $item["id"] . '.html', $content);
