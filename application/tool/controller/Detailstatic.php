@@ -22,7 +22,6 @@ class Detailstatic extends Common
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
-        $menu_ids = $siteinfo['menu'];
         //获取 site页面 中 menu 指向的 a_keyword_id
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
@@ -54,7 +53,6 @@ class Detailstatic extends Common
      */
     public function articlestatic($type_id, $a_keyword_id)
     {
-
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
 
