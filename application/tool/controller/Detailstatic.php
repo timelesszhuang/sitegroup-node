@@ -17,7 +17,10 @@ use think\View;
 class Detailstatic extends Common
 {
 
-    //首先第一次入口
+    /**
+     * 首先第一次入口
+     * @access public
+     */
     public function index()
     {
         $siteinfo = Site::getSiteInfo();
@@ -28,6 +31,7 @@ class Detailstatic extends Common
         //获取 site页面 中 menu 指向的 a_keyword_id
         // 从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
+
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
         foreach ($menu_typeid_arr as $detail_key => $v) {
             foreach ($v as $type) {
@@ -45,8 +49,7 @@ class Detailstatic extends Common
                         $this->questionstatic($type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
                         break;
                     case'scatteredarticle':
-                        $this->scatteredarticlestatic($site_id, $site_name, $node_id,$type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
-
+                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
                 }
             }
         }
@@ -109,11 +112,11 @@ class Detailstatic extends Common
                 $articleCountModel = ArticleSyncCount::where($where)->find();
                 if (is_null($articleCountModel)) {
                     $article_temp->count = $item->id;
-                    $article_temp->type_id =$type_id;
+                    $article_temp->type_id = $type_id;
                     $article_temp->type_name = $type_name;
                     $article_temp->node_id = $node_id;
                     $article_temp->site_id = $site_id;
-                    $article_temp->site_name=$site_name;
+                    $article_temp->site_name = $site_name;
                     $article_temp->save();
                 } else {
                     $articleCountModel->count = $item->id;
@@ -230,11 +233,11 @@ class Detailstatic extends Common
                 $articleCountModel = ArticleSyncCount::where($where)->find();
                 if (is_null($articleCountModel)) {
                     $article_temp->count = $item->id;
-                    $article_temp->type_id =$type_id;
+                    $article_temp->type_id = $type_id;
                     $article_temp->type_name = $type_name;
                     $article_temp->node_id = $node_id;
                     $article_temp->site_id = $site_id;
-                    $article_temp->site_name=$site_name;
+                    $article_temp->site_name = $site_name;
                     $article_temp->save();
                 } else {
                     $articleCountModel->count = $item->id;
