@@ -44,13 +44,12 @@ class Detailstatic extends Common
                 }
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
-                    case'article':
-                        $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-                        break;
-                    case'question':
-                        $this->questionstatic($site_id, $site_name, $node_id,$type['id'], $a_keyword_id);
-                        break;
-
+//                    case'article':
+//                        $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+//                        break;
+//                    case'question':
+//                        $this->questionstatic($site_id, $site_name, $node_id,$type['id'], $a_keyword_id);
+//                        break;
                     case'scatteredarticle':
                         $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
                         break;
@@ -159,50 +158,49 @@ class Detailstatic extends Common
         }
         $scatTitleArray = (new ScatteredTitle())->where(["articletype_id" => $type_id])->select();
         foreach ($scatTitleArray as $item) {
-            $scatArticleArray = ScatteredArticle::where(["id" => ["in", $item->article_ids]])->select();
-//            $temp_content = $scatArticleArray->content_paragraph;
-            foreach ($scatArticleArray as $value) {
-                $content = $item["title"] . "</br>" . $value['content_paragraph'];
-                $temp_content = mb_substr(strip_tags($content), 0, 200);
-                list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $before_head,
-                    $after_head, $chain_type, $next_site,
-                    $main_site, $partnersite, $commonjscode,
-                    $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+            $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
+            $item['content'] = implode('<br/>', $scatArticleArray);
+            $temp_content = mb_substr(strip_tags($item['content']), 0, 200);
+            list($com_name, $title, $keyword, $description,
+                $m_url, $redirect_code, $menu, $before_head,
+                $after_head, $chain_type, $next_site,
+                $main_site, $partnersite, $commonjscode,
+                $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
+            $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
 //                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-                //页面中还需要填写隐藏的 表单 node_id site_id
-                //获取上一篇和下一篇
-                $pre_article = \app\index\model\ScatteredArticle::where(["id" => ["lt", $value["id"]]])->find();
-                $next_article = \app\index\model\ScatteredArticle::where(["id" => ["gt", $value["id"]]])->find();
-                $content = (new View())->fetch('template/newslist.html',
-                    [
-                        'd' => $assign_data,
-                        'article' => $value,
-                        'pre_article' => $pre_article,
-                        'next_article' => $next_article
-                    ]
-                );
-                $make_web = file_put_contents('newslist/newslist' . $value["id"] . '.html', $content);
-                //开始同步数据库
-                if ($make_web) {
-                    $articleCountModel = ArticleSyncCount::where($where)->find();
-                    if (is_null($articleCountModel)) {
-                        $article_temp->count = $value->id;
-                        $article_temp->articletype_id = $type_id;
-                        $article_temp->articletype_name = $type_name;
-                        $article_temp->node_id = $node_id;
-                        $article_temp->site_id = $site_id;
-                        $article_temp->site_name = $site_name;
-                        $article_temp->save();
-                    } else {
-                        $articleCountModel->count = $value->id;
-                        $articleCountModel->save();
-                    }
+            //页面中还需要填写隐藏的 表单 node_id site_id
+            //获取上一篇和下一篇
+            $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]]])->find();
+
+            $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]]])->find();
+
+            $content = (new View())->fetch('template/newslist.html',
+                [
+                    'd' => $assign_data,
+                    'scatteredarticle' => $item,
+                    'pre_scatteredarticle' => $pre_article,
+                    'next_scatteredarticle' => $next_article
+                ]
+            );
+            $make_web = file_put_contents('newslist/newslist' . $item["id"] . '.html', $content);
+            //开始同步数据库
+           if ($make_web) {
+                $articleCountModel = ArticleSyncCount::where($where)->find();
+                if (is_null($articleCountModel)) {
+                    $article_temp->count = $item->id;
+                    $article_temp->type_id = $type_id;
+                    $article_temp->type_name = $type_name;
+                    $article_temp->node_id = $node_id;
+                    $article_temp->site_id = $site_id;
+                    $article_temp->site_name = $site_name;
+                    $article_temp->save();
+                } else {
+                    $articleCountModel->count = $item->id;
+                    $articleCountModel->save();
                 }
-
-
             }
+
+
         }
 
 
