@@ -423,6 +423,7 @@ class Commontool extends Common
                 break;
             case 'detail':
                 //详情页面
+                $page_id = '';
                 $articletitle = $param;
                 $articlecontent = $param2;
                 $a_keyword_id = $param3;
