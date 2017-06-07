@@ -20,8 +20,11 @@ class NewsList extends Common
     public function index($id)
     {
         $siteinfo = Site::getSiteInfo();
-        if(empty($siteinfo['menu'])){
+        if(empty($siteinfo["menu"])){
             exit("当前栏目为空");
+        }
+        if(empty(strstr($siteinfo["menu"],",".$id.","))){
+            exit("当前网站无此栏目");
         }
 
         $menu_info = \app\index\model\Menu::get($id);
