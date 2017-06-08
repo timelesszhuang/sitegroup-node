@@ -8,18 +8,34 @@
     <meta name="description" content='{$d["description"]}'>
 </head>
 <body>
-<table border="1">
-    <tr>
-        <td>title</td>
-    </tr>
-    <?php foreach($d["article"] as $item):?>
-    <tr>
-        <td><a href="aaa">{$item["title"]}</a></td>
-    </tr>
-    <?php endforeach;?>
-</table>
 <p>
-    {$d["article"]->render()}
+    标题:  {$article["title"]}
+</p>
+<p>
+    作者: {$article["auther"]}
+</p>
+<p>
+    分类: {$article["articletype_name"]}
+</p>
+<p>
+    阅读量: {$article["readcount"]}
+</p>
+<p>
+    内容: {$article["content"]}
+</p>
+<p>
+    上一篇: <a><?php if(isset($pre_article->title)){
+        echo $pre_article["title"];
+            }
+      ?>
+</a>
+</p>
+<p>
+    下一篇: <a><?php if(isset($next_article["title"])){
+      echo $next_article["title"];
+        }
+        ?>
+   </a>
 </p>
 </body>
 </html>

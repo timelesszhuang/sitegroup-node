@@ -8,19 +8,32 @@
     <meta name="description" content='{$d["description"]}'>
 </head>
 <body>
-    <table border="1">
-        <tr>
-            <td>question</td>
-            <td>content</td>
-        </tr>
-        <?php foreach($d["question"] as $item):?>
-        <tr>
-            <td><a href="aaa">{$item["question"]}</a></td>
-        </tr>
-        <?php endforeach;?>
-    </table>
-    <p>
-        {$d["question"]->render()}
-    </p>
+<p>
+    问题:  {$question["question"]}
+</p>
+
+<p>
+    分类:
+</p>
+<p>
+    阅读量:
+</p>
+<p>
+    内容: {$question["content_paragraph"]}
+</p>
+<p>
+    上一篇: <a><?php if(isset($pre_question->question)){
+        echo $pre_question["question"];
+            }
+      ?>
+</a>
+</p>
+<p>
+    下一篇: <a><?php if(isset($next_question["question"])){
+      echo $next_question["question"];
+        }
+        ?>
+   </a>
+</p>
 </body>
 </html>
