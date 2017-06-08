@@ -41,6 +41,7 @@ class NewsList extends Common
 //        file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
 //        return view('template/question.html',$assign_data);
+
         return  (new View())->fetch('template/newslist.html',
             [
                 'd' => $assign_data

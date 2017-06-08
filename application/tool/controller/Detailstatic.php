@@ -171,6 +171,9 @@ class Detailstatic extends Common
      * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
+     * @param $site_id 站点id
+     * @param $site_name 站点name
+     * @param $node_id 节点id
      */
     public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
     {
@@ -221,7 +224,7 @@ class Detailstatic extends Common
                     ]
                 );
 
-                $make_web = file_put_contents('news/newslist' . $item["id"] . '.html', $content);
+                $make_web = file_put_contents('news/news' . $item["id"] . '.html', $content);
                 //开始同步数据库
                 if ($make_web) {
                     $articleCountModel = ArticleSyncCount::where($where)->find();
