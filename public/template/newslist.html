@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!--<?php echo $scatteredarticle["title"]?>-->
     <title>{$d["title"]}</title>
     <meta name="keyword" content='{$d["keyword"]}'>
 
@@ -13,30 +12,14 @@
     <tr>
         <td>title</td>
     </tr>
+    <?php foreach($d["article"] as $item):?>
     <tr>
-        <td><a href="aaa">{$scatteredarticle["title"]}</a></td>
+        <td><a href="aaa">{$item["title"]}</a></td>
     </tr>
+    <?php endforeach;?>
 </table>
 <p>
-    描述:  {$scatteredarticle["articletype_name"]}
-</p>
-
-
-<p>
-    上一篇: <a><?php if(isset($pre_article->title)){
-    echo $pre_article["title"];
-    }
-    ?>
-</a>
-</a>
-</p>
-<p>
-    下一篇: <a ><?php if(isset($next_article["title"])){
-      echo $next_article["title"];
-        }
-        ?>
-</a>
-</a>
+    {$d["article"]->render()}
 </p>
 </body>
 </html>
