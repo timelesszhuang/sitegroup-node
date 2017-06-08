@@ -48,12 +48,12 @@ class Detailstatic extends Common
                     case'article':
                         $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
-//                    case'question':
-//                        $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-//                        break;
-//                    case'scatteredarticle':
-//                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
-//                        break;
+                    case'question':
+                        $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        break;
+                    case'scatteredarticle':
+                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
+                        break;
 
                 }
             }
@@ -332,8 +332,8 @@ class Detailstatic extends Common
 //                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
-                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id]])->find();
-                $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id]])->find();
+                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id],"node_id"=>$node_id,"type_id"=>$type_id])->find();
+                $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id],"node_id"=>$node_id,"type_id"=>$type_id])->find();
                 $content = (new View())->fetch('template/question_make.html',
                     [
                         'd' => $assign_data,
