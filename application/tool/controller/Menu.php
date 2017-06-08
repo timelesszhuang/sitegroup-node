@@ -46,6 +46,24 @@ class Menu extends Common
         return $menu;
     }
 
+    /**
+     * 获取详情型 的 菜单信息
+     * @access public
+     */
+    public static function getDetailMenuInfo($menu_ids, $site_id, $site_name, $node_id)
+    {
+        //获取菜单信息
+        $menu = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
+        $detail_menu = [];
+        foreach ($menu as $k => $v) {
+            //需要获取详情型的页面
+            if ($v['flag'] == 1) {
+                $detail_menu[] = $v;
+            }
+        }
+        return $detail_menu;
+    }
+
 
     /**
      * 获取 env 配置中的菜单信息

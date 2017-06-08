@@ -31,3 +31,5 @@ Route::get('questionlist/:id', 'index/QuestionList/index',['ext' => 'html']);
 Route::get('articlelist/:id', 'index/ArticleList/index',['ext' => 'html']);
 
 Route::get('generateStatic','tool/Detailstatic/index');
+
+Route::get('aaa/:t1/:t2','tool/Detailstatic/testClosure');
