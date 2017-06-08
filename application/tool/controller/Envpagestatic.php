@@ -12,13 +12,16 @@ use think\View;
  */
 class Envpagestatic extends Common
 {
+    use FileExistsTraits;
 
     /**
-     * 首恶静态化
+     * 配置文件配置页面静态化
      * @access public
      */
     public function index()
     {
+        //判断模板是否存在
+
         $env_info = Menu::getEnvMenuInfo();
         foreach ($env_info as $v) {
             list($com_name, $title, $keyword, $description,
@@ -31,7 +34,10 @@ class Envpagestatic extends Common
             //还需要 存储在数据库中 相关数据
             //页面中还需要填写隐藏的 表单 node_id site_id
 
-            //其实还应该判断下是不是有 模板文件
+            //判断下是不是有 模板文件
+            if(!$this->fileExits('template/{$v["generate_name"]}.html')){
+                return;
+            }
             $content = (new View())->fetch("template/{$v['generate_name']}.html",
                 [
                     'd' => $assign_data

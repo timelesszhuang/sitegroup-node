@@ -6,6 +6,7 @@ use app\common\controller\Common;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use think\View;
+use app\tool\controller\FileExistsTraits;
 
 /**
  * 文章列表零散段落相关操作 列表伪静态
@@ -13,12 +14,17 @@ use think\View;
  */
 class NewsList extends Common
 {
+    use FileExistsTraits;
     /**
      * 首页列表
      * @access public
      */
     public function index($id)
     {
+        //判断模板是否存在
+        if(!$this->fileExits('template/newslist.html')){
+            return;
+        }
         $siteinfo = Site::getSiteInfo();
         if(empty($siteinfo["menu"])){
             exit("当前栏目为空");

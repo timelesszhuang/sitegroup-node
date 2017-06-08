@@ -11,6 +11,7 @@ use think\View;
  */
 class Detailmenupagestatic extends Common
 {
+    use FileExistsTraits;
     /**
      * 首页静态化
      * @access public
@@ -33,6 +34,10 @@ class Detailmenupagestatic extends Common
             file_put_contents('log/detailmenu.txt', $this->separator . date('Y-m-d H:i:s') . 'env中菜单名' . $v['name'] . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //还需要 存储在数据库中 相关数据
             //页面中还需要填写隐藏的 表单 node_id site_id
+            //判断下是不是有 模板文件
+            if(!$this->fileExits('template/{$v["generate_name"]}.html')){
+                return;
+            }
             $content = (new View())->fetch("template/{$v['generate_name']}.html",
                 [
                     'd' => $assign_data
