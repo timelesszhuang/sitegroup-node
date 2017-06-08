@@ -182,6 +182,10 @@ class Detailstatic extends Common
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
+        //判断模板是否存在
+        if(!$this->fileExits('template/news.html')){
+            return;
+        }
         $type_name = "scatteredarticle";
         $where = [
             'type_id' => $type_id,
@@ -218,7 +222,7 @@ class Detailstatic extends Common
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]],"node_id"=>$node_id,"articletype_id"=>$type_id])->find();
                 $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]],"node_id"=>$node_id,"articletype_id"=>$type_id])->find();
-                $content = (new View())->fetch('template/newslist.html',
+                $content = (new View())->fetch('template/news.html',
                     [
                         'd' => $assign_data,
                         'scatteredarticle' => $item,
