@@ -43,7 +43,7 @@ class EnvMenu extends Common
                     //菜单相关设置
                     list($menu_name, $name, $title) = array_filter(explode('|', $buffer));
                     $menu_info[] = [
-                        'genarate_name' => $menu_name,
+                        'generate_name' => $menu_name,
                         'title' => $title,
                         'name' => $name,
                     ];

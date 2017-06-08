@@ -75,6 +75,7 @@ class Site extends Common
         return [$chain_type, $next_site, $main_site];
     }
 
+
     /**
      * 获取站点相关配置信息
      * @access public

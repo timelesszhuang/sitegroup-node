@@ -355,7 +355,7 @@ class Commontool extends Common
         if ($tag != 'detail') {
             //数据库中取出数据
             $list = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->field('articletype_id,questiontype_id,scatteredarticletype_id')->find();
-            if ($list) {
+            if ($list['articletype_id']) {
                 return array_values($list);
             }
         }
@@ -377,7 +377,7 @@ class Commontool extends Common
         }
         if ($tag != 'detail') {
             //把获取到的数据存储到数据库中
-            Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->save([
+            Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->update([
                 'articletype_id' => $article_id,
                 'questiontype_id' => $questiontype_id,
                 'scatteredarticletype_id' => $scatteredarticletype_id
@@ -393,6 +393,7 @@ class Commontool extends Common
      * @param string $tag index 或者 menu detail
      * @param string $param 如果是  index  第二第三个参数没用
      *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id
+     *                              envmenu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name
      *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容   $param3 是 a_keyword_id
      * @param string $param2
      * @return array
@@ -427,7 +428,7 @@ class Commontool extends Common
                 $articlecontent = $param2;
                 $a_keyword_id = $param3;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $a_keyword_id);
-                //需要考虑到一个问题  如果前台取消了选择的关键词的话  a_keyword_id
+                //需要考虑到一个问题  如果前台取消了选择的关键词的话  a_keyword_id 取出对应的关键词会取不到
                 if (!$title) {
                     $a_keyword_key = array_rand($keyword_info, 1);
                     $new_a_keyword_id = $keyword_info[$a_keyword_key]['id'];
