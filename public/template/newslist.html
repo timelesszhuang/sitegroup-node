@@ -8,18 +8,16 @@
     <meta name="description" content='{$d["description"]}'>
 </head>
 <body>
-    <table border="1">
-        <tr>
-            <td>title</td>
-        </tr>
-        <?php foreach($d["newslist"] as $item):?>
-        <tr>
-            <td><a href="aaa">{$item["title"]}</a></td>
-        </tr>
-        <?php endforeach;?>
-    </table>
-    <p>
-        {$d["newslist"]->render()}
-    </p>
+<table border="1">
+    <tr>
+        <td>title</td>
+    </tr>
+    <tr>
+        <td><a href="aaa">{$scatteredarticle["title"]}</a></td>
+    </tr>
+</table>
+<p>
+    {$scatteredarticle["content"]}
+</p>
 </body>
 </html>
