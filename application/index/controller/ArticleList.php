@@ -8,19 +8,24 @@ use app\tool\controller\Menu;
 use app\tool\controller\Site;
 use app\common\controller\Common;
 use think\View;
-
+use app\tool\controller\FileExistsTraits;
 /**
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
  */
 class ArticleList extends Common
 {
+    use FileExistsTraits;
     /**
      * 首页列表
      * @access public
      */
     public function index($id)
     {
+        //判断模板是否存在
+        if(!$this->fileExits('template/articlelist.html')){
+            return;
+        }
         $siteinfo = Site::getSiteInfo();
         if(empty($siteinfo["menu"])){
             exit("当前栏目为空");
@@ -40,8 +45,7 @@ class ArticleList extends Common
         $assign_data = compact('article','com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'before_head', 'after_head', 'chain_type', 'next_site','main_site','common_site','partnersite','commonjscode','article_list','question_list','scatteredarticle_list');
 //        file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
-
-        return  (new View())->fetch('template/article.html',
+        return  (new View())->fetch('template/articlelist.html',
             [
                 'd' => $assign_data
             ]
