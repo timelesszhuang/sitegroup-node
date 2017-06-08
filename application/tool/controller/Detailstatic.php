@@ -58,6 +58,17 @@ class Detailstatic extends Common
         }
     }
 
+    public function get_site_info()
+    {
+        list($com_name, $title, $keyword, $description,
+            $m_url, $redirect_code, $menu, $before_head,
+            $after_head, $chain_type, $next_site,
+            $main_site, $partnersite, $commonjscode,
+            $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
+        $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+
+
+    }
 
     /**
      * 文章详情页面的静态化
@@ -66,7 +77,7 @@ class Detailstatic extends Common
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
+    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id,Closure )
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -82,7 +93,7 @@ class Detailstatic extends Common
         $articleCount = ArticleSyncCount::where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
+            $limit = $articleCount->count-1;
         } else {
             $article_temp = new ArticleSyncCount();
         }
@@ -91,17 +102,12 @@ class Detailstatic extends Common
         //需要循环的页数
         $step=ceil($count/$page);
         //当前的页数
-        $need_step=ceil($limit/$page);
+        $need_step=$limit;
         for($i=$need_step;$i<=$step;$i++){
             $article_data = \app\index\model\Article::where(["articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($i, $page)->select();
             foreach ($article_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content), 0, 200);
-                list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $before_head,
-                    $after_head, $chain_type, $next_site,
-                    $main_site, $partnersite, $commonjscode,
-                    $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+
 //                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
@@ -120,7 +126,7 @@ class Detailstatic extends Common
                 if ($make_web) {
                     $articleCountModel = ArticleSyncCount::where($where)->find();
                     if (is_null($articleCountModel)) {
-                        $article_temp->count = $item->id;
+                        $article_temp->count = $i;
                         $article_temp->type_id = $type_id;
                         $article_temp->type_name = $type_name;
                         $article_temp->node_id = $node_id;
@@ -128,7 +134,7 @@ class Detailstatic extends Common
                         $article_temp->site_name = $site_name;
                         $article_temp->save();
                     } else {
-                        $articleCountModel->count = $item->id;
+                        $articleCountModel->count = $i;
                         $articleCountModel->save();
                     }
                 }
@@ -162,7 +168,7 @@ class Detailstatic extends Common
         $articleCount = ArticleSyncCount::where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
+            $limit = $articleCount->count-1;
         } else {
             $article_temp = new ArticleSyncCount();
         }
@@ -239,9 +245,9 @@ class Detailstatic extends Common
         ];
         $limit = 0;
         $articleCount = ArticleSyncCount::where($where)->find();
-        //判断下是否有数据 没有就创建模型
+        //判断下是否有数据 没有就创建模型  需要减去1 因为要将以前最后一页重新生成
         if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
+            $limit = $articleCount->count-1;
         } else {
             $article_temp = new ArticleSyncCount();
         }
@@ -250,9 +256,9 @@ class Detailstatic extends Common
         //需要循环的页数
         $step=ceil($count/$page);
         //当前的页数
-        $need_step=ceil($limit/$page);
+        $need_step=$limit;
         for($i=$need_step;$i<=$step;$i++){
-            $question_data = \app\index\model\Question::where(["type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($i, $count)->select();
+            $question_data = \app\index\model\Question::where(["type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($i*$page, $count)->select();
             foreach ($question_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
                 list($com_name, $title, $keyword, $description,
@@ -279,7 +285,7 @@ class Detailstatic extends Common
                 if ($make_web) {
                     $articleCountModel = ArticleSyncCount::where($where)->find();
                     if (is_null($articleCountModel)) {
-                        $article_temp->count = $item->id;
+                        $article_temp->count = $i;
                         $article_temp->type_id = $type_id;
                         $article_temp->type_name = $type_name;
                         $article_temp->node_id = $node_id;
@@ -287,7 +293,7 @@ class Detailstatic extends Common
                         $article_temp->site_name = $site_name;
                         $article_temp->save();
                     } else {
-                        $articleCountModel->count = $item->id;
+                        $articleCountModel->count = $i;
                         $articleCountModel->save();
                     }
                 }
