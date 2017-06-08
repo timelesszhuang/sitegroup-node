@@ -147,8 +147,10 @@ class Detailstatic extends Common
 
         }
 
-
     }
+
+
+
 
     /**
      * 零散文章的静态化
@@ -158,7 +160,6 @@ class Detailstatic extends Common
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
     public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
-
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -188,7 +189,7 @@ class Detailstatic extends Common
                 $main_site, $partnersite, $commonjscode,
                 $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
             $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
-//                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+//          file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]]])->find();

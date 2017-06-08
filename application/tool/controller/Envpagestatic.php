@@ -21,11 +21,13 @@ class Envpagestatic extends Common
     {
         $env_info = Menu::getEnvMenuInfo();
         foreach ($env_info as $v) {
+            print_r($v);
             list($com_name, $title, $keyword, $description,
                 $m_url, $redirect_code, $menu, $before_head,
                 $after_head, $chain_type, $next_site,
                 $main_site, $partnersite, $commonjscode,
                 $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('envmenu', $v['genarate_name'], $v['name']);
+
             $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
 
             file_put_contents('log/index.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
@@ -39,7 +41,6 @@ class Envpagestatic extends Common
             );
             file_put_contents('index.html', $content);
         }
-
     }
 
 
