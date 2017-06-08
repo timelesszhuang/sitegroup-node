@@ -258,7 +258,6 @@ class Commontool extends Common
         $c_keyword_arr = [];
         if (array_key_exists('children', $b_child_info)) {
             $c_child_info = $b_child_info['children'];
-//            print_r($c_keyword_arr);
             $c_rand_key = array_rand($c_child_info, 3);
             foreach ($c_rand_key as $v) {
                 $c_keyword_arr[] = $c_child_info[$v];
@@ -428,6 +427,21 @@ class Commontool extends Common
                 $articlecontent = $param2;
                 $a_keyword_id = $param3;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $a_keyword_id);
+                //需要考虑到一个问题  如果前台取消了选择的关键词的话  a_keyword_id
+                if (!$title) {
+                    $a_keyword_key = array_rand($keyword_info, 1);
+                    $new_a_keyword_id = $keyword_info[$a_keyword_key]['id'];
+                    list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $new_a_keyword_id);
+                    //更新一下数据库中的页面的a类 关键词
+                    Db::name('SitePageinfo')->where([
+                        'site_id' => $site_id,
+                        'node_id' => $node_id,
+                        'akeyword_id' => $a_keyword_id,
+                    ])->update([
+                        'akeyword_id' => $new_a_keyword_id,
+                        'update_time' => time()
+                    ]);
+                }
                 break;
             case 'envmenu':
                 //.env 文件中的配置菜单信息
@@ -437,7 +451,6 @@ class Commontool extends Common
                 break;
         }
 
-
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         list($article_id, $question_id, $scatteredarticle_id) = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
@@ -445,9 +458,9 @@ class Commontool extends Common
         $question_list = self::getQuestionList($question_id, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($scatteredarticle_id, $site_id);
 
-
         //获取友链
         $partnersite = self::getPatternLink($siteinfo['link_id']);
+
         //链轮的类型
         $chain_type = '';
         //该站点需要链接到的站点
