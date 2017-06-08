@@ -15,7 +15,7 @@ trait FileExistsTraits{
      * @param $filename
      * @return bool
      */
-    public  function fileExits($filename)
+    public  function fileExists($filename)
     {
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];

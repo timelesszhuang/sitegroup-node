@@ -22,7 +22,7 @@ class NewsList extends Common
     public function index($id)
     {
         //判断模板是否存在
-        if(!$this->fileExits('template/newslist.html')){
+        if(!$this->fileExists('template/newslist.html')){
             return;
         }
         $siteinfo = Site::getSiteInfo();

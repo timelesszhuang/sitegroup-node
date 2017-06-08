@@ -24,7 +24,7 @@ class QuestionList extends Common
     public function index($id)
     {
         //判断模板是否存在
-        if(!$this->fileExits('template/questionlist.html')){
+        if(!$this->fileExists('template/questionlist.html')){
             return;
         }
         $siteinfo = Site::getSiteInfo();

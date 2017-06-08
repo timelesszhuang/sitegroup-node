@@ -23,7 +23,7 @@ class ArticleList extends Common
     public function index($id)
     {
         //判断模板是否存在
-        if(!$this->fileExits('template/articlelist.html')){
+        if(!$this->fileExists('template/articlelist.html')){
             return;
         }
         $siteinfo = Site::getSiteInfo();

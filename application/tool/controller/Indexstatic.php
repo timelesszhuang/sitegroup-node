@@ -19,7 +19,7 @@ class Indexstatic extends Common
     public function index()
     {
         //判断模板是否存在
-        if(!$this->fileExits('template/index.html')){
+        if(!$this->fileExists('template/index.html')){
             return;
         }
         //  获取首页生成需要的资源

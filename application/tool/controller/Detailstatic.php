@@ -98,7 +98,7 @@ class Detailstatic extends Common
     public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
     {
         //判断模板是否存在
-        if(!$this->fileExits('template/article.html')){
+        if(!$this->fileExists('template/article.html')){
             return;
         }
         $type_name = "article";
@@ -183,7 +183,7 @@ class Detailstatic extends Common
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
         //判断模板是否存在
-        if(!$this->fileExits('template/news.html')){
+        if(!$this->fileExists('template/news.html')){
             return;
         }
         $type_name = "scatteredarticle";
@@ -264,7 +264,7 @@ class Detailstatic extends Common
     public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
     {
         //判断模板是否存在
-        if(!$this->fileExits('template/question.html')){
+        if(!$this->fileExists('template/question.html')){
             return;
         }
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
