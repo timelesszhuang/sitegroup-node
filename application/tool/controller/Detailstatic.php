@@ -78,7 +78,7 @@ class Detailstatic extends Common
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id,Closure )
+    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
