@@ -39,7 +39,6 @@ class Envpagestatic extends Common
             );
             file_put_contents('index.html', $content);
         }
-
     }
 
 
