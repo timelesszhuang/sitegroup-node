@@ -11,7 +11,6 @@ use app\index\model\ScatteredTitle;
 use think\Cache;
 use think\Db;
 use think\View;
-
 use Closure;
 /**
  * 详情页静态化
@@ -19,7 +18,7 @@ use Closure;
  */
 class Detailstatic extends Common
 {
-
+    use FileExistsTraits;
     /**
      * 首先第一次入口
      * @access public
@@ -98,6 +97,10 @@ class Detailstatic extends Common
      */
     public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
     {
+        //判断模板是否存在
+        if(!$this->fileExits('template/article.html')){
+            return;
+        }
         $type_name = "article";
         $where = [
             'type_id' => $type_id,
@@ -127,12 +130,12 @@ class Detailstatic extends Common
                     $main_site, $partnersite, $commonjscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
                 $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
-//                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]],"node_id"=>$node_id,"articletype_id"=>$type_id])->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]],"node_id"=>$node_id,"articletype_id"=>$type_id])->find();
-                $content = (new View())->fetch('template/article_make.html',
+                $content = (new View())->fetch('template/article.html',
                     [
                         'd' => $assign_data,
                         'article' => $item,
@@ -297,6 +300,10 @@ class Detailstatic extends Common
      */
     public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
     {
+        //判断模板是否存在
+        if(!$this->fileExits('template/question.html')){
+            return;
+        }
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
         //当前分类名称
@@ -329,12 +336,12 @@ class Detailstatic extends Common
                     $main_site, $partnersite, $commonjscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
                 $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
-//                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
                 $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id],"node_id"=>$node_id,"type_id"=>$type_id])->find();
                 $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id],"node_id"=>$node_id,"type_id"=>$type_id])->find();
-                $content = (new View())->fetch('template/question_make.html',
+                $content = (new View())->fetch('template/question.html',
                     [
                         'd' => $assign_data,
                         'question' => $item,
