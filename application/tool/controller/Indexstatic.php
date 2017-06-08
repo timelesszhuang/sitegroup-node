@@ -5,20 +5,23 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use think\View;
 
-
 /**
  * 首页静态化
  * 执行首页静态化相关操作
  */
 class Indexstatic extends Common
 {
-
+    use FileExistsTraits;
     /**
      * 首恶静态化
      * @access public
      */
     public function index()
     {
+        //判断模板是否存在
+        if(!$this->fileExits('template/index.html')){
+            return;
+        }
         //  获取首页生成需要的资源
         //  关键词
         //  栏目url  展现以下已经在数据库
