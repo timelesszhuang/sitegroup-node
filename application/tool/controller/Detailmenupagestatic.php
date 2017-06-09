@@ -12,6 +12,7 @@ use think\View;
 class Detailmenupagestatic extends Common
 {
     use FileExistsTraits;
+
     /**
      * 首页静态化
      * @access public
@@ -24,7 +25,6 @@ class Detailmenupagestatic extends Common
         $node_id = $siteinfo['node_id'];
         $info = Menu::getDetailMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id);
         foreach ($info as $v) {
-            print_r($v);
             list($com_name, $title, $keyword, $description,
                 $m_url, $redirect_code, $menu, $before_head,
                 $after_head, $chain_type, $next_site,

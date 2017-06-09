@@ -1,0 +1,156 @@
+||||||||||||||||||||||||2017-06-05 18:28:15Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 企业邮_济南企业邮箱_网易邮箱-山东强比信息技术有限公司
+    [keyword] => 企业邮,济南企业邮箱,网易邮箱
+    [description] => 企业邮，济南企业邮箱，网易邮箱，山东强比信息技术有限公司
+    [m_url] => http://22
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://22';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [name] => 关于我们
+                    [title] => 关于我们
+                    [generate_name] => aboutus
+                    [flag] => 1
+                    [type_id] => 2
+                )
+
+            [1] => Array
+                (
+                    [name] => 购买须知
+                    [title] => 购买须知
+                    [generate_name] => buynotice
+                    [flag] => 1
+                    [type_id] => 0
+                )
+
+            [2] => Array
+                (
+                    [name] => 产品优势
+                    [title] => 我们的产品的优势
+                    [generate_name] => advantage
+                    [flag] => 2
+                    [type_id] => 1
+                )
+
+            [3] => Array
+                (
+                    [name] => 邮箱新闻
+                    [title] => 客户就是上帝1
+                    [generate_name] => article
+                    [flag] => 3
+                    [type_id] => 22
+                )
+
+            [4] => Array
+                (
+                    [name] => 免费试用
+                    [title] => 免费试用
+                    [generate_name] => detail
+                    [flag] => 1
+                    [type_id] => 0
+                )
+
+            [5] => Array
+                (
+                    [genarate_name] => menu
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [6] => Array
+                (
+                    [genarate_name] => demo
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [before_head] => <script>header之前</script> 
+    [after_head] => <script>header之后</script> 
+    [chain_type] => 10
+    [next_site] => Array
+        (
+            [id] => 6
+            [site_name] => 莱芜网易企业邮箱
+            [domain] => 163hm.com
+            [url] => http://163hm.com
+        )
+
+    [main_site] => Array
+        (
+            [id] => 11
+            [site_name] => 山东企业邮箱
+            [domain] => 163hm.com
+            [url] => http://163hm.com
+        )
+
+    [partnersite] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 2
+                    [name] => 济南网易2
+                    [domain] => wangyi2.com
+                )
+
+            [1] => Array
+                (
+                    [id] => 3
+                    [name] => 济南网易3
+                    [domain] => wangyi3.com
+                )
+
+            [2] => Array
+                (
+                    [id] => 4
+                    [name] => 济南网易4
+                    [domain] => wangyi4.com1
+                )
+
+        )
+
+    [commonjscode] => Array
+        (
+            [0] => Array
+                (
+                    [code] => <script type="text/javascript" src="http://commonjs.salesman.cc/common.js"></script>
+                )
+
+        )
+
+    [article_list] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 22
+                    [title] => 网易企业邮箱|春困打盹怎么办？速效解药一试就灵
+                )
+
+        )
+
+    [question_list] => Array
+        (
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||

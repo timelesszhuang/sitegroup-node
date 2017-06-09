@@ -23,13 +23,18 @@ Route::rule('pagestaticentry', 'tool/Pagestaticentry/index');
 //只有当后缀是 html 的元素的时候才会有
 //当请求文章列表 的时候 首先隐藏 index.php
 Route::get('newslist/:id', 'index/NewsList/index', ['ext' => 'html']);
-
 //当请求列表 的时候 首先隐藏 index.php
-Route::get('questionlist/:id', 'index/QuestionList/index',['ext' => 'html']);
-
+Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
 //当请求列表 的时候 首先隐藏 index.php
-Route::get('articlelist/:id', 'index/ArticleList/index',['ext' => 'html']);
+Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
+//首页静态化
+Route::get('indexstatic', 'tool/Indexstatic/index');
+//文章　问答　零散段落　静态化
+Route::get('articlestatic', 'tool/Detailstatic/index');
+//文章　问答　零散段落　静态化
+Route::get('menustatic', 'tool/Detailmenupagestatic/index');
+//文章　问答　零散段落　静态化
+Route::get('envmenustatic', 'tool/Envpagestatic/index');
 
-Route::get('generateStatic','tool/Detailstatic/index');
 
-Route::get('aaa/:t1/:t2','tool/Detailstatic/testClosure');
+//Route::get('aaa/:t1/:t2', 'tool/Detailstatic/testClosure');
