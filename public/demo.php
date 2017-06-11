@@ -6,7 +6,7 @@
  * Time: 下午2:26
  */
 
-
+ob_end_clean();
 ob_start();
 print_r(json_encode(['status' => "success", 'data' => '', 'msg' => "正在发送模板,请等待.."]));
 echo 'dsdsds';
