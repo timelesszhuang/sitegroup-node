@@ -52,7 +52,6 @@ class Detailstatic extends Common
                         break;
                     case'question':
                         $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-                        file_put_contents("222.txt",11);
                         break;
                     case'scatteredarticle':
                          $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
