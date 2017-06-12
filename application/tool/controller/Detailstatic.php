@@ -158,14 +158,12 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
-                }else{
-
+                } else {
+                    $this->make_error("article");
+                    eixt();
                 }
-
             }
-
         }
-
     }
 
 
@@ -330,6 +328,9 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
+                } else {
+                    $this->make_error("question");
+                    eixt();
                 }
             }
         }
