@@ -118,7 +118,6 @@ class Detailstatic extends Common
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        echo 333;die;
         for ($i = 0; $i <= $step; $i++) {
             $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($article_data as $item) {
@@ -142,6 +141,7 @@ class Detailstatic extends Common
                         'next_article' => $next_article
                     ]
                 );
+                echo 4444444;die;
                 $make_web = file_put_contents('article/article' . $item["id"] . '.html', $content);
                 //开始同步数据库
                 if ($make_web) {
