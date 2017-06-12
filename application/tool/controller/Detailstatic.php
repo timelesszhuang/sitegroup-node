@@ -27,6 +27,8 @@ class Detailstatic extends Common
      */
     public function index()
     {
+        set_time_limit(0);
+        ignore_user_abort();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
