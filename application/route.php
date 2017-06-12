@@ -35,6 +35,5 @@ Route::get('articlestatic', 'tool/Detailstatic/index');
 Route::get('menustatic', 'tool/Detailmenupagestatic/index');
 //文章　问答　零散段落　静态化
 Route::get('envmenustatic', 'tool/Envpagestatic/index');
-
-
-//Route::get('aaa/:t1/:t2', 'tool/Detailstatic/testClosure');
+//清除缓存
+Route::get('clearCache','tool/Commontool/clearCache');
