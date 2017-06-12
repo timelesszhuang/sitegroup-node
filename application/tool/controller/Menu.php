@@ -77,7 +77,6 @@ class Menu extends Common
 
     /**
      * 获取合并之后的菜单信息
-     *
      * @access public
      */
     public static function getMergedMenu($menu_ids, $site_id, $site_name, $node_id)
@@ -90,6 +89,32 @@ class Menu extends Common
             $merged_menu = array_merge($menu, $env_menu);
         } else {
             $merged_menu = $menu;
+        }
+        foreach ($merged_menu as $k => $v) {
+            if (array_key_exists('flag', $v)) {
+                //数据库中配置的菜单
+                if ($v['flag'] == 1) {
+                    $v['generate_name'] = $v['generate_name'] . '.html';
+                } else {
+                    $type = '';
+                    switch ($v['flag']) {
+                        case '2':
+                            $type = 'questionlist';
+                            break;
+                        case '3':
+                            $type = 'articlelist';
+                            break;
+                        case '4':
+                            $type = 'newslist';
+                            break;
+                    }
+                    $v['generate_name'] = $type . '/' . $v['id'] . '.html';
+                }
+            } else {
+                //env 中配置的菜单
+                $v['generate_name'] = $v['generate_name'] . '.html';
+            }
+            $merged_menu[$k] = $v;
         }
         return $merged_menu;
     }

@@ -25,7 +25,7 @@ class Common extends Controller
      */
     public function __construct()
     {
-        echo '<pre>';
+//        echo '<pre>';
         parent::__construct();
     }
 

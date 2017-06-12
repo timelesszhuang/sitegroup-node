@@ -31,6 +31,10 @@ class EnvMenu extends Common
      */
     public static function read($file_name)
     {
+        //首先判断下是不是文件存在
+        if (!file_exists($file_name)) {
+            return [];
+        }
         $fp = fopen($file_name, 'r');
         $i = 0;
         $menu_info = [];

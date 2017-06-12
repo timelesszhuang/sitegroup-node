@@ -22,6 +22,7 @@ Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
 //当请求列表 的时候 首先隐藏 index.php
 Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
 
+
 //全部页面静态化
 Route::get('allstatic', 'tool/Pagestaticentry/allstatic');
 //首页静态化
@@ -30,6 +31,5 @@ Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
 Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
 //文章页面静态化
 Route::get('artilestatic', 'tool/Pagestaticentry/articlestatic');
-
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
