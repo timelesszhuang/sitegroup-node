@@ -141,7 +141,6 @@ class Detailstatic extends Common
                         'next_article' => $next_article
                     ]
                 );
-                echo 4444444;die;
                 $make_web = file_put_contents('article/article' . $item["id"] . '.html', $content);
                 //开始同步数据库
                 if ($make_web) {
@@ -165,6 +164,7 @@ class Detailstatic extends Common
                 }
             }
         }
+        echo "die";die;
     }
 
 
