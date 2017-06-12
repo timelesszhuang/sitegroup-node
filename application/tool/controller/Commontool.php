@@ -296,12 +296,12 @@ class Commontool extends Common
     public static function getArticleList($type_id, $site_id, $limit = 10)
     {
         //  首先从数据库中获取 该站点已经静态化到的文章的 id 防止出现 404 问题
-        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
-        if ($static_id == 0) {
-            return [];
+        $static_id = self::getStaticRecordId($site_id, $type_id, 'article');
+        if ($static_id) {
+            $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
+            return $article;
         }
-        $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
-        return $article;
+        return [];
     }
 
 
@@ -312,12 +312,12 @@ class Commontool extends Common
     public static function getQuestionList($type_id, $site_id, $limit = 10)
     {
         //  首先从数据库中获取 该站点已经静态化到的问题的文章 id 防止出现 404 问题
-        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'question');
-        if ($static_id == 0) {
-            return [];
+        $static_id = self::getStaticRecordId($site_id, $type_id, 'question');
+        if ($static_id) {
+            $question = Db::name('Question')->where(['type_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,question')->order('id desc')->limit($limit)->select();
+            return $question;
         }
-        $question = Db::name('Question')->where(['type_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,question')->order('id desc')->limit($limit)->select();
-        return $question;
+        return [];
     }
 
 
@@ -328,12 +328,13 @@ class Commontool extends Common
     public static function getScatteredArticleList($type_id, $site_id, $limit = 10)
     {
         //  首先从数据库中获取 该站点已经静态化到的零散段落的 id 防止出现 404 问题
-        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'scatteredarticle');
-        if ($static_id == 0) {
-            return [];
+        $static_id = self::getStaticRecordId($site_id, $type_id, 'scatteredarticle');
+        if ($static_id) {
+            $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
+            return $article;
         }
-        $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
-        return $article;
+        return [];
+
     }
 
 
@@ -345,10 +346,10 @@ class Commontool extends Common
     {
         //获取下该目录已经静态化到的目录
         $count_arr = Db::name('ArticleSyncCount')->where(['site_id' => $site_id, 'type_id' => $type_id, 'type_name' => $type_name])->field('count')->find();
-        if ($count_arr) {
-            return $count_arr['count'];
+        if (empty($count_arr)) {
+            return 0;
         }
-        return 0;
+        return $count_arr['count'];
     }
 
 
@@ -485,6 +486,7 @@ class Commontool extends Common
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         list($article_id, $question_id, $scatteredarticle_id) = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
+
         $article_list = self::getArticleList($article_id, $site_id);
         $question_list = self::getQuestionList($question_id, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($scatteredarticle_id, $site_id);
