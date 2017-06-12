@@ -20,6 +20,7 @@ class Commontool extends Common
      */
     public function clearCache()
     {
+        file_put_contents("111.txt","dddd");
         if (Cache::clear()) {
             exit(['status' => 'success', 'msg' => '清除缓存成功。']);
         }
