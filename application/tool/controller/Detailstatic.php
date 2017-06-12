@@ -269,7 +269,6 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/question.html')) {
             return;
         }
-        file_put_contents("22.txt","111");
 
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -296,6 +295,8 @@ class Detailstatic extends Common
         for ($i = 0; $i <= $step; $i++) {
             $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($question_data as $item) {
+                file_put_contents("122.txt","111");die;
+
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
                 list($com_name, $title, $keyword, $description,
                     $m_url, $redirect_code, $menu, $before_head,
