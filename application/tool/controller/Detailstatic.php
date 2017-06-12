@@ -164,7 +164,6 @@ class Detailstatic extends Common
                 }
             }
         }
-        echo "die";die;
     }
 
 
