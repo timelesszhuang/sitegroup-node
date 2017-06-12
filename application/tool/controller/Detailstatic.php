@@ -48,12 +48,12 @@ class Detailstatic extends Common
                     case'article':
                         return $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
-//                    case'question':
-//                        return $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-//                        break;
-//                    case'scatteredarticle':
-//                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $menu_akeyword_id_arr[$type['menu_id']]);
-//                        break;
+                    case'question':
+                        return $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        break;
+                    case'scatteredarticle':
+                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        break;
                 }
             }
         }
@@ -247,7 +247,7 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
-                }else {
+                } else {
                     $this->make_error("news");
                     exit();
                 }
