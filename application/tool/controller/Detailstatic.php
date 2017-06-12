@@ -269,6 +269,8 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/question.html')) {
             return;
         }
+        file_put_contents("22.txt","111");
+
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
         //当前分类名称
