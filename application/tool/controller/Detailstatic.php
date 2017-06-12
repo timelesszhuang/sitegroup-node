@@ -315,6 +315,7 @@ class Detailstatic extends Common
                     ]
                 );
                 $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
+                file_put_contents("222.txt",$make_web);die;
                 //开始同步数据库
                 if ($make_web) {
                     $articleCountModel = ArticleSyncCount::where($where)->find();
