@@ -211,7 +211,7 @@ class Detailstatic extends Common
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        for ($i = 0; $i < $step; $i++) {
+        for ($i = 1; $i < $step; $i++) {
             $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($page)->select();
             foreach ($scatTitleArray as $item) {
                 $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
