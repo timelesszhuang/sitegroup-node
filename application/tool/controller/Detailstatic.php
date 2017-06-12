@@ -46,18 +46,17 @@ class Detailstatic extends Common
                     $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
                 }
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
-                file_put_contents("123.txt",$detail_key."\n",FILE_APPEND);
                 switch ($detail_key) {
                     case'article':
-                        file_put_contents("article.txt",111);
-                        return $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                         $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
                     case'question':
-                        return $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        file_put_contents("222.txt",11);
                         break;
-//                    case'scatteredarticle':
-//                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-//                        break;
+                    case'scatteredarticle':
+                         $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        break;
                 }
             }
         }
