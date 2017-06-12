@@ -48,6 +48,7 @@ class Detailstatic extends Common
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
                     case'article':
+                        file_put_contents("article.txt",111);
                         return $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
                     case'question':
