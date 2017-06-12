@@ -43,6 +43,7 @@ class Filemanage extends Common
     public function uploadFile()
     {
         ini_set('max_execution_time', '0');
+        set_time_limit(0);
         $this->checkOrigin();
         $type = request()->param('type');
         if ($type == 'template') {

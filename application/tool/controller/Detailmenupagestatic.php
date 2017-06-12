@@ -43,7 +43,11 @@ class Detailmenupagestatic extends Common
                     'd' => $assign_data
                 ]
             );
-            file_put_contents("{$v['genarate_name']}.html", $content);
+            if (file_put_contents("{$v['genarate_name']}.html", $content) === 'false') {
+                file_put_contents('log/detailmenu.txt', $this->separator . date('Y-m-d H:i:s') . '详情类型页面静态化写入失败。' . $this->separator, FILE_APPEND);
+                return false;
+            }
+            return true;
         }
     }
 

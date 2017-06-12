@@ -12,6 +12,7 @@ use think\View;
 class Indexstatic extends Common
 {
     use FileExistsTraits;
+
     /**
      * 首恶静态化
      * @access public
@@ -19,7 +20,7 @@ class Indexstatic extends Common
     public function index()
     {
         //判断模板是否存在
-        if(!$this->fileExists('template/index.html')){
+        if (!$this->fileExists('template/index.html')) {
             return;
         }
         //  获取首页生成需要的资源
@@ -41,7 +42,11 @@ class Indexstatic extends Common
                 'd' => $assign_data
             ]
         );
-        file_put_contents('index.html', $content);
+        if (file_put_contents('index.html', $content) === 'false') {
+            file_put_contents('log/index.txt', $this->separator . date('Y-m-d H:i:s') . '首页静态化写入失败。' . $this->separator, FILE_APPEND);
+            return false;
+        }
+        return true;
     }
 
 
