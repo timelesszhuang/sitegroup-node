@@ -36,7 +36,6 @@ class Detailstatic extends Common
         // 从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
-        echo 11111;die;
         foreach ($menu_typeid_arr as $detail_key => $v) {
             foreach ($v as $type) {
                 if (!array_key_exists($type['menu_id'], $menu_akeyword_id_arr)) {
@@ -47,6 +46,7 @@ class Detailstatic extends Common
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
                     case'article':
+                        echo 2222;die;
                         return $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
 //                    case'question':
