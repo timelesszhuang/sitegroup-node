@@ -46,7 +46,6 @@ class Detailstatic extends Common
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
                     case'article':
-                        echo 2222;die;
                         return $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
 //                    case'question':
@@ -119,6 +118,7 @@ class Detailstatic extends Common
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
+        echo 333;die;
         for ($i = 0; $i <= $step; $i++) {
             $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($article_data as $item) {
