@@ -35,7 +35,7 @@ class Envpagestatic extends Common
             //页面中还需要填写隐藏的 表单 node_id site_id
 
             //判断下是不是有 模板文件
-            if(!$this->fileExists('template/{$v["generate_name"]}.html')){
+            if(!$this->fileExists("template/{$v["generate_name"]}.html")){
                 return;
             }
             $content = (new View())->fetch("template/{$v['generate_name']}.html",
