@@ -121,7 +121,7 @@ class Detailstatic extends Common
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        for ($i = 0; $i <= $step; $i++) {
+        for ($i = 1; $i < $step; $i++) {
             $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($article_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content), 0, 200);
