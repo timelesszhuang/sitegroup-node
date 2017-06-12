@@ -117,10 +117,13 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $count = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
+        if($count==0){
+            return;
+        }
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        for ($i = 1; $i < $step; $i++) {
+        for ($i = 0; $i <= $step; $i++) {
             $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($article_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content), 0, 200);
@@ -297,10 +300,13 @@ class Detailstatic extends Common
         }
 
         $count = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->count();
+        if($count==0){
+            return;
+        }
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        for ($i = 1; $i < $step; $i++) {
+        for ($i = 0; $i <= $step; $i++) {
             $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($question_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
