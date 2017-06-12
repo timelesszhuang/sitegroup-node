@@ -18,7 +18,7 @@ class Commontool extends Common
      * 清除缓存 信息
      * @access public
      */
-    public static function clearCache()
+    public function clearCache()
     {
         if (Cache::clear()) {
             exit(['status' => 'success', 'msg' => '清除缓存成功。']);
