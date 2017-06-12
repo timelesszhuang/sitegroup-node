@@ -306,7 +306,6 @@ class Detailstatic extends Common
 //                file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
-                file_put_contents("1122.txt","111");
 
                 $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
                 $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
@@ -318,6 +317,8 @@ class Detailstatic extends Common
                         'next_question' => $next_question
                     ]
                 );
+                file_put_contents("11122.txt","111");
+
                 $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
                 file_put_contents("222.txt",$make_web);die;
                 //开始同步数据库
