@@ -313,7 +313,7 @@ class Commontool extends Common
     public static function getQuestionList($type_id, $site_id, $limit = 10)
     {
         //  首先从数据库中获取 该站点已经静态化到的问题的文章 id 防止出现 404 问题
-        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
+        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'question');
         if (!$static_id) {
             return [];
         }
@@ -329,7 +329,7 @@ class Commontool extends Common
     public static function getScatteredArticleList($type_id, $site_id, $limit = 10)
     {
         //  首先从数据库中获取 该站点已经静态化到的零散段落的 id 防止出现 404 问题
-        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
+        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'scatteredarticle');
         if (!$static_id) {
             return [];
         }
@@ -345,7 +345,7 @@ class Commontool extends Common
     public static function getStaticRecordId($site_id, $type_id, $type_name)
     {
         //获取下该目录已经静态化到的目录
-        $count_arr = Db::name('ArticleSyncCount')->field('count')->find();
+        $count_arr = Db::name('ArticleSyncCount')->where(['site_id' => $site_id, 'type_id' => $type_id, 'type_name' => $type_name])->field('count')->find();
         if ($count_arr) {
             return $count_arr['count'];
         }
