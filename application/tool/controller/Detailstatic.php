@@ -27,6 +27,8 @@ class Detailstatic extends Common
      */
     public function index()
     {
+        set_time_limit(0);
+        ignore_user_abort();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -44,16 +46,18 @@ class Detailstatic extends Common
                     $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
                 }
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
+                file_put_contents("123.txt",$detail_key."\n",FILE_APPEND);
                 switch ($detail_key) {
                     case'article':
+                        file_put_contents("article.txt",111);
                         return $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
                     case'question':
                         return $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
-                    case'scatteredarticle':
-                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-                        break;
+//                    case'scatteredarticle':
+//                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+//                        break;
                 }
             }
         }
@@ -141,6 +145,11 @@ class Detailstatic extends Common
                         'next_article' => $next_article
                     ]
                 );
+                //判断模板是否存在
+                if (!file_exists('article')) {
+                    $this->make_error("article");
+                    die;
+                }
                 $make_web = file_put_contents('article/article' . $item["id"] . '.html', $content);
                 //开始同步数据库
                 if ($make_web) {
@@ -229,7 +238,11 @@ class Detailstatic extends Common
                         'next_article' => $next_article
                     ]
                 );
-
+                //判断模板是否存在
+                if (!file_exists('news')) {
+                    $this->make_error("news");
+                    die;
+                }
                 $make_web = file_put_contents('news/news' . $item["id"] . '.html', $content);
                 //开始同步数据库
                 if ($make_web) {
@@ -247,9 +260,6 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
-                }else {
-                    $this->make_error("news");
-                    exit();
                 }
             }
         }
@@ -287,11 +297,12 @@ class Detailstatic extends Common
         } else {
             $article_temp = new ArticleSyncCount();
         }
+
         $count = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->count();
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        for ($i = 0; $i <= $step; $i++) {
+        for ($i = 1; $i < $step; $i++) {
             $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($question_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
@@ -304,6 +315,7 @@ class Detailstatic extends Common
                 file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
+
                 $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
                 $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
                 $content = (new View())->fetch('template/question.html',
@@ -314,6 +326,11 @@ class Detailstatic extends Common
                         'next_question' => $next_question
                     ]
                 );
+                //判断模板是否存在
+                if (!file_exists('question')) {
+                    $this->make_error("question");
+                    die;
+                }
                 $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
                 //开始同步数据库
                 if ($make_web) {
@@ -331,9 +348,6 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
-                } else {
-                    $this->make_error("question");
-                    exit();
                 }
             }
         }

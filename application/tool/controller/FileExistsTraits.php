@@ -49,7 +49,7 @@ trait FileExistsTraits
         $node_id = $siteinfo['node_id'];
         (new SiteErrorInfo)->addError([
             'msg' => "{$site_name}站点",
-            'operator' => '$directory目录不存在或没有权限',
+            'operator' => $directory."目录不存在或没有权限",
             'site_id' => $site_id,
             'site_name' => $site_name,
             'node_id' => $node_id,
