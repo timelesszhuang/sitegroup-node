@@ -20,7 +20,7 @@ class Commontool extends Common
      */
     public function clearCache()
     {
-        file_put_contents("111.txt","dddd");
+        file_put_contents("111.txt", "dddd");
         if (Cache::clear()) {
             exit(['status' => 'success', 'msg' => '清除缓存成功。']);
         }
@@ -296,7 +296,12 @@ class Commontool extends Common
      */
     public static function getArticleList($type_id, $site_id, $limit = 10)
     {
-        $article = Db::name('Article')->where(['articletype_id' => $type_id])->field('id,title')->order('id desc')->limit($limit)->select();
+        //  首先从数据库中获取 该站点已经静态化到的文章的 id 防止出现 404 问题
+        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
+        if (!$static_id) {
+            return [];
+        }
+        $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
         return $article;
     }
 
@@ -307,7 +312,12 @@ class Commontool extends Common
      */
     public static function getQuestionList($type_id, $site_id, $limit = 10)
     {
-        $question = Db::name('Question')->where(['type_id' => $type_id])->field('id,question')->order('id desc')->limit($limit)->select();
+        //  首先从数据库中获取 该站点已经静态化到的问题的文章 id 防止出现 404 问题
+        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
+        if (!$static_id) {
+            return [];
+        }
+        $question = Db::name('Question')->where(['type_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,question')->order('id desc')->limit($limit)->select();
         return $question;
     }
 
@@ -318,8 +328,28 @@ class Commontool extends Common
      */
     public static function getScatteredArticleList($type_id, $site_id, $limit = 10)
     {
-        $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id])->field('id,title')->order('id desc')->limit($limit)->select();
+        //  首先从数据库中获取 该站点已经静态化到的零散段落的 id 防止出现 404 问题
+        $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
+        if (!$static_id) {
+            return [];
+        }
+        $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
         return $article;
+    }
+
+
+    /**
+     * 获取某个分类已经静态到的页面
+     * @access public
+     */
+    public static function getStaticRecordId($site_id, $type_id, $type_name)
+    {
+        //获取下该目录已经静态化到的目录
+        $count_arr = Db::name('ArticleSyncCount')->field('count')->find();
+        if ($count_arr) {
+            return $count_arr['count'];
+        }
+        return 0;
     }
 
 

@@ -20,10 +20,10 @@ class Pagestaticentry extends Common
     public function allstatic()
     {
         //全部的页面的静态化
-        (new Indexstatic())->index();
+        (new Detailstatic())->index();
         (new Envpagestatic())->index();
         (new Detailmenupagestatic())->index();
-        (new Detailstatic())->index();
+        (new Indexstatic())->index();
         exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
     }
 
