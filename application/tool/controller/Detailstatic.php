@@ -46,6 +46,7 @@ class Detailstatic extends Common
                     $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
                 }
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
+                file_put_contents("123.txt",$detail_key."\n",FILE_APPEND);
                 switch ($detail_key) {
                     case'article':
                         file_put_contents("article.txt",111);
@@ -278,7 +279,6 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/question.html')) {
             return;
         }
-
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
         //当前分类名称
@@ -297,14 +297,14 @@ class Detailstatic extends Common
         } else {
             $article_temp = new ArticleSyncCount();
         }
+
         $count = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->count();
         $page = 50;
         //需要循环的页数
         $step = ceil($count / $page);
-        for ($i = 0; $i <= $step; $i++) {
+        for ($i = 1; $i < $step; $i++) {
             $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
             foreach ($question_data as $item) {
-
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
                 list($com_name, $title, $keyword, $description,
                     $m_url, $redirect_code, $menu, $before_head,
