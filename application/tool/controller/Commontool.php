@@ -297,7 +297,7 @@ class Commontool extends Common
     {
         //  首先从数据库中获取 该站点已经静态化到的文章的 id 防止出现 404 问题
         $static_id = SELF::getStaticRecordId($site_id, $type_id, 'article');
-        if (!$static_id) {
+        if ($static_id == 0) {
             return [];
         }
         $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
@@ -313,7 +313,7 @@ class Commontool extends Common
     {
         //  首先从数据库中获取 该站点已经静态化到的问题的文章 id 防止出现 404 问题
         $static_id = SELF::getStaticRecordId($site_id, $type_id, 'question');
-        if (!$static_id) {
+        if ($static_id == 0) {
             return [];
         }
         $question = Db::name('Question')->where(['type_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,question')->order('id desc')->limit($limit)->select();
@@ -329,7 +329,7 @@ class Commontool extends Common
     {
         //  首先从数据库中获取 该站点已经静态化到的零散段落的 id 防止出现 404 问题
         $static_id = SELF::getStaticRecordId($site_id, $type_id, 'scatteredarticle');
-        if (!$static_id) {
+        if ($static_id == 0) {
             return [];
         }
         $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
