@@ -51,9 +51,9 @@ class Detailstatic extends Common
                     case'question':
                         return $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
-                    case'scatteredarticle':
-                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-                        break;
+//                    case'scatteredarticle':
+//                        return $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+//                        break;
                 }
             }
         }
