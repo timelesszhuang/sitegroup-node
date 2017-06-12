@@ -37,4 +37,24 @@ trait FileExistsTraits
         return true;
     }
 
+    /**
+     * 目录生成失败后,将目录记录下来
+     * @param $directory
+     */
+    public function make_error($directory)
+    {
+        $siteinfo = Site::getSiteInfo();
+        $site_id = $siteinfo['id'];
+        $site_name = $siteinfo['site_name'];
+        $node_id = $siteinfo['node_id'];
+        (new SiteErrorInfo)->addError([
+            'msg' => "{$site_name}站点",
+            'operator' => '$directory目录不存在或没有权限',
+            'site_id' => $site_id,
+            'site_name' => $site_name,
+            'node_id' => $node_id,
+        ]);
+    }
+
+
 }
