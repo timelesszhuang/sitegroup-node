@@ -30,6 +30,6 @@ Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
 //菜单静态化  包含 详情型 菜单  env类型菜单
 Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
 //文章页面静态化
-Route::get('artilestatic', 'tool/Pagestaticentry/articlestatic');
+Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
