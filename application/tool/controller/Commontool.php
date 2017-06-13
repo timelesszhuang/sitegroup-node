@@ -299,6 +299,11 @@ class Commontool extends Common
         $static_id = self::getStaticRecordId($site_id, $type_id, 'article');
         if ($static_id) {
             $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
+            foreach ($article as $k => $v) {
+                $v['generate_name'] = '/article/article' . $v['id'] . '.html';
+                unset($v['id']);
+                $article[$k] = $v;
+            }
             return $article;
         }
         return [];
@@ -315,6 +320,11 @@ class Commontool extends Common
         $static_id = self::getStaticRecordId($site_id, $type_id, 'question');
         if ($static_id) {
             $question = Db::name('Question')->where(['type_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,question')->order('id desc')->limit($limit)->select();
+            foreach ($question as $k => $v) {
+                $v['generate_name'] = '/question/question' . $v['id'] . '.html';
+                unset($v['id']);
+                $question[$k] = $v;
+            }
             return $question;
         }
         return [];
@@ -331,6 +341,11 @@ class Commontool extends Common
         $static_id = self::getStaticRecordId($site_id, $type_id, 'scatteredarticle');
         if ($static_id) {
             $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
+            foreach ($article as $k => $v) {
+                $v['generate_name'] = '/news/news' . $v['id'] . '.html';
+                unset($v['id']);
+                $article[$k] = $v;
+            }
             return $article;
         }
         return [];
