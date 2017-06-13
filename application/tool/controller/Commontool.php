@@ -436,6 +436,7 @@ class Commontool extends Common
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
         $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $site_id, $site_name, $node_id);
+        //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
         $menu = Menu::getMergedMenu($siteinfo['menu'], $site_id, $site_name, $node_id);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();

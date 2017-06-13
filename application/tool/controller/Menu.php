@@ -94,7 +94,7 @@ class Menu extends Common
             if (array_key_exists('flag', $v)) {
                 //数据库中配置的菜单
                 if ($v['flag'] == 1) {
-                    $v['generate_name'] = $v['generate_name'] . '.html';
+                    $v['generate_name'] = '/' . $v['generate_name'] . '.html';
                 } else {
                     $type = '';
                     switch ($v['flag']) {
@@ -108,11 +108,11 @@ class Menu extends Common
                             $type = 'newslist';
                             break;
                     }
-                    $v['generate_name'] = $type . '/' . $v['id'] . '.html';
+                    $v['generate_name'] = '/' . $type . '/' . $v['id'] . '.html';
                 }
             } else {
                 //env 中配置的菜单
-                $v['generate_name'] = $v['generate_name'] . '.html';
+                $v['generate_name'] = '/' . $v['generate_name'] . '.html';
             }
             $merged_menu[$k] = $v;
         }
