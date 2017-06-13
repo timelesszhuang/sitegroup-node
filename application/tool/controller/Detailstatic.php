@@ -59,33 +59,6 @@ class Detailstatic extends Common
         }
     }
 
-
-    public function get_limit(Closure $closure)
-    {
-        return $closure();
-    }
-
-    public function getlimit($type_name, $type_id, $node_id, $site_id)
-    {
-        $getlimit = function () use ($type_name, $type_id, $node_id, $site_id) {
-            $where = [
-                'type_id' => $type_id,
-                'type_name' => $type_name,
-                "node_id" => $node_id,
-                "site_id" => $site_id
-            ];
-            $limit = 0;
-            $articleCount = ArticleSyncCount::where($where)->find();
-            $article_temp = '';
-            //判断下是否有数据 没有就创建模型
-            if (isset($articleCount->count) && $articleCount->count > 0) {
-                $limit = $articleCount->count;
-            }
-            return [$limit];
-        };
-        return $this->get_limit($getlimit);
-    }
-
     /**
      * 文章详情页面的静态化
      * @access public
@@ -134,7 +107,7 @@ class Detailstatic extends Common
                 file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
-                $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+                $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id","desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
                 $content = (new View())->fetch('template/article.html',
                     [
@@ -166,9 +139,6 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
-                } else {
-                    $this->make_error("article");
-                    exit();
                 }
             }
         }
@@ -230,7 +200,7 @@ class Detailstatic extends Common
 //                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
-                $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+                $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id","desc")->find();
                 $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
                 $content = (new View())->fetch('template/news.html',
                     [
@@ -321,7 +291,7 @@ class Detailstatic extends Common
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
 
-                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
+                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id","desc")->find();
                 $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
                 $content = (new View())->fetch('template/question.html',
                     [
