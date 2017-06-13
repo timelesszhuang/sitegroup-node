@@ -139,9 +139,6 @@ class Detailstatic extends Common
                         $articleCountModel->save();
                     }
                     $limit = $item["id"];
-                } else {
-                    $this->make_error("article");
-                    exit();
                 }
             }
         }
