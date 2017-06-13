@@ -59,33 +59,6 @@ class Detailstatic extends Common
         }
     }
 
-
-    public function get_limit(Closure $closure)
-    {
-        return $closure();
-    }
-
-    public function getlimit($type_name, $type_id, $node_id, $site_id)
-    {
-        $getlimit = function () use ($type_name, $type_id, $node_id, $site_id) {
-            $where = [
-                'type_id' => $type_id,
-                'type_name' => $type_name,
-                "node_id" => $node_id,
-                "site_id" => $site_id
-            ];
-            $limit = 0;
-            $articleCount = ArticleSyncCount::where($where)->find();
-            $article_temp = '';
-            //判断下是否有数据 没有就创建模型
-            if (isset($articleCount->count) && $articleCount->count > 0) {
-                $limit = $articleCount->count;
-            }
-            return [$limit];
-        };
-        return $this->get_limit($getlimit);
-    }
-
     /**
      * 文章详情页面的静态化
      * @access public
