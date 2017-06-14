@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!--<?php echo $scatteredarticle["title"]?>-->
+
     <title>{$d["title"]}</title>
     <meta name="keyword" content='{$d["keyword"]}'>
 
@@ -14,16 +14,18 @@
         <td>title</td>
     </tr>
     <tr>
-        <td><a href="aaa">{$scatteredarticle["title"]}</a></td>
+        <td>{$scatteredarticle["title"]}</td>
     </tr>
 </table>
 <p>
     描述:  {$scatteredarticle["articletype_name"]}
+    <img src="../templatestatic/timg.jpg" alt="">
 </p>
 
 
+
 <p>
-    上一篇: <a><?php if(isset($pre_article->title)){
+    上一篇: <a href="news{$pre_article['id']}.html"><?php if(isset($pre_article->title)){
     echo $pre_article["title"];
     }
     ?>
@@ -31,7 +33,7 @@
 </a>
 </p>
 <p>
-    下一篇: <a ><?php if(isset($next_article["title"])){
+    下一篇: <a href="news{$next_article['id']}.html"><?php if(isset($next_article["title"])){
       echo $next_article["title"];
         }
         ?>

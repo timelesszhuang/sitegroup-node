@@ -8,6 +8,16 @@
     <meta name="description" content='{$d["description"]}'>
 </head>
 <body>
+
+<ul>
+    <?php foreach($d['menu'] as $item):?>
+    <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
+    <?php endforeach;?>
+</ul>
+
+
+
+
 <p>
     标题:  {$article["title"]}
 </p>
@@ -24,14 +34,14 @@
     内容: {$article["content"]}
 </p>
 <p>
-    上一篇: <a><?php if(isset($pre_article->title)){
+    上一篇: <a href="article{$pre_article['id']}.html"><?php if(isset($pre_article->title)){
         echo $pre_article["title"];
             }
       ?>
 </a>
 </p>
 <p>
-    下一篇: <a><?php if(isset($next_article["title"])){
+    下一篇: <a href="article{$next_article['id']}.html"><?php if(isset($next_article["title"])){
       echo $next_article["title"];
         }
         ?>
