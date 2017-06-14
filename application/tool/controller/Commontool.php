@@ -299,10 +299,10 @@ class Commontool extends Common
         $static_id = self::getStaticRecordId($site_id, $type_id, 'article');
         if ($static_id) {
             $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
-            $articlelist=[];
+            $articlelist = [];
             foreach ($article as $k => $v) {
                 $generate_name = '/article/article' . $v['id'] . '.html';
-                $articlelist[$generate_name]=$v['title'];
+                $articlelist[$generate_name] = $v['title'];
             }
             return $articlelist;
         }
@@ -377,7 +377,11 @@ class Commontool extends Common
     {
         //友链信息
         $partnersite_info = Db::name('links')->where(['id' => ['in', array_filter(explode(',', $link_id))]])->field('id,name,domain')->select();
-        return $partnersite_info;
+        $site_list = [];
+        foreach ($partnersite_info as $k => $v) {
+            $site_list[$v['domain']] = $v['name'];
+        }
+        return $site_list;
     }
 
 
@@ -388,7 +392,11 @@ class Commontool extends Common
     public static function getCommonCode($code_ids)
     {
         $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code')->select();
-        return $code;
+        $code_list = [];
+        foreach ($code as $k => $v) {
+            $code_list[] = $v['code'];
+        }
+        return $code_list;
     }
 
 
