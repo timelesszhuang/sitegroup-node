@@ -46,13 +46,13 @@ class Detailstatic extends Common
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
                     case'article':
-                         $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
                     case'question':
                         $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
                     case'scatteredarticle':
-                         $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
                 }
             }
@@ -88,7 +88,7 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $count = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
-        if($count==0){
+        if ($count == 0) {
             return;
         }
         $page = 50;
@@ -101,13 +101,13 @@ class Detailstatic extends Common
                 list($com_name, $title, $keyword, $description,
                     $m_url, $redirect_code, $menu, $before_head,
                     $after_head, $chain_type, $next_site,
-                    $main_site, $partnersite, $commonjscode,
+                    $main_site, $partnersite, $pre_head_commonjscode, $after_head_commonjscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'pre_head_commonjscode', 'after_head_commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
                 file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
-                $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id","desc")->find();
+                $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
                 $content = (new View())->fetch('template/article.html',
                     [
@@ -179,7 +179,7 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $count = \app\index\model\ScatteredTitle::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
-        if($count==0){
+        if ($count == 0) {
             return;
         }
         $page = 50;
@@ -194,13 +194,13 @@ class Detailstatic extends Common
                 list($com_name, $title, $keyword, $description,
                     $m_url, $redirect_code, $menu, $before_head,
                     $after_head, $chain_type, $next_site,
-                    $main_site, $partnersite, $commonjscode,
+                    $main_site, $partnersite, $pre_head_commonjscode, $after_head_commonjscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'pre_head_commonjscode', 'after_head_commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
 //                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
-                $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id","desc")->find();
+                $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
                 $content = (new View())->fetch('template/news.html',
                     [
@@ -271,7 +271,7 @@ class Detailstatic extends Common
         }
 
         $count = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->count();
-        if($count==0){
+        if ($count == 0) {
             return;
         }
         $page = 50;
@@ -284,14 +284,14 @@ class Detailstatic extends Common
                 list($com_name, $title, $keyword, $description,
                     $m_url, $redirect_code, $menu, $before_head,
                     $after_head, $chain_type, $next_site,
-                    $main_site, $partnersite, $commonjscode,
+                    $main_site, $partnersite, $pre_head_commonjscode, $after_head_commonjscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'pre_head_commonjscode', 'after_head_commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
                 file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
 
-                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id","desc")->find();
+                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id", "desc")->find();
                 $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
                 $content = (new View())->fetch('template/question.html',
                     [

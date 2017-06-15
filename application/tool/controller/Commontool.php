@@ -391,12 +391,17 @@ class Commontool extends Common
      */
     public static function getCommonCode($code_ids)
     {
-        $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code')->select();
-        $code_list = [];
+        $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code,position')->select();
+        $pre_head_code_list = [];
+        $after_head_code_list = [];
         foreach ($code as $k => $v) {
-            $code_list[] = $v['code'];
+            if ($v['position'] == 1) {
+                $pre_head_code_list[] = $v['code'];
+            } else {
+                $after_head_code_list[] = $v['code'];
+            }
         }
-        return $code_list;
+        return [$pre_head_code_list, $after_head_code_list];
     }
 
 
@@ -454,6 +459,7 @@ class Commontool extends Common
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
+        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -532,7 +538,7 @@ class Commontool extends Common
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
         //获取公共代码
-        $commonjscode = self::getCommonCode($siteinfo['public_code']);
+        list($pre_head_commonjscode, $after_head_commonjscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
         $before_head = $siteinfo['before_header_jscode'];
         $after_head = $siteinfo['other_jscode'];
@@ -542,8 +548,8 @@ class Commontool extends Common
             $com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $before_head,
             $after_head, $chain_type, $next_site,
-            $main_site, $partnersite, $commonjscode,
-            $article_list, $question_list, $scatteredarticle_list
+            $main_site, $partnersite, $pre_head_commonjscode,
+            $after_head_commonjscode, $article_list, $question_list, $scatteredarticle_list
         ];
     }
 
