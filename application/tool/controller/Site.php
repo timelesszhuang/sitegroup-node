@@ -37,7 +37,7 @@ class Site extends Common
         //获取主节点////////////////////////////////////////////
         //返回 主站的域名 id 等
         //有可能没有设置主站  需要有个地方记录下错误信息
-        $main_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '20'])->field('id,site_name,domain,url')->find();
+        $main_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '20'])->field('id,site_name,url')->find();
         if (!$main_site) {
             //没有设置主节点 需要提示下错误信息
             $site_info = new SiteErrorInfo();
@@ -59,13 +59,13 @@ class Site extends Common
         if ($chain_type == '10' && Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->count() > 2) {
             //如果该分类下的非主节点的数量小于 3个 则 不需要互相链接  否则形成的 互链 bug，容易被搜索引擎 K掉
             //链轮的时候为 id 小的 链接到id 大的，然后最终 id 最大的连接到 最小的id
-            $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10', 'id' => ['gt', $site_id]])->field('id,site_name,domain,url')->find();
+            $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10', 'id' => ['gt', $site_id]])->field('url,site_name')->find();
             if ($chain_site) {
                 $next_site = $chain_site;
             } else {
                 //说明没有取到id 比较大的
                 //取下id 最小的
-                $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->order('id asc')->field('id,site_name,domain,url')->find();
+                $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->order('id asc')->field('url,site_name')->find();
                 $next_site = $chain_site;
             }
         } else if ($chain_type == '20') {

@@ -22,8 +22,9 @@ class Pagestaticentry extends Common
         //全部的页面的静态化
         (new Detailstatic())->index();
         (new Envpagestatic())->index();
-        (new Detailmenupagestatic())->index();
+        (new Detailmenupagestatic())->index();cd
         (new Indexstatic())->index();
+        (new SiteMap)->index();
         exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
     }
 
@@ -61,7 +62,7 @@ class Pagestaticentry extends Common
     public function menustatic()
     {
         //菜单详情页面 静态化 配置页面静态化
-        if ((new Envpagestatic())->index() && (new Detailmenupagestatic())->index()) {
+        if ((new Detailmenupagestatic())->index() && (new Envpagestatic())->index()) {
             exit(['status' => 'success', 'msg' => '栏目页静态化生成完成。']);
         }
         exit(['status' => 'failed', 'msg' => '栏目页静态化生成完成。']);

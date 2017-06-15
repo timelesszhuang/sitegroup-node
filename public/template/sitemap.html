@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h3>文章</h3>
+<ul>
+<?php foreach($d["article"] as $article):?>
+    <li><a href="/article/article{$article['id']}.html">{$article["title"]}</a></li>
+<?php endforeach;?>
+</ul>
+<h3>问答</h3>
+<ul>
+    <?php foreach($d["question"] as $question):?>
+    <li><a href="/question/question{$question['id']}.html">{$question["title"]}</a></li>
+    <?php endforeach;?>
+</ul>
+<h3>零散文章</h3>
+<ul>
+    <?php foreach($d["news"] as $news):?>
+    <li><a href="/news/news{$news['id']}.html">{$news["title"]}</a></li>
+    <?php endforeach;?>
+</ul>
+</body>
+</html>
