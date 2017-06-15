@@ -8,6 +8,9 @@
     <meta name="description" content='{$d["description"]}'>
 </head>
 <body>
+
+
+
     <table border="1">
         <tr>
             <td>question</td>
@@ -15,7 +18,7 @@
         </tr>
         <?php foreach($d["question"] as $item):?>
         <tr>
-            <td><a href="aaa">{$item["question"]}</a></td>
+            <td><a href="/question/question{$item['id']}.html">{$item["question"]}</a></td>
         </tr>
         <?php endforeach;?>
     </table>

@@ -22,14 +22,14 @@
     内容: {$question["content_paragraph"]}
 </p>
 <p>
-    上一篇: <a><?php if(isset($pre_question->question)){
+    上一篇: <a href="question{$pre_question['id']}.html"><?php if(isset($pre_question->question)){
         echo $pre_question["question"];
             }
       ?>
 </a>
 </p>
 <p>
-    下一篇: <a><?php if(isset($next_question["question"])){
+    下一篇: <a  href="question{$next_question['id']}.html"><?php if(isset($next_question["question"])){
       echo $next_question["question"];
         }
         ?>

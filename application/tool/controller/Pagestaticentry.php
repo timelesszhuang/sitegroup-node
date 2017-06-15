@@ -22,8 +22,9 @@ class Pagestaticentry extends Common
         //全部的页面的静态化
         (new Detailstatic())->index();
         (new Envpagestatic())->index();
-        (new Detailmenupagestatic())->index();
+        (new Detailmenupagestatic())->index();cd
         (new Indexstatic())->index();
+        (new SiteMap)->index();
         exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
     }
 

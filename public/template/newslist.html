@@ -12,14 +12,14 @@
     <tr>
         <td>title</td>
     </tr>
-    <?php foreach($d["article"] as $item):?>
+    <?php foreach($d["question_list"] as $item):?>
     <tr>
-        <td><a href="aaa">{$item["title"]}</a></td>
+        <td><a href="aaa">{$item["question"]}</a></td>
     </tr>
     <?php endforeach;?>
 </table>
 <p>
-    {$d["article"]->render()}
+    {$d["newslist"]->render()}
 </p>
 </body>
 </html>
