@@ -33,3 +33,4 @@ Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
 Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
+Route::get('pv', 'tool/Site/pv');
