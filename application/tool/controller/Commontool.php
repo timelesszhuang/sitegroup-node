@@ -451,6 +451,28 @@ class Commontool extends Common
         return [$article_id, $questiontype_id, $scatteredarticletype_id];
     }
 
+    /**
+     * 获取活动列表
+     * @access public
+     */
+    public static function getActivity($sync_id)
+    {
+        $sync = Db::name('Activity')->where(['id' => ['in', explode(',', $sync_id)]])->field('name,detail,directory_name')->select();
+        $activity_list = [];
+        foreach ($sync as $k => $v) {
+            $path = '/activity' . $v['directory_name'];
+            $activity = [];
+            $activity['name'] = $v['name'];
+            $activity['detail'] = $v['detail'];
+            $activity['src'] = $path;
+            $activity['big_img'] = $path . '/big.jpg';
+            $activity['small_img'] = $path . '/small.jpg';
+            $activity['medium_img'] = $path . '/medium.jpg';
+            $activity_list[] = $activity;
+        }
+        return $activity_list;
+    }
+
 
     /**
      * 获取 页面中必须的元素
@@ -473,6 +495,8 @@ class Commontool extends Common
         $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $site_id, $site_name, $node_id);
         //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
         $menu = Menu::getMergedMenu($siteinfo['menu'], $site_id, $site_name, $node_id);
+        //活动创意相关操作
+        $activity = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
         switch ($tag) {
@@ -542,6 +566,7 @@ class Commontool extends Common
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
+
         //获取公共代码
         list($pre_head_commonjscode, $after_head_commonjscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
@@ -551,7 +576,7 @@ class Commontool extends Common
         $com_name = $siteinfo['com_name'];
         return [
             $com_name, $title, $keyword, $description,
-            $m_url, $redirect_code, $menu, $before_head,
+            $m_url, $redirect_code, $menu, $activity, $before_head,
             $after_head, $chain_type, $next_site,
             $main_site, $partnersite, $pre_head_commonjscode,
             $after_head_commonjscode, $article_list, $question_list, $scatteredarticle_list

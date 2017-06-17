@@ -24,11 +24,11 @@ class Envpagestatic extends Common
         $env_info = Menu::getEnvMenuInfo();
         foreach ($env_info as $v) {
             list($com_name, $title, $keyword, $description,
-                $m_url, $redirect_code, $menu, $before_head,
+                $m_url, $redirect_code, $menu, $activity, $before_head,
                 $after_head, $chain_type, $next_site,
                 $main_site, $partnersite, $pre_head_commonjscode, $after_head_commonjscode,
                 $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('envmenu', $v['generate_name'], $v['name']);
-            $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'partnersite', 'pre_head_commonjscode', 'after_head_commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
+            $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu','activity', 'before_head', 'after_head', 'chain_type', 'next_site', 'main_site', 'partnersite', 'pre_head_commonjscode', 'after_head_commonjscode', 'article_list', 'question_list', 'scatteredarticle_list');
             file_put_contents('log/envmenu.txt', $this->separator . date('Y-m-d H:i:s') . 'env中菜单名' . $v['name'] . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //还需要 存储在数据库中 相关数据
             //页面中还需要填写隐藏的 表单 node_id site_id
