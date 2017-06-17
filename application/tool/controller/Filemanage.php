@@ -12,6 +12,8 @@ namespace app\tool\controller;
 
 
 use app\common\controller\Common;
+use think\Config;
+use think\Db;
 use think\Exception;
 
 
@@ -27,8 +29,11 @@ class Filemanage extends Common
     static $templateHtmlPath = 'template';
     //静态模板文件解压到的地方
     static $templateStaticPath = 'templatestatic';
-    //活动要解压到的地方
-    static $activityPath = 'activity';
+
+    //活动html要解压到的地方
+    static $activityHtmlPath = 'activity';
+
+
     //因为需要递归操作文件
     static $arr_files = [];
 
@@ -37,7 +42,7 @@ class Filemanage extends Common
 
 
     /**
-     * 文件上传程序　
+     * 文件上传程序
      * @return array
      */
     public function uploadFile()
@@ -46,14 +51,29 @@ class Filemanage extends Common
         set_time_limit(0);
         $this->checkOrigin();
         $type = request()->param('type');
+        $id = request()->param('id');
+        file_put_contents('a.txt', $id, FILE_APPEND);
+        file_put_contents('a.txt', $type, FILE_APPEND);
+        $site_id = Config::get('site.SITE_ID');
+        $where = ['id' => $site_id];
         if ($type == 'template') {
             //模板文件相关操作
             $this->manageTemplate();
+            //置下是不是 传递模板成功
+            Db::name('site')->where($where)->update(['template_status' => '10']);
         } else if ($type == 'activity') {
             //活动相关操作
             $this->manageActivity();
+            //置下是不是解压缩成功  首先需要判断下是不是已经传递过当前的活动 同步过的话 怎么处理
+            $sync_info = Db::name('site')->where($where)->field('sync_id')->find();
+            $sync_id_arr = [];
+            if ($sync_info) {
+                $sync_id_arr = array_filter(explode(',', $sync_info['sync_id']));
+            }
+            $sync_id_arr[] = $id;
+            $unique_sync_id_arr = array_unique($sync_id_arr);
+            Db::name('site')->where(['id' => Config::get('site.SITE_ID')])->update(['sync_id' => ',' . implode(',', $unique_sync_id_arr) . ',']);
         }
-        return 1;
     }
 
 
@@ -121,11 +141,32 @@ class Filemanage extends Common
             self::deldirs($realTemplateUnzipPath . DIRECTORY_SEPARATOR . self::$templateStaticPath);
             $status = '文件解压缩成功';
         }
-        if ($info) {
-            return $this->resultArray('上传成功', '', ['code_path' => $file_savename, 'status' => $status]);
-        } else {
-            // 上传失败获取错误信息
-            return $this->resultArray('上传失败', 'failed', $info->getError());
+    }
+
+
+    /**
+     * 处理 活动信息
+     * @access public
+     * 接收 活动 zip 模板 然后 解压缩文件 到 public/activity/ 中
+     */
+    public function manageActivity()
+    {
+        $file = request()->file('file');
+        $zipActivityFilePath = ROOT_PATH . 'public/' . self::$zipActivityPath;
+        $info = $file->move($zipActivityFilePath);
+        // 要解压到的位置
+        $file_savename = $info->getSaveName();
+        $pathinfo = pathinfo($file_savename);
+        // 文件名
+        $file_name = $pathinfo['filename'];
+        $status = '文件解压缩失败';
+        // 解压缩主题文件到指定的目录中
+        $realActivityPath = $zipActivityFilePath . DIRECTORY_SEPARATOR . $file_savename;
+        // 活动解压缩文件到的路径
+        $realActivityUnzipPath = ROOT_PATH . 'public/' . self::$activityHtmlPath;
+        if ($this->unzipFile($realActivityPath, $realActivityUnzipPath)) {
+            //解压缩到的 位置为 upload/Activity 文件
+            $status = '文件解压缩成功';
         }
     }
 
