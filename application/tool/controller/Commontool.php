@@ -298,11 +298,17 @@ class Commontool extends Common
         //  首先从数据库中获取 该站点已经静态化到的文章的 id 防止出现 404 问题
         $static_id = self::getStaticRecordId($site_id, $type_id, 'article');
         if ($static_id) {
-            $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
+            $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title,content,thumbnails')->order('id desc')->limit($limit)->select();
+            print_r($article);
             $articlelist = [];
             foreach ($article as $k => $v) {
                 $generate_name = '/article/article' . $v['id'] . '.html';
-                $articlelist[$generate_name] = $v['title'];
+                $art = [];
+                $art['title'] = $v['title'];
+                $art['generate'] = $generate_name;
+                $art['summary'] = self::utf8chstringsubstr($v['content'], 120);
+                $art['thumbnails'] = $v['thumbnails'];
+                $articlelist[] = $art;
             }
             return $articlelist;
         }
@@ -512,7 +518,6 @@ class Commontool extends Common
                 list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
                 break;
         }
-
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         list($article_id, $question_id, $scatteredarticle_id) = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
@@ -551,6 +556,31 @@ class Commontool extends Common
             $main_site, $partnersite, $pre_head_commonjscode,
             $after_head_commonjscode, $article_list, $question_list, $scatteredarticle_list
         ];
+    }
+
+    /**
+     * 截取中文字符串  utf-8
+     * @param String $str 要截取的中文字符串
+     * @param $len
+     * @return
+     */
+    public static function utf8chstringsubstr($str, $len)
+    {
+        for ($i = 0; $i < $len; $i++) {
+            $temp_str = substr($str, 0, 1);
+            if (ord($temp_str) > 127) {
+                $i++;
+                if ($i < $len) {
+                    $new_str[] = substr($str, 0, 3);
+                    $str = substr($str, 3);
+                }
+            } else {
+                $new_str[] = substr($str, 0, 1);
+                $str = substr($str, 1);
+            }
+        }
+        //把数组元素组合为string
+        return join($new_str);
     }
 
 
