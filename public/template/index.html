@@ -7,32 +7,11 @@
 	<link rel="stylesheet" href="templatestatic/font/css/font-awesome.min.css">
     <script type="text/javascript" src="templatestatic/js/jquery.js"></script>
     <script type="text/javascript" src="templatestatic/js/ch-ui.admin.js"></script>
-	<style>
-		ul{
-			list-style-type: none;
-		}
-		ul li{
-			padding-left:10px;
-			float:left;
-		}
-	</style>
 </head>
 <body>
-
-<ul>
-	<?php foreach($d['menu'] as $item):?>
-	<li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
-	<?php endforeach;?>
-</ul>
-
-
-
-
-<?php foreach($d["question_list"] as $item):?>
-<tr>
-	<td><a href="<?php echo 'question'.'/'.'question'.$item['id'].'.'.'html' ?>">{$item["question"]}</a></td>
-</tr>
-<?php endforeach;?>
+<?php
+print_r($d);
+?>
 </body>
 </html>
 
