@@ -311,7 +311,7 @@ class Commontool extends Common
                 $art = [];
                 $art['title'] = $v['title'];
                 $art['generate'] = $generate_name;
-                $art['summary'] = self::utf8chstringsubstr($v['content'], 120);
+                $art['summary'] = self::utf8chstringsubstr(strip_tags($v['content']), 120);
                 $art['thumbnails'] = $v['thumbnails'] ?: '<img src="/templatestatic/default.jpg"/>';
                 $articlelist[] = $art;
             }
@@ -558,9 +558,9 @@ class Commontool extends Common
 
         //从数据库中取出 十条 最新的已经静态化的文章列表
 
+
         //获取友链
         $partnersite = self::getPatternLink($siteinfo['link_id']);
-
         //链轮的类型
         $chain_type = '';
         //该站点需要链接到的站点
@@ -574,7 +574,13 @@ class Commontool extends Common
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
-
+        echo 'dede';
+        print_r($next_site);
+        echo 'dsadsa';
+        print_r($partnersite);
+        echo 'dsda';
+        print_r($main_site);
+        exit;
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
