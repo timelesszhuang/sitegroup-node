@@ -571,6 +571,8 @@ class Commontool extends Common
         //head前后的代码
         $before_head = $siteinfo['before_header_jscode'];
         $after_head = $siteinfo['other_jscode'];
+
+
         //公司名称
         $com_name = $siteinfo['com_name'];
         return [
