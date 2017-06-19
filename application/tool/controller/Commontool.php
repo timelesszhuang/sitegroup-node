@@ -299,7 +299,6 @@ class Commontool extends Common
         $static_id = self::getStaticRecordId($site_id, $type_id, 'article');
         if ($static_id) {
             $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title,content,thumbnails')->order('id desc')->limit($limit)->select();
-            print_r($article);
             $articlelist = [];
             foreach ($article as $k => $v) {
                 $generate_name = '/article/article' . $v['id'] . '.html';
@@ -307,7 +306,7 @@ class Commontool extends Common
                 $art['title'] = $v['title'];
                 $art['generate'] = $generate_name;
                 $art['summary'] = self::utf8chstringsubstr($v['content'], 120);
-                $art['thumbnails'] = $v['thumbnails'];
+                $art['thumbnails'] = $v['thumbnails'] ?: '/templatestatic/default.jpg';
                 $articlelist[] = $art;
             }
             return $articlelist;

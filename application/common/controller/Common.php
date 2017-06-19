@@ -8,8 +8,6 @@
 namespace app\common\controller;
 
 
-use app\admin\model\SystemConfig;
-use app\common\model\User;
 use think\Controller;
 use think\Db;
 
@@ -25,7 +23,6 @@ class Common extends Controller
      */
     public function __construct()
     {
-//        echo '<pre>';
         parent::__construct();
     }
 
