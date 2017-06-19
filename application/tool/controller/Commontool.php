@@ -277,7 +277,6 @@ class Commontool extends Common
      */
     public static function getDbPageTDK($page_id, $node_id, $site_id, $page_type)
     {
-        $title = '';
         $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('title,keyword,description')->find();
         if ($page_info) {
             return [$page_info['title'], $page_info['keyword'], $page_info['description']];
@@ -313,7 +312,7 @@ class Commontool extends Common
                 $art['title'] = $v['title'];
                 $art['generate'] = $generate_name;
                 $art['summary'] = self::utf8chstringsubstr($v['content'], 120);
-                $art['thumbnails'] = $v['thumbnails'] ?: '/templatestatic/default.jpg';
+                $art['thumbnails'] = $v['thumbnails'] ?: '<img src="/templatestatic/default.jpg"/>';
                 $articlelist[] = $art;
             }
             return $articlelist;
