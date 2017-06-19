@@ -8,15 +8,6 @@
     <meta name="description" content='{$d["description"]}'>
 </head>
 <body>
-
-<ul>
-    <?php foreach($d['menu'] as $item):?>
-    <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
-    <?php endforeach;?>
-</ul>
-
-<?php dump($d);?>
-
 <p>
     标题:  {$article["title"]}
 </p>
@@ -46,15 +37,5 @@
         ?>
    </a>
 </p>
-友情链接:<?php if(!empty($d["next_site"])):?>
-        <?php $d["partnersite"][$d["next_site"]["url"]]=$d["next_site"]["site_name"];?>
-        <?php endif;?>
-        <?php if(!empty($d["main_site"])):?>
-        <?php $d["partnersite"][$d["main_site"]["url"]]=$d["main_site"]["site_name"];?>
-        <?php endif;?>
-
-        <?php foreach($d["partnersite"] as $key=>$item):?>
-        <a href="{$key}">{$item}</a>
-        <?php endforeach;?>
 </body>
 </html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="keyword" content='{$d["keyword"]}'>
+	<meta name="description" content='{$d["description"]}'><link rel="stylesheet" href="templatestatic/css/ch-ui.admin.css">
+	<link rel="stylesheet" href="templatestatic/font/css/font-awesome.min.css">
+    <script type="text/javascript" src="templatestatic/js/jquery.js"></script>
+    <script type="text/javascript" src="templatestatic/js/ch-ui.admin.js"></script>
+</head>
+<body>
+
+<?php foreach($d["question_list"] as $item):?>
+<tr>
+	<td><a href="<?php echo 'question'.'/'.'question'.$item['id'].'.'.'html' ?>">{$item["question"]}</a></td>
+</tr>
+<?php endforeach;?>
+</body>
+</html>
+

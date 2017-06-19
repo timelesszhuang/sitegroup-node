@@ -1,0 +1,77 @@
+@charset "utf-8";
+/* CSS Document */
+body{ margin:0;}
+a{ text-decoration:none;}
+ul,li{ list-style:none; padding:0; margin:0;}
+*{ font-family:"微软雅黑";}
+
+/*顶部*/
+.top_box{ width:100%; margin:0px auto;}
+.top{ width:1200px; margin:20px auto; overflow:hidden; margin-top:10px;}
+.logo{ width:254px;float:left;font-size:24px;text-align:center;}
+.logo span{ display:block;font-size:18px;color:#666; }
+.top_right{ width:300px; float:right;}
+.top_right ul{margin-top:12px;}
+.top_right li{ width:74px; font-size:13px; color:#888;border-right:1px solid #CCC; float:left; text-align:center;}
+.top_right li a{ color:#888;}
+.top_right li a:hover{ color:#666;}
+.top_right .noborder{border-right:none;}
+
+
+/*头部导航*/
+.nav{ width:100%; background:#1b74b8; border-bottom:1px solid #d7d7d7; border-top:1px solid #d7d7d7;}
+.nav ul{ max-width:1200px; margin:0 auto; overflow:hidden;}
+.nav li{ padding:0 18px; float:left; font-size:14px; color:#fff; line-height:44px; text-align:center;}.nav li a{ color:#fff;}
+.nav .no1{ background:none;}
+.nav li .nav_current{color:#e7e7e7;}
+
+/*头部图片*/
+.dt{ width:1200px; margin:5px auto; overflow:hidden;}
+.t1{ width:599px; float:left;}
+.t1 img{ width:599px; height:100px;}
+.t2{ width:584px; float:right;}
+.t2 img{ width:584px; height:100px;}
+
+                                                               
+/*邮箱问答*/
+.part1{width:1200px; margin:0 auto;}
+.wz_title{ width:1200px; margin:0 auto; overflow:hidden; background:#eeeeee;}
+.ppw{ width:148px; font-size:14px; color:#fff; background:#336699; text-align:center; line-height:36px; float:left;}
+.gd{ width:60px; float:right; color:#555; font-size:13px; line-height:36px; text-align:center;}
+
+.site_yxwd{ width:465px;}
+.wdt{ width:425px;}
+.wdt li{ width:425px; font-size:13px; color:#555; line-height:32px; overflow:hidden; margin-bottom:3px;}
+.wdt li a{ width:345px; float:left; color:#555;}
+.wdt li .sj{ width:80px; float:right;}
+
+/*行业新闻*/
+.site_hyxw{ width:465px;margin-top:15px;}
+.new{ width:425px;}
+.new li{ width:425px; margin:0 auto; font-size:13px; color:#555; line-height:32px; overflow:hidden; margin-bottom:3px;}
+.new li a{ display:block; width:300px; float:left; color:#555; padding-left:14px; background:url(new-bg.jpg) no-repeat left center;}
+.new li .sj{ width:80px; float:right;}
+
+/*品牌推荐*/
+.site_pptj{ width:465px;margin-top:15px;}
+.pptj ul{width:400px;}
+.pptj li{ width:182px; float:left; margin:10px 9px;}
+.pptj li img{ width:182px; height:52px;}
+
+/*友情链接*/
+.youqing{width:1200px; margin:0 auto; overflow:hidden;}
+.youqing li{ float:left;padding:10px 0;}
+.youqing li a{ display:block; font-size:13px;color:#555;padding:0 20px;border-right:1px solid #ddd;}
+.youqing li .yq_last{border-right:none;}
+
+/*页脚*/
+.bottom{ width:100%; background:#f5f4f9; font-size:14px; line-height:32px; padding-bottom:20px;}
+.end{ width:1200px; margin:10px auto; overflow:hidden;}
+.er{ width:130px; float:left; margin-left:50px;}
+.er img{ width:130px; height:130px; margin-top:20px;}
+.dxx{ width:800px; float:left;}
+.dxx a{ color:#555;}
+.el{ width:820px; float:left; margin-top:40px;}
+
+
+

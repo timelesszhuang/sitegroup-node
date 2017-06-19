@@ -1,38 +1,160 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>{$d["title"]}</title>
 	<meta name="keyword" content='{$d["keyword"]}'>
-	<meta name="description" content='{$d["description"]}'><link rel="stylesheet" href="templatestatic/css/ch-ui.admin.css">
-	<link rel="stylesheet" href="templatestatic/font/css/font-awesome.min.css">
-    <script type="text/javascript" src="templatestatic/js/jquery.js"></script>
-    <script type="text/javascript" src="templatestatic/js/ch-ui.admin.js"></script>
-	<style>
-		ul{
-			list-style-type: none;
-		}
-		ul li{
-			padding-left:10px;
-			float:left;
-		}
-	</style>
+	<meta name="description" content='{$d["description"]}'>
+	{$d["redirect_code"]}
+	<?php if($d["pre_head_jscode"]):?>
+	<?php foreach($d["pre_head_jscode"] as $item):?>
+	{$item}
+	<?php endforeach;endif;?>
+	<script src="/templatestatic/jquery-1.8.2.min.js"></script>
+	<script type="text/javascript" src="/templatestatic/jquery.SuperSlide.js"></script>
+	<link href="/templatestatic/home.css" rel="stylesheet" type="text/css"/>
 </head>
+
 <body>
+<div class="top_box">
+	<div class="top">
+		<div class="logo">企业邮箱网<span>www.qiyemail.com</span></div>
+		<div class="top_right">
+			<ul>
+				<li><a href="{$d['m_url']}">手机版</a></li>
+				<li class="noborder"><a href="../sitemap.html" target="_blank">站点地图</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
 
-<ul>
-	<?php foreach($d['menu'] as $item):?>
-	<li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
-	<?php endforeach;?>
-</ul>
+<div class="nav">
+	<ul>
+		<?php foreach($d['menu'] as $item):?>
+		<li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
+		<?php endforeach;?>
+	</ul>
+</div>
+
+<div class="dt">
+	<?php if($d["activity"]):?>
+	<?php foreach($d["activity"] as $key=> $item):?>
+	<span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
+	<?php endforeach;endif;?>
+</div>
+
+<div class="part1">
+	<div class="yxwz">
+		<div class="wz_title"><a href=""><span class="ppw">邮箱文章</span><span class="gd">更多 &nbsp;>>&nbsp;</span></a></div>
+
+		<?php foreach($d["article_list"] as  $item):?>
+		<div class="wz_col">
+			{$item['thumbnails']}
+			<div class="wz_text">
+				<h1 class="wz_bt"><a href="{$item['generate']}">{$item['title']}</a></h1>
+				<div class="wz_nr">
+					{$item['summary']}
+				</div>
+				<a href="{$item['generate']}" class="xxnr">详细内容>></a>
+			</div>
+		</div>
+		<?php endforeach;?>
+	</div>
 
 
+	<div class="part2">
+		<div class="yxwd">
+			<div class="wz_title">
+				<a href="">
+					<span class="ppw">邮箱问答</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+				</a>
+			</div>
+			<div class="wdt">
+				<ul>
+					<?php foreach($d["question_list"] as $key=> $item):?>
+					<li><a href="{$key}">{$item}</a></li>
+					<?php endforeach;?>
+				</ul>
+			</div>
+			<a href=""><img src="/templatestatic/wd.jpg"></a>
+		</div>
 
+		<div class="hyxw">
+			<div class="wz_title">
+				<a href="">
+					<span class="ppw">行业新闻</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+				</a>
+			</div>
+			<div class="new">
+				<ul>
+					<?php foreach($d["scatteredarticle_list"] as $item):?>
+					<li><a href="{$key}">{$item}</a></li>
+					<?php endforeach;?>
+				</ul>
+			</div>
+			<a href=""><img src="/templatestatic/hy-new.jpg"></a>
+		</div>
 
-<?php foreach($d["question_list"] as $item):?>
-<tr>
-	<td><a href="<?php echo 'question'.'/'.'question'.$item['id'].'.'.'html' ?>">{$item["question"]}</a></td>
-</tr>
-<?php endforeach;?>
+		<div class="pptj">
+			<div class="wz_title">
+				<a href="">
+					<span class="ppw">邮箱品牌推荐</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+				</a>
+			</div>
+			<ul>
+				<li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
+				<li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+				<li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+				<li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+				<li><a href=""><img src="/templatestatic/l5.jpg" /></a></li>
+				<li><a href=""><img src="/templatestatic/l6.jpg" /></a></li>
+				<li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
+				<li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
+			</ul>
+		</div>
+	</div>
+	<div class="clearfix"></div>
+</div>
+
+<div class="youqing">
+	<div class="wz_title">
+		<a href="">
+			<span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+		</a>
+	</div>
+	<ul>
+		<li><a href="">怎样申请企业邮箱</a></li>
+		<li><a href="">河南企业邮箱</a></li>
+		<li><a href="">网易企业邮箱</a></li>
+		<li><a href="">163企业邮箱</a></li>
+		<li><a href="">淄博企业邮箱</a></li>
+		<li><a href="">威海企业邮箱</a></li>
+		<li><a href="">山东企业邮箱</a></li>
+		<li><a href="">怎样申请企业邮箱</a></li>
+		<li><a href="">河南企业邮箱</a></li>
+		<li><a href="">网易企业邮箱</a></li>
+		<li><a href="">163企业邮箱</a></li>
+		<li><a href="">淄博企业邮箱</a></li>
+		<li><a href="">威海企业邮箱</a></li>
+		<li><a href="" class="yq_last">山东企业邮箱</a></li>
+	</ul>
+</div>
+
+<div class="bottom">
+	<div class="end">
+		<div class="el">
+			<div class="dxx">
+				全国企业邮箱服务电话：4006-360-163<br/>
+				© 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 中国企业邮箱网
+			</div>
+		</div>
+		<div class="er"><img src="/templatestatic/er.jpg" /></div>
+	</div>
+</div>
+
 </body>
 </html>
-
+<?php if($d["after_head_jscode"]):?>
+<?php foreach($d["after_head_jscode"] as $item):?>
+{$item}
+<?php endforeach;endif;?>

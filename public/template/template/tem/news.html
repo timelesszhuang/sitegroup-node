@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <title>{$d["title"]}</title>
+    <meta name="keyword" content='{$d["keyword"]}'>
+
+    <meta name="description" content='{$d["description"]}'>
+</head>
+<body>
+<table border="1">
+    <tr>
+        <td>title</td>
+    </tr>
+    <tr>
+        <td>{$scatteredarticle["title"]}</td>
+    </tr>
+</table>
+<p>
+    描述:  {$scatteredarticle["articletype_name"]}
+    <img src="../templatestatic/timg.jpg" alt="">
+</p>
+
+
+
+<p>
+    上一篇: <a href="news{$pre_article['id']}.html"><?php if(isset($pre_article->title)){
+    echo $pre_article["title"];
+    }
+    ?>
+</a>
+</a>
+</p>
+<p>
+    下一篇: <a href="news{$next_article['id']}.html"><?php if(isset($next_article["title"])){
+      echo $next_article["title"];
+        }
+        ?>
+</a>
+</a>
+</p>
+</body>
+</html>

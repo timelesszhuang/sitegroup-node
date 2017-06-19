@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{$d["title"]}</title>
+    <meta name="keyword" content='{$d["keyword"]}'>
+
+    <meta name="description" content='{$d["description"]}'>
+</head>
+<body>
+<table border="1">
+    <tr>
+        <td>title</td>
+    </tr>
+    <?php foreach($d["question_list"] as $item):?>
+    <tr>
+        <td><a href="aaa">{$item["question"]}</a></td>
+    </tr>
+    <?php endforeach;?>
+</table>
+<p>
+    {$d["newslist"]->render()}
+</p>
+</body>
+</html>

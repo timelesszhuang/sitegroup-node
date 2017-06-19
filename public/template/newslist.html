@@ -1,25 +1,248 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="UTF-8">
-    <title>{$d["title"]}</title>
-    <meta name="keyword" content='{$d["keyword"]}'>
-
-    <meta name="description" content='{$d["description"]}'>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>站群模板-文章列表</title>
+    <script src="templatestatic/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="templatestatic/jquery.SuperSlide.js"></script>
+    <link href="templatestatic/news.css" rel="stylesheet" type="text/css"/>
 </head>
+
 <body>
-<table border="1">
-    <tr>
-        <td>title</td>
-    </tr>
-    <?php foreach($d["question_list"] as $item):?>
-    <tr>
-        <td><a href="aaa">{$item["question"]}</a></td>
-    </tr>
-    <?php endforeach;?>
-</table>
-<p>
-    {$d["newslist"]->render()}
-</p>
+<div class="top_box">
+    <div class="top">
+        <div class="logo">企业邮箱网<span>www.qiyemail.com</span></div>
+        <div class="top_right">
+            <ul>
+                <li><a href="">手机版</a></li>
+                <li class="noborder"><a href="../sitemap.html" target="_blank">站点地图</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="nav">
+    <ul>
+        <li><a href="index.html" target="_blank">网站首页</a></li>
+        <li><a href="articlelist.html" target="_blank" class="nav_current">邮箱文章</a></li>
+        <li><a href="newslist.html" target="_blank">行业新闻</a></li>
+        <li><a href="questionlist.html" target="_blank">邮箱问答</a></li>
+    </ul>
+</div>
+
+<div class="dt">
+    <span class="t1"><a href=""><img src="templatestatic/t1.jpg"></a></span>
+    <span class="t2"><a href=""><img src="templatestatic/t2.jpg"></a></span>
+</div>
+
+<div class="part1">
+    <div class="yxwz">
+        <div class="dqw">当前位置>行业新闻</div>
+
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="detail/news.html" target="_blank">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <div class="wz_col">
+            <div class="wz_text">
+                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="wz_nr">
+                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
+                </div>
+                <a href="" class="xxnr">详细内容>></a>
+            </div>
+        </div>
+        <ul class="pagination">
+            <li class="disabled"><span>«</span></li>
+            <li class="active"><span>1</span></li>
+            <li><a href="/questionlist/3.html?page=2">2</a></li>
+            <li><a href="/questionlist/3.html?page=2">»</a></li>
+        </ul>
+    </div>
+
+
+    <div class="part2">
+        <div class="yxwd">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">邮箱文章</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="wdt">
+                <ul>
+                    <li><a href="">1.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">2.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">3.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">4.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">5.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">6.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">7.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">8.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">9.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">10.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                </ul>
+            </div>
+            <a href=""><img src="templatestatic/wd.jpg"></a>
+        </div>
+
+        <div class="hyxw">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">邮箱问答</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="new">
+                <ul>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="hyxw">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">行业新闻</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="new">
+                <ul>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                </ul>
+            </div>
+            <a href=""><img src="templatestatic/hy-new.jpg"></a>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="pptj">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">邮箱品牌推荐</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <li><a href=""><img src="templatestatic/l1.jpg"></a></li>
+        <li><a href=""><img src="templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l5.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l6.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l7.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l8.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l7.jpg" /></a></li>
+        <li><a href=""><img src="templatestatic/l8.jpg" /></a></li>
+        <div class="clearfix"></div>
+    </ul>
+</div>
+
+
+<div class="bottom">
+    <div class="end">
+        <div class="el">
+            <div class="dxx">
+                全国企业邮箱服务电话：4006-360-163<br/>
+                © 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 中国企业邮箱网
+            </div>
+        </div>
+        <div class="er"><img src="templatestatic/er.jpg" /></div>
+    </div>
+</div>
+
 </body>
 </html>
