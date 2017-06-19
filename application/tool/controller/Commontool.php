@@ -574,13 +574,7 @@ class Commontool extends Common
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
-        echo 'dede';
-        print_r($next_site);
-        echo 'dsadsa';
-        print_r($partnersite);
-        echo 'dsda';
-        print_r($main_site);
-        exit;
+
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
