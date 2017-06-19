@@ -3,13 +3,11 @@
 namespace app\index\controller;
 use app\common\controller\Common;
 use app\index\model\Question;
-use app\index\model\QuestionType;
 use app\tool\controller\Commontool;
-use app\tool\controller\Keyword;
-use app\tool\controller\Menu;
 use app\tool\controller\Site;
 use think\View;
 use app\tool\controller\FileExistsTraits;
+
 /**
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
