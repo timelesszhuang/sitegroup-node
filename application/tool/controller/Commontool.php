@@ -459,7 +459,7 @@ class Commontool extends Common
         $sync = Db::name('Activity')->where(['id' => ['in', explode(',', $sync_id)]])->field('name,detail,directory_name')->select();
         $activity_list = [];
         foreach ($sync as $k => $v) {
-            $path = '/activity' . $v['directory_name'];
+            $path = '/activity/' . $v['directory_name'];
             $activity = [];
             $activity['name'] = $v['name'];
             $activity['detail'] = $v['detail'];
