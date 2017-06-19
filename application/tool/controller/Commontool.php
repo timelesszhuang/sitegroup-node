@@ -289,16 +289,23 @@ class Commontool extends Common
     /**
      * 获取 文章列表 获取十条　文件名如 article1 　article2
      * @access public
-     * @param $type_id
+     * @param $sync_info 该站点所有文章分类的 静态化状况
      * @param $site_id
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getArticleList($type_id, $site_id, $limit = 10)
+    public static function getArticleList($sync_info, $site_id, $limit = 10)
     {
-        //  首先从数据库中获取 该站点已经静态化到的文章的 id 防止出现 404 问题
-        $static_id = self::getStaticRecordId($site_id, $type_id, 'article');
-        if ($static_id) {
-            $article = Db::name('Article')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title,content,thumbnails')->order('id desc')->limit($limit)->select();
+        $article_sync_info = array_key_exists('article', $sync_info) ? $sync_info['article'] : [];
+        if ($article_sync_info) {
+            $where = '';
+            foreach ($article_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+            }
+            $article = Db::name('Article')->where($where)->field('id,title,content,thumbnails')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
                 $generate_name = '/article/article' . $v['id'] . '.html';
@@ -319,12 +326,19 @@ class Commontool extends Common
      * 获取 问题列表 获取十条　文件名如 question1 　question2
      * @access public
      */
-    public static function getQuestionList($type_id, $site_id, $limit = 10)
+    public static function getQuestionList($sync_info, $site_id, $limit = 10)
     {
-        //  首先从数据库中获取 该站点已经静态化到的问题的文章 id 防止出现 404 问题
-        $static_id = self::getStaticRecordId($site_id, $type_id, 'question');
-        if ($static_id) {
-            $question = Db::name('Question')->where(['type_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,question')->order('id desc')->limit($limit)->select();
+        $question_sync_info = array_key_exists('question', $sync_info) ? $sync_info['question'] : [];
+        if ($question_sync_info) {
+            $where = '';
+            foreach ($question_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+            }
+            $question = Db::name('Question')->where($where)->field('id,question')->order('id desc')->limit($limit)->select();
             $questionlist = [];
             foreach ($question as $k => $v) {
                 $generate_name = '/question/question' . $v['id'] . '.html';
@@ -340,36 +354,27 @@ class Commontool extends Common
      * 获取 零散段落 分类  文件名如 article1 　article2
      * @access public
      */
-    public static function getScatteredArticleList($type_id, $site_id, $limit = 10)
+    public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
     {
-        //  首先从数据库中获取 该站点已经静态化到的零散段落的 id 防止出现 404 问题
-        $static_id = self::getStaticRecordId($site_id, $type_id, 'scatteredarticle');
-        if ($static_id) {
-            $article = Db::name('Scattered_title')->where(['articletype_id' => $type_id, 'id' => ['ELT', $static_id]])->field('id,title')->order('id desc')->limit($limit)->select();
+        $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
+        if ($scattered_sync_info) {
+            $where = '';
+            foreach ($scattered_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+            }
+            $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title')->order('id desc')->limit($limit)->select();
             $articlelist = [];
-            foreach ($article as $k => $v) {
+            foreach ($scattered_article as $k => $v) {
                 $generate_name = '/news/news' . $v['id'] . '.html';
                 $articlelist[$generate_name] = $v['title'];
             }
             return $articlelist;
         }
         return [];
-
-    }
-
-
-    /**
-     * 获取某个分类已经静态到的页面
-     * @access public
-     */
-    public static function getStaticRecordId($site_id, $type_id, $type_name)
-    {
-        //获取下该目录已经静态化到的目录
-        $count_arr = Db::name('ArticleSyncCount')->where(['site_id' => $site_id, 'type_id' => $type_id, 'type_name' => $type_name])->field('count')->find();
-        if (empty($count_arr)) {
-            return 0;
-        }
-        return $count_arr['count'];
     }
 
 
@@ -411,43 +416,44 @@ class Commontool extends Common
 
 
     /**
-     * 获取页面中 需要的文章列表 内容列表 问答列表
+     * 获取页面中 需要的文章列表  内容列表 问答列表
+     * 获取页面中文章列表 需要的  分类的id列表 跟 已经静态化的最大的id值
+     * 1、比如 文章 获取该站点所有的 选择的分类的id  跟 文章最大的id
+     *    取列表的时候 sql 用 type_id in (id,id) and id < 已经静态化的最大的id值
      * @access public
      */
     public static function getDbArticleListId($menu_ids, $site_id, $tag, $page_id)
     {
-        if ($tag != 'detail') {
-            //数据库中取出数据
-            $list = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->field('articletype_id,questiontype_id,scatteredarticletype_id')->find();
-            if ($list['articletype_id']) {
-                return array_values($list);
-            }
-        }
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         $type_id_arr = Menu::getTypeIdInfo($menu_ids);
-        //获取十条　文章　问答　断句
-        if (array_key_exists('article', $type_id_arr)) {
-            $key = array_rand($type_id_arr['article']);
-            $article_id = $type_id_arr['article'][$key]['id'];
+
+        //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+        $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_id,type_name,count')->select();
+        $article_sync_list = [];
+        if ($article_sync_info) {
+            foreach ($article_sync_info as $v) {
+                if (!array_key_exists($v['type_name'], $article_sync_list)) {
+                    $article_sync_list[$v['type_name']] = [];
+                }
+                $article_sync_list[$v['type_name']][$v['type_id']] = $v;
+            }
         }
-        if (array_key_exists('question', $type_id_arr)) {
-            $key = array_rand($type_id_arr['question']);
-            $questiontype_id = $type_id_arr['question'][$key]['id'];
+        $sync_article_data = [];
+        foreach ($type_id_arr as $type => $v) {
+            foreach ($v as $menu) {
+                $max_id = 0;
+                if (array_key_exists($type, $article_sync_list)) {
+                    $max_id = array_key_exists($menu['id'], $article_sync_list[$type]) ? $article_sync_list[$type][$menu['id']]['count'] : 0;
+                }
+                if (!array_key_exists($type, $sync_article_data)) {
+                    $sync_article_data[$type] = [
+                    ];
+                }
+                array_push($sync_article_data[$type], ['type_id' => $menu['id'], 'max_id' => $max_id]);
+            }
         }
-        if (array_key_exists('scatteredarticle', $type_id_arr)) {
-            $key = array_rand($type_id_arr['scatteredarticle']);
-            $scatteredarticletype_id = $type_id_arr['scatteredarticle'][$key]['id'];
-        }
-        if ($tag != 'detail') {
-            //把获取到的数据存储到数据库中
-            Db::name('SitePageinfo')->where(['site_id' => $site_id, 'page_type' => $tag, 'page_id' => $page_id])->update([
-                'articletype_id' => $article_id,
-                'questiontype_id' => $questiontype_id,
-                'scatteredarticletype_id' => $scatteredarticletype_id
-            ]);
-        }
-        return [$article_id, $questiontype_id, $scatteredarticletype_id];
+        return $sync_article_data;
     }
 
     /**
@@ -463,7 +469,7 @@ class Commontool extends Common
             $activity = [];
             $activity['name'] = $v['name'];
             $activity['detail'] = $v['detail'];
-            $activity['src'] = $path;
+            $activity['a_href'] = $path;
             $activity['big_img'] = $path . '/big.jpg';
             $activity['small_img'] = $path . '/small.jpg';
             $activity['medium_img'] = $path . '/medium.jpg';
@@ -540,13 +546,18 @@ class Commontool extends Common
                 list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
                 break;
         }
+
+
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
-        list($article_id, $question_id, $scatteredarticle_id) = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
+        $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
 
-        $article_list = self::getArticleList($article_id, $site_id);
-        $question_list = self::getQuestionList($question_id, $site_id);
-        $scatteredarticle_list = self::getScatteredArticleList($scatteredarticle_id, $site_id);
+        $article_list = self::getArticleList($artiletype_sync_info, $site_id);
+        $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
+        $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
+
+
+        //从数据库中取出 十条 最新的已经静态化的文章列表
 
         //获取友链
         $partnersite = self::getPatternLink($siteinfo['link_id']);
