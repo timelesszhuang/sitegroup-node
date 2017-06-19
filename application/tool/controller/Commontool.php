@@ -486,7 +486,6 @@ class Commontool extends Common
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
-        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -567,20 +566,23 @@ class Commontool extends Common
         }
 
         //获取公共代码
-        list($pre_head_commonjscode, $after_head_commonjscode) = self::getCommonCode($siteinfo['public_code']);
+        list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
         $before_head = $siteinfo['before_header_jscode'];
         $after_head = $siteinfo['other_jscode'];
-
-
+        if ($before_head) {
+            array_push($pre_head_jscode, $before_head);
+        }
+        if ($after_head) {
+            array_push($pre_head_jscode, $after_head);
+        }
         //公司名称
         $com_name = $siteinfo['com_name'];
         return [
             $com_name, $title, $keyword, $description,
-            $m_url, $redirect_code, $menu, $activity, $before_head,
-            $after_head, $chain_type, $next_site,
-            $main_site, $partnersite, $pre_head_commonjscode,
-            $after_head_commonjscode, $article_list, $question_list, $scatteredarticle_list
+            $m_url, $redirect_code, $menu, $activity, $chain_type, $next_site,
+            $main_site, $partnersite, $pre_head_jscode,
+            $after_head_jscode, $article_list, $question_list, $scatteredarticle_list
         ];
     }
 
