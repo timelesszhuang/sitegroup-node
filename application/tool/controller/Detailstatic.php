@@ -99,10 +99,9 @@ class Detailstatic extends Common
             foreach ($article_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content), 0, 200);
                 list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $activity, $chain_type, $next_site,
-                    $main_site, $partnersite, $pre_head_jscode, $after_head_jscode,
+                    $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
                 file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
@@ -191,11 +190,11 @@ class Detailstatic extends Common
                 $item['content'] = implode('<br/>', $scatArticleArray);
                 $temp_content = mb_substr(strip_tags($item['content']), 0, 200);
                 list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $activity,  $chain_type, $next_site,
-                    $main_site, $partnersite, $pre_head_jscode, $after_head_jscode,
+                    $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
-                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+
+                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+//                    file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
@@ -280,10 +279,9 @@ class Detailstatic extends Common
             foreach ($question_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
                 list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $activity,$chain_type, $next_site,
-                    $main_site, $partnersite, $pre_head_jscode, $after_head_jscode,
+                    $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
                     $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'chain_type', 'next_site', 'main_site', 'common_site', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
                 file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
                 //页面中还需要填写隐藏的 表单 node_id site_id
                 //获取上一篇和下一篇

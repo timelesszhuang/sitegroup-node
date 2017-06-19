@@ -559,6 +559,7 @@ class Commontool extends Common
         //从数据库中取出 十条 最新的已经静态化的文章列表
 
 
+        $partnersite = [];
         //获取友链
         $partnersite = self::getPatternLink($siteinfo['link_id']);
         //链轮的类型
@@ -574,7 +575,13 @@ class Commontool extends Common
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
-
+        print_r($partnersite);
+        if ($next_site) {
+            $partnersite[$next_site['url']] = $next_site['site_name'];
+        }
+        if ($main_site) {
+            $partnersite[$main_site['url']] = $main_site['site_name'];
+        }
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
@@ -590,8 +597,7 @@ class Commontool extends Common
         $com_name = $siteinfo['com_name'];
         return [
             $com_name, $title, $keyword, $description,
-            $m_url, $redirect_code, $menu, $activity, $chain_type, $next_site,
-            $main_site, $partnersite, $pre_head_jscode,
+            $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode,
             $after_head_jscode, $article_list, $question_list, $scatteredarticle_list
         ];
     }
