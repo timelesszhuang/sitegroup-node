@@ -28,7 +28,6 @@
 		</div>
 	</div>
 </div>
-
 <div class="nav">
 	<ul>
 		<?php foreach($d['menu'] as $item):?>
@@ -36,7 +35,6 @@
 		<?php endforeach;?>
 	</ul>
 </div>
-
 <div class="dt">
 	<?php if($d["activity"]):?>
 	<?php foreach($d["activity"] as $key=> $item):?>
@@ -52,16 +50,15 @@
 		<div class="wz_col">
 			{$item['thumbnails']}
 			<div class="wz_text">
-				<h1 class="wz_bt"><a href="{$item['generate']}">{$item['title']}</a></h1>
+				<h1 class="wz_bt"><a href="{$item['a_href']}">{$item['title']}</a></h1>
 				<div class="wz_nr">
 					{$item['summary']}
 				</div>
-				<a href="{$item['generate']}" class="xxnr">详细内容>></a>
+				<a href="{$item['a_href']}" class="xxnr">详细内容>></a>
 			</div>
 		</div>
 		<?php endforeach;?>
 	</div>
-
 
 	<div class="part2">
 		<div class="yxwd">
@@ -72,8 +69,8 @@
 			</div>
 			<div class="wdt">
 				<ul>
-					<?php foreach($d["question_list"] as $key=> $item):?>
-					<li><a href="{$key}">{$item}</a></li>
+					<?php foreach($d["question_list"] as $item):?>
+					<li><a href="{$item['a_href']}">{$item["question"]}</a><span class="sj">{$item["create_time"]}</span></li>
 					<?php endforeach;?>
 				</ul>
 			</div>
@@ -89,7 +86,7 @@
 			<div class="new">
 				<ul>
 					<?php foreach($d["scatteredarticle_list"] as $item):?>
-					<li><a href="{$key}">{$item}</a></li>
+					<li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
 					<?php endforeach;?>
 				</ul>
 			</div>
@@ -124,20 +121,9 @@
 		</a>
 	</div>
 	<ul>
-		<li><a href="">怎样申请企业邮箱</a></li>
-		<li><a href="">河南企业邮箱</a></li>
-		<li><a href="">网易企业邮箱</a></li>
-		<li><a href="">163企业邮箱</a></li>
-		<li><a href="">淄博企业邮箱</a></li>
-		<li><a href="">威海企业邮箱</a></li>
-		<li><a href="">山东企业邮箱</a></li>
-		<li><a href="">怎样申请企业邮箱</a></li>
-		<li><a href="">河南企业邮箱</a></li>
-		<li><a href="">网易企业邮箱</a></li>
-		<li><a href="">163企业邮箱</a></li>
-		<li><a href="">淄博企业邮箱</a></li>
-		<li><a href="">威海企业邮箱</a></li>
-		<li><a href="" class="yq_last">山东企业邮箱</a></li>
+		<?php foreach($d["partnersite"] as $key=>$item):?>
+		<li><a href="{$key}">{$item}</a></li>
+		<?php endforeach;?>
 	</ul>
 </div>
 
