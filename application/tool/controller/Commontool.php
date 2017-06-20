@@ -309,13 +309,12 @@ class Commontool extends Common
             $article = Db::name('Article')->where($where)->field('id,title,content,thumbnails,summary,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
-                $generate_name = '/article/article' . $v['id'] . '.html';
                 $art = [];
                 $art['title'] = $v['title'];
-                $art['generate'] = $generate_name;
+                $art['a_href'] = '/article/article' . $v['id'] . '.html';
                 $art['summary'] = $v['summary'];
                 $art['thumbnails'] = $v['thumbnails'] ?: '<img src="/templatestatic/default.jpg"/>';
-                $art['time'] = date('Y-m-d', $v['create_time']);
+                $art['create_time'] = date('Y-m-d', $v['create_time']);
                 $articlelist[] = $art;
             }
             return $articlelist;
@@ -340,11 +339,14 @@ class Commontool extends Common
                     $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 }
             }
-            $question = Db::name('Question')->where($where)->field('id,question')->order('id desc')->limit($limit)->select();
+            $question = Db::name('Question')->where($where)->field('id,question,create_time')->order('id desc')->limit($limit)->select();
             $questionlist = [];
             foreach ($question as $k => $v) {
-                $generate_name = '/question/question' . $v['id'] . '.html';
-                $questionlist[$generate_name] = $v['question'];
+                $questionlist[] = [
+                    'question' => $v['question'],
+                    'a_href' => '/question/question' . $v['id'] . '.html',
+                    'create_time' => date('Y-m-d', $v['create_time']),
+                ];
             }
             return $questionlist;
         }
@@ -368,11 +370,14 @@ class Commontool extends Common
                     $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 }
             }
-            $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title')->order('id desc')->limit($limit)->select();
+            $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($scattered_article as $k => $v) {
-                $generate_name = '/news/news' . $v['id'] . '.html';
-                $articlelist[$generate_name] = $v['title'];
+                $articlelist[] = [
+                    'a_href' => '/news/news' . $v['id'] . '.html',
+                    'title' => $v['title'],
+                    'create_time' => date('Y-m-d', $v['create_time'])
+                ];
             }
             return $articlelist;
         }
