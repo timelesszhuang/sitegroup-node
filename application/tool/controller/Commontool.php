@@ -297,6 +297,7 @@ class Commontool extends Common
         $article_sync_info = array_key_exists('article', $sync_info) ? $sync_info['article'] : [];
         if ($article_sync_info) {
             $where = '';
+            //还需要　只获取　允许同步的文章
             foreach ($article_sync_info as $k => $v) {
                 if ($k == 0) {
                     $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
@@ -304,15 +305,17 @@ class Commontool extends Common
                     $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 }
             }
-            $article = Db::name('Article')->where($where)->field('id,title,content,thumbnails')->order('id desc')->limit($limit)->select();
+            $where = "({$where}) and ((`is_sync`= '20') or (`is_sync`='10' and `site_id`='{$site_id}'))";
+            $article = Db::name('Article')->where($where)->field('id,title,content,thumbnails,summary,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
                 $generate_name = '/article/article' . $v['id'] . '.html';
                 $art = [];
                 $art['title'] = $v['title'];
                 $art['generate'] = $generate_name;
-                $art['summary'] = self::utf8chstringsubstr(strip_tags($v['content']), 120);
+                $art['summary'] = $v['summary'];
                 $art['thumbnails'] = $v['thumbnails'] ?: '<img src="/templatestatic/default.jpg"/>';
+                $art['time'] = date('Y-m-d', $v['create_time']);
                 $articlelist[] = $art;
             }
             return $articlelist;
@@ -546,18 +549,15 @@ class Commontool extends Common
                 break;
         }
 
-
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
-
+//        print_r($artiletype_sync_info);
         $article_list = self::getArticleList($artiletype_sync_info, $site_id);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
 
-
         //从数据库中取出 十条 最新的已经静态化的文章列表
-
 
         $partnersite = [];
         //获取友链
@@ -575,7 +575,7 @@ class Commontool extends Common
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
-        print_r($partnersite);
+
         if ($next_site) {
             $partnersite[$next_site['url']] = $next_site['site_name'];
         }
