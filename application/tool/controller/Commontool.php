@@ -523,7 +523,7 @@ class Commontool extends Common
     sendInfo.referrer = referrer;
     sendInfo.origin_web = window.location.href
     $(function () {
-        var url = var url = "/index.php/externalAccess";;
+        var url = var url = "/index.php/externalAccess";
         $.ajax({
                 type: "post",
                 url: url,
