@@ -485,6 +485,58 @@ class Commontool extends Common
         return $activity_list;
     }
 
+    /**
+     * 获取搜索引擎的 referer 不支持百度 谷歌
+     * @access public
+     */
+    public static function getRefereerDemo()
+    {
+        return <<<CODE
+<script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";;
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+CODE;
+    }
+
 
     /**
      * 获取 页面中必须的元素
@@ -584,9 +636,11 @@ class Commontool extends Common
         if ($next_site) {
             $partnersite[$next_site['url']] = $next_site['site_name'];
         }
+
         if ($main_site) {
             $partnersite[$main_site['url']] = $main_site['site_name'];
         }
+
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
@@ -596,7 +650,11 @@ class Commontool extends Common
             array_push($pre_head_jscode, $before_head);
         }
         if ($after_head) {
-            array_push($pre_head_jscode, $after_head);
+            array_push($after_head_jscode, $after_head);
+        }
+        $refere_code = self::getRefereerDemo();
+        if ($refere_code) {
+            array_push($after_head_jscode, $refere_code);
         }
         //公司名称
         $com_name = $siteinfo['com_name'];
