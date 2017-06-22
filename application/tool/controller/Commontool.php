@@ -611,7 +611,6 @@ CODE;
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
-        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
