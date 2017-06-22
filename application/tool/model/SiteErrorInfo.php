@@ -25,5 +25,4 @@ class SiteErrorInfo extends Model
     }
 
 
-
 }

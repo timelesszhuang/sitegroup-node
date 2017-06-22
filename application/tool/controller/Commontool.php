@@ -258,9 +258,15 @@ class Commontool extends Common
         $c_keyword_arr = [];
         if (array_key_exists('children', $b_child_info)) {
             $c_child_info = $b_child_info['children'];
-            $c_rand_key = array_rand($c_child_info, 3);
-            foreach ($c_rand_key as $v) {
-                $c_keyword_arr[] = $c_child_info[$v];
+            $length = count($c_child_info);
+            $randamcount = $length >= 3 ? 3 : $length;
+            $c_rand_key = array_rand($c_child_info, $randamcount);
+            if (is_array($c_rand_key)) {
+                foreach ($c_rand_key as $v) {
+                    $c_keyword_arr[] = $c_child_info[$v];
+                }
+            } else {
+                $c_keyword_arr[] = $c_child_info[$c_rand_key];
             }
         }
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
@@ -485,6 +491,58 @@ class Commontool extends Common
         return $activity_list;
     }
 
+    /**
+     * 获取搜索引擎的 referer 不支持百度 谷歌
+     * @access public
+     */
+    public static function getRefereerDemo()
+    {
+        return <<<CODE
+<script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+CODE;
+    }
+
 
     /**
      * 获取 页面中必须的元素
@@ -499,6 +557,7 @@ class Commontool extends Common
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
+        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -557,7 +616,7 @@ class Commontool extends Common
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
-//        print_r($artiletype_sync_info);
+
         $article_list = self::getArticleList($artiletype_sync_info, $site_id);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
@@ -574,6 +633,7 @@ class Commontool extends Common
         //主站是哪个
         $main_site = [];
         $is_mainsite = $siteinfo['main_site'];
+
         if ($is_mainsite == '10') {
             //表示不是主站
             //站点类型 用于取出主站 以及链轮类型 来
@@ -584,9 +644,11 @@ class Commontool extends Common
         if ($next_site) {
             $partnersite[$next_site['url']] = $next_site['site_name'];
         }
+
         if ($main_site) {
             $partnersite[$main_site['url']] = $main_site['site_name'];
         }
+
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
@@ -596,7 +658,11 @@ class Commontool extends Common
             array_push($pre_head_jscode, $before_head);
         }
         if ($after_head) {
-            array_push($pre_head_jscode, $after_head);
+            array_push($after_head_jscode, $after_head);
+        }
+        $refere_code = self::getRefereerDemo();
+        if ($refere_code) {
+            array_push($after_head_jscode, $refere_code);
         }
         //公司名称
         $com_name = $siteinfo['com_name'];
