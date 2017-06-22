@@ -6,6 +6,7 @@ use app\common\controller\Common;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
 use app\index\model\ScatteredTitle;
+use app\tool\model\ArticleInsertA;
 use think\Db;
 use think\View;
 
@@ -109,17 +110,23 @@ class Detailstatic extends Common
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
-                echo 111;die;
-                dump($item);die;
+
+                // 获取3个a链接
+                $insertALink=$this->insertA($node_id,$site_id,$item->content);
+                $temp_content=$item->content;
+                if($insertALink){
+                    $temp_content=$insertALink;
+                }
 
                 $content = (new View())->fetch('template/article.html',
                     [
                         'd' => $assign_data,
-                        'article' => $item,
+                        'article' => ["title" => $item->title, "auther" => $item->auther, "create_time" => $item->create_time, "content" => $temp_content],
                         'pre_article' => $pre_article,
                         'next_article' => $next_article
                     ]
                 );
+
                 //判断模板是否存在
                 if (!file_exists('article')) {
                     $this->make_error("article");
@@ -145,186 +152,187 @@ class Detailstatic extends Common
                 }
             }
         }
+}
+
+
+/**
+ * 零散文章的静态化
+ * @access public
+ * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
+ * @param $type_id 文章的分类id
+ * @param $a_keyword_id 栏目所对应的a类 关键词
+ * @param $site_id 站点id
+ * @param $site_name 站点name
+ * @param $node_id 节点id
+ */
+public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
+{
+    //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
+    //  关键词
+    //判断模板是否存在
+    if (!$this->fileExists('template/news.html')) {
+        return;
     }
+    $type_name = "scatteredarticle";
+    $where = [
+        'type_id' => $type_id,
+        'type_name' => $type_name,
+        "node_id" => $node_id,
+        "site_id" => $site_id
+    ];
+    $limit = 0;
+    $articleCount = ArticleSyncCount::where($where)->find();
+    //判断下是否有数据 没有就创建模型
+    if (isset($articleCount->count) && $articleCount->count > 0) {
+        $limit = $articleCount->count;
+    } else {
+        $article_temp = new ArticleSyncCount();
+    }
+    $count = \app\index\model\ScatteredTitle::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
+    if ($count == 0) {
+        return;
+    }
+    $page = 50;
+    //需要循环的页数
+    $step = ceil($count / $page);
+    for ($i = 0; $i <= $step; $i++) {
+        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($page)->select();
+        foreach ($scatTitleArray as $item) {
+            $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
+            $item['content'] = implode('<br/>', $scatArticleArray);
+            $temp_content = mb_substr(strip_tags($item['content']), 0, 200);
+            list($com_name, $title, $keyword, $description,
+                $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
+                $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
 
-
-    /**
-     * 零散文章的静态化
-     * @access public
-     * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
-     * @param $type_id 文章的分类id
-     * @param $a_keyword_id 栏目所对应的a类 关键词
-     * @param $site_id 站点id
-     * @param $site_name 站点name
-     * @param $node_id 节点id
-     */
-    public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
-    {
-        //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
-        //  关键词
-        //判断模板是否存在
-        if (!$this->fileExists('template/news.html')) {
-            return;
-        }
-        $type_name = "scatteredarticle";
-        $where = [
-            'type_id' => $type_id,
-            'type_name' => $type_name,
-            "node_id" => $node_id,
-            "site_id" => $site_id
-        ];
-        $limit = 0;
-        $articleCount = ArticleSyncCount::where($where)->find();
-        //判断下是否有数据 没有就创建模型
-        if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
-        } else {
-            $article_temp = new ArticleSyncCount();
-        }
-        $count = \app\index\model\ScatteredTitle::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
-        if ($count == 0) {
-            return;
-        }
-        $page = 50;
-        //需要循环的页数
-        $step = ceil($count / $page);
-        for ($i = 0; $i <= $step; $i++) {
-            $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($page)->select();
-            foreach ($scatTitleArray as $item) {
-                $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
-                $item['content'] = implode('<br/>', $scatArticleArray);
-                $temp_content = mb_substr(strip_tags($item['content']), 0, 200);
-                list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
-                    $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
-                file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-                //页面中还需要填写隐藏的 表单 node_id site_id
-                //获取上一篇和下一篇
-                $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
-                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
-                $content = (new View())->fetch('template/news.html',
-                    [
-                        'd' => $assign_data,
-                        'scatteredarticle' => $item,
-                        'pre_article' => $pre_article,
-                        'next_article' => $next_article
-                    ]
-                );
-                //判断模板是否存在
-                if (!file_exists('news')) {
-                    $this->make_error("news");
-                    die;
+            $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+            file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            //页面中还需要填写隐藏的 表单 node_id site_id
+            //获取上一篇和下一篇
+            $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
+            $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+            $content = (new View())->fetch('template/news.html',
+                [
+                    'd' => $assign_data,
+                    'scatteredarticle' => $item,
+                    'pre_article' => $pre_article,
+                    'next_article' => $next_article
+                ]
+            );
+            //判断模板是否存在
+            if (!file_exists('news')) {
+                $this->make_error("news");
+                die;
+            }
+            $make_web = file_put_contents('news/news' . $item["id"] . '.html', $content);
+            //开始同步数据库
+            if ($make_web) {
+                $articleCountModel = ArticleSyncCount::where($where)->find();
+                if (is_null($articleCountModel)) {
+                    $article_temp->count = $item->id;
+                    $article_temp->type_id = $type_id;
+                    $article_temp->type_name = $type_name;
+                    $article_temp->node_id = $node_id;
+                    $article_temp->site_id = $site_id;
+                    $article_temp->site_name = $site_name;
+                    $article_temp->save();
+                } else {
+                    $articleCountModel->count = $item->id;
+                    $articleCountModel->save();
                 }
-                $make_web = file_put_contents('news/news' . $item["id"] . '.html', $content);
-                //开始同步数据库
-                if ($make_web) {
-                    $articleCountModel = ArticleSyncCount::where($where)->find();
-                    if (is_null($articleCountModel)) {
-                        $article_temp->count = $item->id;
-                        $article_temp->type_id = $type_id;
-                        $article_temp->type_name = $type_name;
-                        $article_temp->node_id = $node_id;
-                        $article_temp->site_id = $site_id;
-                        $article_temp->site_name = $site_name;
-                        $article_temp->save();
-                    } else {
-                        $articleCountModel->count = $item->id;
-                        $articleCountModel->save();
-                    }
-                    $limit = $item["id"];
-                }
+                $limit = $item["id"];
             }
         }
     }
+}
 
-    /**
-     * 问答
-     * @param $site_id
-     * @param $site_name
-     * @param $node_id
-     * @param $type_id
-     * @param $a_keyword_id
-     */
-    public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
-    {
-        //判断模板是否存在
-        if (!$this->fileExists('template/question.html')) {
-            return;
-        }
-        //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
-        //  关键词
-        //当前分类名称
-        $type_name = "question";
-        $where = [
-            'type_id' => $type_id,
-            'type_name' => $type_name,
-            "node_id" => $node_id,
-            "site_id" => $site_id
-        ];
-        $limit = 0;
-        $articleCount = ArticleSyncCount::where($where)->find();
-        //判断下是否有数据 没有就创建模型  需要减去1 因为要将以前最后一页重新生成
-        if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
-        } else {
-            $article_temp = new ArticleSyncCount();
-        }
+/**
+ * 问答
+ * @param $site_id
+ * @param $site_name
+ * @param $node_id
+ * @param $type_id
+ * @param $a_keyword_id
+ */
+public
+function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
+{
+    //判断模板是否存在
+    if (!$this->fileExists('template/question.html')) {
+        return;
+    }
+    //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
+    //  关键词
+    //当前分类名称
+    $type_name = "question";
+    $where = [
+        'type_id' => $type_id,
+        'type_name' => $type_name,
+        "node_id" => $node_id,
+        "site_id" => $site_id
+    ];
+    $limit = 0;
+    $articleCount = ArticleSyncCount::where($where)->find();
+    //判断下是否有数据 没有就创建模型  需要减去1 因为要将以前最后一页重新生成
+    if (isset($articleCount->count) && $articleCount->count > 0) {
+        $limit = $articleCount->count;
+    } else {
+        $article_temp = new ArticleSyncCount();
+    }
 
-        $count = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->count();
-        if ($count == 0) {
-            return;
-        }
-        $page = 50;
-        //需要循环的页数
-        $step = ceil($count / $page);
-        for ($i = 0; $i <= $step; $i++) {
-            $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
-            foreach ($question_data as $item) {
-                $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
-                list($com_name, $title, $keyword, $description,
-                    $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
-                    $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
-                $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
-                file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-                //页面中还需要填写隐藏的 表单 node_id site_id
-                //获取上一篇和下一篇
-                $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id", "desc")->find();
-                $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
-                $content = (new View())->fetch('template/question.html',
-                    [
-                        'd' => $assign_data,
-                        'question' => $item,
-                        'pre_question' => $pre_question,
-                        'next_question' => $next_question
-                    ]
-                );
-                //判断模板是否存在
-                if (!file_exists('question')) {
-                    $this->make_error("question");
-                    die;
+    $count = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->count();
+    if ($count == 0) {
+        return;
+    }
+    $page = 50;
+    //需要循环的页数
+    $step = ceil($count / $page);
+    for ($i = 0; $i <= $step; $i++) {
+        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
+        foreach ($question_data as $item) {
+            $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
+            list($com_name, $title, $keyword, $description,
+                $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
+                $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
+            $assign_data = compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+            file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            //页面中还需要填写隐藏的 表单 node_id site_id
+            //获取上一篇和下一篇
+            $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id", "desc")->find();
+            $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
+            $content = (new View())->fetch('template/question.html',
+                [
+                    'd' => $assign_data,
+                    'question' => $item,
+                    'pre_question' => $pre_question,
+                    'next_question' => $next_question
+                ]
+            );
+            //判断模板是否存在
+            if (!file_exists('question')) {
+                $this->make_error("question");
+                die;
+            }
+            $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
+            //开始同步数据库
+            if ($make_web) {
+                $articleCountModel = ArticleSyncCount::where($where)->find();
+                if (is_null($articleCountModel)) {
+                    $article_temp->count = $item["id"];
+                    $article_temp->type_id = $type_id;
+                    $article_temp->type_name = $type_name;
+                    $article_temp->node_id = $node_id;
+                    $article_temp->site_id = $site_id;
+                    $article_temp->site_name = $site_name;
+                    $article_temp->save();
+                } else {
+                    $articleCountModel->count = $item["id"];
+                    $articleCountModel->save();
                 }
-                $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
-                //开始同步数据库
-                if ($make_web) {
-                    $articleCountModel = ArticleSyncCount::where($where)->find();
-                    if (is_null($articleCountModel)) {
-                        $article_temp->count = $item["id"];
-                        $article_temp->type_id = $type_id;
-                        $article_temp->type_name = $type_name;
-                        $article_temp->node_id = $node_id;
-                        $article_temp->site_id = $site_id;
-                        $article_temp->site_name = $site_name;
-                        $article_temp->save();
-                    } else {
-                        $articleCountModel->count = $item["id"];
-                        $articleCountModel->save();
-                    }
-                    $limit = $item["id"];
-                }
+                $limit = $item["id"];
             }
         }
     }
+}
 
 }

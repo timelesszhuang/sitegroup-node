@@ -97,7 +97,7 @@ ul,li{ list-style:none; padding:0; margin:0;}
 
 
 /*文章详情*/
-.article_wz{ width:800px; height:1300px;float:left;}
+.article_wz{ width:800px;float:left;}
 .article_wz .wenzhang_h1{ font-size:18px; font-weight:normal;color:#333; text-align:center;}
 .article_wz .art_zt{margin:0 auto;width:250px;padding:10px 0;}
 .article_wz .art_ztbox{width:800px;border-bottom:1px dotted #afafaf;}
