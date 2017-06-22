@@ -1,4 +1,5 @@
 .idea
+application/database.php
 composer.phar
 /vendor/
 .idea/workspace.xml

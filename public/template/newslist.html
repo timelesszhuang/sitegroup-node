@@ -2,10 +2,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>站群模板-文章列表</title>
-    <script src="templatestatic/jquery-1.8.2.min.js"></script>
-    <script type="text/javascript" src="templatestatic/jquery.SuperSlide.js"></script>
-    <link href="templatestatic/news.css" rel="stylesheet" type="text/css"/>
+    <title>{$d["title"]}</title>
+    <meta name="keyword" content='{$d["keyword"]}'>
+    <meta name="description" content='{$d["description"]}'>
+    {$d["redirect_code"]}
+    <?php if($d["pre_head_jscode"]):?>
+    <?php foreach($d["pre_head_jscode"] as $item):?>
+    {$item}
+    <?php endforeach;endif;?>
+    <script src="/templatestaticjquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="/templatestaticjquery.SuperSlide.js"></script>
+    <link href="/templatestatic/news.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
@@ -14,7 +21,7 @@
         <div class="logo">企业邮箱网<span>www.qiyemail.com</span></div>
         <div class="top_right">
             <ul>
-                <li><a href="">手机版</a></li>
+                <li><a href="{$d['m_url']}">手机版</a></li>
                 <li class="noborder"><a href="../sitemap.html" target="_blank">站点地图</a></li>
             </ul>
         </div>
@@ -23,118 +30,30 @@
 
 <div class="nav">
     <ul>
-        <li><a href="index.html" target="_blank">网站首页</a></li>
-        <li><a href="articlelist.html" target="_blank" class="nav_current">邮箱文章</a></li>
-        <li><a href="newslist.html" target="_blank">行业新闻</a></li>
-        <li><a href="questionlist.html" target="_blank">邮箱问答</a></li>
+        <?php foreach($d['menu'] as $item):?>
+        <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
+        <?php endforeach;?>
     </ul>
 </div>
 
 <div class="dt">
-    <span class="t1"><a href=""><img src="templatestatic/t1.jpg"></a></span>
-    <span class="t2"><a href=""><img src="templatestatic/t2.jpg"></a></span>
+    <?php if($d["activity"]):?>
+    <?php foreach($d["activity"] as $key=> $item):?>
+    <span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
+    <?php endforeach;endif;?>
 </div>
 
 <div class="part1">
     <div class="yxwz">
         <div class="dqw">当前位置>行业新闻</div>
-
+        <?php foreach($d["scatteredarticle_list"] as  $item):?>
         <div class="wz_col">
             <div class="wz_text">
-                <h1 class="wz_bt"><a href="detail/news.html" target="_blank">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
+                <h1 class="wz_bt"><a href="{$item['a_href']}" target="_blank">{$item['title']}</a></h1>
+                <a href="{$item['a_href']}" class="xxnr">详细内容</a>
             </div>
         </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
-                <div class="wz_nr">
-                    2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街成功举行，众多产品大咖齐聚一堂，探讨自己在从业期间踩过的坑与实践经验。其中，网易视频云资深产品经
-                </div>
-                <a href="" class="xxnr">详细内容>></a>
-            </div>
-        </div>
-        <ul class="pagination">
-            <li class="disabled"><span>«</span></li>
-            <li class="active"><span>1</span></li>
-            <li><a href="/questionlist/3.html?page=2">2</a></li>
-            <li><a href="/questionlist/3.html?page=2">»</a></li>
-        </ul>
+        <?php endforeach;?>
     </div>
 
 
@@ -147,19 +66,12 @@
             </div>
             <div class="wdt">
                 <ul>
-                    <li><a href="">1.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">2.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">3.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">4.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">5.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">6.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">7.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">8.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">9.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">10.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <?php foreach($d["article_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
                 </ul>
             </div>
-            <a href=""><img src="templatestatic/wd.jpg"></a>
+            <a href=""><img src="/templatestaticwd.jpg"></a>
         </div>
 
         <div class="hyxw">
@@ -170,16 +82,9 @@
             </div>
             <div class="new">
                 <ul>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <?php foreach($d["question_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["question"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
                 </ul>
             </div>
         </div>
@@ -192,19 +97,12 @@
             </div>
             <div class="new">
                 <ul>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <?php foreach($d["scatteredarticle_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
                 </ul>
             </div>
-            <a href=""><img src="templatestatic/hy-new.jpg"></a>
+            <a href=""><img src="/templatestatic/wd.jpg"></a>
         </div>
     </div>
     <div class="clearfix"></div>
@@ -217,21 +115,32 @@
         </a>
     </div>
     <ul>
-        <li><a href=""><img src="templatestatic/l1.jpg"></a></li>
-        <li><a href=""><img src="templatestatic/l2.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l3.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l4.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l5.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l6.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l7.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l8.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l7.jpg" /></a></li>
-        <li><a href=""><img src="templatestatic/l8.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l5.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l6.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
         <div class="clearfix"></div>
     </ul>
 </div>
 
-
+<div class="youqing">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <?php foreach($d["partnersite"] as $key=>$item):?>
+        <li><a href="{$key}">{$item}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
 <div class="bottom">
     <div class="end">
         <div class="el">
@@ -240,7 +149,7 @@
                 © 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 中国企业邮箱网
             </div>
         </div>
-        <div class="er"><img src="templatestatic/er.jpg" /></div>
+        <div class="er"><img src="/templatestatic/er.jpg" /></div>
     </div>
 </div>
 

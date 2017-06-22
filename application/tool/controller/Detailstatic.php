@@ -25,8 +25,8 @@ class Detailstatic extends Common
      */
     public function index()
     {
-        set_time_limit(0);
-        ignore_user_abort();
+//        set_time_limit(0);
+//        ignore_user_abort();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -48,12 +48,12 @@ class Detailstatic extends Common
                     case'article':
                         $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
                         break;
-                    case'question':
-                        $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-                        break;
-                    case'scatteredarticle':
-                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
-                        break;
+//                    case'question':
+//                        $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+//                        break;
+//                    case'scatteredarticle':
+//                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+//                        break;
                 }
             }
         }
@@ -107,6 +107,9 @@ class Detailstatic extends Common
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+                echo 111;die;
+                dump($item);die;
+
                 $content = (new View())->fetch('template/article.html',
                     [
                         'd' => $assign_data,

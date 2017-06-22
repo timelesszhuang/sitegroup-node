@@ -56,5 +56,18 @@ trait FileExistsTraits
         ]);
     }
 
+    /**
+     * 检查字符的ascii码 是否大于127
+     * @param $str
+     * @return bool
+     */
+    public function checkAscii($str)
+    {
+       if(ord($str)>127){
+           return true;
+       }
+       return false;
+    }
+
 
 }
