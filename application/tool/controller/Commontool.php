@@ -616,7 +616,7 @@ CODE;
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
-//      print_r($artiletype_sync_info);
+
         $article_list = self::getArticleList($artiletype_sync_info, $site_id);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
