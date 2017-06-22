@@ -258,9 +258,15 @@ class Commontool extends Common
         $c_keyword_arr = [];
         if (array_key_exists('children', $b_child_info)) {
             $c_child_info = $b_child_info['children'];
-            $c_rand_key = array_rand($c_child_info, 3);
-            foreach ($c_rand_key as $v) {
-                $c_keyword_arr[] = $c_child_info[$v];
+            $length = count($c_child_info);
+            $randamcount = $length >= 3 ? 3 : $length;
+            $c_rand_key = array_rand($c_child_info, $randamcount);
+            if (is_array($c_rand_key)) {
+                foreach ($c_rand_key as $v) {
+                    $c_keyword_arr[] = $c_child_info[$v];
+                }
+            } else {
+                $c_keyword_arr[] = $c_child_info[$c_rand_key];
             }
         }
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
@@ -551,6 +557,7 @@ CODE;
      */
     public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
+        Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -609,7 +616,7 @@ CODE;
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
-//        print_r($artiletype_sync_info);
+//      print_r($artiletype_sync_info);
         $article_list = self::getArticleList($artiletype_sync_info, $site_id);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
@@ -626,6 +633,7 @@ CODE;
         //主站是哪个
         $main_site = [];
         $is_mainsite = $siteinfo['main_site'];
+
         if ($is_mainsite == '10') {
             //表示不是主站
             //站点类型 用于取出主站 以及链轮类型 来
