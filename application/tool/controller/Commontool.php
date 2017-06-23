@@ -296,34 +296,22 @@ class Commontool extends Common
      * @access public
      * @param $sync_info 该站点所有文章分类的 静态化状况
      * @param $site_id
-     * @param $tag  标志是哪个页面需要获取文章列表 index首页  detail详情页  menu菜单页面 envmenu 配置页面
      *              如果是 detail 的话 应该给
      * @param int $limit
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getArticleList($sync_info, $site_id, $tag, $limit = 10)
+    public static function getArticleList($sync_info, $site_id, $limit = 10)
     {
 
         $article_sync_info = array_key_exists('article', $sync_info) ? $sync_info['article'] : [];
         if ($article_sync_info) {
             $where = '';
-            if ($tag == 'detail') {
-                //还需要　只获取　允许同步的文章
-                foreach ($article_sync_info as $k => $v) {
-                    if ($k == 0) {
-                        $where .= "(`articletype_id` = {$v['type_id']})";
-                    } else {
-                        $where .= ' or' . " (`articletype_id` = {$v['type_id']})";
-                    }
-                }
-            } else {
-                //还需要　只获取　允许同步的文章
-                foreach ($article_sync_info as $k => $v) {
-                    if ($k == 0) {
-                        $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                    } else {
-                        $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                    }
+            //还需要　只获取　允许同步的文章
+            foreach ($article_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 }
             }
             $where = "({$where}) and ((`is_sync`= '20') or (`is_sync`='10' and `site_id`='{$site_id}'))";
@@ -349,31 +337,19 @@ class Commontool extends Common
      * @access public
      * @param $sync_info
      * @param $site_id
-     * @param $tag  标志是哪个页面需要获取文章列表 index首页  detail详情页  menu菜单页面 envmenu 配置页面
      * @param int $limit
      * @return array
      */
-    public static function getQuestionList($sync_info, $site_id, $tag, $limit = 10)
+    public static function getQuestionList($sync_info, $site_id, $limit = 10)
     {
         $question_sync_info = array_key_exists('question', $sync_info) ? $sync_info['question'] : [];
         if ($question_sync_info) {
             $where = '';
-            if ($tag == 'detail') {
-                //还需要　只获取　允许同步的文章
-                foreach ($question_sync_info as $k => $v) {
-                    if ($k == 0) {
-                        $where .= "(`type_id` = {$v['type_id']})";
-                    } else {
-                        $where .= ' or' . " (`type_id` = {$v['type_id']})";
-                    }
-                }
-            } else {
-                foreach ($question_sync_info as $k => $v) {
-                    if ($k == 0) {
-                        $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                    } else {
-                        $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                    }
+            foreach ($question_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 }
             }
             $question = Db::name('Question')->where($where)->field('id,question,create_time')->order('id desc')->limit($limit)->select();
@@ -396,34 +372,21 @@ class Commontool extends Common
      * @access public
      * @param $sync_info
      * @param $site_id
-     * @param $tag  标志是哪个页面需要获取文章列表 index首页  detail详情页  menu菜单页面 envmenu 配置页面
      * @param int $limit
      * @return array
      */
-    public static function getScatteredArticleList($sync_info, $site_id, $tag, $limit = 10)
+    public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
     {
         $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
         if ($scattered_sync_info) {
             $where = '';
-            if ($tag == 'detail') {
-                foreach ($scattered_sync_info as $k => $v) {
-                    if ($k == 0) {
-                        $where .= "(`articletype_id` = {$v['type_id']})";
-                    } else {
-                        $where .= ' or' . " (`articletype_id` = {$v['type_id']})";
-                    }
-                }
-            } else {
-                foreach ($scattered_sync_info as $k => $v) {
-                    if ($k == 0) {
-                        $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                    } else {
-                        $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                    }
+            foreach ($scattered_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 }
             }
-
-
             $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($scattered_article as $k => $v) {
@@ -505,7 +468,6 @@ class Commontool extends Common
                 $article_sync_list[$v['type_name']][$v['type_id']] = $v;
             }
         }
-
         $sync_article_data = [];
         foreach ($type_id_arr as $type => $v) {
             foreach ($v as $menu) {
@@ -670,12 +632,11 @@ CODE;
         //配置的菜单信息  用于获取 文章的列表
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
 
-        $article_list = self::getArticleList($artiletype_sync_info, $site_id, $tag);
-        $question_list = self::getQuestionList($artiletype_sync_info, $site_id, $tag);
-        $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id, $tag);
+        $article_list = self::getArticleList($artiletype_sync_info, $site_id);
+        $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
+        $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
 
         //从数据库中取出 十条 最新的已经静态化的文章列表
-
         $partnersite = [];
         //获取友链
         $partnersite = self::getPatternLink($siteinfo['link_id']);
@@ -686,22 +647,18 @@ CODE;
         //主站是哪个
         $main_site = [];
         $is_mainsite = $siteinfo['main_site'];
-
         if ($is_mainsite == '10') {
             //表示不是主站
             //站点类型 用于取出主站 以及链轮类型 来
             $site_type_id = $siteinfo['site_type'];
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
         }
-
         if ($next_site) {
             $partnersite[$next_site['url']] = $next_site['site_name'];
         }
-
         if ($main_site) {
             $partnersite[$main_site['url']] = $main_site['site_name'];
         }
-
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //head前后的代码
