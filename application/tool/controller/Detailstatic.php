@@ -26,16 +26,19 @@ class Detailstatic extends Common
      */
     public static function check_static_time($site_id, $requesttype)
     {
+        $default_count = Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find()['value'] ?: 5;
         if (!$requesttype) {
-            return [true, 5, true, 5, true, 5];
+            //如果是 点击更新来的请求的话 只需要同步5条
+            return [true, $default_count, true, $default_count, true, $default_count];
         }
+        //这种情况是 crontab配置的
         $config_sync_info = self::get_staticconfig_info($site_id);
         $article_status = false;
-        $article_count = 0;
+        $article_count = $default_count;
         $question_status = false;
-        $question_count = 0;
+        $question_count = $default_count;
         $scattered_status = false;
-        $scattered_count = 0;
+        $scattered_count = $default_count;
         if (array_key_exists('article', $config_sync_info)) {
             foreach ($config_sync_info['article'] as $k => $v) {
                 //比较时间
@@ -48,6 +51,9 @@ class Detailstatic extends Common
                     break;
                 }
             }
+        } else {
+            //没有相关配置的话 默认是5条
+            $article_status = true;
         }
         if (array_key_exists('question', $config_sync_info)) {
             foreach ($config_sync_info['question'] as $k => $v) {
@@ -61,6 +67,9 @@ class Detailstatic extends Common
                     break;
                 }
             }
+        } else {
+            //没有相关配置的话 默认是5条
+            $question_status = true;
         }
         if (array_key_exists('scatteredarticle', $config_sync_info)) {
             foreach ($config_sync_info['scatteredarticle'] as $k => $v) {
@@ -74,6 +83,9 @@ class Detailstatic extends Common
                     break;
                 }
             }
+        } else {
+            //没有相关配置的话 默认是5条
+            $scattered_status = true;
         }
         return [$article_status, $article_count, $question_status, $question_count, $scattered_status, $scattered_count];
 
@@ -104,6 +116,7 @@ class Detailstatic extends Common
     /**
      * 首先第一次入口
      * @access public
+     * 静态化 文章 问答 零散段落等相关数据  如果 $requestype 为 crontab 的话 会 按照配置的 时间段跟文章数量来生成静态页面
      */
     public function index($requesttype = '')
     {
