@@ -14,6 +14,24 @@ class Pagestaticentry extends Common
 
 
     /**
+     * crontabstatic
+     * crontab 定期请求
+     */
+    public function crontabstatic()
+    {
+        // 详情页面生成
+        (new Detailstatic())->index('crontab');
+        // 配置文件中的静态化
+        (new Envpagestatic())->index();
+        // 详情类性的页面的静态化
+        (new Detailmenupagestatic())->index();
+        (new Indexstatic())->index();
+        (new SiteMap)->index();
+        exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
+    }
+
+
+    /**
      * 全部的页面静态化操作
      * @access public
      */

@@ -24,6 +24,8 @@ Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
 
 
 //全部页面静态化
+Route::get('crontabstatic', 'tool/Pagestaticentry/crontabstatic');
+//全部页面静态化
 Route::get('allstatic', 'tool/Pagestaticentry/allstatic');
 //首页静态化
 Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
