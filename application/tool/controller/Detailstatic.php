@@ -154,7 +154,7 @@ class Detailstatic extends Common
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
+    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id,$step)
     {
         //判断模板是否存在
         if (!$this->fileExists('template/article.html')) {
@@ -183,7 +183,7 @@ class Detailstatic extends Common
         //需要循环的页数
         $step = ceil($count / $page);
         for ($i = 0; $i <= $step; $i++) {
-            $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
+            $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page,$step)->select();
             foreach ($article_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content), 0, 200);
                 list($com_name, $title, $keyword, $description,
@@ -251,7 +251,7 @@ class Detailstatic extends Common
      * @param $site_name 站点name
      * @param $node_id 节点id
      */
-    public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
+    public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id,$step)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -282,7 +282,7 @@ class Detailstatic extends Common
         //需要循环的页数
         $step = ceil($count / $page);
         for ($i = 0; $i <= $step; $i++) {
-            $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($page)->select();
+            $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($page,$step)->select();
             foreach ($scatTitleArray as $item) {
                 $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
                 $item['content'] = implode('<br/>', $scatArticleArray);
@@ -340,7 +340,7 @@ class Detailstatic extends Common
      * @param $type_id
      * @param $a_keyword_id
      */
-    public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id)
+    public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id,$step)
     {
         //判断模板是否存在
         if (!$this->fileExists('template/question.html')) {
@@ -373,7 +373,7 @@ class Detailstatic extends Common
         //需要循环的页数
         $step = ceil($count / $page);
         for ($i = 0; $i <= $step; $i++) {
-            $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page)->select();
+            $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($page,$step)->select();
             foreach ($question_data as $item) {
                 $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
                 list($com_name, $title, $keyword, $description,
