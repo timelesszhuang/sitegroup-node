@@ -20,11 +20,16 @@ class Detailstatic extends Common
     /**
      * 验证下是不是 时间段允许 允许的话 返回时间段的 count
      * @access public
+     * @param $site_id 站点的site_id
+     * @param $requesttype 请求的类型 crontab 或者是 后台动态请求
+     * @return array
      */
-    public static function check_static_time($site_id)
+    public static function check_static_time($site_id, $requesttype)
     {
+        if (!$requesttype) {
+            return [true, 5, true, 5, true, 5];
+        }
         $config_sync_info = self::get_staticconfig_info($site_id);
-        print_r($config_sync_info);
         $article_status = false;
         $article_count = 0;
         $question_status = false;
@@ -71,6 +76,7 @@ class Detailstatic extends Common
             }
         }
         return [$article_status, $article_count, $question_status, $question_count, $scattered_status, $scattered_count];
+
     }
 
     /**
@@ -99,7 +105,7 @@ class Detailstatic extends Common
      * 首先第一次入口
      * @access public
      */
-    public function index()
+    public function index($requesttype = '')
     {
         set_time_limit(0);
         ignore_user_abort();
@@ -113,7 +119,7 @@ class Detailstatic extends Common
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
         //验证下 是不是这个时间段内 是不是可以生成
-        list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id);
+        list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id, $requesttype);
         foreach ($menu_typeid_arr as $detail_key => $v) {
             foreach ($v as $type) {
                 if (!array_key_exists($type['menu_id'], $menu_akeyword_id_arr)) {
@@ -195,13 +201,13 @@ class Detailstatic extends Common
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
-                $temp_content=$item->content;
+                $temp_content = $item->content;
                 //替换关键字
-                $temp_content=$this->replaceKeyword($node_id,$site_id,$temp_content);
+                $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
                 // 将A链接插入到内容中去
-                $contentWIthLink=$this->contentJonintALink($node_id,$site_id,$temp_content);
-                if($contentWIthLink){
-                    $temp_content=$contentWIthLink;
+                $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
+                if ($contentWIthLink) {
+                    $temp_content = $contentWIthLink;
                 }
 
                 $content = (new View())->fetch('template/article.html',
