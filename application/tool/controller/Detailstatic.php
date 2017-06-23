@@ -18,6 +18,84 @@ class Detailstatic extends Common
     use FileExistsTraits;
 
     /**
+     * 验证下是不是 时间段允许 允许的话 返回时间段的 count
+     * @access public
+     */
+    public static function check_static_time($site_id)
+    {
+        $config_sync_info = self::get_staticconfig_info($site_id);
+        print_r($config_sync_info);
+        $article_status = false;
+        $article_count = 0;
+        $question_status = false;
+        $question_count = 0;
+        $scattered_status = false;
+        $scattered_count = 0;
+        if (array_key_exists('article', $config_sync_info)) {
+            foreach ($config_sync_info['article'] as $k => $v) {
+                //比较时间
+                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
+                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
+                $time = time();
+                if ($time > $starttime && $time < $stoptime) {
+                    $article_count = $v['staticcount'];
+                    $article_status = true;
+                    break;
+                }
+            }
+        }
+        if (array_key_exists('question', $config_sync_info)) {
+            foreach ($config_sync_info['question'] as $k => $v) {
+                //比较时间
+                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
+                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
+                $time = time();
+                if ($time > $starttime && $time < $stoptime) {
+                    $question_count = $v['staticcount'];
+                    $question_status = true;
+                    break;
+                }
+            }
+        }
+        if (array_key_exists('scatteredarticle', $config_sync_info)) {
+            foreach ($config_sync_info['scatteredarticle'] as $k => $v) {
+                //比较时间
+                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
+                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
+                $time = time();
+                if ($time > $starttime && $time < $stoptime) {
+                    $scattered_count = $v['staticcount'];
+                    $scattered_status = true;
+                    break;
+                }
+            }
+        }
+        return [$article_status, $article_count, $question_status, $question_count, $scattered_status, $scattered_count];
+    }
+
+    /**
+     * 获取配置信息
+     * @access public
+     */
+    public static function get_staticconfig_info($site_id)
+    {
+        $config_info = Db::name('site_staticconfig')->where(['site_id' => $site_id])->field('type,starttime,stoptime,staticcount')->select();
+        $config_sync_info = [];
+        foreach ($config_info as $k => $v) {
+            if (!array_key_exists($v['type'], $config_sync_info)) {
+                $config_sync_info[$v['type']] = [];
+            }
+            $config_sync_info[$v['type']][] = [
+                'starttime' => $v['starttime'],
+                'stoptime' => $v['stoptime'],
+                'staticcount' => $v['staticcount']
+            ];
+        }
+        return $config_sync_info;
+    }
+
+
+    /**
      * 首先第一次入口
      * @access public
      */
@@ -29,11 +107,14 @@ class Detailstatic extends Common
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
+
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
+        //验证下 是不是这个时间段内 是不是可以生成
+        list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id);
         foreach ($menu_typeid_arr as $detail_key => $v) {
             foreach ($v as $type) {
                 if (!array_key_exists($type['menu_id'], $menu_akeyword_id_arr)) {
@@ -48,13 +129,19 @@ class Detailstatic extends Common
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
                     case'article':
-                        $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        if ($articlestatic_status) {
+                            $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $articlestatic_count);
+                        }
                         break;
                     case'question':
-                        $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        if ($questionstatic_status) {
+                            $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $questionstatic_count);
+                        }
                         break;
                     case'scatteredarticle':
-                        $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id);
+                        if ($scatteredstatic_status) {
+                            $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $scatteredstatic_count);
+                        }
                         break;
                 }
             }

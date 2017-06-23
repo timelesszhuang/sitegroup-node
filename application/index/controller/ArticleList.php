@@ -23,6 +23,7 @@ class ArticleList extends Common
     /**
      * 首页列表
      * @access public
+     * @todo 需要考虑一下  文章列表 中列出来的文章需要从  sync_count 表中获取
      */
     public function index($id)
     {
