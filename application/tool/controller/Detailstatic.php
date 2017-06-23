@@ -24,7 +24,6 @@ class Detailstatic extends Common
     public static function check_static_time($site_id)
     {
         $config_sync_info = self::get_staticconfig_info($site_id);
-        print_r($config_sync_info);
         $article_status = false;
         $article_count = 0;
         $question_status = false;
