@@ -107,7 +107,6 @@ class Detailstatic extends Common
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
-
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
@@ -196,14 +195,24 @@ class Detailstatic extends Common
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+                $temp_content=$item->content;
+                //替换关键字
+                $temp_content=$this->replaceKeyword($node_id,$site_id,$temp_content);
+                // 将A链接插入到内容中去
+                $contentWIthLink=$this->contentJonintALink($node_id,$site_id,$temp_content);
+                if($contentWIthLink){
+                    $temp_content=$contentWIthLink;
+                }
+
                 $content = (new View())->fetch('template/article.html',
                     [
                         'd' => $assign_data,
-                        'article' => $item,
+                        'article' => ["title" => $item->title, "auther" => $item->auther, "create_time" => $item->create_time, "content" => $temp_content],
                         'pre_article' => $pre_article,
                         'next_article' => $next_article
                     ]
                 );
+
                 //判断模板是否存在
                 if (!file_exists('article')) {
                     $this->make_error("article");

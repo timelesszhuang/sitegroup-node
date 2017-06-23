@@ -29,8 +29,8 @@ ul,li{ list-style:none; padding:0; margin:0;}
 
 /*头部图片*/
 .dt{ width:1200px; margin:5px auto; overflow:hidden;}
-.t1{ width:599px; float:left;}
-.t1 img{ width:599px; height:100px;}
+.t1{ width:590px;margin-right:10px; float:left;}
+.t1 img{ width:590px; height:100px;}
 .t2{ width:584px; float:right;}
 .t2 img{ width:584px; height:100px;}
 
@@ -97,7 +97,7 @@ ul,li{ list-style:none; padding:0; margin:0;}
 
 
 /*文章详情*/
-.article_wz{ width:800px; height:1300px;float:left;}
+.article_wz{ width:800px;float:left;}
 .article_wz .wenzhang_h1{ font-size:18px; font-weight:normal;color:#333; text-align:center;}
 .article_wz .art_zt{margin:0 auto;width:250px;padding:10px 0;}
 .article_wz .art_ztbox{width:800px;border-bottom:1px dotted #afafaf;}

@@ -1,3 +1,201 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{$d["title"]}</title>
+    <meta name="keyword" content='{$d["keyword"]}'>
+    <meta name="description" content='{$d["description"]}'>
+    {$d["redirect_code"]}
+    <?php if($d["pre_head_jscode"]):?>
+    <?php foreach($d["pre_head_jscode"] as $item):?>
+    {$item}
+    <?php endforeach;endif;?>
+    <script src="/templatestatic/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="/templatestatic/jquery.SuperSlide.js"></script>
+    <link href="/templatestatic/articlelist.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body>
+<div class="top_box">
+    <div class="top">
+        <div class="logo">企业邮箱网<span>www.qiyemail.com</span></div>
+        <div class="top_right">
+            <ul>
+                <li><a href="{$d['m_url']}">手机版</a></li>
+                <li class="noborder"><a href="../sitemap.html" target="_blank">站点地图</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="nav">
+    <ul>
+        <?php foreach($d['menu'] as $item):?>
+        <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
+
+<div class="dt">
+    <?php if($d["activity"]):?>
+    <?php foreach($d["activity"] as $key=> $item):?>
+    <span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
+    <?php endforeach;endif;?>
+</div>
+
+<div class="part1">
+    <div class="article_wz">
+        <div class="dqw">当前位置>邮箱问答>问答详情</div>
+        <div class="article_wenzhang">
+            <h1 class="wenzhang_h1">{$question["question"]}</h1>
+            <div class="art_ztbox"><div class="art_zt"><span class="zuozhe">作者：强比科技</span><span class="time">时间：2017-06-21</span></div></div>
+            {$question["content_paragraph"]}
+        </div>
+        <div class="article_page">
+            <div class="page_up"><a href="/question/question{$pre_article['id']}.html">
+                <?php if(isset($pre_article["title"])):?>
+                上一篇：<?php echo $pre_article["title"];?>
+                <?php endif;?>
+            </a></div>
+            <div class="page_down"><a href="/question/question{$next_article['id']}.html">
+                <?php if(isset($next_article["title"])):?>
+                下一篇：<?php echo $next_article["title"];?>
+                <?php endif;?>
+            </a></div>
+        </div>
+    </div>
+
+
+    <div class="part2">
+        <div class="yxwd">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">邮箱文章</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="wdt">
+                <ul>
+                    <?php foreach($d["article_list"] as  $item):?>
+                    <li><a href="{$item['a_href']}">{$item['title']}</a><span class="sj">{$item['create_time']}</span></li>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+            <a href=""><img src="/templatestatic/wd.jpg"></a>
+        </div>
+
+        <div class="hyxw">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">行业新闻</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="new">
+                <ul>
+                    <?php foreach($d["scatteredarticle_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+        </div>
+
+        <div class="hyxw">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">邮箱问答</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="new">
+                <ul>
+                    <?php foreach($d["question_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item['question']}</a><span class="sj">{$item['create_time']}</span></li>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+            <a href=""><img src="/templatestatic/hy-new.jpg"></a>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="pptj">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">邮箱品牌推荐</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <div class="clearfix"></div>
+    </ul>
+</div>
+
+
+<div class="youqing">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <?php foreach($d["partnersite"] as $key=>$item):?>
+        <li><a href="{$key}">{$item}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
+<div class="bottom">
+    <div class="end">
+        <div class="el">
+            <div class="dxx">
+                全国企业邮箱服务电话：4006-360-163<br/>
+                © 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 中国企业邮箱网
+            </div>
+        </div>
+        <div class="er"><img src="/templatestatic/er.jpg" /></div>
+    </div>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

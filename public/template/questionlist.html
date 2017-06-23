@@ -39,7 +39,7 @@
 <div class="dt">
     <?php if($d["activity"]):?>
     <?php foreach($d["activity"] as $key=> $item):?>
-    <span class=""><a href="{$item['src']}"><img src="{$item['medium_img']}"></a></span>
+    <span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
     <?php endforeach;endif;?>
 </div>
 
@@ -49,10 +49,10 @@
         <?php foreach($d["question"] as  $item):?>
         <div class="wz_col">
             <div class="wz_text">
-                <h1 class="wz_bt"><a href="{$item['id']}">{$item['question']}</a></h1>
+                <h1 class="wz_bt"><a href="/question/question{$item['id']}.html">{$item['question']}</a></h1>
                 <div class="wz_nr">
                 </div>
-                <a href="{$item['id']}" class="xxnr">详细内容>></a>
+                <a href="/question/question{$item['id']}.html" class="xxnr">详细内容>></a>
             </div>
         </div>
         <?php endforeach;?>
@@ -70,16 +70,9 @@
             </div>
             <div class="wdt">
                 <ul>
-                    <li><a href="">1.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">2.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">3.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">4.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">5.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">6.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">7.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">8.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">9.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">10.谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <?php foreach($d["article_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
                 </ul>
             </div>
             <a href=""><img src="/templatestatic/wd.jpg"></a>
@@ -93,16 +86,9 @@
             </div>
             <div class="new">
                 <ul>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <?php foreach($d["question_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["question"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
                 </ul>
             </div>
         </div>
@@ -115,16 +101,9 @@
             </div>
             <div class="new">
                 <ul>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
-                    <li><a href="">谁才是你文件存储的最佳选择?</a><span class="sj">2016-12-29</span></li>
+                    <?php foreach($d["scatteredarticle_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
                 </ul>
             </div>
             <a href=""><img src="/templatestatic/hy-new.jpg"></a>
@@ -154,7 +133,18 @@
     </ul>
 </div>
 
-
+<div class="youqing">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <?php foreach($d["partnersite"] as $key=>$item):?>
+        <li><a href="{$key}">{$item}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
 <div class="bottom">
     <div class="end">
         <div class="el">
