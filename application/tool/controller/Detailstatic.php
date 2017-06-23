@@ -110,12 +110,13 @@ class Detailstatic extends Common
                 //获取上一篇和下一篇
                 $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
-
-                // 获取3个a链接
-                $insertALink=$this->insertA($node_id,$site_id,$item->content);
                 $temp_content=$item->content;
-                if($insertALink){
-                    $temp_content=$insertALink;
+                //替换关键字
+                $temp_content=$this->replaceKeyword($node_id,$site_id,$temp_content);
+                // 将A链接插入到内容中去
+                $contentWIthLink=$this->contentJonintALink($node_id,$site_id,$temp_content);
+                if($contentWIthLink){
+                    $temp_content=$contentWIthLink;
                 }
 
                 $content = (new View())->fetch('template/article.html',
