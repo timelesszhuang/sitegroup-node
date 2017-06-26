@@ -50,19 +50,16 @@ class ArticleList extends Common
             exit("当前网站无此栏目");
         }
         $menu_info = \app\index\model\Menu::get($id);
-        list($com_name, $title, $keyword, $description,
-            $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
-            $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
         //取出同步的总数
-        $articleSyncCount=ArticleSyncCount::where(["site_id"=>$data["site_id"],"node_id"=>$data["node_id"],"type_name"=>"article"])->find();
-        $where["articletype_id"]=$menu_info->type_id;
-        if($articleSyncCount){
-            $where["id"]=["lt",$articleSyncCount->count];
+        $articleSyncCount = ArticleSyncCount::where(["site_id" => $data["site_id"], "node_id" => $data["node_id"], "type_name" => "article"])->find();
+        $where["articletype_id"] = $menu_info->type_id;
+        if ($articleSyncCount) {
+            $where["id"] = ["lt", $articleSyncCount->count];
         }
-
         //获取当前type_id的文章
         $article = \app\index\model\Article::order('id', "desc")->where($where)->paginate();
-        $assign_data = compact('article', 'com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity','partnersite', 'pre_head_jscode', 'after_head_jscode','article_list', 'question_list', 'scatteredarticle_list');
+        $assign_data['article'] = $article;
         file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
         return (new View())->fetch('template/articlelist.html',
