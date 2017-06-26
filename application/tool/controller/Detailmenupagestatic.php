@@ -35,7 +35,7 @@ class Detailmenupagestatic extends Common
             //页面中还需要填写隐藏的 表单 node_id site_id
             //判断下是不是有 模板文件
             if (!$this->fileExists("template/{$v['generate_name']}.html")) {
-                return;
+                continue;
             }
             $content = (new View())->fetch("template/{$v['generate_name']}.html",
                 [
@@ -45,10 +45,10 @@ class Detailmenupagestatic extends Common
             );
             if (file_put_contents("{$v['genarate_name']}.html", $content) === 'false') {
                 file_put_contents('log/detailmenu.txt', $this->separator . date('Y-m-d H:i:s') . '详情类型页面静态化写入失败。' . $this->separator, FILE_APPEND);
-                return false;
+                continue;
             }
-            return true;
         }
+        return true;
     }
 
 
