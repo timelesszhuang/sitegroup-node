@@ -4,10 +4,7 @@ namespace app\index\controller;
 
 use app\index\model\ArticleSyncCount;
 use app\index\model\Useragent;
-use app\tool\controller\Article;
 use app\tool\controller\Commontool;
-use app\tool\controller\Keyword;
-use app\tool\controller\Menu;
 use app\tool\controller\Site;
 use app\common\controller\Common;
 use think\View;
