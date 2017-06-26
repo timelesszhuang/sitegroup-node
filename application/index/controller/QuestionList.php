@@ -39,7 +39,7 @@ class QuestionList extends Common
             $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
             $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('menu',$menu_info->generate_name,$menu_info->name,$menu_info->id);
         $articleSyncCount=ArticleSyncCount::where(["site_id"=>$siteinfo['id'],"node_id"=>$siteinfo['node_id'],"type_name"=>"question"])->find();
-        $where["articletype_id"]=$menu_info->type_id;
+        $where["type_id"]=$menu_info->type_id;
         if($articleSyncCount){
             $where["id"]=["lt",$articleSyncCount->count];
         }
