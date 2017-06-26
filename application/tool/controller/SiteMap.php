@@ -9,6 +9,7 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\index\model\Question;
 use app\index\model\ScatteredTitle;
+use think\Cache;
 use think\View;
 
 class SiteMap extends Common{
@@ -18,6 +19,7 @@ class SiteMap extends Common{
      */
     public function index()
     {
+        dump(Site::getSiteInfo());die;
         //判断模板是否存在
         if (!$this->fileExists('template/sitemap.html')) {
             return;
@@ -25,13 +27,18 @@ class SiteMap extends Common{
         $article_arr=[];
         $question_arr=[];
         $scat_arr=[];
-        foreach($this->article() as $article){
+        $siteinfo =Site::getSiteInfo();
+        $where=[
+            "site_id" => $siteinfo['id'],
+            "node_id" => $siteinfo['node_id']
+        ];
+        foreach($this->article($where) as $article){
             $article_arr[]=$article;
         }
-        foreach($this->question() as $question){
+        foreach($this->question($where) as $question){
             $question_arr[]=$question;
         }
-        foreach($this->scatteredTitle() as $scat){
+        foreach($this->scatteredTitle($where) as $scat){
             $scat_arr[]=$scat;
         }
         $arr=[
@@ -51,9 +58,9 @@ class SiteMap extends Common{
      * 遍历article
      * @return \Generator
      */
-    public function article()
+    public function article($where)
     {
-        $article=\app\index\model\Article::where(1)->field("id,title")->select();
+        $article=\app\index\model\Article::where($where)->field("id,title")->select();
         foreach($article as $item){
              yield $this->foreachContent($item);
         }
@@ -63,9 +70,9 @@ class SiteMap extends Common{
      *遍历question
      * @return \Generator
      */
-    public function question()
+    public function question($where)
     {
-        $question=Question::where(1)->field("id,question as title")->select();
+        $question=Question::where($where)->field("id,question as title")->select();
         foreach($question as $item){
              yield $this->foreachContent($item);
         }
@@ -76,9 +83,9 @@ class SiteMap extends Common{
      * 遍历零散段落
      * @return \Generator
      */
-    public function scatteredTitle()
+    public function scatteredTitle($where)
     {
-        $scat=ScatteredTitle::where(1)->field("id,title")->select();
+        $scat=ScatteredTitle::where($where)->field("id,title")->select();
         foreach($scat as $item){
             yield $this->foreachContent($item);
         }
