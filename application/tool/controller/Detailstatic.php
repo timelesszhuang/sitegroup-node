@@ -38,7 +38,7 @@ class Detailstatic extends Common
         $article_count = $default_count;
         $question_status = false;
         $question_count = $default_count;
-        $scattered_status = false;
+        $scattered_status = false;：q:
         $scattered_count = $default_count;
         if (array_key_exists('article', $config_sync_info)) {
             foreach ($config_sync_info['article'] as $k => $v) {
@@ -89,7 +89,6 @@ class Detailstatic extends Common
             $scattered_status = true;
         }
         return [$article_status, $article_count, $question_status, $question_count, $scattered_status, $scattered_count];
-
     }
 
     /**
@@ -148,16 +147,16 @@ class Detailstatic extends Common
                 }
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
                 switch ($detail_key) {
-//                    case'article':
-//                        if ($articlestatic_status) {
-//                            $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $articlestatic_count);
-//                        }
-//                        break;
-//                    case'question':
-//                        if ($questionstatic_status) {
-//                            $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $questionstatic_count);
-//                        }
-//                        break;
+                    case'article':
+                        if ($articlestatic_status) {
+                            $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $articlestatic_count);
+                        }
+                        break;
+                    case'question':
+                        if ($questionstatic_status) {
+                            $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $questionstatic_count);
+                        }
+                        break;
                     case'scatteredarticle':
                         if ($scatteredstatic_status) {
                             $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $scatteredstatic_count);
