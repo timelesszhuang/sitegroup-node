@@ -1,147 +1,151 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>{$d["title"]}</title>
-	<meta name="keyword" content='{$d["keyword"]}'>
-	<meta name="description" content='{$d["description"]}'>
-	{$d["redirect_code"]}
-	<?php if($d["pre_head_jscode"]):?>
-	<?php foreach($d["pre_head_jscode"] as $item):?>
-	{$item}
-	<?php endforeach;endif;?>
-	<script src="/templatestatic/jquery-1.8.2.min.js"></script>
-	<script type="text/javascript" src="/templatestatic/jquery.SuperSlide.js"></script>
-	<link href="/templatestatic/home.css" rel="stylesheet" type="text/css"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="format-detection" content="address=no;">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!--{$d["redirect_code"]}-->
+    <?php if($d["pre_head_jscode"]):?>
+    <?php foreach($d["pre_head_jscode"] as $item):?>
+    {$item}
+    <?php endforeach;endif;?>
+    <link href="/templatestatic/style.css" rel="stylesheet" type="text/css" />
+    <link href="/templatestatic/component.css" rel="stylesheet" type="text/css" />
+    <link href="/templatestatic/swiper.min.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/templatestatic/jquery.js"></script>
+    <script type="text/javascript" src="/templatestatic/modernizr.custom.js"></script>
+    <script type="text/javascript" src="/templatestatic/jquery.dlmenu.js"></script>
 </head>
 
 <body>
-
-<div class="top_box">
-	<div class="top">
-		<div class="logo">企业邮箱网<span>www.qiyemail.com</span></div>
-		<div class="top_right">
-			<ul>
-				<li><a href="{$d['m_url']}">手机版</a></li>
-				<li class="noborder"><a href="../sitemap.html" target="_blank">站点地图</a></li>
-			</ul>
-		</div>
-	</div>
+<div class="ttop">
+    企业邮箱网<span>www.qiyemail.com</span>
 </div>
-<div class="nav">
-	<ul>
-		<?php foreach($d['menu'] as $item):?>
-		<li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
-		<?php endforeach;?>
-	</ul>
+<header class="header">
+    <div id="dl-menu" class="dl-menuwrapper">
+        <button id="dl-menu-button">Open Menu</button>
+        <ul class="dl-menu">
+            <?php foreach($d['menu'] as $item):?>
+            <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
+            <?php endforeach;?>
+        </ul>
+    </div>
+</header>
+<div class="swiper-container">
+    <div class="swiper-wrapper">
+        <?php if($d["activity"]):?>
+        <?php foreach($d["activity"] as $key=> $item):?>
+        <span class="swiper-slide"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
+        <?php endforeach;endif;?>
+    </div>
+    <!-- Add Pagination -->
+    <div class="swiper-pagination"></div>
+    <!-- Add Navigation -->
+    <div class="swiper-button-prev"></div>
+    <div class="swiper-button-next"></div>
 </div>
-<div class="dt">
-	<?php if($d["activity"]):?>
-	<?php foreach($d["activity"] as $key=> $item):?>
-	<span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
-	<?php endforeach;endif;?>
+<script type="text/javascript">
+    $(function(){
+        $( '#dl-menu' ).dlmenu();
+    });
+</script>
+<script src="/templatestatic/swiper.jquery.min.js"></script>
+
+<!-- Initialize Swiper -->
+<script>
+    var swiper = new Swiper('.swiper-container', {
+        pagination: '.swiper-pagination',
+        paginationClickable: true,
+        nextButton: '.swiper-button-next',
+        prevButton: '.swiper-button-prev'
+    });
+</script>
+<div class="ppt">
+    <a href="/m/hykxsj/index.html">
+        <span class="ppw">行业快讯</span><span class="gd"></span>
+    </a>
 </div>
-
-<div class="part1">
-	<div class="yxwz">
-		<div class="wz_title"><a href=""><span class="ppw">邮箱文章</span><span class="gd">更多 &nbsp;>>&nbsp;</span></a></div>
-
-		<?php foreach($d["article_list"] as  $item):?>
-		<div class="wz_col">
-			{$item['thumbnails']}
-			<div class="wz_text">
-				<h1 class="wz_bt"><a href="{$item['a_href']}">{$item['title']}</a></h1>
-				<div class="wz_nr">
-					{$item['summary']}
-				</div>
-				<a href="{$item['a_href']}" class="xxnr">详细内容>></a>
-			</div>
-		</div>
-		<?php endforeach;?>
-	</div>
-
-	<div class="part2">
-		<div class="yxwd">
-			<div class="wz_title">
-				<a href="">
-					<span class="ppw">邮箱问答</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-				</a>
-			</div>
-			<div class="wdt">
-				<ul>
-					<?php foreach($d["question_list"] as $item):?>
-					<li><a href="{$item['a_href']}">{$item["question"]}</a><span class="sj">{$item["create_time"]}</span></li>
-					<?php endforeach;?>
-				</ul>
-			</div>
-			<a href=""><img src="/templatestatic/wd.jpg"></a>
-		</div>
-
-		<div class="hyxw">
-			<div class="wz_title">
-				<a href="">
-					<span class="ppw">行业新闻</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-				</a>
-			</div>
-			<div class="new">
-				<ul>
-					<?php foreach($d["scatteredarticle_list"] as $item):?>
-					<li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
-					<?php endforeach;?>
-				</ul>
-			</div>
-			<a href=""><img src="/templatestatic/hy-new.jpg"></a>
-		</div>
-
-		<div class="pptj">
-			<div class="wz_title">
-				<a href="">
-					<span class="ppw">邮箱品牌推荐</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-				</a>
-			</div>
-			<ul>
-				<li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
-				<li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
-				<li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
-				<li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
-				<li><a href=""><img src="/templatestatic/l5.jpg" /></a></li>
-				<li><a href=""><img src="/templatestatic/l6.jpg" /></a></li>
-				<li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
-				<li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
-			</ul>
-		</div>
-	</div>
-	<div class="clearfix"></div>
+<div class="xw">
+    <?php foreach($d["article_list"] as  $item):?>
+    <div class="xwl">
+        <div class="imht">
+            {$item['thumbnails']}
+        </div>
+        <div class="xwq">
+            <h1 class="xwt"><a href="{$item['a_href']}">{$item['title']}</a></h1>
+            <div class="xwx">{$item["create_time"]}</div>
+        </div>
+    </div>
+    <?php endforeach;?>
 </div>
-
-<div class="youqing">
-	<div class="wz_title">
-		<a href="">
-			<span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-		</a>
-	</div>
-	<ul>
-		<?php foreach($d["partnersite"] as $key=>$item):?>
-		<li><a href="{$key}">{$item}</a></li>
-		<?php endforeach;?>
-	</ul>
+<div class="ppt">
+    <a href="">
+        <span class="ppw">品牌推荐</span><span class="gd"></span>
+    </a>
 </div>
-
+<div class="tj">
+    <ul>
+        <li><a href=""><img src="/templatestatic/l1.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l5.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l6.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l9.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l10.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l11.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l12.jpg" /></a></li>
+    </ul>
+</div>
+<div class="ppt">
+    <a href="">
+        <span class="ppw">免费企业邮箱</span><span class="gd"></span>
+    </a>
+</div>
+<div class="mfl">
+    <ul>
+        <?php foreach($d["question_list"] as $item):?>
+        <li><a style="float:left" href="{$item['a_href']}">{$item["question"]}</a><span style="float:right">{$item["create_time"]}</span></li>
+        <?php endforeach;?>
+    </ul>
+</div>
+<div class="ppt">
+    <a href="">
+        <span class="ppw">本月热点</span><span class="gd"></span>
+    </a>
+</div>
+<div class="redian_xw">
+    <?php foreach($d["scatteredarticle_list"] as $item):?>
+    <div class="xwl">
+        <h1 class="xwt"><a href="{$item['a_href']}">{$item["title"]}</a></h1>
+        <div class="xwx"><?php echo date('Y-m-d');?></div>
+    </div>
+    <?php endforeach;?>
+</div>
+<div class="ppt">
+    <a href="">
+        <span class="ppw">友情链接</span>
+    </a>
+</div>
+<div class="lj">
+    <ul>
+        <?php foreach($d["partnersite"] as $key=>$item):?>
+        <li><a href="{$key}">{$item}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
 <div class="bottom">
-	<div class="end">
-		<div class="el">
-			<div class="dxx">
-				全国企业邮箱服务电话：4006-360-163<br/>
-				© 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 中国企业邮箱网
-			</div>
-		</div>
-		<div class="er"><img src="/templatestatic/er.jpg" /></div>
-	</div>
+    <div class="wz">© 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司<br />
+
+        Copyright © 2002-2017 中国企业邮箱网 <br />
+        全国企业邮箱服务电话：4006-360-163</div>
+    <div class="er"><img src="/templatestatic/er.jpg"/></div>
 </div>
 
 </body>
 </html>
-<?php if($d["after_head_jscode"]):?>
-<?php foreach($d["after_head_jscode"] as $item):?>
-{$item}
-<?php endforeach;endif;?>
