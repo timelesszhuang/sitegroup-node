@@ -675,11 +675,7 @@ CODE;
         }
         //公司名称
         $com_name = $siteinfo['com_name'];
-        return [
-            $com_name, $title, $keyword, $description,
-            $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode,
-            $after_head_jscode, $article_list, $question_list, $scatteredarticle_list
-        ];
+        return compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
     }
 
     /**
