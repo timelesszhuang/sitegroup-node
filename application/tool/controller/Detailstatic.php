@@ -292,9 +292,11 @@ class Detailstatic extends Common
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($limit, $step_limit)->select();
         foreach ($scatTitleArray as $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
-            $item['content'] = implode('<br/>', $scatArticleArray);
-            $temp_content = mb_substr(strip_tags($item['content']), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
+            $temp_arr=$item->toArray();
+            $temp_arr['content'] = implode('<br/>', $scatArticleArray);
+            $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
+            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $a_keyword_id);
+
             file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
@@ -303,7 +305,7 @@ class Detailstatic extends Common
             $content = (new View())->fetch('template/news.html',
                 [
                     'd' => $assign_data,
-                    'scatteredarticle' => $item,
+                    'scatteredarticle' => $temp_arr,
                     'pre_article' => $pre_article,
                     'next_article' => $next_article
                 ]

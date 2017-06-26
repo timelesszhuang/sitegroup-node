@@ -38,3 +38,4 @@ Route::get('clearCache', 'tool/Commontool/clearCache');
 Route::get('pv', 'tool/Site/pv');
 //统计
 Route::resource('externalAccess','index/ExternalAccess');
+Route::get('sitemap','tool/SiteMap/index');
