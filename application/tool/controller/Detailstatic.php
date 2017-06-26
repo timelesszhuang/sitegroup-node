@@ -122,7 +122,6 @@ class Detailstatic extends Common
     {
         set_time_limit(0);
         ignore_user_abort();
-        \think\Cache::clear();
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -290,7 +289,6 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($limit, $step_limit)->select();
         foreach ($scatTitleArray as $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
