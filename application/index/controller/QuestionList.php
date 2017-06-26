@@ -8,7 +8,6 @@ use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use think\View;
 use app\tool\controller\FileExistsTraits;
-use app\index\model\ArticleSyncCount;
 /**
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
@@ -35,6 +34,9 @@ class QuestionList extends Common
         }
         $siteinfo = Site::getSiteInfo();
         $menu_info=\app\index\model\Menu::get($id);
+        if(is_null($menu_info)){
+            exit("unkown article");
+        }
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
             $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('menu',$menu_info->generate_name,$menu_info->name,$menu_info->id);

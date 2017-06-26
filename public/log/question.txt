@@ -1,0 +1,2245 @@
+||||||||||||||||||||||||2017-06-26 11:41:57Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163免费企业邮箱申请-163免费企业邮箱注册多个帐号什么是企业邮箱?
+    [keyword] => 163免费企业邮箱申请,163免费企业邮箱注册多个帐号
+    [description] => 
+企业邮箱简明来说就是建立在企业用网解决方案的系统设计之上的邮件基础商业平台，形式上表现为以企业域名为后缀的电子邮件系统。企业的每一个员工都可以拥有一个user@mycompany.com的E-mail。无需企业自己投入硬、软件设备和设置专门的技术人员管理、维护，节约了企业在信息化方面的投入，节省了企业的运营成本。 
+
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:41:57Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163免费企业邮箱申请-163免费企业邮箱注册多个帐号什么是MX?163企业邮箱的MX记录是什么?
+    [keyword] => 163免费企业邮箱申请,163免费企业邮箱注册多个帐号
+    [description] =>  
+  
+
+MX（Mail Exchanger）记录是邮件交换记录，它指向一个邮件服务器，用于电子邮件系统
+
+发邮件时根据收信人的地址后缀来定位邮件服务器。例如，当Internet上的某用户要发一
+
+封信给user@mydomain.com 时，该用户的邮件系统通过DNS查找mydomain.com这个域名的
+
+MX
+记录，如果MX记录存在，用户计算机就将邮件发送到MX记录所指
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:41:57Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163企业邮箱收费标准-163企业邮箱收费标准2017-163企业邮箱收费吗为什么要使用企业邮箱?
+    [keyword] => 163企业邮箱收费标准,163企业邮箱收费标准2017,163企业邮箱收费吗
+    [description] => 
+
+
+ 　答：(1)、树立企业品牌形象 企业邮箱，企业网络上的 “文化衫”，整齐化一，统一
+
+了邮箱的后缀，树立的企业整体品牌形象。通过邮箱的帐号就知道企业网站的域名，就知
+
+道企业网站的网址。 
+　　(2)、方便日常工作的开展 告别企业内部的公告牌，公司有什么活动，发一封E-mail
+
+就可以让公司的员工知道，不管你是在外地出差，还是其他分公司。有邮箱的企业工作效
+
+率比
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 什么是MX?163企业邮箱的MX记录是什么?
+                    [a_href] => /question/question82.html
+                    [create_time] => 2017-05-08
+                )
+
+            [1] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:41:58Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163企业邮箱客服电话-怎样找到163企业邮箱客服什么是SMTP协议?
+    [keyword] => 163企业邮箱客服电话,怎样找到163企业邮箱客服
+    [description] => 
+
+SMTP(Simple Mail Transfer Protocol)即简单邮件传输协议,它是一组用于由源地址到目
+
+的地址传送邮件的规则,由它来控制信件的中转方式。SMTP协议属于TCP／IP协议族,它帮
+
+助每台计算机在发送或中转信件时找到下一个目的地。通过SMTP协议所指定的服务器,我
+
+们就可以把E－mail寄到收信人的服务器上了,整个过程只要几分钟。SMTP服务器则是
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 为什么要使用企业邮箱?
+                    [a_href] => /question/question83.html
+                    [create_time] => 2017-05-08
+                )
+
+            [1] => Array
+                (
+                    [question] => 什么是MX?163企业邮箱的MX记录是什么?
+                    [a_href] => /question/question82.html
+                    [create_time] => 2017-05-08
+                )
+
+            [2] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:41:58Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163免费企业邮箱申请-163免费企业邮箱注册多个帐号为什么用客户端outlook无法成功发送邮件，提示报错?
+    [keyword] => 163免费企业邮箱申请,163免费企业邮箱注册多个帐号
+    [description] =>  
+  
+有以下几个原因造成：（1）客户端的邮件服务器和解析设置不规范；（2）对方拒收
+
+邮件,设置限制，请联系对方解封。（3）发件方因发垃圾邮件被列入黑名单，2个小时会
+
+自动解封，解封后请重试。（4）发件方因频繁使用空联接网关,被网关暂时限制,让用户
+
+查找局域网或者电脑内病毒,当用户网络正常,2小时内自动解除限制。（5）若出现退信请
+
+核对“企业邮箱拒信常规问题对照表自行
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 什么是SMTP协议?
+                    [a_href] => /question/question85.html
+                    [create_time] => 2017-05-08
+                )
+
+            [1] => Array
+                (
+                    [question] => 为什么要使用企业邮箱?
+                    [a_href] => /question/question83.html
+                    [create_time] => 2017-05-08
+                )
+
+            [2] => Array
+                (
+                    [question] => 什么是MX?163企业邮箱的MX记录是什么?
+                    [a_href] => /question/question82.html
+                    [create_time] => 2017-05-08
+                )
+
+            [3] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:45:16Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 如何购买163企业邮箱-购买163企业邮箱多少钱什么是企业邮箱?
+    [keyword] => 如何购买163企业邮箱,购买163企业邮箱多少钱
+    [description] => 
+企业邮箱简明来说就是建立在企业用网解决方案的系统设计之上的邮件基础商业平台，形式上表现为以企业域名为后缀的电子邮件系统。企业的每一个员工都可以拥有一个user@mycompany.com的E-mail。无需企业自己投入硬、软件设备和设置专门的技术人员管理、维护，节约了企业在信息化方面的投入，节省了企业的运营成本。 
+
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:45:17Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163企业邮箱收费标准2017-163企业邮箱收费标准指导-163企业邮箱收费吗什么是MX?163企业邮箱的MX记录是什么?
+    [keyword] => 163企业邮箱收费标准2017,163企业邮箱收费标准指导,163企业邮箱收费吗
+    [description] =>  
+  
+
+MX（Mail Exchanger）记录是邮件交换记录，它指向一个邮件服务器，用于电子邮件系统
+
+发邮件时根据收信人的地址后缀来定位邮件服务器。例如，当Internet上的某用户要发一
+
+封信给user@mydomain.com 时，该用户的邮件系统通过DNS查找mydomain.com这个域名的
+
+MX
+记录，如果MX记录存在，用户计算机就将邮件发送到MX记录所指
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:45:17Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163企业邮箱注册流程-怎么注册163企业邮箱-免费163企业邮箱注册为什么要使用企业邮箱?
+    [keyword] => 163企业邮箱注册流程,怎么注册163企业邮箱,免费163企业邮箱注册
+    [description] => 
+
+
+ 　答：(1)、树立企业品牌形象 企业邮箱，企业网络上的 “文化衫”，整齐化一，统一
+
+了邮箱的后缀，树立的企业整体品牌形象。通过邮箱的帐号就知道企业网站的域名，就知
+
+道企业网站的网址。 
+　　(2)、方便日常工作的开展 告别企业内部的公告牌，公司有什么活动，发一封E-mail
+
+就可以让公司的员工知道，不管你是在外地出差，还是其他分公司。有邮箱的企业工作效
+
+率比
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 什么是MX?163企业邮箱的MX记录是什么?
+                    [a_href] => /question/question82.html
+                    [create_time] => 2017-05-08
+                )
+
+            [1] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:45:17Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163企业邮箱代理商-163企业邮箱服务-163企业邮箱服务商什么是SMTP协议?
+    [keyword] => 163企业邮箱代理商,163企业邮箱服务,163企业邮箱服务商
+    [description] => 
+
+SMTP(Simple Mail Transfer Protocol)即简单邮件传输协议,它是一组用于由源地址到目
+
+的地址传送邮件的规则,由它来控制信件的中转方式。SMTP协议属于TCP／IP协议族,它帮
+
+助每台计算机在发送或中转信件时找到下一个目的地。通过SMTP协议所指定的服务器,我
+
+们就可以把E－mail寄到收信人的服务器上了,整个过程只要几分钟。SMTP服务器则是
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 为什么要使用企业邮箱?
+                    [a_href] => /question/question83.html
+                    [create_time] => 2017-05-08
+                )
+
+            [1] => Array
+                (
+                    [question] => 什么是MX?163企业邮箱的MX记录是什么?
+                    [a_href] => /question/question82.html
+                    [create_time] => 2017-05-08
+                )
+
+            [2] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||||||||||||||||||||||||||2017-06-26 11:45:17Array
+(
+    [com_name] => 山东强比信息技术有限公司
+    [title] => 163免费企业邮箱申请-163免费企业邮箱注册多个帐号为什么用客户端outlook无法成功发送邮件，提示报错?
+    [keyword] => 163免费企业邮箱申请,163免费企业邮箱注册多个帐号
+    [description] =>  
+  
+有以下几个原因造成：（1）客户端的邮件服务器和解析设置不规范；（2）对方拒收
+
+邮件,设置限制，请联系对方解封。（3）发件方因发垃圾邮件被列入黑名单，2个小时会
+
+自动解封，解封后请重试。（4）发件方因频繁使用空联接网关,被网关暂时限制,让用户
+
+查找局域网或者电脑内病毒,当用户网络正常,2小时内自动解除限制。（5）若出现退信请
+
+核对“企业邮箱拒信常规问题对照表自行
+    [m_url] => http://163hm.com
+    [redirect_code] => <script type="text/javascript">
+    var mobileAgent = new Array("iphone", "ipod", "ipad", "android", "mobile", "blackberry", "webos", "incognito", "webmate", "bada", "nokia", "lg", "ucweb", "skyfire");
+    var browser = navigator.userAgent.toLowerCase();
+    var isMobile = false;
+    for (var i = 0; i < mobileAgent.length; i++) {
+        if (browser.indexOf(mobileAgent[i]) != -1) {
+            isMobile = true;
+            location.href = 'http://163hm.com';
+            break;
+        }
+    }
+</script>
+
+    [menu] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 21
+                    [name] => 选购须知
+                    [title] => 选购须知 网易邮箱相关知识
+                    [generate_name] => /questionlist/21.html
+                    [flag] => 2
+                    [type_id] => 2
+                    [content] => 
+                )
+
+            [1] => Array
+                (
+                    [id] => 22
+                    [name] => 行业快讯
+                    [title] => 网易邮箱行业相关信息
+                    [generate_name] => /articlelist/22.html
+                    [flag] => 3
+                    [type_id] => 28
+                    [content] => 
+                )
+
+            [2] => Array
+                (
+                    [id] => 23
+                    [name] => 科技新闻
+                    [title] => 科技类的相关信息
+                    [generate_name] => /articlelist/23.html
+                    [flag] => 3
+                    [type_id] => 24
+                    [content] => 
+                )
+
+            [3] => Array
+                (
+                    [id] => 24
+                    [name] => 导购指南
+                    [title] => 购买之后的相关操作
+                    [generate_name] => /articlelist/24.html
+                    [flag] => 3
+                    [type_id] => 29
+                    [content] => 
+                )
+
+            [4] => Array
+                (
+                    [id] => 25
+                    [name] => 功能简介
+                    [title] => 功能简介
+                    [generate_name] => /articlelist/25.html
+                    [flag] => 3
+                    [type_id] => 30
+                    [content] => 
+                )
+
+            [5] => Array
+                (
+                    [id] => 26
+                    [name] => 客户应用
+                    [title] => 客户应用
+                    [generate_name] => /articlelist/26.html
+                    [flag] => 3
+                    [type_id] => 31
+                    [content] => 
+                )
+
+            [6] => Array
+                (
+                    [id] => 27
+                    [name] => 合作展示
+                    [title] => 合作展示
+                    [generate_name] => /articlelist/27.html
+                    [flag] => 3
+                    [type_id] => 32
+                    [content] => 
+                )
+
+            [7] => Array
+                (
+                    [id] => 28
+                    [name] => 邮箱新闻
+                    [title] =>  零散段落　邮箱新闻
+                    [generate_name] => /newslist/28.html
+                    [flag] => 4
+                    [type_id] => 22
+                    [content] => 
+                )
+
+            [8] => Array
+                (
+                    [generate_name] => /menu.html
+                    [title] => 菜单测试
+                    [name] => 测试菜单1
+                )
+
+            [9] => Array
+                (
+                    [generate_name] => /demo.html
+                    [title] => 测试菜单
+                    [name] => 测试菜单2
+                )
+
+        )
+
+    [activity] => Array
+        (
+        )
+
+    [partnersite] => Array
+        (
+            [http://mail.qiyvkf.com/] => 网易企业邮箱
+            [http://163hm.com] => 山东企业邮箱
+        )
+
+    [pre_head_jscode] => Array
+        (
+            [0] => <script>console.log('dsadsa');</script>
+            [1] => <script type="text/javascript">console.log("header之前")</script>
+        )
+
+    [after_head_jscode] => Array
+        (
+            [0] => <script type="text/javascript">console.log("header之后")</script>
+            [1] => <script>
+    var referrer = document.referrer;
+    var obj = {};
+    var sendInfo = {};
+    if (referrer.indexOf("www.sogou.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.query;
+        sendInfo.engine = "sogou";
+
+    } else if (referrer.indexOf("www.so.com") !== -1) {
+        strs = referrer.split("&");
+        for (var i = 0; i < strs.length; i++) {
+            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
+        }
+        sendInfo.keyword = obj.q;
+        sendInfo.engine = obj.src;
+    } else if (referrer.indexOf("www.baidu.com") !== -1) {
+        sendInfo.keyword = "";
+        sendInfo.engine = "百度";
+        console.log(sendInfo)
+    } else {
+        sendInfo.keyword = "其他";
+        sendInfo.engine = "其他";
+    }
+    sendInfo.keyword = decodeURI(sendInfo.keyword);
+    sendInfo.referrer = referrer;
+    sendInfo.origin_web = window.location.href
+    $(function () {
+        var url = var url = "/index.php/externalAccess";
+        $.ajax({
+                type: "post",
+                url: url,
+                data: sendInfo,
+                success: function () {
+                }
+            }
+        )
+    })
+</script>
+        )
+
+    [article_list] => Array
+        (
+        )
+
+    [question_list] => Array
+        (
+            [0] => Array
+                (
+                    [question] => 什么是SMTP协议?
+                    [a_href] => /question/question85.html
+                    [create_time] => 2017-05-08
+                )
+
+            [1] => Array
+                (
+                    [question] => 为什么要使用企业邮箱?
+                    [a_href] => /question/question83.html
+                    [create_time] => 2017-05-08
+                )
+
+            [2] => Array
+                (
+                    [question] => 什么是MX?163企业邮箱的MX记录是什么?
+                    [a_href] => /question/question82.html
+                    [create_time] => 2017-05-08
+                )
+
+            [3] => Array
+                (
+                    [question] => 什么是企业邮箱?
+                    [a_href] => /question/question81.html
+                    [create_time] => 2017-05-08
+                )
+
+        )
+
+    [scatteredarticle_list] => Array
+        (
+        )
+
+)
+||||||||||||||||||||||||
