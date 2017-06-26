@@ -10,6 +10,7 @@ use app\tool\controller\Keyword;
 use app\tool\controller\Menu;
 use app\tool\controller\Site;
 use app\common\controller\Common;
+use think\Cache;
 use think\View;
 use app\tool\controller\FileExistsTraits;
 
@@ -28,6 +29,7 @@ class ArticleList extends Common
      */
     public function index($id)
     {
+        Cache::clear();
         //判断模板是否存在
         if (!$this->fileExists('template/articlelist.html')) {
             return;
@@ -53,6 +55,9 @@ class ArticleList extends Common
             exit("当前网站无此栏目");
         }
         $menu_info = \app\index\model\Menu::get($id);
+        if(is_null($menu_info)){
+            exit("unkown article");
+        }
         list($com_name, $title, $keyword, $description,
             $m_url, $redirect_code, $menu, $activity, $partnersite, $pre_head_jscode, $after_head_jscode,
             $article_list, $question_list, $scatteredarticle_list) = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);

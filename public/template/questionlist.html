@@ -1,161 +1,177 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>{$d["title"]}</title>
-    <meta name="keyword" content='{$d["keyword"]}'>
-    <meta name="description" content='{$d["description"]}'>
-    {$d["redirect_code"]}
-    <?php if($d["pre_head_jscode"]):?>
-    <?php foreach($d["pre_head_jscode"] as $item):?>
-    {$item}
-    <?php endforeach;endif;?>
-    <script src="/templatestatic/jquery-1.8.2.min.js"></script>
-    <script type="text/javascript" src="/templatestatic/jquery.SuperSlide.js"></script>
-    <link href="/templatestatic/news.css" rel="stylesheet" type="text/css"/>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width">
+<meta name="format-detection" content="telephone=no">
+<meta name="format-detection" content="email=no">
+<meta name="format-detection" content="address=no;">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="keywords" content="">
+<meta name="description" content="">
+<title>手机站群模板-问答列表页</title>
+<link href="/templatestatic/style.css" rel="stylesheet" type="text/css" />
+<link href="/templatestatic/component.css" rel="stylesheet" type="text/css" />
+<link href="/templatestatic/swiper.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/templatestatic/jquery.js"></script>
+<script type="text/javascript" src="/templatestatic/modernizr.custom.js"></script>
+<script type="text/javascript" src="/templatestatic/jquery.dlmenu.js"></script>
+<script type="text/javascript" src="/templatestatic/aaa.js"></script>
+<script type="text/javascript">
+$(function(){	
+//顶部导航切换
+if($('.selected').length>1){
+  $(".xdh li a").eq(0).removeClass('selected');
+}
+$(".xdh li a").click(function(){
+$(".xdh li a").removeClass("selected")
+$(this).addClass("selected");
+})
+})</script>
 </head>
-
 <body>
-<div class="top_box">
-    <div class="top">
-        <div class="logo">企业邮箱网<span>www.qiyemail.com</span></div>
-        <div class="top_right">
-            <ul>
-                <li><a href="{$d['m_url']}">手机版</a></li>
-                <li class="noborder"><a href="../sitemap.html" target="_blank">站点地图</a></li>
-            </ul>
-        </div>
-    </div>
+<div class="ttop">
+	企业邮箱网<span>www.qiyemail.com</span>
 </div>
-
-<div class="nav">
-    <ul>
-        <?php foreach($d['menu'] as $item):?>
-        <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
-        <?php endforeach;?>
+<header class="header">
+  <div id="dl-menu" class="dl-menuwrapper">
+		<button id="dl-menu-button">Open Menu</button>
+		<ul class="dl-menu">
+		<li><a href="">网站首页</a></li>
+    	<li><a href="">邮箱品牌</a></li>
+    	<li><a href="">行业快讯</a></li>
+    	<li><a href="">导购指南</a></li>
+    	<li><a href="">功能介绍</a></li>
+    	<li><a href="">企邮联盟</a></li>
+    	<li><a href="">客户应用</a></li>
+    	<li><a href="">免费企业邮</a></li>
+    	<li><a href="">邮箱问答</a></li>
+    	<li><a href="">合作展示</a></li>
+        <li><a href="">申请试用</a></li>
     </ul>
+	</div>
+</header>
+<div class="swiper-container">
+	<div class="swiper-wrapper">
+		<div class="swiper-slide"><img src="/templatestatic/banner0.jpg"></div>
+			<div class="swiper-slide"><img src="/templatestatic/banner1.jpg"></div>
+	
+  </div>
+	<!-- Add Pagination -->
+	<div class="swiper-pagination"></div>
+	<!-- Add Navigation -->
+	<div class="swiper-button-prev"></div>
+	<div class="swiper-button-next"></div>
 </div>
+<script type="text/javascript">
+$(function(){
+	$( '#dl-menu' ).dlmenu();
+});
+</script>
+<script src="/templatestatic/swiper.jquery.min.js"></script>
 
-<div class="dt">
-    <?php if($d["activity"]):?>
-    <?php foreach($d["activity"] as $key=> $item):?>
-    <span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['medium_img']}"></a></span>
-    <?php endforeach;endif;?>
+<!-- Initialize Swiper -->
+<script>
+var swiper = new Swiper('.swiper-container', {
+	pagination: '.swiper-pagination',
+	paginationClickable: true,
+	nextButton: '.swiper-button-next',
+	prevButton: '.swiper-button-prev'
+});
+</script>
+<div class="ppt">
+    	<a href="">
+    	<span class="ppw">邮箱问答</span><span class="gd">+更多</span>
+        </a>
 </div>
-
-<div class="part1">
-    <div class="yxwz">
-        <div class="dqw">当前位置>邮箱问答</div>
-        <?php foreach($d["question"] as  $item):?>
-        <div class="wz_col">
-            <div class="wz_text">
-                <h1 class="wz_bt"><a href="/question/question{$item['id']}.html">{$item['question']}</a></h1>
-                <div class="wz_nr">
+<div class="xw">
+	<div class="xwl">
+    	<div class="imht">
+        	<img src="/templatestatic/tu.jpg" />
+        </div>
+        <div class="xwz">
+            	<h1 class="xwt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="xwx">
+                2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街...
                 </div>
-                <a href="/question/question{$item['id']}.html" class="xxnr">详细内容>></a>
-            </div>
+      </div>
+  </div>
+     <div class="xwl">
+    	<div class="imht">
+        	<img src="/templatestatic/tu.jpg" />
         </div>
-        <?php endforeach;?>
-        {$d["question"]->render()}
-
-    </div>
-
-
-    <div class="part2">
-        <div class="yxwd">
-            <div class="wz_title">
-                <a href="">
-                    <span class="ppw">邮箱文章</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-                </a>
-            </div>
-            <div class="wdt">
-                <ul>
-                    <?php foreach($d["article_list"] as $item):?>
-                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
-                    <?php endforeach;?>
-                </ul>
-            </div>
-            <a href=""><img src="/templatestatic/wd.jpg"></a>
+        <div class="xwz">
+            	<h1 class="xwt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="xwx">
+                2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街...
+                </div>
+       </div>
+     </div>
+     <div class="xwl">
+    	<div class="imht">
+        	<img src="/templatestatic/tu.jpg" />
         </div>
-
-        <div class="hyxw">
-            <div class="wz_title">
-                <a href="">
-                    <span class="ppw">邮箱问答</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-                </a>
-            </div>
-            <div class="new">
-                <ul>
-                    <?php foreach($d["question_list"] as $item):?>
-                    <li><a href="{$item['a_href']}">{$item["question"]}</a><span class="sj">{$item["create_time"]}</span></li>
-                    <?php endforeach;?>
-                </ul>
-            </div>
+        <div class="xwz">
+            	<h1 class="xwt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="xwx">
+                2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街...
+                </div>
+       </div>
+     </div>
+     <div class="xwl">
+    	<div class="imht">
+        	<img src="/templatestatic/tu.jpg" />
         </div>
-
-        <div class="hyxw">
-            <div class="wz_title">
-                <a href="">
-                    <span class="ppw">行业新闻</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-                </a>
-            </div>
-            <div class="new">
-                <ul>
-                    <?php foreach($d["scatteredarticle_list"] as $item):?>
-                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
-                    <?php endforeach;?>
-                </ul>
-            </div>
-            <a href=""><img src="/templatestatic/hy-new.jpg"></a>
+        <div class="xwz">
+            	<h1 class="xwt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="xwx">
+                2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街...
+                </div>
+       </div>
+     </div>
+     <div class="xwl">
+    	<div class="imht">
+        	<img src="/templatestatic/tu.jpg" />
         </div>
-    </div>
-    <div class="clearfix"></div>
+        <div class="xwz">
+            	<h1 class="xwt"><a href="">网易视频云干货分享：产品经理如何养成</a></h1>
+                <div class="xwx">
+                2016年10月23日，由网易云和pmcaff共同举办的易创课堂在北京中关村创业大街...
+                </div>
+       </div>
+     </div>
+     <div id="fylist">
+<a href="#">首页</a>		   	
+<a href="#" class="selected">1</a>				
+<a href="#" class="">2</a>				
+<a href="#" class="">3</a>				
+<a href="#" class="">4</a>
+<a href="#">尾页</a> 
+</div>
 </div>
 
-<div class="pptj">
-    <div class="wz_title">
-        <a href="">
-            <span class="ppw">邮箱品牌推荐</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+<div class="ppt">
+    	<a href="">
+    	<span class="ppw">友情链接</span>
         </a>
-    </div>
-    <ul>
-        <li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
-        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l5.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l6.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l7.jpg" /></a></li>
-        <li><a href=""><img src="/templatestatic/l8.jpg" /></a></li>
-        <div class="clearfix"></div>
+</div>
+<div class="lj">
+	<ul>
+     <li><a href="">联想企业网盘</a></li>
+     <li><a href="">网易企业邮箱</a></li>
+     <li><a href="">163企业邮箱</a></li>
+     <li><a href="">crm客户关系管理</a></li>
+     <li><a href="">企业邮箱申请</a></li>
+     <li><a href="">升降平台</a></li>
     </ul>
 </div>
 
-<div class="youqing">
-    <div class="wz_title">
-        <a href="">
-            <span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
-        </a>
-    </div>
-    <ul>
-        <?php foreach($d["partnersite"] as $key=>$item):?>
-        <li><a href="{$key}">{$item}</a></li>
-        <?php endforeach;?>
-    </ul>
-</div>
 <div class="bottom">
-    <div class="end">
-        <div class="el">
-            <div class="dxx">
-                全国企业邮箱服务电话：4006-360-163<br/>
-                © 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 中国企业邮箱网
-            </div>
-        </div>
-        <div class="er"><img src="/templatestatic/er.jpg" /></div>
-    </div>
+	<div class="wz">© 2004-2012 北京强比科技有限公司&nbsp;&nbsp;&nbsp;&nbsp; 济南强比科技有限公司<br />
+ 
+Copyright © 2002-2017 中国企业邮箱网 <br />
+全国企业邮箱服务电话：4006-360-163</div>
+    <div class="er"><img src="/templatestatic/er.jpg" /></div>
 </div>
-
 </body>
 </html>
