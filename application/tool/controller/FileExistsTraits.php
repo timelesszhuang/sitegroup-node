@@ -95,6 +95,7 @@ trait FileExistsTraits
                     }
                 }
             }
+
             return $temp_arr;
         }
     }
