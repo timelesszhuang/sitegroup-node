@@ -93,7 +93,7 @@ class Site extends Common
         if (empty($info)) {
             //如果为空的话 处理方式
             //表示该
-            exit(['status' => false, 'msg' => "未找到站点id {$site_id} 的配置信息"]);
+            exit("未找到站点id {$site_id} 的配置信息");
         }
         Cache::set(Config::get('site.CACHE_LIST')['SITEINFO'], $info, Config::get('site.CACHE_TIME'));
         return $info;

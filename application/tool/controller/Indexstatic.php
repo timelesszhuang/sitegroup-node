@@ -19,7 +19,7 @@ class Indexstatic extends Common
      */
     public function index()
     {
-        //判断模板是否存在
+        // 判断模板是否存在
         if (!$this->fileExists('template/index.html')) {
             return;
         }
@@ -27,7 +27,7 @@ class Indexstatic extends Common
         //  关键词
         //  栏目url  展现以下已经在数据库
         //  文章 或者 问答
-        $assign_data=Commontool::getEssentialElement('index');
+        $assign_data = Commontool::getEssentialElement('index');
         file_put_contents('log/index.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //还需要 存储在数据库中 相关数据
         //页面中还需要填写隐藏的 表单 node_id site_id

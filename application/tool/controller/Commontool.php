@@ -447,11 +447,9 @@ class Commontool extends Common
      * @access public
      * @param $menu_ids 站点选择的菜单的id
      * @param $site_id 站点的id 信息
-     * @param $tag  标志是哪个页面需要获取文章列表 index首页  detail详情页  menu菜单页面 envmenu 配置页面
-     * @param $page_id
      * @return array
      */
-    public static function getDbArticleListId($menu_ids, $site_id, $tag, $page_id)
+    public static function getDbArticleListId($menu_ids, $site_id)
     {
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
@@ -630,7 +628,8 @@ CODE;
 
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
-        $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id, $tag, $page_id);
+        $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
+
         $article_list = self::getArticleList($artiletype_sync_info, $site_id);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
