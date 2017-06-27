@@ -672,9 +672,18 @@ CODE;
         if ($refere_code) {
             array_push($after_head_jscode, $refere_code);
         }
+        //获取公司联系方式等 会在右上角或者其他位置添加
+        $contact_way_id = $siteinfo['support_hotline'];
+        $contact_info = [];
+        if ($contact_way_id) {
+            $contact_info = Db::name('contactway')->where('id', $contact_way_id)->field('html,detail')->find();
+        }
+        //该链接的网址
+        $url = $siteinfo['url'];
         //公司名称
         $com_name = $siteinfo['com_name'];
-        return compact('com_name', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+        $site_name = $siteinfo['site_name'];
+        return compact('com_name', 'url', 'site_name', 'contact_info', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
     }
 
     /**
