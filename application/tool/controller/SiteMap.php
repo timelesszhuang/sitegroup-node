@@ -5,15 +5,19 @@
  * Date: 17-6-14
  * Time: 上午11:20
  */
+
 namespace app\tool\controller;
+
 use app\common\controller\Common;
 use app\index\model\Question;
 use app\index\model\ScatteredTitle;
 use think\Cache;
 use think\View;
 
-class SiteMap extends Common{
+class SiteMap extends Common
+{
     use FileExistsTraits;
+
     /**
      * 生成sitemap
      */
@@ -23,42 +27,21 @@ class SiteMap extends Common{
         if (!$this->fileExists('template/sitemap.html')) {
             return;
         }
-        $article_arr=[];
-        $question_arr=[];
-        $scat_arr=[];
-        $siteinfo =Site::getSiteInfo();
+        $article_arr = [];
+        $question_arr = [];
+        $scat_arr = [];
+        $siteinfo = Site::getSiteInfo();
         //去掉逗号
-        $trimSite=trim($siteinfo["menu"],",");
-        if(empty($trimSite)){
+        $trimSite = trim($siteinfo["menu"], ",");
+        if (empty($trimSite)) {
             exit("no menu");
         }
-        $menus=\app\tool\model\Menu::all($trimSite);
-        foreach($this->foreachMenu($menus) as $key=>$item){
-
+        $menus = Commontool::getDbArticleListId($trimSite, $siteinfo['id']);
+        $arr=[];
+        foreach ($this->foreachMenus($menus) as $key => $item) {
+            list($title,$data)=$item();
+            $arr[$title]=$data;
         }
-
-
-
-
-
-        $where=[
-            "site_id" => $siteinfo['id'],
-            "node_id" => $siteinfo['node_id']
-        ];
-        foreach($this->article($where) as $article){
-            $article_arr[]=$article;
-        }
-        foreach($this->question($where) as $question){
-            $question_arr[]=$question;
-        }
-        foreach($this->scatteredTitle($where) as $scat){
-            $scat_arr[]=$scat;
-        }
-        $arr=[
-            "article"=>$article_arr,
-            "question"=>$question_arr,
-            "news"=>$scat_arr
-        ];
         $content = (new View())->fetch('template/sitemap.html',
             [
                 'd' => $arr,
@@ -67,56 +50,48 @@ class SiteMap extends Common{
         $make_web = file_put_contents('sitemap.html', $content);
     }
 
-
-
     /**
-     * 遍历article
+     * 遍历每一个栏目的内容
+     * @param $menus
      * @return \Generator
      */
-    public function article($where)
+    public function foreachMenus($menus)
     {
-        $article=\app\index\model\Article::where($where)->field("id,title")->select();
-        foreach($article as $item){
-             yield $this->foreachContent($item);
+        foreach ($menus as $key => list($item)) {
+            yield function () use ($key, $item) {
+                $data='';
+                $where=[
+                    "id"=>["lt",$item["max_id"]]
+                ];
+                switch ($key) {
+//                    问答
+                    case "question":
+                        $where["type_id"]=$item["type_id"];
+                        $data = Question::where($where)->field("id,question as title")->select();
+                        if($data){
+                            $data=collection($data)->toArray();
+                        }
+                        break;
+//                        文章
+                    case "article":
+                        $where["articletype_id"]=$item["type_id"];
+                        $data = \app\index\model\Article::where($where)->field("id,title")->select();
+                        if($data){
+                            $data=collection($data)->toArray();
+                        }
+                        break;
+//                        零散段落
+                    case "scatteredarticle":
+                        $where["articletype_id"]=$item["type_id"];
+                        $data = ScatteredTitle::where($where)->field("id,title")->select();
+                        if($data){
+                            $data=collection($data)->toArray();
+                        }
+                        break;
+                }
+                return [$key,$data];
+            };
         }
-    }
-
-    /**
-     *遍历question
-     * @return \Generator
-     */
-    public function question($where)
-    {
-        $question=Question::where($where)->field("id,question as title")->select();
-        foreach($question as $item){
-             yield $this->foreachContent($item);
-        }
-
-    }
-
-    /**
-     * 遍历零散段落
-     * @return \Generator
-     */
-    public function scatteredTitle($where)
-    {
-        $scat=ScatteredTitle::where($where)->field("id,title")->select();
-        foreach($scat as $item){
-            yield $this->foreachContent($item);
-        }
-    }
-
-    /**
-     * 返回article数组
-     * @param $article
-     * @return array
-     */
-    public function foreachContent($content)
-    {
-        return [
-            "id"=>$content->id,
-            "title"=>$content->title
-        ];
     }
 
 }
