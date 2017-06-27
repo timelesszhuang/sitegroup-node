@@ -48,7 +48,7 @@ class Common extends Controller
      * 验证下node_id
      * @access public
      */
-    public function check_nodeid()
+    public function check_siteid()
     {
         $site_id = Request::instance()->param('site_id');
         if ($site_id != Config::get('site.SITE_ID')) {
