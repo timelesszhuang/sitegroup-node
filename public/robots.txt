@@ -1,0 +1,7 @@
+# robots.txt generated at http://admin.mypc.com.cn/robots/
+User-agent: *
+Disallow: /cgi-bin
+Disallow:/upload/
+Disallow:/log/
+Disallow: .zip$
+Disallow: .php$
