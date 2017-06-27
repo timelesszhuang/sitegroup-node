@@ -8,3 +8,12 @@ composer.phar
 # Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
 # composer.lock
+/public/
+将删除 public/article/
+将删除 public/log/
+将删除 public/news/
+将删除 public/question/
+/public/template/articlelist.html
+将删除 application/tool/model/Menu.php
+/public/template/index.html
+/public/template/questionlist.html

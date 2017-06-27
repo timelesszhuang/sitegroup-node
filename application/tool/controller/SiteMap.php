@@ -19,7 +19,6 @@ class SiteMap extends Common{
      */
     public function index()
     {
-        dump(Site::getSiteInfo());die;
         //判断模板是否存在
         if (!$this->fileExists('template/sitemap.html')) {
             return;
@@ -28,6 +27,20 @@ class SiteMap extends Common{
         $question_arr=[];
         $scat_arr=[];
         $siteinfo =Site::getSiteInfo();
+        //去掉逗号
+        $trimSite=trim($siteinfo["menu"],",");
+        if(empty($trimSite)){
+            exit("no menu");
+        }
+        $menus=\app\tool\model\Menu::all($trimSite);
+        foreach($this->foreachMenu($menus) as $key=>$item){
+
+        }
+
+
+
+
+
         $where=[
             "site_id" => $siteinfo['id'],
             "node_id" => $siteinfo['node_id']
@@ -53,6 +66,8 @@ class SiteMap extends Common{
         );
         $make_web = file_put_contents('sitemap.html', $content);
     }
+
+
 
     /**
      * 遍历article

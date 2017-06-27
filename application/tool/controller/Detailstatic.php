@@ -7,7 +7,6 @@ use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
 use app\index\model\ScatteredTitle;
 use think\Db;
-use think\sae\Cache;
 use think\View;
 
 /**
@@ -131,6 +130,7 @@ class Detailstatic extends Common
         //从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
+
         //验证下 是不是这个时间段内 是不是可以生成
         list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id, $requesttype);
         foreach ($menu_typeid_arr as $detail_key => $v) {
@@ -199,14 +199,17 @@ class Detailstatic extends Common
             return;
         }
         $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
-        foreach ($article_data as $item) {
+        foreach ($article_data as $key=>$item) {
             $temp_content = mb_substr(strip_tags($item->content), 0, 200);
             $assign_data =  Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
             file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
-            $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+            $next_article='';
+            if(($step_limit-$key)>1){
+                $next_article=\app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit+$step_limit-$key,1)->find();
+            }
             $temp_content = $item->content;
             //替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
@@ -290,7 +293,7 @@ class Detailstatic extends Common
             return;
         }
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($limit, $step_limit)->select();
-        foreach ($scatTitleArray as $item) {
+        foreach ($scatTitleArray as $key=>$item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
             $temp_arr=$item->toArray();
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
@@ -301,7 +304,11 @@ class Detailstatic extends Common
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
-            $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->find();
+            $next_article='';
+            if(($step_limit-$key)>1){
+                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit+$step_limit-$key,1)->find();
+            }
+
             $content = (new View())->fetch('template/news.html',
                 [
                     'd' => $assign_data,
@@ -370,14 +377,18 @@ class Detailstatic extends Common
         }
 
         $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
-        foreach ($question_data as $item) {
+        foreach ($question_data as $key=>$item) {
             $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
             $assign_data=Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
             file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id", "desc")->find();
-            $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->find();
+            $next_article='';
+            if(($step_limit-$key)>1){
+                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->limit($limit+$step_limit-$key,1)->find();
+            }
+
             $content = (new View())->fetch('template/question.html',
                 [
                     'd' => $assign_data,

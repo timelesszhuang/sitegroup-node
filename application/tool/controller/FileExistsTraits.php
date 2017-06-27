@@ -90,11 +90,12 @@ trait FileExistsTraits
                         $i = 1;
                         continue;
                     } else {
-                        file_put_contents("code.txt",$this->checkAscii($arr[0][$item]),FILE_APPEND);
+                        file_put_contents("code.txt",$arr[0][$item]."\r\n",FILE_APPEND);
                         $i++;
                     }
                 }
             }
+
             return $temp_arr;
         }
     }
