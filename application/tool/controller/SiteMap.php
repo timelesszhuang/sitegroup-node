@@ -27,17 +27,16 @@ class SiteMap extends Common
         if (!$this->fileExists('template/sitemap.html')) {
             return;
         }
-        $article_arr = [];
-        $question_arr = [];
-        $scat_arr = [];
         $siteinfo = Site::getSiteInfo();
         //去掉逗号
         $trimSite = trim($siteinfo["menu"], ",");
         if (empty($trimSite)) {
             exit("no menu");
         }
+        //所有栏目
         $menus = Commontool::getDbArticleListId($trimSite, $siteinfo['id']);
         $arr=[];
+        //遍历栏目
         foreach ($this->foreachMenus($menus) as $key => $item) {
             list($title,$data)=$item();
             $arr[$title]=$data;
