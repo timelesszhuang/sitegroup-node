@@ -87,16 +87,18 @@
 </div>
 
 <div class="article_page">
-    <div class="page_up"><a href="/news/news{$pre_article['id']}.html">
+    <div class="page_up">
         <?php if(isset($pre_article["title"])):?>
-        上一篇：<?php echo $pre_article["title"];?>
+        <a href="/news/news{$pre_article['id']}.html">
+        上一篇：<?php echo $pre_article["title"];?></a>
         <?php endif;?>
-    </a></div>
-    <div class="page_down"><a href="/news/news{$next_article['id']}.html">
+    </div>
+    <div class="page_down">
         <?php if(isset($next_article["title"])):?>
-        下一篇：<?php echo $next_article["title"];?>
+        <a href="/news/news{$next_article['id']}.html">
+        下一篇：<?php echo $next_article["title"];?></a>
         <?php endif;?>
-    </a></div>
+    </div>
 </div>
 
 
