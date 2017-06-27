@@ -58,7 +58,7 @@ class ArticleList extends Common
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $data["site_id"], "node_id" => $data["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         if ($articleSyncCount) {
-            $where["id"] = ["lt", $articleSyncCount->count];
+            $where["id"] = ["elt", $articleSyncCount->count];
         }
         //获取当前type_id的文章
         $article = \app\index\model\Article::order('id', "desc")->where($where)->paginate();

@@ -51,7 +51,6 @@ class Site extends Common
                 'node_id' => $node_id,
             ]);
             //错误信息
-            exit;
         }
         //判断主节点是不是当前的节点
         if ($site_id == $main_site['id']) {
