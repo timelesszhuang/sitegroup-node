@@ -63,8 +63,6 @@ class Template extends Common
      */
     public function templatelist()
     {
-//        //模板相关操作
-//        $path = ROOT_PATH . 'public/template/';
         //获取文件列表
         $fileArray = [];
         if (false != ($handle = opendir($this->templatepath))) {
