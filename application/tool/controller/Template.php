@@ -88,8 +88,8 @@ class Template extends Common
         } else {
             $data = ['status' => 'failed', 'msg' => '模板未传递或没有获取到模板文件。', 'filelist' => $fileArray,];
         }
-//        print_r($data);
-        exit($data);
+//        print_r(json_encode($data));
+        return json_encode($data);
     }
 
 
