@@ -8,7 +8,7 @@
 
 return [
     //节点的id 信息部署的时候需要修改该id 的值
-    'SITE_ID' => 25,
+    'SITE_ID' => 5,
     //缓存十分钟
     'CACHE_TIME' => 600,
     //缓存的文件的列表
@@ -24,6 +24,5 @@ return [
         //手机站点 网址  还有跳转链接
         'MOBILE_SITE_INFO' => 'mobile_site_info',
         //
-
     ],
 ];
