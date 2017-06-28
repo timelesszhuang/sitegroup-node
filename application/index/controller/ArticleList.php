@@ -50,15 +50,15 @@ class ArticleList extends Common
             exit("当前网站无此栏目");
         }
         $menu_info = \app\index\model\Menu::get($id);
-        if(is_null($menu_info)){
+        if (is_null($menu_info)) {
             exit("unkown article");
         }
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
         //取出同步的总数
-        $articleSyncCount = ArticleSyncCount::where(["site_id" => $data["site_id"], "node_id" => $data["node_id"], "type_name" => "article"])->find();
+        $articleSyncCount = ArticleSyncCount::where(["site_id" => $data["site_id"], "node_id" => $data["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         if ($articleSyncCount) {
-            $where["id"] = ["lt", $articleSyncCount->count];
+            $where["id"] = ["elt", $articleSyncCount->count];
         }
         //获取当前type_id的文章
         $article = \app\index\model\Article::order('id', "desc")->where($where)->paginate();

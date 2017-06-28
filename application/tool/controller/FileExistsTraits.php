@@ -11,6 +11,7 @@ namespace app\tool\controller;
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\SiteErrorInfo;
+use think\Cache;
 
 trait FileExistsTraits
 {

@@ -24,6 +24,5 @@ return [
         //手机站点 网址  还有跳转链接
         'MOBILE_SITE_INFO' => 'mobile_site_info',
         //
-
     ],
 ];

@@ -37,10 +37,10 @@ class NewsList extends Common
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
-        $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "news"])->find();
+        $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "news",'type_id'=>$menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         if ($articleSyncCount) {
-            $where["id"] = ["lt", $articleSyncCount->count];
+            $where["id"] = ["elt", $articleSyncCount->count];
         }
         //获取当前type_id的文章
         $newslist = \app\index\model\ScatteredTitle::order('id', "desc")->where($where)->paginate();
@@ -52,7 +52,6 @@ class NewsList extends Common
                 'd' => $assign_data
             ]
         );
-
     }
 
 }
