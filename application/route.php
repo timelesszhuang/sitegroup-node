@@ -36,6 +36,7 @@ Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
 Route::get('pv', 'tool/Site/pv');
+Route::post('Rejection', 'tool/Site/Rejection');
 //统计
 Route::resource('externalAccess','index/ExternalAccess');
 Route::get('sitemap','tool/SiteMap/index');

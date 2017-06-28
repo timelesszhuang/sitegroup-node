@@ -33,30 +33,62 @@ class ExternalAccess extends Controller
     /**
      * 保存新建的资源
      *
-     * @param  \think\Request  $request
+     * @param  \think\Request $request
      * @return \think\Response
      */
     public function save(Request $request)
     {
-        $browse=new BrowseRecord($request->post());
+        $obj = [];
+        $referer = $request->post('referrer');
+        $origin_web = $request->post('origin_web');
+        if (stripos($referer, 'www.sogou.com')) {
+            $arr = explode('&', $referer);
+            foreach ($arr as $k => $v) {
+                $refererdata = explode('=', $v);
+                $obj = [
+                    $refererdata[0] => $refererdata[1]
+                ];
+            }
+            $keyword = $obj['query'];
+            $engine = "sogou";
+        } else if (stripos($referer, 'www.so.com')) {
+            $arr = explode('&', $referer);
+            foreach ($arr as $k => $v) {
+                $refererdata = explode('=', $v);
+                $obj = [
+                    $refererdata[0] => $refererdata[1]
+                ];
+            }
+            $keyword = $obj['query'];
+            $engine = "haosou";
+        } else if (stripos($referer, 'www.baidu.com')) {
+            $keyword = "";
+            $engine = "baidu";
+        }
+        $data = [
+            'keyword' => $keyword,
+            'referrer' => $referer,
+            'engine' => $engine,
+            'origin_web'=>$origin_web
+        ];
+        $browse = new BrowseRecord($data);
         $browse->allowField(true)->save();
-        $keyword=$request->post("keyword");
         $siteinfo = Site::getSiteInfo();
         $node_id = $siteinfo['node_id'];
         $site_id = $siteinfo['id'];
-        if(!empty($keyword)){
-            $where=[
-                "keyword"=>$keyword,
-                "site_id"=>intval($site_id),
-                "node_id"=>intval($node_id)
+        if (!empty($keyword)) {
+            $where = [
+                "keyword" => $keyword,
+                "site_id" => intval($site_id),
+                "node_id" => intval($node_id)
             ];
-            $access=AccessKeyword::where($where)->find();
-            if($access){
-                $access->count=++$access->count;
+            $access = AccessKeyword::where($where)->find();
+            if ($access) {
+                $access->count = ++$access->count;
                 $access->save();
                 return;
             }
-            $access_model=new AccessKeyword($request->post());
+            $access_model = new AccessKeyword($data);
             $access_model->allowField(true)->save();
         }
     }
@@ -64,7 +96,7 @@ class ExternalAccess extends Controller
     /**
      * 显示指定的资源
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \think\Response
      */
     public function read($id)
@@ -75,7 +107,7 @@ class ExternalAccess extends Controller
     /**
      * 显示编辑资源表单页.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \think\Response
      */
     public function edit($id)
@@ -86,8 +118,8 @@ class ExternalAccess extends Controller
     /**
      * 保存更新的资源
      *
-     * @param  \think\Request  $request
-     * @param  int  $id
+     * @param  \think\Request $request
+     * @param  int $id
      * @return \think\Response
      */
     public function update(Request $request, $id)
@@ -98,7 +130,7 @@ class ExternalAccess extends Controller
     /**
      * 删除指定资源
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \think\Response
      */
     public function delete($id)

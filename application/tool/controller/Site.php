@@ -3,12 +3,14 @@
 namespace app\tool\controller;
 
 use app\index\model\Pv;
+use app\tool\model\Rejection;
 use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
 use think\Cache;
 use think\Config;
 use think\Db;
 use think\Request;
+use think\Validate;
 
 
 /**
@@ -148,5 +150,54 @@ class Site extends Common
         }
         Pv::create($pvdata);
     }
+
+    public function Rejection(){
+
+        $rule = [
+            ["name", "require", "请输入您的姓名+"],
+            ["phone", "require", "请输入您的电话"],
+//            ["email", "require", "请输入您的邮箱"],
+//            ["company", "require", "请输入您的公司名"],
+        ];
+        $validate = new  Validate($rule);
+        $nowip = "113.128.93.40";
+        $ipdata = $this->get_ip_info($nowip);
+        $siteinfo = Site::getSiteInfo();
+        $formdata = $this->request->post();
+        $data['node_id'] = $siteinfo['node_id'];
+        $data['site_id'] = $siteinfo['id'];
+        //国家
+        $data['country'] = $ipdata['data']['country'];
+        $data['country_id'] = $ipdata['data']['country_id'];
+        $data['area_id'] = $ipdata['data']['area_id'];
+        $data['region'] = $ipdata['data']['region'];
+        $data['region_id'] = $ipdata['data']['region_id'];
+        $data['city'] = $ipdata['data']['city'];
+        $data['city_id'] = $ipdata['data']['city_id'];
+        $data['ip'] = $ipdata['data']['ip'];
+        $data['create_time'] = time();
+        $data['referer'] = '';
+        $data["name"] = strip_tags(quotemeta($formdata['name']));
+        $data["phone"] = strip_tags(quotemeta($formdata['phone']));
+        $data["email"] = strip_tags(addslashes($formdata['email']));
+        $data["company"] = strip_tags(addslashes($formdata['company']));
+        // dump($_SERVER);die;
+        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
+            $data['referer'] = $_SERVER['HTTP_REFERER'];
+        }
+        if (!$validate->check($data)) {
+            return $this->resultArray($validate->getError(), "failed");
+        }
+        if (! Rejection::create($data)) {
+            return $this->resultArray("申请失败", "failed");
+        }
+
+       return $this->resultArray("添加成功");
+
+
+
+    }
+
+
 
 }
