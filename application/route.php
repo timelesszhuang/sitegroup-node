@@ -11,8 +11,6 @@
 
 use think\Route;
 
-// 文件管理
-Route::rule('filemanage/uploadFile', 'tool/Filemanage/uploadFile');
 
 //只有当后缀是 html 的元素的时候才会有
 //当请求文章列表 的时候 首先隐藏 index.php
@@ -21,6 +19,17 @@ Route::get('newslist/:id', 'index/NewsList/index', ['ext' => 'html']);
 Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
 //当请求列表 的时候 首先隐藏 index.php
 Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
+
+
+//模板文件 活动文件管理
+Route::rule('filemanage/uploadFile', 'tool/Filemanage/uploadFile');
+
+//模板文件相关操作
+Route::get('templatelist', 'tool/Template/templatelist');
+//读取文件
+Route::get('templateread', 'tool/Template/templateread');
+//写文件
+Route::get('templatewrite', 'tool/Template/templatewrite');
 
 
 //全部页面静态化
@@ -37,5 +46,5 @@ Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
 Route::get('clearCache', 'tool/Commontool/clearCache');
 Route::get('pv', 'tool/Site/pv');
 //统计
-Route::resource('externalAccess','index/ExternalAccess');
-Route::get('sitemap','tool/SiteMap/index');
+Route::resource('externalAccess', 'index/ExternalAccess');
+Route::get('sitemap', 'tool/SiteMap/index');
