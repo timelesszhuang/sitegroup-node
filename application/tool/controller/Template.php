@@ -117,7 +117,9 @@ class Template extends Common
     }
 
     /**
-     * 模板写操作
+     * 模板更新操作
+     * filename 模板名
+     * content
      * @access public
      */
     public function templateupdate()
@@ -139,6 +141,8 @@ class Template extends Common
 
     /**
      * 模板添加操作
+     * filename 模板文件名
+     * content 要填充的内容
      * @access public
      */
     public function templateadd()
