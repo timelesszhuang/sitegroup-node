@@ -103,7 +103,7 @@ class Template extends Common
         $filename = Request::instance()->param('filename');
         $file_path = $this->templatepath . $filename . '.html';
         if (!file_exists($file_path)) {
-            return json_encode(['status' => 'failed', 'msg' => '模板文件不存在。']);
+            return json_encode(['status' => 'failed', 'msg' => '模板文件不存在。', 'filename' => $filename, 'content' => '']);
         }
         //读取文件内容
         $content = file_get_contents($file_path);

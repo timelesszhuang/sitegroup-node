@@ -29,10 +29,9 @@ Route::get('templatelist', 'tool/Template/templatelist');
 //读取模板文件
 Route::get('templateread', 'tool/Template/templateread');
 //更新模板文件
-Route::get('templateupdate', 'tool/Template/templateupdate');
+Route::post('templateupdate', 'tool/Template/templateupdate');
 //添加新模板文件
-Route::get('templateadd', 'tool/Template/templateadd');
-
+Route::post('templateadd', 'tool/Template/templateadd');
 
 
 //全部页面静态化
