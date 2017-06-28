@@ -131,9 +131,9 @@ class Template extends Common
         }
         if ($content) {
             file_put_contents($file_path, $content);
-            exit(['status' => '', 'msg' => '修改模板内容成功。']);
+            return json_encode(['status' => '', 'msg' => '修改模板内容成功。']);
         } else {
-            exit(['status' => 'failed', 'msg' => '修改模板内容失败，请填写模板内容。']);
+            return json_encode(['status' => 'failed', 'msg' => '修改模板内容失败，请填写模板内容。']);
         }
     }
 
@@ -154,9 +154,9 @@ class Template extends Common
         }
         if ($content) {
             file_put_contents($file_path, $content);
-            exit(['status' => '', 'msg' => '添加模板成功。']);
+            return json_encode(['status' => '', 'msg' => '添加模板成功。']);
         } else {
-            exit(['status' => 'failed', 'msg' => '添加模板失败，请填写模板内容。']);
+            return json_encode(['status' => 'failed', 'msg' => '添加模板失败，请填写模板内容。']);
         }
     }
 
