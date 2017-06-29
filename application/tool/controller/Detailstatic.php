@@ -198,7 +198,8 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
+        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
+        dump((new \app\index\model\Article)->getLastSql()."\r\n");
         foreach ($article_data as $key=>$item) {
             $temp_content = mb_substr(strip_tags($item->content), 0, 200);
             $assign_data =  Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
@@ -299,7 +300,7 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($limit, $step_limit)->select();
+        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($step_limit)->select();
         foreach ($scatTitleArray as $key=>$item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
             $temp_arr=$item->toArray();
@@ -388,7 +389,7 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
 
-        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
+        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
         foreach ($question_data as $key=>$item) {
             $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
             $assign_data=Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
