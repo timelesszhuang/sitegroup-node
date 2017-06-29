@@ -506,7 +506,7 @@ class Commontool extends Common
     }
 
     /**
-     * 获取搜索引擎的 referer 不支持百度 谷歌
+     * 获取搜索引擎的 referer 不支持百度 谷歌 现仅支持 搜狗 好搜
      * @access public
      */
     public static function getRefereerDemo()
@@ -514,32 +514,7 @@ class Commontool extends Common
         return <<<CODE
 <script>
     var referrer = document.referrer;
-    var obj = {};
     var sendInfo = {};
-    if (referrer.indexOf("www.sogou.com") !== -1) {
-        strs = referrer.split("&");
-        for (var i = 0; i < strs.length; i++) {
-            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
-        }
-        sendInfo.keyword = obj.query;
-        sendInfo.engine = "sogou";
-
-    } else if (referrer.indexOf("www.so.com") !== -1) {
-        strs = referrer.split("&");
-        for (var i = 0; i < strs.length; i++) {
-            obj[strs[i].split("=")[0]] = strs[i].split("=")[1];
-        }
-        sendInfo.keyword = obj.q;
-        sendInfo.engine = obj.src;
-    } else if (referrer.indexOf("www.baidu.com") !== -1) {
-        sendInfo.keyword = "";
-        sendInfo.engine = "百度";
-        console.log(sendInfo)
-    } else {
-        sendInfo.keyword = "其他";
-        sendInfo.engine = "其他";
-    }
-    sendInfo.keyword = decodeURI(sendInfo.keyword);
     sendInfo.referrer = referrer;
     sendInfo.origin_web = window.location.href
     $(function () {
@@ -685,6 +660,7 @@ CODE;
         $site_name = $siteinfo['site_name'];
         return compact('com_name', 'url', 'site_name', 'contact_info', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
     }
+
 
     /**
      * 截取中文字符串  utf-8

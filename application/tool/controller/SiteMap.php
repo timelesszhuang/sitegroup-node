@@ -11,7 +11,6 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\index\model\Question;
 use app\index\model\ScatteredTitle;
-use think\Cache;
 use think\View;
 
 class SiteMap extends Common
