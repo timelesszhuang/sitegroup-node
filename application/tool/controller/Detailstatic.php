@@ -235,7 +235,7 @@ class Detailstatic extends Common
                     'd' => $assign_data,
                     'article' => ["title" => $item->title, "auther" => $item->auther, "create_time" => $item->create_time, "content" => $temp_content],
                     'pre_article' => $pre_article,
-                    'next_href' => $next_href,
+                    'next_article' => $next_article,
                 ]
             );
 
@@ -392,7 +392,6 @@ class Detailstatic extends Common
         } else {
             $article_temp = new ArticleSyncCount();
         }
-
         $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
         foreach ($question_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
