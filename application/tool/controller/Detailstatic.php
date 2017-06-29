@@ -209,16 +209,15 @@ class Detailstatic extends Common
             $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
-                $pre_article['pre_href'] = "/article/article{$pre_article['id']}.html";
+                $pre_article['href'] = "/article/article{$pre_article['id']}.html";
             }
 
             $next_article = [];
-            $next_href = '';
             if (($step_limit - $key) > 1) {
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
                 //下一页链接
                 if ($next_article) {
-                    $next_article['next_href'] = "/article/article{$next_article['id']}.html";
+                    $next_article['href'] = "/article/article{$next_article['id']}.html";
                 }
             }
 
@@ -317,14 +316,13 @@ class Detailstatic extends Common
             //获取上一篇和下一篇
             $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
             if ($pre_article) {
-                $pre_article['pre_href'] = "/news/news{$pre_article['id']}.html";
+                $pre_article['href'] = "/news/news{$pre_article['id']}.html";
             }
             $next_article = [];
-            $next_href = '';
             if (($step_limit - $key) > 1) {
                 $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
                 if ($next_article) {
-                    $next_article['next_href'] = "/news/news{$next_article['id']}.html";
+                    $next_article['href'] = "/news/news{$next_article['id']}.html";
                 }
             }
 
@@ -403,13 +401,14 @@ class Detailstatic extends Common
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id", "desc")->find();
-            $pre_article['pre_href'] = "/question/question{$pre_article['id']}.html";
+            if ($pre_article) {
+                $pre_article['href'] = "/question/question{$pre_article['id']}.html";
+            }
             $next_article = [];
-            $next_href = '';
             if (($step_limit - $key) > 1) {
                 $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
                 if ($next_article) {
-                    $next_article['next_href'] = "/question/question{$next_article['id']}.html";
+                    $next_article['href'] = "/question/question{$next_article['id']}.html";
                 }
             }
             $content = (new View())->fetch('template/question.html',
