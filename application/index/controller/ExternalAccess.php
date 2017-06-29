@@ -49,7 +49,7 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-            $keyword = $obj['query'];
+            $keyword = urldecode($obj['query']);
             $engine = "sogou";
         } else if (stripos($referer, 'www.so.com')) {
             $arr = explode('&', $referer);
@@ -59,7 +59,7 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-            $keyword = $obj['query'];
+            $keyword = urldecode($obj['query']);
             $engine = "haosou";
         } else if (stripos($referer, 'www.baidu.com')) {
             $keyword = "百度关键词";
