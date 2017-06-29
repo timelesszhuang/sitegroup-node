@@ -280,6 +280,7 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/news.html')) {
             return;
         }
+
         $type_name = "scatteredarticle";
         $where = [
             'type_id' => $type_id,
