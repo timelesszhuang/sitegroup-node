@@ -37,7 +37,7 @@ class Detailstatic extends Common
         $article_count = $default_count;
         $question_status = false;
         $question_count = $default_count;
-        $scattered_status = false;：q:
+        $scattered_status = false;
         $scattered_count = $default_count;
         if (array_key_exists('article', $config_sync_info)) {
             foreach ($config_sync_info['article'] as $k => $v) {
@@ -198,23 +198,29 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
-        foreach ($article_data as $key=>$item) {
+        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
+        foreach ($article_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content), 0, 200);
-            $assign_data =  Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
             file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
+
             $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
             //上一页链接
-            $pre_href="/article/article{$pre_article['id']}.html";
-            $next_article='';
-            $next_href='';
-            if(($step_limit-$key)>1){
-                $next_article=\app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit+$step_limit-$key,1)->find();
-              //下一页链接
-                $next_href="/article/article{$next_article['id']}.html";
+            if ($pre_article) {
+                $pre_article['href'] = "/article/article{$pre_article['id']}.html";
             }
+
+            $next_article = [];
+            if (($step_limit - $key) > 1) {
+                $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
+                //下一页链接
+                if ($next_article) {
+                    $next_article['href'] = "/article/article{$next_article['id']}.html";
+                }
+            }
+
             $temp_content = $item->content;
             //替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
@@ -229,9 +235,7 @@ class Detailstatic extends Common
                     'd' => $assign_data,
                     'article' => ["title" => $item->title, "auther" => $item->auther, "create_time" => $item->create_time, "content" => $temp_content],
                     'pre_article' => $pre_article,
-                    'pre_href'=>$pre_href,
-                    'next_href'=>$next_href,
-                    'next_article' => $next_article
+                    'next_article' => $next_article,
                 ]
             );
 
@@ -299,10 +303,10 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($step_limit)->select();
-        foreach ($scatTitleArray as $key=>$item) {
+        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($limit, $step_limit)->select();
+        foreach ($scatTitleArray as $key => $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
-            $temp_arr=$item->toArray();
+            $temp_arr = $item->toArray();
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
             $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $a_keyword_id);
@@ -311,20 +315,21 @@ class Detailstatic extends Common
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
-            $next_article='';
-            $next_href='';
-            $pre_href="/news/news{$pre_article['id']}.html";
-            if(($step_limit-$key)>1){
-                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit+$step_limit-$key,1)->find();
-                $next_href="/news/news{$next_article['id']}.html";
+            if ($pre_article) {
+                $pre_article['href'] = "/news/news{$pre_article['id']}.html";
+            }
+            $next_article = [];
+            if (($step_limit - $key) > 1) {
+                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
+                if ($next_article) {
+                    $next_article['href'] = "/news/news{$next_article['id']}.html";
+                }
             }
 
             $content = (new View())->fetch('template/news.html',
                 [
                     'd' => $assign_data,
                     'scatteredarticle' => $temp_arr,
-                    'pre_href'=>$pre_href,
-                    'next_href'=>$next_href,
                     'pre_article' => $pre_article,
                     'next_article' => $next_article
                 ]
@@ -387,29 +392,28 @@ class Detailstatic extends Common
         } else {
             $article_temp = new ArticleSyncCount();
         }
-
-        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
-        foreach ($question_data as $key=>$item) {
+        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($limit, $step_limit)->select();
+        foreach ($question_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
-            $assign_data=Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
             file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->order("id", "desc")->find();
-            $next_article='';
-            $pre_href="/question/question{$pre_article['id']}.html";
-            $next_href='';
-            if(($step_limit-$key)>1){
-                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->limit($limit+$step_limit-$key,1)->find();
-                $next_href="/question/question{$next_article['id']}.html";
+            if ($pre_article) {
+                $pre_article['href'] = "/question/question{$pre_article['id']}.html";
             }
-
+            $next_article = [];
+            if (($step_limit - $key) > 1) {
+                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
+                if ($next_article) {
+                    $next_article['href'] = "/question/question{$next_article['id']}.html";
+                }
+            }
             $content = (new View())->fetch('template/question.html',
                 [
                     'd' => $assign_data,
                     'question' => $item,
-                    'pre_href'=>$pre_href,
-                    'next_href'=>$next_href,
                     'pre_article' => $pre_article,
                     'next_article' => $next_article
                 ]
