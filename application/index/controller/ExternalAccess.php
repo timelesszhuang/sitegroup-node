@@ -49,7 +49,7 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-            $keyword = $obj['query'];
+            $keyword = urldecode($obj['query']);
             $engine = "sogou";
         } else if (stripos($referer, 'www.so.com')) {
             $arr = explode('&', $referer);
@@ -59,28 +59,30 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-            $keyword = $obj['query'];
+            $keyword = urldecode($obj['query']);
             $engine = "haosou";
         } else if (stripos($referer, 'www.baidu.com')) {
-            $keyword = "";
+            $keyword = "百度关键词";
             $engine = "baidu";
         }
+        $siteinfo = Site::getSiteInfo();
         $data = [
             'keyword' => $keyword,
             'referrer' => $referer,
             'engine' => $engine,
-            'origin_web'=>$origin_web
+            'origin_web'=>$origin_web,
+            'node_id' =>$siteinfo['node_id'],
+            'site_id' => $siteinfo['id'],
         ];
         $browse = new BrowseRecord($data);
         $browse->allowField(true)->save();
-        $siteinfo = Site::getSiteInfo();
-        $node_id = $siteinfo['node_id'];
-        $site_id = $siteinfo['id'];
+
+
         if (!empty($keyword)) {
             $where = [
                 "keyword" => $keyword,
-                "site_id" => intval($site_id),
-                "node_id" => intval($node_id)
+                "site_id" => $data['site_id'],
+                "node_id" => $data['node_id']
             ];
             $access = AccessKeyword::where($where)->find();
             if ($access) {
