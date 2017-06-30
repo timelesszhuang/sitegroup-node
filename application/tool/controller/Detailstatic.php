@@ -214,7 +214,7 @@ class Detailstatic extends Common
 
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
+                $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit(1)->find();
                 //下一页链接
                 if ($next_article) {
                     $next_article['href'] = "/article/article{$next_article['id']}.html";
@@ -320,7 +320,7 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
+                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit(1)->find();
                 if ($next_article) {
                     $next_article['href'] = "/news/news{$next_article['id']}.html";
                 }
@@ -405,7 +405,7 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->limit($limit + $step_limit - $key, 1)->find();
+                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->limit(1)->find();
                 if ($next_article) {
                     $next_article['href'] = "/question/question{$next_article['id']}.html";
                 }
