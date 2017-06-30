@@ -209,6 +209,7 @@ class Detailstatic extends Common
             $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
+                $pre_article=$pre_article->toArray();
                 $pre_article['href'] = "/article/article{$pre_article['id']}.html";
             }
 
@@ -217,6 +218,7 @@ class Detailstatic extends Common
                 $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->limit(1)->find();
                 //下一页链接
                 if ($next_article) {
+                    $next_article=$next_article->toArray();
                     $next_article['href'] = "/article/article{$next_article['id']}.html";
                 }
             }
