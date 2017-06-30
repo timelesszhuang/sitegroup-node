@@ -220,7 +220,6 @@ class Detailstatic extends Common
                     $next_article['href'] = "/article/article{$next_article['id']}.html";
                 }
             }
-            dump($next_article);die;
             $temp_content = $item->content;
             //替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
