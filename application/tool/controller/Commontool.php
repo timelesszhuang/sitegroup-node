@@ -497,9 +497,10 @@ class Commontool extends Common
             $activity['name'] = $v['name'];
             $activity['detail'] = $v['detail'];
             $activity['a_href'] = $path;
-            $activity['big_img'] = $path . '/big.jpg';
-            $activity['small_img'] = $path . '/small.jpg';
-            $activity['medium_img'] = $path . '/medium.jpg';
+            $activity['pc_bigimg'] = $path . '/pcbig.jpg';
+            $activity['pc_smallimg'] = $path . '/pcsmall.jpg';
+            $activity['m_bigimg'] = $path . '/mbig.jpg';
+            $activity['m_smallimg'] = $path . '/msmall.jpg';
             $activity_list[] = $activity;
         }
         return $activity_list;
@@ -651,14 +652,25 @@ CODE;
         $contact_way_id = $siteinfo['support_hotline'];
         $contact_info = [];
         if ($contact_way_id) {
-            $contact_info = Db::name('contactway')->where('id', $contact_way_id)->field('html,detail')->find();
+            $contact_info = Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
+        }
+        //公司备案
+        $beian = [];
+        $domain_id = $siteinfo['domain_id'];
+        if ($domain_id) {
+            $domain_info = Db::name('domain')->where('id', $domain_id)->find();
+            if ($domain_info) {
+                $beian_num = $domain_info['filing_num'];
+                $beian_link = 'www.miitbeian.gov.cn';
+                $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
+            }
         }
         //该链接的网址
         $url = $siteinfo['url'];
         //公司名称
         $com_name = $siteinfo['com_name'];
         $site_name = $siteinfo['site_name'];
-        return compact('com_name', 'url', 'site_name', 'contact_info', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
     }
 
 
