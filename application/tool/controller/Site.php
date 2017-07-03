@@ -187,7 +187,7 @@ class Site extends Common
         $countnum = Db::name('rejection')->where($where)->field('ip')->select();
         $num=sizeof($countnum);
         if($num >4){
-            return $this->resultArray('申请次数过多','failed');
+            return $this->resultArray('访问次数过多','failed');
         }
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             $data['referer'] = $_SERVER['HTTP_REFERER'];
@@ -199,7 +199,7 @@ class Site extends Common
             return $this->resultArray("申请失败", "failed");
         }
 
-       return $this->resultArray("添加成功");
+       return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
 
 
 
