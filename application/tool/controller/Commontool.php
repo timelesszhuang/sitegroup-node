@@ -513,24 +513,35 @@ class Commontool extends Common
     public static function getRefereerDemo()
     {
         return <<<CODE
-<script>
-    var referrer = document.referrer;
-    var sendInfo = {};
-    sendInfo.referrer = referrer;
-    sendInfo.origin_web = window.location.href
-    $(function () {
-        var url = var url = "/index.php/externalAccess";
-        $.ajax({
-                type: "post",
-                url: url,
-                data: sendInfo,
-                success: function () {
-                }
-            }
-        )
-    })
-</script>
+                <script>
+                    var referrer = document.referrer;
+                    var sendInfo = {};
+                    sendInfo.referrer = referrer;
+                    sendInfo.origin_web = window.location.href
+                    $(function () {
+                        var url = var url = "/index.php/externalAccess";
+                        $.ajax({
+                                type: "post",
+                                url: url,
+                                data: sendInfo,
+                                success: function () {
+                                }
+                            }
+                        )
+                    })
+                </script>
 CODE;
+    }
+
+
+    /**
+     * 获取版本控制　软件
+     * ＠access public
+     */
+    public function getSiteCopyright($com_name)
+    {
+        //返回copyright
+        return '2015-' . date('Y') . ' © ' . $com_name;
     }
 
 
@@ -665,12 +676,14 @@ CODE;
                 $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
             }
         }
-        //该链接的网址
+        //该站点的网址
         $url = $siteinfo['url'];
         //公司名称
         $com_name = $siteinfo['com_name'];
+        //版本　copyright
+        $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
-        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
     }
 
 
@@ -678,7 +691,7 @@ CODE;
      * 截取中文字符串  utf-8
      * @param String $str 要截取的中文字符串
      * @param $len
-     * @return
+     * @return mixed
      */
     public static function utf8chstringsubstr($str, $len)
     {
