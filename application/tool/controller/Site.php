@@ -153,7 +153,7 @@ class Site extends Common
     public function Rejection(){
 
         $rule = [
-            ["name", "require", "请输入您的姓名+"],
+            ["name", "require", "请输入您的姓名"],
             ["phone", "require", "请输入您的电话"],
 //            ["email", "require", "请输入您的邮箱"],
 //            ["company", "require", "请输入您的公司名"],
@@ -181,6 +181,14 @@ class Site extends Common
         $data["email"] = strip_tags(addslashes($formdata['email']));
         $data["company"] = strip_tags(addslashes($formdata['company']));
         // dump($_SERVER);die;
+        $nowtime = time();
+        $oldtime = time()-60*2;
+        $where["create_time"] = ['between', [$oldtime, $nowtime]];
+        $countnum = Db::name('rejection')->where($where)->field('ip')->select();
+        $num=sizeof($countnum);
+        if($num >4){
+            return $this->resultArray('访问次数过多','failed');
+        }
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             $data['referer'] = $_SERVER['HTTP_REFERER'];
         }
@@ -191,7 +199,7 @@ class Site extends Common
             return $this->resultArray("申请失败", "failed");
         }
 
-       return $this->resultArray("添加成功");
+       return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
 
 
 
