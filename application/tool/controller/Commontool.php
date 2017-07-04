@@ -538,7 +538,7 @@ CODE;
      * 获取版本控制　软件
      * ＠access public
      */
-    public function getSiteCopyright($com_name)
+    public static function getSiteCopyright($com_name)
     {
         //返回copyright
         return '2015-' . date('Y') . ' © ' . $com_name;
