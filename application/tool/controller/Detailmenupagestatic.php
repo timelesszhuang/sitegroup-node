@@ -3,12 +3,11 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use think\Cache;
 use think\View;
 
 
 /**
- *  详情型 页面 static
+ *  详情型 菜单页面静态化 static
  */
 class Detailmenupagestatic extends Common
 {
@@ -40,7 +39,7 @@ class Detailmenupagestatic extends Common
                     'detail' => $v,
                 ]
             );
-            if (file_put_contents("{$v['genarate_name']}.html", $content) === 'false') {
+            if (file_put_contents("{$v['generate_name']}.html", $content) === 'false') {
                 file_put_contents('log/detailmenu.txt', $this->separator . date('Y-m-d H:i:s') . '详情类型页面静态化写入失败。' . $this->separator, FILE_APPEND);
                 continue;
             }
