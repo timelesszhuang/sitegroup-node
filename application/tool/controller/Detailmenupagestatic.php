@@ -36,7 +36,7 @@ class Detailmenupagestatic extends Common
             $content = (new View())->fetch("template/{$v['generate_name']}.html",
                 [
                     'd' => $assign_data,
-                    'detail' => $v,
+                    'content' => $v['content'],
                 ]
             );
             if (file_put_contents("{$v['generate_name']}.html", $content) === 'false') {
