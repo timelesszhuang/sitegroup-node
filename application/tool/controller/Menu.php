@@ -29,7 +29,7 @@ class Menu extends Common
         }
         $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
         $field = 'id,name,title,generate_name,flag,type_id,content';
-        $menu = Db::name('menu')->where($where)->field($field)->select();
+        $menu = Db::name('menu')->where($where)->order("sort","desc")->field($field)->select();
         if (empty($menu)) {
             //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
             $site_info = new SiteErrorInfo();
