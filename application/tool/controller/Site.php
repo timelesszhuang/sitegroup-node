@@ -127,7 +127,8 @@ class Site extends Common
     public function pv()
     {
         $request = Request::instance();
-        $nowip = "113.128.93.40";
+//        $nowip = "113.128.93.40";
+        $nowip = $request->ip();
         $data = $this->get_ip_info($nowip);
 //        $pvdata = $request->post();
         $siteinfo = Site::getSiteInfo();
@@ -159,7 +160,8 @@ class Site extends Common
 //            ["company", "require", "请输入您的公司名"],
         ];
         $validate = new  Validate($rule);
-        $nowip = "113.128.93.40";
+        $request = Request::instance();
+        $nowip = $request->ip();
         $ipdata = $this->get_ip_info($nowip);
         $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
