@@ -489,7 +489,9 @@ class Commontool extends Common
      */
     public static function getActivity($sync_id)
     {
-        $sync = Db::name('Activity')->where(['id' => ['in', explode(',', $sync_id)]])->field('name,detail,directory_name')->select();
+        $where["id"]=['in', explode(',', $sync_id)];
+        $where["status"]=10;
+        $sync = Db::name('Activity')->where($where)->field('name,detail,directory_name')->select();
         $activity_list = [];
         foreach ($sync as $k => $v) {
             $path = '/activity/' . $v['directory_name'];
