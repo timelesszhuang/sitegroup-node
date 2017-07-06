@@ -213,8 +213,7 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $where2 = ["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id];
-                $next_article = \app\index\model\Article::where($where2)->where(["is_sync" => 20])->whereOr(["site_id" => $site_id])->field("id,title")->limit(1)->find();
+                $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id,"is_sync" => 20])->whereOr(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id,"site_id" => $site_id])->field("id,title")->limit(1)->find();
                 //下一页链接
                 if ($next_article) {
                     $next_article = $next_article->toArray();
