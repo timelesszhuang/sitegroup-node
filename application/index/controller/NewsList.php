@@ -44,7 +44,7 @@ class NewsList extends Common
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章
-            $newslist = \app\index\model\ScatteredTitle::order('id', "desc")->where($where)->paginate();
+            $newslist = \app\index\model\ScatteredTitle::order('id', "desc")->where($where)->paginate(10);
         }
         $assign_data['newslist'] = $newslist;
         file_put_contents('log/newslist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
