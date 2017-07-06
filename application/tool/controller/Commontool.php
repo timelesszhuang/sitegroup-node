@@ -660,6 +660,8 @@ CODE;
         }
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
+        //获取页面pv 操作页面
+        $after_head_jscode[]="<script src='/index.php/pv'></script>";
         //head前后的代码
         $before_head = $siteinfo['before_header_jscode'];
         $after_head = $siteinfo['other_jscode'];

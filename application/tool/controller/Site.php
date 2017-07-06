@@ -127,10 +127,8 @@ class Site extends Common
     public function pv()
     {
         $request = Request::instance();
-//        $nowip = "113.128.93.40";
         $nowip = $request->ip();
         $data = $this->get_ip_info($nowip);
-//        $pvdata = $request->post();
         $siteinfo = Site::getSiteInfo();
         $pvdata['node_id'] = $siteinfo['node_id'];
         $pvdata['site_id'] = $siteinfo['id'];
@@ -151,7 +149,8 @@ class Site extends Common
         Pv::create($pvdata);
     }
 
-    public function Rejection(){
+    public function Rejection()
+    {
 
         $rule = [
             ["name", "require", "请输入您的姓名"],
@@ -182,31 +181,28 @@ class Site extends Common
         $data["phone"] = strip_tags(quotemeta($formdata['phone']));
         $data["email"] = strip_tags(addslashes($formdata['email']));
         $data["company"] = strip_tags(addslashes($formdata['company']));
-        // dump($_SERVER);die;
+
+        //提交甩单次数过多
         $nowtime = time();
-        $oldtime = time()-60*2;
+        $oldtime = time() - 60 * 2;
         $where["create_time"] = ['between', [$oldtime, $nowtime]];
         $countnum = Db::name('rejection')->where($where)->field('ip')->select();
-        $num=sizeof($countnum);
-        if($num >4){
-            return $this->resultArray('访问次数过多','failed');
+        $num = sizeof($countnum);
+        if ($num > 4) {
+            return $this->resultArray('访问次数过多', 'failed');
         }
+
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             $data['referer'] = $_SERVER['HTTP_REFERER'];
         }
         if (!$validate->check($data)) {
             return $this->resultArray($validate->getError(), "failed");
         }
-        if (! Rejection::create($data)) {
+        if (!Rejection::create($data)) {
             return $this->resultArray("申请失败", "failed");
         }
-
-       return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
-
-
-
+        return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
     }
-
 
 
 }

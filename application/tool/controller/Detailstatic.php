@@ -311,7 +311,6 @@ class Detailstatic extends Common
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
             $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $a_keyword_id);
-
             file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
