@@ -64,14 +64,16 @@ class ExternalAccess extends Controller
         } else if (stripos($referer, 'www.baidu.com')) {
             $keyword = "百度关键词";
             $engine = "baidu";
+        } else {
+            return;
         }
         $siteinfo = Site::getSiteInfo();
         $data = [
             'keyword' => $keyword,
             'referrer' => $referer,
             'engine' => $engine,
-            'origin_web'=>$origin_web,
-            'node_id' =>$siteinfo['node_id'],
+            'origin_web' => $origin_web,
+            'node_id' => $siteinfo['node_id'],
             'site_id' => $siteinfo['id'],
         ];
         $browse = new BrowseRecord($data);
