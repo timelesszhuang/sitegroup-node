@@ -198,14 +198,14 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->where(["is_sync"=>20])->whereOr(["site_id"=>$site_id])->order("id", "asc")->limit($step_limit)->select();
+        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id, "is_sync" => 20])->whereOr(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id, 'is_sync' => '10', "site_id" => $site_id])->order("id", "asc")->limit($step_limit)->select();
+
         foreach ($article_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content), 0, 200);
             $assign_data = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
             file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
-
             $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
@@ -213,12 +213,11 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $where2=["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id];
-
-                $next_article = \app\index\model\Article::where($where2)->where(["is_sync"=>20])->whereOr(["site_id"=>$site_id])->field("id,title")->limit(1)->find();
+                $where2 = ["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id];
+                $next_article = \app\index\model\Article::where($where2)->where(["is_sync" => 20])->whereOr(["site_id" => $site_id])->field("id,title")->limit(1)->find();
                 //下一页链接
                 if ($next_article) {
-                    $next_article=$next_article->toArray();
+                    $next_article = $next_article->toArray();
                     $next_article['href'] = "/article/article{$next_article['id']}.html";
                 }
             }
@@ -230,7 +229,6 @@ class Detailstatic extends Common
             if ($contentWIthLink) {
                 $temp_content = $contentWIthLink;
             }
-
             $content = (new View())->fetch('template/article.html',
                 [
                     'd' => $assign_data,
