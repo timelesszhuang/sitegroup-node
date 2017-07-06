@@ -58,6 +58,7 @@ class ArticleList extends Common
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $data["site_id"], "node_id" => $data["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         $article=[];
+
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章

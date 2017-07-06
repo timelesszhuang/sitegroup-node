@@ -40,6 +40,7 @@ class NewsList extends Common
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "news",'type_id'=>$menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         $newslist=[];
+
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章

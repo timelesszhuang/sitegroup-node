@@ -41,6 +41,7 @@ class QuestionList extends Common
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "question", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
         $question=[];
+
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             $question = Question::order('id', "desc")->where($where)->paginate();
