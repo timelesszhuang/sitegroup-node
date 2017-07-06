@@ -40,11 +40,12 @@ class QuestionList extends Common
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "question", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
+        $question=[];
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
+            $question = Question::order('id', "desc")->where($where)->paginate();
         }
         //获取当前type_id的文章
-        $question = Question::order('id', "desc")->where($where)->paginate();
         $assign_data['question'] = $question;
         file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
