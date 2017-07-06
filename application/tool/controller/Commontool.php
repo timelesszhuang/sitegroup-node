@@ -198,8 +198,20 @@ class Commontool extends Common
             if (!array_key_exists('children', $a_child_info)) {
                 return ['', '', ''];
             }
+            //需要 从b类关键词中选择 四个
             $b_keyword_info = $a_child_info['children'];
-            $b_keywordname_arr = array_column($b_keyword_info, 'name');
+            $length = count($b_keyword_info);
+            $randamcount = $length > 4 ? 4 : $length;
+            $b_rand_key = array_rand($b_keyword_info, $randamcount);
+            $b_keyword_arr = [];
+            if (is_array($b_rand_key)) {
+                foreach ($b_rand_key as $v) {
+                    $b_keyword_arr[] = $b_keyword_info[$v];
+                }
+            } else {
+                $b_keyword_arr[] = $b_keyword_info[$b_rand_key];
+            }
+            $b_keywordname_arr = array_column($b_keyword_arr, 'name');
             $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
             $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
             $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
@@ -259,7 +271,7 @@ class Commontool extends Common
         if (array_key_exists('children', $b_child_info)) {
             $c_child_info = $b_child_info['children'];
             $length = count($c_child_info);
-            $randamcount = $length >= 3 ? 3 : $length;
+            $randamcount = $length > 3 ? 3 : $length;
             $c_rand_key = array_rand($c_child_info, $randamcount);
             if (is_array($c_rand_key)) {
                 foreach ($c_rand_key as $v) {
@@ -270,7 +282,7 @@ class Commontool extends Common
             }
         }
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
-        $title = implode('-', $c_keywordname_arr) . $articletitle;
+        $title = $articletitle . '-' . implode('_', $c_keywordname_arr);
         $keyword = implode(',', $c_keywordname_arr);
         $description = $articlecontent;
         return [$title, $keyword, $description];
@@ -489,8 +501,8 @@ class Commontool extends Common
      */
     public static function getActivity($sync_id)
     {
-        $where["id"]=['in', explode(',', $sync_id)];
-        $where["status"]=10;
+        $where["id"] = ['in', explode(',', $sync_id)];
+        $where["status"] = 10;
         $sync = Db::name('Activity')->where($where)->field('name,detail,directory_name')->select();
         $activity_list = [];
         foreach ($sync as $k => $v) {

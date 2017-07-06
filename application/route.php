@@ -50,4 +50,5 @@ Route::get('pv', 'tool/Site/pv');
 Route::post('Rejection', 'tool/Site/Rejection');
 //统计
 Route::resource('externalAccess', 'index/ExternalAccess');
+Route::resource('Ceshi', 'tool/Ceshi');
 Route::get('sitemap', 'tool/SiteMap/index');
