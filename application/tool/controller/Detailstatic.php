@@ -198,7 +198,8 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $article_data = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id, "is_sync" => 20])->whereOr(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id, 'is_sync' => '10', "site_id" => $site_id])->order("id", "asc")->limit($step_limit)->select();
+        $where3="id >$limit and node_id=$node_id and articletype_id=$type_id and is_sync=20 or  (id>$limit and node_id=$node_id and articletype_id=$type_id and site_id = $site_id)";
+        $article_data = \app\index\model\Article::where($where3)->order("id", "asc")->limit($step_limit)->select();
 
         foreach ($article_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content), 0, 200);
@@ -213,7 +214,8 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\Article::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id,"is_sync" => 20])->whereOr(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id,"site_id" => $site_id])->field("id,title")->limit(1)->find();
+                $where2="id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and is_sync=20 or  (id>{$item['id']} and node_id=$node_id and articletype_id=$type_id and site_id = $site_id)";
+                $next_article = \app\index\model\Article::where($where2)->field("id,title")->limit(1)->find();
                 //下一页链接
                 if ($next_article) {
                     $next_article = $next_article->toArray();
