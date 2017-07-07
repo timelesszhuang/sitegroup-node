@@ -198,7 +198,9 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $where3="id >$limit and node_id=$node_id and articletype_id=$type_id and is_sync=20 or  (id>$limit and node_id=$node_id and articletype_id=$type_id and site_id = $site_id)";
+        //获取 所有允许同步的账号
+        $commonsql = "id >$limit and node_id=$node_id and articletype_id=$type_id and";
+        $where3 = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
         $article_data = \app\index\model\Article::where($where3)->order("id", "asc")->limit($step_limit)->select();
 
         foreach ($article_data as $key => $item) {
@@ -214,7 +216,8 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $where2="id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and is_sync=20 or  (id>{$item['id']} and node_id=$node_id and articletype_id=$type_id and site_id = $site_id)";
+                $commonsql1 = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
+                $where2 = "($commonsql1 is_sync=20 ) or  ( $commonsql1 site_id = $site_id)";
                 $next_article = \app\index\model\Article::where($where2)->field("id,title")->limit(1)->find();
                 //下一页链接
                 if ($next_article) {
