@@ -661,7 +661,7 @@ CODE;
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
         //获取页面pv 操作页面
-        $after_head_jscode[]="<script src='/index.php/pv'></script>";
+        $after_head_jscode[] = "<script src='/index.php/pv'></script>";
         //head前后的代码
         $before_head = $siteinfo['before_header_jscode'];
         $after_head = $siteinfo['other_jscode'];
@@ -682,13 +682,13 @@ CODE;
             $contact_info = Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
         }
         //公司备案
-        $beian = [];
+        $beian_link = 'www.miitbeian.gov.cn';
+        $beian = ['beian_num' => '', 'link' => $beian_link];
         $domain_id = $siteinfo['domain_id'];
         if ($domain_id) {
             $domain_info = Db::name('domain')->where('id', $domain_id)->find();
             if ($domain_info) {
                 $beian_num = $domain_info['filing_num'];
-                $beian_link = 'www.miitbeian.gov.cn';
                 $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
             }
         }
