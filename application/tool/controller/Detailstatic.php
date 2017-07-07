@@ -198,11 +198,10 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        //获取 所有允许同步的账号
+        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20
         $commonsql = "id >$limit and node_id=$node_id and articletype_id=$type_id and";
         $where3 = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
         $article_data = \app\index\model\Article::where($where3)->order("id", "asc")->limit($step_limit)->select();
-
         foreach ($article_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content), 0, 200);
             $assign_data = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
