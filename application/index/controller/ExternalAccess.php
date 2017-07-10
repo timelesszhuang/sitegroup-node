@@ -39,7 +39,6 @@ class ExternalAccess extends Controller
     public function save(Request $request)
     {
         $obj = [];
-
         $referer = 'http://www.so.com/link?m=aIjHi90jlllh509tAJvrBiVNF9dVNvhGeQsHl9nNmX4oN6Qt83eNcF1rWAjgf%2BlZ5drDgPkja4SKOlA7u2Z1HbDiSXmbIqlRW';
 //      $referer='https://www.so.com/s?q=%E7%BD%91%E6%98%93%E4%BC%81%E4%B8%9A%E9%82%AE%E7%AE%B1+4006360163.com&src=res-sug-local&fr=none&psid=2eb56110281dfd757f71132da2f20ae4';
 
