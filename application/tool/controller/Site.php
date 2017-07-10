@@ -149,9 +149,13 @@ class Site extends Common
         Pv::create($pvdata);
     }
 
+
+    /**
+     * 甩单填写 注入相关操作
+     * @access public
+     */
     public function Rejection()
     {
-
         $rule = [
             ["name", "require", "请输入您的姓名"],
             ["phone", "require", "请输入您的电话"],
