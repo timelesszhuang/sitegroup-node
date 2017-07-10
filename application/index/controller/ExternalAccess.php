@@ -57,9 +57,9 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-            if (array_key_exists("query", $obj)) {
+            if(array_key_exists("query",$obj)){
                 $keyword = urldecode($obj['query']);
-            } else {
+            }else {
                 $keyword = "搜狗关键词";
             }
             $engine = "sogou";

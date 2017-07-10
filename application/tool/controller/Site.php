@@ -6,12 +6,13 @@ use app\index\model\Pv;
 use app\tool\model\Rejection;
 use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
+use app\tool\model\SiteUser;
 use think\Cache;
 use think\Config;
 use think\Db;
 use think\Request;
 use think\Validate;
-
+use app\tool\controller\FileExistsTraits;
 
 /**
  * 站点相关操作
@@ -23,7 +24,7 @@ use think\Validate;
  */
 class Site extends Common
 {
-
+    use FileExistsTraits;
     /**
      * 获取链轮的相关信息
      *  两种链轮类型  1 循环链轮  需要返回  next_site 也就是本网站需要链接到的网站  main_site  表示主节点 从id 小的 链接到比较大的  最大的id 链接到最小的id 上
@@ -204,6 +205,14 @@ class Site extends Common
         }
         if (!Rejection::create($data)) {
             return $this->resultArray("申请失败", "failed");
+        }
+        $email=$this->getEmailAccount();
+        if($email){
+            $site=SiteUser::get($siteinfo['id']);
+            if($site){
+                $content="公司名称:".$data["company"]."</br>"."联系人:".$data["name"]."</br>"."电话:".$data["phone"]."</br>"."邮箱:".$data["email"];
+                $this->phpmailerSend($email["email"],$email["password"],$email["host"],$site->name."的甩单",$site->email,$content,$email["email"]);
+            }
         }
         return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
     }
