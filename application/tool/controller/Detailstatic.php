@@ -240,7 +240,6 @@ class Detailstatic extends Common
                     'next_article' => $next_article,
                 ]
             );
-
             //判断模板是否存在
             if (!file_exists('article')) {
                 $this->make_error("article");
