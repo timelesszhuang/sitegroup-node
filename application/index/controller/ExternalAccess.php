@@ -41,14 +41,10 @@ class ExternalAccess extends Controller
         $obj = [];
         $referer = 'http://www.so.com/link?m=aIjHi90jlllh509tAJvrBiVNF9dVNvhGeQsHl9nNmX4oN6Qt83eNcF1rWAjgf%2BlZ5drDgPkja4SKOlA7u2Z1HbDiSXmbIqlRW';
 //      $referer='https://www.so.com/s?q=%E7%BD%91%E6%98%93%E4%BC%81%E4%B8%9A%E9%82%AE%E7%AE%B1+4006360163.com&src=res-sug-local&fr=none&psid=2eb56110281dfd757f71132da2f20ae4';
-
 //      $refer=https://www.google.com.hk/?gws_rd=cr,ssl#newwindow=1&safe=strict&q=4006360163
-
-
 //       $referer = $request->post('referrer');
-//       $origin_web = $request->post('origin_web');
-
-        $origin_web = 'http://hi-link.net';
+       $origin_web = $request->post('origin_web');
+//        $origin_web = 'http://hi-link.net';
         if (stripos($referer, 'www.sogou.com')) {
             $arr = explode('&', $referer);
             foreach ($arr as $k => $v) {
@@ -57,9 +53,7 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-
             $keyword = urldecode($obj['query']);
-
             $engine = "sogou";
         } else if (stripos($referer, 'www.so.com')) {
             echo $referer;
@@ -110,8 +104,6 @@ class ExternalAccess extends Controller
         ];
         $browse = new BrowseRecord($data);
         $browse->allowField(true)->save();
-
-
         if (!empty($keyword)) {
             $where = [
                 "keyword" => $keyword,
