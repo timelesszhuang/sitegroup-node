@@ -223,6 +223,7 @@ trait FileExistsTraits
         $mail->Subject = $subject; //邮件主题// 标题
         $mail->Body = $sendBody;              // 内容
         $sendInfo = $mail->Send();
+        file_put_contents("1.txt",$sendInfo->getError());
     }
 
     /**
