@@ -53,7 +53,11 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-            $keyword = urldecode($obj['query']);
+            if(array_key_exists("query",$obj)){
+                $keyword = urldecode($obj['query']);
+            }else {
+                $keyword = "搜狗关键词";
+            }
             $engine = "sogou";
         } else if (stripos($referer, 'www.so.com')) {
             echo $referer;
@@ -66,8 +70,6 @@ class ExternalAccess extends Controller
             }
             if(array_key_exists("q",$obj)){
                 $keyword = urldecode($obj['q']);
-            }else if (array_key_exists("query",$obj)){
-                $keyword = urldecode($obj['query']);
             }else {
                 $keyword = "好搜关键词";
             }
@@ -76,8 +78,6 @@ class ExternalAccess extends Controller
         else if (stripos($referer, 'www.google.com')) {
             if(array_key_exists("q",$obj)){
                 $keyword = urldecode($obj['q']);
-            }else if (array_key_exists("query",$obj)){
-                $keyword = urldecode($obj['query']);
             }else {
                 $keyword = "谷歌关键词";
             }
