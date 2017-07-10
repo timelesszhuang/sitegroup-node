@@ -12,7 +12,7 @@ use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\SiteErrorInfo;
 use think\Cache;
-
+use app\tool\model\SystemConfig;
 trait FileExistsTraits
 {
 
@@ -193,4 +193,90 @@ trait FileExistsTraits
         $substitution=array_column($temp_data,"substitution");
         return str_replace($front_substitution,$substitution,$content);
     }
+
+    /**
+     * phpmailer工具发送邮件
+     * @param $sendUser 发送者账号
+     * @param $sendpwd  发送者密码
+     * @param $subject  标题
+     * @param $toUser   接收用户
+     * @param $sendName 发送者显示名称
+     * @param $sendBody 发送内容
+     * @return array
+     */
+    public function phpmailerSend($sendUser, $sendpwd, $host,$subject, $toUser, $sendBody,$fromname)
+    {
+        $mail = new \PHPMailer;
+        $mail->IsSmtp(true);                         // 设置使用 SMTP
+        $mail->Host = $host;       // 指定的 SMTP 服务器地址
+        $mail->SMTPAuth = true;                  // 设置为安全验证方式
+        $mail->Username = $sendUser; // SMTP 发邮件人的用户名
+        $mail->Password = $sendpwd;            // SMTP 密码
+        $mail->From = $sendUser;
+        $mail->FromName = $fromname;
+        $mail->CharSet = "UTF-8";
+        $mail->AddReplyTo("support@qiangbi.net","强比科技");//回复给谁
+        $mail->AddAddress($toUser);
+        //发送到谁 写谁$mailaddress
+        $mail->WordWrap = 50;                // set word wrap to 50 characters
+        $mail->IsHTML(true);                    // 设置邮件格式为 HTML
+        $mail->Subject = $subject; //邮件主题// 标题
+        $mail->Body = $sendBody;              // 内容
+        $sendInfo = $mail->Send();
+    }
+
+    /**
+     * 获取support邮箱帐号
+     * @return array|bool
+     */
+    public function getEmailAccount()
+    {
+        $siteinfo = Site::getSiteInfo();
+        $site_id = $siteinfo['id'];
+        $site_name = $siteinfo['site_name'];
+        $node_id = $siteinfo['node_id'];
+        //support邮箱
+        $email=SystemConfig::where(["name"=>"SYSTEM_EMAIL","need_auth"=>1]);
+        if(!isset($email->value)){
+            (new SiteErrorInfo)->addError([
+                'msg' => "support邮箱不存在!",
+                'operator' => 'support邮箱不存在',
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'node_id' => $node_id,
+            ]);
+            return false;
+        }
+        //support密码
+        $password=SystemConfig::where(["name"=>"SYSTEM_EMAIL_PASSWORD","need_auth"=>1]);
+        if(!isset($password->value)){
+            (new SiteErrorInfo)->addError([
+                'msg' => "support邮箱密码不存在!",
+                'operator' => 'support邮箱密码不存在',
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'node_id' => $node_id,
+            ]);
+            return false;
+        }
+        //support host
+        $host=SystemConfig::where(["name"=>"SYSTEM_EMAIL_SMTPHOST","need_auth"=>1]);
+        if(!isset($host->value)){
+            (new SiteErrorInfo)->addError([
+                'msg' => "support邮箱host不存在!",
+                'operator' => 'support邮箱host不存在',
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'node_id' => $node_id,
+            ]);
+            return false;
+        }
+        return [
+            "email"=>$email->value,
+            "password"=>$password->value,
+            "host"=>$host->value
+            ];
+    }
+
+
 }
