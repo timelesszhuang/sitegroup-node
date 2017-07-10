@@ -4,4 +4,4 @@ Disallow: /cgi-bin
 Disallow:/upload/
 Disallow:/log/
 Disallow: .zip$
-Disallow: .php$
+Disallow: *.php$
