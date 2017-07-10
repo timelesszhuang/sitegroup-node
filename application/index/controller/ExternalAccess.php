@@ -71,19 +71,35 @@ class ExternalAccess extends Controller
                     $refererdata[0] => $refererdata[1]
                 ];
             }
-
-            $keyword = urldecode($obj['query']);
-
+            if(array_key_exists("q",$obj)){
+                $keyword = urldecode($obj['q']);
+            }else if (array_key_exists("query",$obj)){
+                $keyword = urldecode($obj['query']);
+            }else {
+                $keyword = "好搜关键词";
+            }
             $engine = "haosou";
-        } else if (stripos($referer, 'www.google.com')) {
-            $keyword = "";
+        }
+        else if (stripos($referer, 'www.google.com')) {
+            if(array_key_exists("q",$obj)){
+                $keyword = urldecode($obj['q']);
+            }else if (array_key_exists("query",$obj)){
+                $keyword = urldecode($obj['query']);
+            }else {
+                $keyword = "谷歌关键词";
+            }
             $engine = "google";
-        } else {
+        }
+        else if (stripos($referer, 'www.baidu.com')) {
+            $keyword = "百度关键词";
+            $engine = "baidu";
+        }
+        else {
             return;
         }
-        print_r($keyword);
-        print_r($engine);
-        exit;
+//        print_r($keyword);
+//        print_r($engine);
+//        exit;
         $siteinfo = Site::getSiteInfo();
         $data = [
             'keyword' => $keyword,
