@@ -42,6 +42,9 @@ class ArticleList extends Common
         } elseif (preg_match("/HaoSouSpider/i", $_SERVER['HTTP_USER_AGENT'])) {
             $data['engine'] = "360haosou";
             Useragent::create($data);
+        }elseif (preg_match("/Googlebot/i",$_SERVER['HTTP_USER_AGENT'])){
+            $data['engine']='google';
+            Useragent::create($data);
         }
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
