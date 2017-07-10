@@ -222,8 +222,7 @@ trait FileExistsTraits
         $mail->IsHTML(true);                    // 设置邮件格式为 HTML
         $mail->Subject = $subject; //邮件主题// 标题
         $mail->Body = $sendBody;              // 内容
-        $sendInfo = $mail->Send();
-        file_put_contents("1.txt",$sendInfo->getError());
+        $mail->Send();
     }
 
     /**
@@ -237,7 +236,7 @@ trait FileExistsTraits
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
         //support邮箱
-        $email=SystemConfig::where(["name"=>"SYSTEM_EMAIL","need_auth"=>1]);
+        $email=SystemConfig::where(["name"=>"SYSTEM_EMAIL","need_auth"=>1])->find();
         if(!isset($email->value)){
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱不存在!",
@@ -249,7 +248,7 @@ trait FileExistsTraits
             return false;
         }
         //support密码
-        $password=SystemConfig::where(["name"=>"SYSTEM_EMAIL_PASSWORD","need_auth"=>1]);
+        $password=SystemConfig::where(["name"=>"SYSTEM_EMAIL_PASSWORD","need_auth"=>1])->find();
         if(!isset($password->value)){
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱密码不存在!",
@@ -261,7 +260,7 @@ trait FileExistsTraits
             return false;
         }
         //support host
-        $host=SystemConfig::where(["name"=>"SYSTEM_EMAIL_SMTPHOST","need_auth"=>1]);
+        $host=SystemConfig::where(["name"=>"SYSTEM_EMAIL_SMTPHOST","need_auth"=>1])->find();
         if(!isset($host->value)){
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱host不存在!",

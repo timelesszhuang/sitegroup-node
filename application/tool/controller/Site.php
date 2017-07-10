@@ -165,7 +165,7 @@ class Site extends Common
         ];
         $validate = new  Validate($rule);
         $request = Request::instance();
-        $nowip = $request->ip();
+        $nowip = "113.128.59.52";
         $ipdata = $this->get_ip_info($nowip);
         $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
@@ -208,10 +208,13 @@ class Site extends Common
         }
         $email=$this->getEmailAccount();
         if($email){
-            $site=SiteUser::get($siteinfo['id']);
-            if($site){
-                $content="公司名称:".$data["company"]."</br>"."联系人:".$data["name"]."</br>"."电话:".$data["phone"]."</br>"."邮箱:".$data["email"];
-                $this->phpmailerSend($email["email"],$email["password"],$email["host"],$site->name."的甩单",$site->email,$content,$email["email"]);
+           $site_obj=\app\tool\model\Site::get($siteinfo['id']);
+            if(isset($site_obj->user_id)){
+                $siteUser=SiteUser::get($site_obj->user_id);
+                if($siteUser){
+                    $content="公司名称:".$data["company"]."</br>"."联系人:".$data["name"]."</br>"."电话:".$data["phone"]."</br>"."邮箱:".$data["email"];
+                    $this->phpmailerSend($email["email"],$email["password"],$email["host"],$siteUser->name."的甩单",$siteUser->email,$content,$email["email"]);
+                }
             }
         }
         return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
