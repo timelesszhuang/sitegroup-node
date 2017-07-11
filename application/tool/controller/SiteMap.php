@@ -32,6 +32,8 @@ class SiteMap extends Common
         if (empty($trimSite)) {
             exit("no menu");
         }
+        $siteinfo = Site::getSiteInfo();
+        $menu_arr=Menu::getMergedMenu($siteinfo["menu"],$siteinfo["id"],$siteinfo["site_name"],$siteinfo["node_id"]);
         //所有栏目
         $menus = Commontool::getDbArticleListId($trimSite, $siteinfo['id']);
         $arr=[];
@@ -43,9 +45,11 @@ class SiteMap extends Common
         $content = (new View())->fetch('template/sitemap.html',
             [
                 'd' => $arr,
+                "nav"=>$menu_arr,
+                "url"=>$siteinfo["url"]
             ]
         );
-        $make_web = file_put_contents('sitemap.html', $content);
+        $make_web = file_put_contents('sitemap.xml', $content);
     }
 
     /**
@@ -65,7 +69,7 @@ class SiteMap extends Common
 //                    问答
                     case "question":
                         $where["type_id"]=$item["type_id"];
-                        $data = Question::where($where)->field("id,question as title")->select();
+                        $data = Question::where($where)->field("id,create_time")->select();
                         if($data){
                             $data=collection($data)->toArray();
                         }
@@ -73,7 +77,7 @@ class SiteMap extends Common
 //                        文章
                     case "article":
                         $where["articletype_id"]=$item["type_id"];
-                        $data = \app\index\model\Article::where($where)->field("id,title")->select();
+                        $data = \app\index\model\Article::where($where)->field("id,create_time")->select();
                         if($data){
                             $data=collection($data)->toArray();
                         }
@@ -81,7 +85,7 @@ class SiteMap extends Common
 //                        零散段落
                     case "scatteredarticle":
                         $where["articletype_id"]=$item["type_id"];
-                        $data = ScatteredTitle::where($where)->field("id,title")->select();
+                        $data = ScatteredTitle::where($where)->field("id,create_time")->select();
                         if($data){
                             $data=collection($data)->toArray();
                         }
