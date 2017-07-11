@@ -33,7 +33,9 @@
         "topthink/think-worker": "^1.0",
         "topthink/think-queue": "^1.0",
         "topthink/think-testing": "^1.0",
-        "phpmailer/phpmailer": "^5.2"
+        "phpmailer/phpmailer": "~5.2",
+        "topthink/think-testing": "^1.0"
+
     },
     "extra": {
         "think-path": "thinkphp"
