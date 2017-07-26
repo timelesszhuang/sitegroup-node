@@ -214,7 +214,7 @@ class Detailstatic extends Common
                 $pre_article['href'] = "/article/article{$pre_article['id']}.html";
             }
             $next_article = [];
-            if (($step_limit - $key) > 1) {
+            if (($step_limit - $key) >= 1) {
                 $commonsql1 = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
                 $where2 = "($commonsql1 is_sync=20 ) or  ( $commonsql1 site_id = $site_id)";
                 $next_article = \app\index\model\Article::where($where2)->field("id,title")->limit(1)->find();
