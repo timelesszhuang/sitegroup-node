@@ -208,7 +208,7 @@ class Detailstatic extends Common
             file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
-            $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
+            $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]],"site_id"=>0, "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
                 $pre_article['href'] = "/article/article{$pre_article['id']}.html";
@@ -314,7 +314,7 @@ class Detailstatic extends Common
             file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
-            $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
+            $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "site_id"=>0,"node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
             if ($pre_article) {
                 $pre_article['href'] = "/news/news{$pre_article['id']}.html";
             }
@@ -404,7 +404,7 @@ class Detailstatic extends Common
             }
             $next_article = [];
             if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->limit(1)->find();
+                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id],"site_id"=>0, "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->limit(1)->find();
                 if ($next_article) {
                     $next_article['href'] = "/question/question{$next_article['id']}.html";
                 }
