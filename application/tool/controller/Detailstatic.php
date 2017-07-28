@@ -199,7 +199,7 @@ class Detailstatic extends Common
             return;
         }
         //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20
-        $commonsql = "id >$limit and node_id=$node_id and articletype_id=$type_id and";
+        $commonsql = "id >=$limit and node_id=$node_id and articletype_id=$type_id and";
         $where3 = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
         $article_data = \app\index\model\Article::where($where3)->order("id", "asc")->limit($step_limit)->select();
         foreach ($article_data as $key => $item) {
@@ -304,7 +304,7 @@ class Detailstatic extends Common
         if ($count == 0) {
             return;
         }
-        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($step_limit)->select();
+        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $limit], "articletype_id" => $type_id])->limit($step_limit)->select();
         foreach ($scatTitleArray as $key => $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
             $temp_arr = $item->toArray();
@@ -391,7 +391,7 @@ class Detailstatic extends Common
         } else {
             $article_temp = new ArticleSyncCount();
         }
-        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
+        $question_data = \app\index\model\Question::where(["id" => ["egt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
         foreach ($question_data as $key => $item) {
             $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
             $assign_data = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
