@@ -116,6 +116,7 @@ trait FileExistsTraits
         if (empty($data)) {
             return false;
         }
+        // 最少需要三个关键词才可以启动
         if (count($data) < 3) {
             return false;
         }
