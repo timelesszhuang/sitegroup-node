@@ -12,7 +12,7 @@ use think\Request;
  */
 class Template extends Common
 {
-    public $templatepath = ROOT_PATH."public/template/";
+    public $templatepath = ROOT_PATH.LOG_PATH;
 
     /**
      * Converts bytes into human readable file size.
