@@ -12,7 +12,7 @@ use think\Request;
  */
 class Template extends Common
 {
-    public $templatepath = "asdfasdfs" . 'public/template/';
+    public $templatepath = ROOT_PATH;
 
     /**
      * Converts bytes into human readable file size.
