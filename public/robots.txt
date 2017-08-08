@@ -1,4 +1,4 @@
-# robots.txt generated at http://admin.mypc.com.cn/robots/
+Sitemap: /sitemap.xml
 User-agent: *
 Disallow: /cgi-bin
 Disallow:/upload/
