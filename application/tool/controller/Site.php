@@ -165,10 +165,21 @@ class Site extends Common
         ];
         $validate = new  Validate($rule);
         $request = Request::instance();
-        $nowip = "113.128.59.52";
+        $nowip = $request->ip();
         $ipdata = $this->get_ip_info($nowip);
         $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
+    if(empty($ipdata['data'])){
+        $data['country_id'] = "";
+        $data['area_id'] = "";
+        $data['region'] = "";
+        $data['region_id'] = "";
+        $data['city'] = "";
+        $data['city_id'] = "";
+        $data['country'] ="";
+        $data['country_id'] = "";
+        $data['ip'] = "";
+    }else{
         $data['node_id'] = $siteinfo['node_id'];
         $data['site_id'] = $siteinfo['id'];
         //国家
@@ -180,6 +191,9 @@ class Site extends Common
         $data['city'] = $ipdata['data']['city'];
         $data['city_id'] = $ipdata['data']['city_id'];
         $data['ip'] = $ipdata['data']['ip'];
+    }
+
+
         $data['create_time'] = time();
         $data['referer'] = '';
         $data["name"] = strip_tags(quotemeta($formdata['name']));
@@ -207,6 +221,7 @@ class Site extends Common
         }
         $email=$this->getEmailAccount();
         if($email){
+
            $site_obj=\app\tool\model\Site::get($siteinfo['id']);
             if(isset($site_obj->user_id)){
                 $siteUser=SiteUser::get($site_obj->user_id);
