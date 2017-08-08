@@ -13,6 +13,7 @@ use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\SiteErrorInfo;
 use think\Cache;
 use app\tool\model\SystemConfig;
+
 trait FileExistsTraits
 {
 
@@ -30,7 +31,7 @@ trait FileExistsTraits
         if (!file_exists($filename)) {
             (new SiteErrorInfo)->addError([
                 'msg' => "{$site_name}站点" . $filename . "模板不存在!",
-                'operator' => '模板不存在',
+                'operator' => '页面静态化',
                 'site_id' => $site_id,
                 'site_name' => $site_name,
                 'node_id' => $node_id,
@@ -52,7 +53,7 @@ trait FileExistsTraits
         $node_id = $siteinfo['node_id'];
         (new SiteErrorInfo)->addError([
             'msg' => "{$site_name}站点$directory" . "目录不存在或没有权限",
-            'operator' => "模板不存在",
+            'operator' => "页面静态化",
             'site_id' => $site_id,
             'site_name' => $site_name,
             'node_id' => $node_id,
@@ -91,7 +92,7 @@ trait FileExistsTraits
                         $i = 1;
                         continue;
                     } else {
-                        file_put_contents("code.txt",$arr[0][$item]."\r\n",FILE_APPEND);
+                        file_put_contents("code.txt", $arr[0][$item] . "\r\n", FILE_APPEND);
                         $i++;
                     }
                 }
@@ -100,8 +101,6 @@ trait FileExistsTraits
             return $temp_arr;
         }
     }
-
-
 
 
     /**
@@ -183,15 +182,15 @@ trait FileExistsTraits
     public function replaceKeyword($node_id, $site_id, $content)
     {
         $data = ArticlekeywordSubstitution::where(["site_id" => $site_id, "node_id" => $node_id])->select();
-        if(!$data){
+        if (!$data) {
             return $content;
         }
-        $temp_data=collection($data)->toArray();
+        $temp_data = collection($data)->toArray();
         //替换前数据
-        $front_substitution=array_column($temp_data,"front_substitution");
+        $front_substitution = array_column($temp_data, "front_substitution");
         //替换后的数据
-        $substitution=array_column($temp_data,"substitution");
-        return str_replace($front_substitution,$substitution,$content);
+        $substitution = array_column($temp_data, "substitution");
+        return str_replace($front_substitution, $substitution, $content);
     }
 
     /**
@@ -204,7 +203,7 @@ trait FileExistsTraits
      * @param $sendBody 发送内容
      * @return array
      */
-    public function phpmailerSend($sendUser, $sendpwd, $host,$subject, $toUser, $sendBody,$fromname)
+    public function phpmailerSend($sendUser, $sendpwd, $host, $subject, $toUser, $sendBody, $fromname)
     {
         $mail = new \PHPMailer;
         $mail->IsSmtp(true);                         // 设置使用 SMTP
@@ -215,7 +214,7 @@ trait FileExistsTraits
         $mail->From = $sendUser;
         $mail->FromName = $fromname;
         $mail->CharSet = "UTF-8";
-        $mail->AddReplyTo("support@qiangbi.net","强比科技");//回复给谁
+        $mail->AddReplyTo("support@qiangbi.net", "强比科技");//回复给谁
         $mail->AddAddress($toUser);
         //发送到谁 写谁$mailaddress
         $mail->WordWrap = 50;                // set word wrap to 50 characters
@@ -236,8 +235,8 @@ trait FileExistsTraits
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
         //support邮箱
-        $email=SystemConfig::where(["name"=>"SYSTEM_EMAIL","need_auth"=>1])->find();
-        if(!isset($email->value)){
+        $email = SystemConfig::where(["name" => "SYSTEM_EMAIL", "need_auth" => 1])->find();
+        if (!isset($email->value)) {
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱不存在!",
                 'operator' => 'support邮箱不存在',
@@ -248,8 +247,8 @@ trait FileExistsTraits
             return false;
         }
         //support密码
-        $password=SystemConfig::where(["name"=>"SYSTEM_EMAIL_PASSWORD","need_auth"=>1])->find();
-        if(!isset($password->value)){
+        $password = SystemConfig::where(["name" => "SYSTEM_EMAIL_PASSWORD", "need_auth" => 1])->find();
+        if (!isset($password->value)) {
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱密码不存在!",
                 'operator' => 'support邮箱密码不存在',
@@ -260,8 +259,8 @@ trait FileExistsTraits
             return false;
         }
         //support host
-        $host=SystemConfig::where(["name"=>"SYSTEM_EMAIL_SMTPHOST","need_auth"=>1])->find();
-        if(!isset($host->value)){
+        $host = SystemConfig::where(["name" => "SYSTEM_EMAIL_SMTPHOST", "need_auth" => 1])->find();
+        if (!isset($host->value)) {
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱host不存在!",
                 'operator' => 'support邮箱host不存在',
@@ -272,10 +271,10 @@ trait FileExistsTraits
             return false;
         }
         return [
-            "email"=>$email->value,
-            "password"=>$password->value,
-            "host"=>$host->value
-            ];
+            "email" => $email->value,
+            "password" => $password->value,
+            "host" => $host->value
+        ];
     }
 
 

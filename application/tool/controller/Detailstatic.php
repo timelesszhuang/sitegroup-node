@@ -17,16 +17,29 @@ class Detailstatic extends Common
 {
     use FileExistsTraits;
 
+    private static $system_default_count;
+
+    public function __construct()
+    {
+        $data = Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find();
+        if ($data && array_key_exists('value', $data)) {
+            self::$system_default_count = $data['value'];
+        } else {
+            //如果没有设置该字段 则默认生成五篇
+            self::$system_default_count = 5;
+        }
+    }
+
     /**
      * 验证下是不是 时间段允许 允许的话 返回时间段的 count
-     * @access public
+     * @access private
      * @param $site_id 站点的site_id
      * @param $requesttype 请求的类型 crontab 或者是 后台动态请求
      * @return array
      */
-    public static function check_static_time($site_id, $requesttype)
+    private static function check_static_time($site_id, $requesttype)
     {
-        $default_count = Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find()['value'] ?: 5;
+        $default_count = self::$system_default_count;
         if (!$requesttype) {
             //如果是 点击更新来的请求的话 只需要同步5条
             return [true, $default_count, true, $default_count, true, $default_count];
@@ -40,14 +53,23 @@ class Detailstatic extends Common
         $scattered_status = false;
         $scattered_count = $default_count;
         if (array_key_exists('article', $config_sync_info)) {
+            //表示该站点包含静态化配置  需要遵从 静态化配置 指定时间段内生成多少数据
             foreach ($config_sync_info['article'] as $k => $v) {
                 //比较时间
+                //上次静态化的时间点
+                $laststatic_time = $v['laststatic_time'];
                 $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
                 $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
                 $time = time();
+                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
+                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
+                    break;
+                }
                 if ($time > $starttime && $time < $stoptime) {
                     $article_count = $v['staticcount'];
                     $article_status = true;
+                    //更新下 上次静态化时间
+                    self::set_laststatic_time($v['id']);
                     break;
                 }
             }
@@ -57,13 +79,20 @@ class Detailstatic extends Common
         }
         if (array_key_exists('question', $config_sync_info)) {
             foreach ($config_sync_info['question'] as $k => $v) {
+                //上次静态化的时间点
+                $laststatic_time = $v['laststatic_time'];
                 //比较时间
                 $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
                 $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
                 $time = time();
+                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
+                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
+                    break;
+                }
                 if ($time > $starttime && $time < $stoptime) {
                     $question_count = $v['staticcount'];
                     $question_status = true;
+                    self::set_laststatic_time($v['id']);
                     break;
                 }
             }
@@ -73,13 +102,20 @@ class Detailstatic extends Common
         }
         if (array_key_exists('scatteredarticle', $config_sync_info)) {
             foreach ($config_sync_info['scatteredarticle'] as $k => $v) {
+                //上次静态化的时间点
+                $laststatic_time = $v['laststatic_time'];
                 //比较时间
                 $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
                 $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
                 $time = time();
+                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
+                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
+                    break;
+                }
                 if ($time > $starttime && $time < $stoptime) {
                     $scattered_count = $v['staticcount'];
                     $scattered_status = true;
+                    self::set_laststatic_time($v['id']);
                     break;
                 }
             }
@@ -87,25 +123,27 @@ class Detailstatic extends Common
             //没有相关配置的话 默认是5条
             $scattered_status = true;
         }
-        return [$article_status, $article_count, $question_status, $question_count, $scattered_status, $scattered_count];
+        return [$article_status, intval($article_count), $question_status, intval($question_count), $scattered_status, intval($scattered_count)];
     }
 
     /**
      * 获取配置信息
-     * @access public
+     * @access private
      */
-    public static function get_staticconfig_info($site_id)
+    private static function get_staticconfig_info($site_id)
     {
-        $config_info = Db::name('site_staticconfig')->where(['site_id' => $site_id])->field('type,starttime,stoptime,staticcount')->select();
+        $config_info = Db::name('site_staticconfig')->where(['site_id' => $site_id])->field('id,type,starttime,stoptime,staticcount,laststatic_time')->select();
         $config_sync_info = [];
         foreach ($config_info as $k => $v) {
             if (!array_key_exists($v['type'], $config_sync_info)) {
                 $config_sync_info[$v['type']] = [];
             }
             $config_sync_info[$v['type']][] = [
+                'id' => $v['id'],
                 'starttime' => $v['starttime'],
                 'stoptime' => $v['stoptime'],
-                'staticcount' => $v['staticcount']
+                'staticcount' => $v['staticcount'],
+                'laststatic_time' => $v['laststatic_time']
             ];
         }
         return $config_sync_info;
@@ -113,28 +151,56 @@ class Detailstatic extends Common
 
 
     /**
+     * 上次 静态化时间
+     * @access private
+     */
+    private static function set_laststatic_time($id)
+    {
+        Db::name('site_staticconfig')->where(['id' => $id])->update(['laststatic_time' => time()]);
+    }
+
+
+    /**
      * 首先第一次入口
      * @access public
-     * 静态化 文章 问答 零散段落等相关数据  如果 $requestype 为 crontab 的话 会 按照配置的 时间段跟文章数量来生成静态页面
+     * 静态化 文章 问答 零散段落等相关数据
+     * @param string $requesttype 如果 $requestype 为 crontab 的话 会 按照配置的 时间段跟文章数量来生成静态页面
+     *                            如果 为空的话 表示 从页面点击操作之后触发的操作
      */
     public function index($requesttype = '')
     {
         set_time_limit(0);
         ignore_user_abort();
+        // 获取站点的相关的相关信息
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
         //获取 site页面 中 menu 指向的 a_keyword_id
-        //从数据库中 获取的页面的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
+        //从数据库中 获取的菜单对应的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
+        //菜单 typeid_arr 根据栏目的分类 返回 menu 的信息
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
-
         //验证下 是不是这个时间段内 是不是可以生成
         list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id, $requesttype);
+        //区分菜单所属栏目是哪种类型  article question scatteredstatic
+        $article_type_keyword = [];
+        $question_type_keyword = [];
+        $scatteredarticle_type_keyword = [];
         foreach ($menu_typeid_arr as $detail_key => $v) {
+            // $detail_key 为 类目的类型
+            // $v 为
+            //[
+            //{
+            //  id 为 文章分类的id
+            //  name 为 文章的分类name
+            //  menu_id 菜单的id
+            //},
+            //{}
+            //]
             foreach ($v as $type) {
+                //如果数据库中没有 账号
                 if (!array_key_exists($type['menu_id'], $menu_akeyword_id_arr)) {
                     //请求一下 该位置 可以把该菜单的 TDK 还有 相关 a_keyword_id  等信息存储到数据库中
                     //第一次访问的时候
@@ -148,21 +214,31 @@ class Detailstatic extends Common
                 switch ($detail_key) {
                     case'article':
                         if ($articlestatic_status) {
-                            $this->articlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $articlestatic_count);
+                            $article_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case'question':
                         if ($questionstatic_status) {
-                            $this->questionstatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $questionstatic_count);
+                            $question_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case'scatteredarticle':
                         if ($scatteredstatic_status) {
-                            $this->scatteredarticlestatic($site_id, $site_name, $node_id, $type['id'], $a_keyword_id, $scatteredstatic_count);
+                            $scatteredarticle_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                 }
             }
+        }
+        if ($article_type_keyword && $articlestatic_count) {
+            $this->articlestatic($site_id, $site_name, $node_id, $article_type_keyword, $articlestatic_count);
+        }
+        if ($question_type_keyword && $questionstatic_count) {
+            $this->questionstatic($site_id, $site_name, $node_id, $question_type_keyword, $questionstatic_count);
+        }
+        if ($scatteredarticle_type_keyword && $scatteredstatic_count) {
+            print_r($scatteredarticle_type_keyword);
+            $this->scatteredarticlestatic($site_id, $site_name, $node_id, $scatteredarticle_type_keyword, $scatteredstatic_count);
         }
     }
 
@@ -170,15 +246,43 @@ class Detailstatic extends Common
      * 文章详情页面的静态化
      * @access public
      * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
+     * @todo 需要指定生成文章数量的数量
+     * @param $site_id 站点的id
+     * @param $site_name 站点名
+     * @param $node_id 节点的id
+     * @param $article_type_keyword 文章分类id 所对应的A类关键词
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    public function articlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id, $step_limit)
+    private function articlestatic($site_id, $site_name, $node_id, $article_type_keyword, $step_limit)
     {
         //判断模板是否存在
         if (!$this->fileExists('template/article.html')) {
             return;
         }
+        $static_count = 0;
+        foreach ($article_type_keyword as $v) {
+            //计算出该栏目需要静态化的数量
+            $count = $step_limit - $static_count;
+            if ($count > 0) {
+                $step_count = $this->exec_articlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $count);
+                if ($step_count !== false) {
+                    $static_count = $static_count + $step_count;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+
+
+    /**
+     * 执行页面静态化相关操作
+     * @access private
+     * @return count 返回生成文章的数量
+     */
+    private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
+    {
         $type_name = "article";
         $where = [
             'type_id' => $type_id,
@@ -186,43 +290,52 @@ class Detailstatic extends Common
             "node_id" => $node_id,
             "site_id" => $site_id
         ];
-        $limit = 0;
+        $pre_stop = 0;
+        //获取 站点 某个栏目同步到的文章id
         $articleCount = ArticleSyncCount::where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
+            $pre_stop = $articleCount->count;
         } else {
-            $article_temp = new ArticleSyncCount();
+            // 没有获取到 某个栏目静态化到的网址 后续需要添加一个
+            $article_sync = new ArticleSyncCount();
         }
-        $count = \app\index\model\Article::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
-        if ($count == 0) {
-            return;
-        }
-        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20
-        $commonsql = "id >$limit and node_id=$node_id and articletype_id=$type_id and";
-        $where3 = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
-        $article_data = \app\index\model\Article::where($where3)->order("id", "asc")->limit($step_limit)->select();
+        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
+        $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
+        $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+        // 要 step_limit+1 因为要 获取上次的最后一条
+        $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
+        $static_count = 0;
         foreach ($article_data as $key => $item) {
-            $temp_content = mb_substr(strip_tags($item->content), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $item->title, $temp_content, $a_keyword_id);
-            file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-            //页面中还需要填写隐藏的 表单 node_id site_id
+            //截取出 页面的 description 信息
+            $description = mb_substr(strip_tags($item->content), 0, 200);
+            //获取网站的 tdk 文章列表等相关 公共元素
+            $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id);
+            // 把 站点的相关的数据写入数据库中
+            // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
-            $pre_article = \app\index\model\Article::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
+            //获取上一篇
+            $pre_articlecommon_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
+            $pre_article_sql = "($pre_articlecommon_sql is_sync=20 ) or  ( $pre_articlecommon_sql site_id = $site_id)";
+            $pre_article = \app\index\model\Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
-                $pre_article['href'] = "/article/article{$pre_article['id']}.html";
+                $pre_article = ['href' => "/article/article{$pre_article['id']}.html", 'title' => $pre_article['title']];
             }
+            //获取下一篇
             $next_article = [];
-            if (($step_limit - $key) > 1) {
-                $commonsql1 = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
-                $where2 = "($commonsql1 is_sync=20 ) or  ( $commonsql1 site_id = $site_id)";
-                $next_article = \app\index\model\Article::where($where2)->field("id,title")->limit(1)->find();
-                //下一页链接
-                if ($next_article) {
-                    $next_article = $next_article->toArray();
-                    $next_article['href'] = "/article/article{$next_article['id']}.html";
-                }
+
+            //获取下一篇 的网址
+            if ($key < $step_limit) {
+                //最后一条 不需要有 下一页
+                $next_articlecommon_sql = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
+                $next_article_sql = "($next_articlecommon_sql is_sync=20 ) or  ( $next_articlecommon_sql site_id = $site_id)";
+                $next_article = \app\index\model\Article::where($next_article_sql)->field("id,title")->find();
+            }
+            //下一页链接
+            if ($next_article) {
+                $next_article = $next_article->toArray();
+                $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
             $temp_content = $item->content;
             //替换关键字
@@ -240,51 +353,81 @@ class Detailstatic extends Common
                     'next_article' => $next_article,
                 ]
             );
-            //判断模板是否存在
+            //判断目录是否存在
             if (!file_exists('article')) {
                 $this->make_error("article");
-                die;
+                return false;
             }
             $make_web = file_put_contents('article/article' . $item["id"] . '.html', $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
                 if (is_null($articleCountModel)) {
-                    $article_temp->count = $item["id"];
-                    $article_temp->type_id = $type_id;
-                    $article_temp->type_name = $type_name;
-                    $article_temp->node_id = $node_id;
-                    $article_temp->site_id = $site_id;
-                    $article_temp->site_name = $site_name;
-                    $article_temp->save();
+                    $article_sync->count = $item["id"];
+                    $article_sync->type_id = $type_id;
+                    $article_sync->type_name = $type_name;
+                    $article_sync->node_id = $node_id;
+                    $article_sync->site_id = $site_id;
+                    $article_sync->site_name = $site_name;
+                    $article_sync->save();
                 } else {
                     $articleCountModel->count = $item["id"];
                     $articleCountModel->save();
                 }
-                $limit = $item["id"];
+            }
+            $static_count++;
+        }
+        return $static_count - 1;
+    }
+
+
+    /**
+     * 文章详情页面的静态化
+     * @access public
+     * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
+     * @todo 需要指定生成文章数量的数量
+     * @param $site_id 站点的id
+     * @param $site_name 站点名
+     * @param $node_id 节点的id
+     * @param $article_type_keyword 文章分类id 所对应的A类关键词
+     * @param $type_id 文章的分类id
+     * @param $a_keyword_id 栏目所对应的a类 关键词
+     */
+    private function scatteredarticlestatic($site_id, $site_name, $node_id, $article_type_keyword, $step_limit)
+    {
+        //判断模板是否存在
+        if (!$this->fileExists('template/news.html')) {
+            return;
+        }
+        $static_count = 0;
+        foreach ($article_type_keyword as $v) {
+            //计算出该栏目需要静态化的数量
+            $count = $step_limit - $static_count;
+            if ($count > 0) {
+                $step_count = $this->exec_scatteredarticlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $count);
+                if ($step_count !== false) {
+                    $static_count = $static_count + $static_count;
+                } else {
+                    break;
+                }
             }
         }
     }
-
 
     /**
      * 零散文章的静态化
      * @access public
      * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
-     * @param $type_id 文章的分类id
-     * @param $a_keyword_id 栏目所对应的a类 关键词
+     * @param $type_id 零散段落的分类id
+     * @param $keyword_id 栏目所对应的a类 关键词
      * @param $site_id 站点id
      * @param $site_name 站点name
      * @param $node_id 节点id
      */
-    public function scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id, $step_limit)
+    public function exec_scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
-        //判断模板是否存在
-        if (!$this->fileExists('template/news.html')) {
-            return;
-        }
         $type_name = "scatteredarticle";
         $where = [
             'type_id' => $type_id,
@@ -292,25 +435,22 @@ class Detailstatic extends Common
             "node_id" => $node_id,
             "site_id" => $site_id
         ];
-        $limit = 0;
+        $pre_stop = 0;
         $articleCount = ArticleSyncCount::where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
+            $pre_stop = $articleCount->count;
         } else {
             $article_temp = new ArticleSyncCount();
         }
-        $count = \app\index\model\ScatteredTitle::where(["id" => ["gt", $limit], "articletype_id" => $type_id, "node_id" => $node_id])->count();
-        if ($count == 0) {
-            return;
-        }
-        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["gt", $limit], "articletype_id" => $type_id])->limit($step_limit)->select();
+        $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $pre_stop], "articletype_id" => $type_id])->limit($step_limit + 1)->select();
+        $static_count = 0;
         foreach ($scatTitleArray as $key => $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
             $temp_arr = $item->toArray();
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $a_keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $keyword_id);
             file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
@@ -319,11 +459,11 @@ class Detailstatic extends Common
                 $pre_article['href'] = "/news/news{$pre_article['id']}.html";
             }
             $next_article = [];
-            if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->limit(1)->find();
-                if ($next_article) {
-                    $next_article['href'] = "/news/news{$next_article['id']}.html";
-                }
+            if ($key < $step_limit) {
+                $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->find();
+            }
+            if ($next_article) {
+                $next_article['href'] = "/news/news{$next_article['id']}.html";
             }
             $content = (new View())->fetch('template/news.html',
                 [
@@ -336,13 +476,14 @@ class Detailstatic extends Common
             //判断模板是否存在
             if (!file_exists('news')) {
                 $this->make_error("news");
-                die;
+                return false;
             }
             $make_web = file_put_contents('news/news' . $item["id"] . '.html', $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
                 if (is_null($articleCountModel)) {
+                    //之前 栏目生成配置 记录没有添加过
                     $article_temp->count = $item->id;
                     $article_temp->type_id = $type_id;
                     $article_temp->type_name = $type_name;
@@ -354,10 +495,46 @@ class Detailstatic extends Common
                     $articleCountModel->count = $item->id;
                     $articleCountModel->save();
                 }
-                $limit = $item["id"];
+            }
+            $static_count++;
+        }
+        return $static_count - 1;
+    }
+
+
+    /**
+     * 问答详情页面的静态化
+     * @access public
+     * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
+     * @todo 需要指定生成问答数量的数量
+     * @param $site_id 站点的id
+     * @param $site_name 站点名
+     * @param $node_id 节点的id
+     * @param $article_type_keyword 问答分类id 所对应的A类关键词
+     * @param $type_id 问答的分类id
+     * @param $a_keyword_id 栏目所对应的a类 关键词
+     */
+    private function questionstatic($site_id, $site_name, $node_id, $question_type_keyword, $step_limit)
+    {
+        //判断模板是否存在
+        if (!$this->fileExists('template/question.html')) {
+            return;
+        }
+        $static_count = 0;
+        foreach ($question_type_keyword as $v) {
+            //计算出该栏目需要静态化的数量
+            $count = $step_limit - $static_count;
+            if ($count > 0) {
+                $step_count = $this->exec_questionstatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $count);
+                if ($step_count !== false) {
+                    $static_count = $static_count + $step_count;
+                } else {
+                    break;
+                }
             }
         }
     }
+
 
     /**
      * 问答
@@ -367,12 +544,8 @@ class Detailstatic extends Common
      * @param $type_id
      * @param $a_keyword_id
      */
-    public function questionstatic($site_id, $site_name, $node_id, $type_id, $a_keyword_id, $step_limit)
+    public function exec_questionstatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
     {
-        //判断模板是否存在
-        if (!$this->fileExists('template/question.html')) {
-            return;
-        }
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
         //当前分类名称
@@ -383,64 +556,67 @@ class Detailstatic extends Common
             "node_id" => $node_id,
             "site_id" => $site_id
         ];
-        $limit = 0;
-        $articleCount = ArticleSyncCount::where($where)->find();
+        $pre_stop = 0;
+        $questionCount = ArticleSyncCount::where($where)->find();
         //判断下是否有数据 没有就创建模型  需要减去1 因为要将以前最后一页重新生成
-        if (isset($articleCount->count) && $articleCount->count > 0) {
-            $limit = $articleCount->count;
+        if (isset($questionCount->count) && $questionCount->count > 0) {
+            $pre_stop = $questionCount->count;
         } else {
-            $article_temp = new ArticleSyncCount();
+            $question_sync = new ArticleSyncCount();
         }
-        $question_data = \app\index\model\Question::where(["id" => ["gt", $limit], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit)->select();
+        $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
+        $static_count = 0;
         foreach ($question_data as $key => $item) {
-            $temp_content = mb_substr(strip_tags($item->content_paragraph), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $item->question, $temp_content, $a_keyword_id);
-            file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            $description = mb_substr(strip_tags($item->content_paragraph), 0, 200);
+            $assign_data = Commontool::getEssentialElement('detail', $item->question, $description, $keyword_id);
+            //file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
-            $pre_article = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
-            if ($pre_article) {
-                $pre_article['href'] = "/question/question{$pre_article['id']}.html";
+            $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+            if ($pre_question) {
+                $pre_question['href'] = "/question/question{$pre_question['id']}.html";
             }
-            $next_article = [];
-            if (($step_limit - $key) > 1) {
-                $next_article = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->limit(1)->find();
-                if ($next_article) {
-                    $next_article['href'] = "/question/question{$next_article['id']}.html";
-                }
+            $next_question = [];
+            if ($key < $step_limit) {
+                $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
+            }
+            if ($next_question) {
+                $next_question['href'] = "/question/question{$next_question['id']}.html";
             }
             $content = (new View())->fetch('template/question.html',
                 [
                     'd' => $assign_data,
                     'question' => $item,
-                    'pre_article' => $pre_article,
-                    'next_article' => $next_article
+                    'pre_article' => $pre_question,
+                    'next_article' => $next_question
                 ]
             );
-            //判断模板是否存在
+            //判断目录是否存在
             if (!file_exists('question')) {
                 $this->make_error("question");
-                die;
+                return false;
             }
             $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
                 if (is_null($articleCountModel)) {
-                    $article_temp->count = $item["id"];
-                    $article_temp->type_id = $type_id;
-                    $article_temp->type_name = $type_name;
-                    $article_temp->node_id = $node_id;
-                    $article_temp->site_id = $site_id;
-                    $article_temp->site_name = $site_name;
-                    $article_temp->save();
+                    $question_sync->count = $item["id"];
+                    $question_sync->type_id = $type_id;
+                    $question_sync->type_name = $type_name;
+                    $question_sync->node_id = $node_id;
+                    $question_sync->site_id = $site_id;
+                    $question_sync->site_name = $site_name;
+                    $question_sync->save();
                 } else {
                     $articleCountModel->count = $item["id"];
                     $articleCountModel->save();
                 }
-                $limit = $item["id"];
             }
+            $static_count++;
         }
+        return $static_count - 1;
     }
+
 
 }

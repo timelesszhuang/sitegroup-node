@@ -29,7 +29,7 @@ class Menu extends Common
         }
         $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
         $field = 'id,name,title,generate_name,flag,type_id,content';
-        $menu = Db::name('menu')->where($where)->order("sort","desc")->field($field)->select();
+        $menu = Db::name('menu')->where($where)->order("sort", "desc")->field($field)->select();
         if (empty($menu)) {
             //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
             $site_info = new SiteErrorInfo();
@@ -121,7 +121,8 @@ class Menu extends Common
 
 
     /**
-     * 根据menu 获取文章所属的 type_id 跟句 type_id 不需要详情型的文章信息
+     * 根据站点的menuids 获取文章所属的 type_id、type_name、
+     * 不需要详情型的文章信息
      * @access public
      */
     public static function getTypeIdInfo($menu_ids)
@@ -136,6 +137,7 @@ class Menu extends Common
             'id' => ['in', $menu_id_arr],
             'flag' => ['neq', 1],
         ];
+        //获取站点所有的菜单
         $menu = Db::name('menu')->where($where)->field($field)->select();
         $type_id_arr = [];
         foreach ($menu as $k => $v) {
@@ -151,8 +153,11 @@ class Menu extends Common
                     break;
             }
             $type_arr = [
+                //文章类型的id
                 'id' => $v['type_id'],
+                //文章类型的name
                 'name' => $v['type_name'],
+                //菜单的id
                 'menu_id' => $v['id'],
             ];
             if (!array_key_exists($type, $type_id_arr)) {
@@ -164,7 +169,6 @@ class Menu extends Common
         Cache::set(Config::get('site.CACHE_LIST')['MENUTYPEID'], $type_id_arr, Config::get('site.CACHE_TIME'));
         return $type_id_arr;
     }
-
 
 
 }

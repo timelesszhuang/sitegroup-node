@@ -196,7 +196,6 @@ class Site extends Common
         if ($num > 4) {
             return $this->resultArray('访问次数过多', 'failed');
         }
-
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             $data['referer'] = $_SERVER['HTTP_REFERER'];
         }
