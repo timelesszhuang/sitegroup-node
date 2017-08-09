@@ -44,7 +44,7 @@ class QuestionList extends Common
 
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
-            $question = Question::order('id', "desc")->where($where)->paginate(10);
+            $question = Question::order('id', "desc")->field("id,question,content_paragraph")->where($where)->paginate(10);
         }
         //获取当前type_id的文章
         $assign_data['question'] = $question;

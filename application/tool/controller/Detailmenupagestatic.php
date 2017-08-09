@@ -33,6 +33,7 @@ class Detailmenupagestatic extends Common
             if (!$this->fileExists("template/{$v['generate_name']}.html")) {
                 continue;
             }
+
             $content = (new View())->fetch("template/{$v['generate_name']}.html",
                 [
                     'd' => $assign_data,

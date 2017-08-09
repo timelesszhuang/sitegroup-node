@@ -327,7 +327,7 @@ class Commontool extends Common
                 }
             }
             $where = "({$where}) and ((`is_sync`= '20') or (`is_sync`='10' and `site_id`='{$site_id}'))";
-            $article = Db::name('Article')->where($where)->field('id,title,content,thumbnails,summary,create_time')->order('id desc')->limit($limit)->select();
+            $article = Db::name('Article')->where($where)->field('id,title,thumbnails,summary,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
                 $art = [];
