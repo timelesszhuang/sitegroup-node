@@ -82,14 +82,19 @@ trait FileExistsTraits
     public function getKey($content, $count = 3)
     {
         $arr = [];
+        $temp_arr=[];
         if (!empty($content)) {
             preg_match_all("/./u", $content, $arr);
-            $i = 1;
-            while ($i < 3) {
+            $i = 0;
+            while ($i < $count) {
                 $temp_arr = array_rand($arr[0], $count);
+                // 如果count是1 有可能返回的不是数组 需要判断下
+                if(!is_array($temp_arr)){
+                    $temp_arr=[$temp_arr];
+                }
                 foreach ($temp_arr as $item) {
                     if (!$this->checkAscii($arr[0][$item]) || $item < 15) {
-                        $i = 1;
+                        $i = 0;
                         continue;
                     } else {
                         file_put_contents("code.txt", $arr[0][$item] . "\r\n", FILE_APPEND);
@@ -97,9 +102,9 @@ trait FileExistsTraits
                     }
                 }
             }
-
             return $temp_arr;
         }
+        return false;
     }
 
 
@@ -115,49 +120,54 @@ trait FileExistsTraits
         if (empty($data)) {
             return false;
         }
-        // 最少需要三个关键词才可以启动
-        if (count($data) < 3) {
-            return false;
-        }
         $temp_data = collection($data)->toArray();
-        $a = [];
-        $temp_content = $content;
-        //字符串长度
-        $count = strlen($temp_content);
-        //获取文章中的三个点  并且是从大到小排好序的
-        list($first, $second, $third) = $this->getKey($temp_content);
-        // 获取返回的a链接
-        foreach ($this->foreachLink($temp_data) as $item) {
-            array_push($a, $item);
+        // 总数
+        $count=count($temp_data);
+        $keys=rand(1,5);
+        if($count<=5){
+            $keys=$count;
         }
-        //截取前面的内容 和后面的内容 然后和a链接合并到一起组成新内容
-        //先从最后一个点截取 然后合并起来内容
-        $pre_one = mb_substr($temp_content, 0, $third);
-        $next_one = mb_substr($temp_content, $third, $count);
-        $lastest_one = $pre_one . $a[0] . $next_one;
-
-        //然后截取前面一个点 然后合并起来内容
-        $pre_two = mb_substr($lastest_one, 0, $second);
-        $next_two = mb_substr($lastest_one, $second, $count);
-        $lastest_one = $pre_two . $a[1] . $next_two;
-
-        //最后截取最前面的一个点 最后合并返回即可
-        $pre_three = mb_substr($lastest_one, 0, $first);
-        $next_three = mb_substr($lastest_one, $first, $count);
-        $lastest_one = $pre_three . $a[2] . $next_three;
-        return $lastest_one;
+        return $this->runGetKeys($content,$keys,$temp_data);
     }
 
     /**
-     * 循环a链接
+     * 返回最终替换后的内容
+     * @param $content
+     * @param $count
+     * @param $links_data
+     * @return string
+     */
+    public function runGetKeys($content,$count,$links_data)
+    {
+        //获取文章中的指定点  并且是从大到小排好序的
+         $positions=$this->getKey($content,$count);
+         $links=[];
+        foreach ($this->foreachLink($links_data,$count) as $item) {
+            array_push($links, $item);
+        }
+        $tempContent=$content;
+        for($i=($count-1);$i>-1;$i--){
+            $pre_one = mb_substr($tempContent, 0, $positions[$i]);
+            $next_one = mb_substr($tempContent, $positions[$i]);
+            $tempContent = $pre_one . $links[$i] . $next_one;
+        }
+        return $tempContent;
+    }
+
+
+    /**
+     * 循环获取a链接
      * @param $node_id
      * @param $site_id
      * @return \Generator
      */
-    public function foreachLink($data)
+    public function foreachLink($data,$count)
     {
-        //随机取3个链接
-        $for_arr = array_rand($data, 3);
+        //随机取a链接 有可能是1个链接  或多个链接
+        $for_arr = array_rand($data, $count);
+        if(!is_array($for_arr)){
+            $for_arr=[$for_arr];
+        }
         foreach ($for_arr as $item) {
             yield $this->makeALink($data[$item]);
         }
