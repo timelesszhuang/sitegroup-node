@@ -1,11 +1,6 @@
 .idea
 application/database.php
 composer.phar
-public/activity
-public/article
-public/log
-public/news
-public/question
 
 /vendor/
 .idea/workspace.xml
