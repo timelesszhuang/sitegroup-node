@@ -1,0 +1,175 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>{$d["title"]}</title>
+    <meta name="keywords" content='{$d["keyword"]}'>
+    <meta name="description" content='{$d["description"]}'>
+    {$d["redirect_code"]}
+    <?php if($d["pre_head_jscode"]):?>
+    <?php foreach($d["pre_head_jscode"] as $item):?>
+    {$item}
+    <?php endforeach;endif;?>
+    <script src="/templatestatic/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="/templatestatic/jquery.SuperSlide.js"></script>
+    <link href="/templatestatic/articlelist.css" rel="stylesheet" type="text/css"/>
+</head>
+
+<body>
+<div class="top_box">
+    <div class="top">
+        <div class="logo">{$d['site_name']}<span>{$d['url']}</span></div>
+        <div class="top_right">
+            <ul>
+                <li><a href="{$d['m_url']}">手机版</a></li>
+                <li class="noborder"><a href="../sitemap.xml" target="_blank">站点地图</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="nav">
+    <ul>
+        <?php foreach($d['menu'] as $item):?>
+        <li><a href="{$item['generate_name']}">{$item["name"]}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
+
+<div class="dt">
+    <?php if($d["activity"]):?>
+    <?php foreach($d["activity"] as $key=> $item):?>
+    <span class="t1"><a href="{$item['a_href']}" target="_blank"><img src="{$item['pc_smallimg']}"></a></span>
+    <?php endforeach;endif;?>
+</div>
+
+<div class="part1">
+    <div class="article_wz">
+        <div class="dqw">当前位置>行业新闻>新闻详情</div>
+        <div class="article_wenzhang">
+            <h1 class="wenzhang_h1">{$scatteredarticle["title"]}</h1>
+            <div class="art_ztbox"><div class="art_zt"><span class="zuozhe">作者：强比科技</span><span class="time">时间：<?php echo date("Y-m-d");?></span></div></div>
+            {$scatteredarticle["content"]}
+        </div>
+        <div class="article_page">
+            <div class="page_up">
+                <?php if(isset($pre_article["title"])):?>
+                <a href="{$pre_article['href']}">
+                    上一篇：<?php echo $pre_article["title"];?>
+                </a>
+                <?php endif;?>
+            </div>
+            <div class="page_down">
+                <?php if(isset($next_article["title"])):?>
+                <a href="{$next_article['href']}">
+                    下一篇：<?php echo $next_article["title"];?>
+                </a>
+                <?php endif;?>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="part2">
+        <div class="yxwd">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">邮箱文章</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="wdt">
+                <ul>
+                    <?php foreach($d["article_list"] as  $item):?>
+                    <li><a href="{$item['a_href']}">{$item['title']}</a><span class="sj">{$item['create_time']}</span></li>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+            <a href=""><img src="/templatestatic/wd.jpg"></a>
+        </div>
+
+        <div class="hyxw">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">行业新闻</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="new">
+                <ul>
+                    <?php foreach($d["scatteredarticle_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item["title"]}</a><span class="sj">{$item["create_time"]}</span></li>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+        </div>
+
+        <div class="hyxw">
+            <div class="wz_title">
+                <a href="">
+                    <span class="ppw">邮箱问答</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+                </a>
+            </div>
+            <div class="new">
+                <ul>
+                    <?php foreach($d["question_list"] as $item):?>
+                    <li><a href="{$item['a_href']}">{$item['question']}</a><span class="sj">{$item['create_time']}</span></li>
+                    <?php endforeach;?>
+                </ul>
+            </div>
+            <a href=""><img src="/templatestatic/hy-new.jpg"></a>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="pptj">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">邮箱品牌推荐</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l1.jpg"></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l4.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l2.jpg" /></a></li>
+        <li><a href=""><img src="/templatestatic/l3.jpg" /></a></li>
+        <div class="clearfix"></div>
+    </ul>
+</div>
+
+<div class="youqing">
+    <div class="wz_title">
+        <a href="">
+            <span class="ppw">友情链接</span><span class="gd">更多 &nbsp;>>&nbsp;</span>
+        </a>
+    </div>
+    <ul>
+        <?php foreach($d["partnersite"] as $key=>$item):?>
+        <li><a href="{$key}">{$item}</a></li>
+        <?php endforeach;?>
+    </ul>
+</div>
+
+<div class="bottom">
+    <div class="end">
+        <div class="el">
+            <div class="dxx">
+                全国企业邮箱服务电话：
+                <?php if($d["contact_info"]):?>
+                <span title="{$d['contact_info']['title']}">{$d['contact_info']['contact']}</span>
+                <?php endif;?><br/>
+                {$d['copyright']}
+                &nbsp;备案信息:<a href="http://{$d['beian']['link']}" target="_blank">{$d["beian"]["beian_num"]}</a>
+            </div>
+        </div>
+        <div class="er"><img src="/templatestatic/er.jpg" /></div>
+    </div>
+</div>
+
+</body>
+</html>

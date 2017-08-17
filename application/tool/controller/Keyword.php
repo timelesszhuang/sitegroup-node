@@ -58,7 +58,6 @@ class Keyword extends Common
         }
         //处理下 关键词 分出 B 类 C 类来
         $keyword = (new Common())->list_to_tree(array_merge($aKeyword, $bcKeyword), 'id', 'parent_id', 'children', $parent_id = 0);
-//        print_r($tree);
         //利用文件缓存缓存下文件
         Cache::set(Config::get('site.CACHE_LIST')['KEYWORD'], $keyword, Config::get('site.CACHE_TIME'));
         return $keyword;

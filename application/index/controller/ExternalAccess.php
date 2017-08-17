@@ -91,9 +91,6 @@ class ExternalAccess extends Controller
         } else {
             return;
         }
-//        print_r($keyword);
-//        print_r($engine);
-//        exit;
         $siteinfo = Site::getSiteInfo();
         $data = [
             'keyword' => $keyword,
