@@ -176,7 +176,23 @@ class Commontool extends Common
             ]);
         } elseif ($change_status) {
             //需要验证下
-
+            $a_child_info = $keyword_info[$akeyword_id];
+            $a_name = $a_child_info['name'];
+            $a_keyword_id = $a_child_info['id'];
+            if (!array_key_exists('children', $a_child_info)) {
+                return ['', '', ''];
+            }
+            $b_keyword_info = $a_child_info['children'];
+            $b_keywordname_arr = array_column($b_keyword_info, 'name');
+            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
+            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
+            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
+            Db::name('SitePageInfo')->update([
+                'title' => $title,
+                'keyword' => $keyword,
+                'description' => $description,
+                'pre_akeyword_id'=>$a_keyword_id
+            ]);
         }
         return [$title, $keyword, $description];
     }
@@ -244,6 +260,23 @@ class Commontool extends Common
             ]);
         } elseif ($change_status) {
             //之前的关键词跟先在不一样  需要重新按照规则 生成
+            $a_child_info = $keyword_info[$akeyword_id];
+            $a_name = $a_child_info['name'];
+            $a_keyword_id = $a_child_info['id'];
+            if (!array_key_exists('children', $a_child_info)) {
+                return ['', '', ''];
+            }
+            $b_keyword_info = $a_child_info['children'];
+            $b_keywordname_arr = array_column($b_keyword_info, 'name');
+            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
+            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
+            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
+            Db::name('SitePageInfo')->update([
+                'title' => $title,
+                'keyword' => $keyword,
+                'description' => $description,
+                'pre_akeyword_id'=>$a_keyword_id
+            ]);
 
         }
         return [$title, $keyword, $description];
