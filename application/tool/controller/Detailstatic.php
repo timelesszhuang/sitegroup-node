@@ -308,6 +308,7 @@ class Detailstatic extends Common
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->content), 0, 200);
+            preg_replace('/^&.+\;$/is','',$description);
             //获取网站的 tdk 文章列表等相关 公共元素
             $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id);
             // 把 站点的相关的数据写入数据库中
