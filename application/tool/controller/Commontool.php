@@ -191,7 +191,7 @@ class Commontool extends Common
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
-                'pre_akeyword_id'=>$a_keyword_id
+                'pre_akeyword_id' => $a_keyword_id
             ]);
         }
         return [$title, $keyword, $description];
@@ -275,7 +275,7 @@ class Commontool extends Common
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
-                'pre_akeyword_id'=>$a_keyword_id
+                'pre_akeyword_id' => $a_keyword_id
             ]);
 
         }
@@ -679,15 +679,14 @@ CODE;
                 list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
                 break;
         }
-
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
+        //首页获取文章列表改为二十篇
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
-
-        $article_list = self::getArticleList($artiletype_sync_info, $site_id);
+        $limit = $tag == 'index' ? 20 : 10;
+        $article_list = self::getArticleList($artiletype_sync_info, $site_id, $limit);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
-
         //从数据库中取出 十条 最新的已经静态化的文章列表
         $partnersite = [];
         //获取友链
