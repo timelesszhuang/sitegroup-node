@@ -90,7 +90,7 @@ class Commontool extends Common
         $page_id = 'index';
         $page_name = '首页';
         $page_type = 'index';
-        list($page_info_id, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             //tdk 是空的 需要 重新 从关键词中获取
             //首页的title ： A类关键词1_A类关键词2_A类关键词3-公司名
@@ -111,12 +111,11 @@ class Commontool extends Common
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
-                'akeyword_id' => '',
+                'akeyword_id' => 0,
+                'pre_akeyword_id' => 0,
                 'create_time' => time(),
                 'update_time' => time()
             ]);
-        } else {
-
         }
         return [$title, $keyword, $description];
     }
@@ -140,7 +139,7 @@ class Commontool extends Common
          * 如果没有生成  则随机选择一个A类 关键词 按照规则拼接关键词
          * 如果已经生成过 则需要比对现在的关键词是不是已经更换过 更换过的需要重新生成
          */
-        list($page_info_id, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             // 栏目页面的 TDK 获取 A类关键词随机选择
             //栏目页的 title：B类关键词多个_A类关键词1-栏目名
@@ -175,7 +174,7 @@ class Commontool extends Common
                 'create_time' => time(),
                 'update_time' => time()
             ]);
-        } else {
+        } elseif ($change_status) {
             //需要验证下
 
         }
@@ -196,7 +195,7 @@ class Commontool extends Common
     {
         $page_type = 'envmenu';
         //a类 关键词是不是变化了
-        list($change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             // 栏目页面的 TDK 获取 A类关键词随机选择
             //栏目页的 title：B类关键词多个_A类关键词1-栏目名
@@ -243,8 +242,8 @@ class Commontool extends Common
                 'create_time' => time(),
                 'update_time' => time()
             ]);
-        } else {
-            //判断下是不是关键词有更新
+        } elseif ($change_status) {
+            //之前的关键词跟先在不一样  需要重新按照规则 生成
 
         }
         return [$title, $keyword, $description];
@@ -312,13 +311,15 @@ class Commontool extends Common
     {
         $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('id,title,keyword,description,pre_akeyword_id,akeyword_id')->find();
         $akeyword_changestatus = false;
+        $akeyword_id = 0;
         if ($page_info) {
             if ($page_info['pre_akeyword_id'] != $page_info['akeyword_id']) {
                 $akeyword_changestatus = true;
+                $akeyword_id = $page_info['akeyword_id'];
             }
-            return [$akeyword_changestatus, $page_info['title'], $page_info['keyword'], $page_info['description']];
+            return [$page_info['id'], $akeyword_id, $akeyword_changestatus, $page_info['title'], $page_info['keyword'], $page_info['description']];
         }
-        return [$akeyword_changestatus, '', '', ''];
+        return [0, $akeyword_id, $akeyword_changestatus, '', '', ''];
     }
 
 
