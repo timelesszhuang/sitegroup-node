@@ -66,7 +66,7 @@ class ArticleList extends Common
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,summary")->where($where)->paginate(10);
         }
         $assign_data['article'] = $article;
-        file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+        //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
         return (new View())->fetch('template/articlelist.html',
             [
