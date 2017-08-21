@@ -49,6 +49,8 @@ Route::get('clearCache', 'tool/Commontool/clearCache');
 //页面 pv 操作 每个页面获取下
 Route::get('pv', 'tool/Site/pv');
 Route::post('Rejection', 'tool/Site/Rejection');
+//自定义表单提交
+Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //统计
 Route::resource('externalAccess', 'index/ExternalAccess');
 Route::resource('Ceshi', 'tool/Ceshi');
