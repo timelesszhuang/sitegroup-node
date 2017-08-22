@@ -308,7 +308,7 @@ class Detailstatic extends Common
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->content), 0, 200);
-            preg_replace('/^&.+\;$/is','',$description);
+            preg_replace('/^&.+\;$/is', '', $description);
             //获取网站的 tdk 文章列表等相关 公共元素
             $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id);
             // 把 站点的相关的数据写入数据库中
@@ -336,8 +336,16 @@ class Detailstatic extends Common
                 $next_article = $next_article->toArray();
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
-            $temp_content = $item->content;
-            //替换关键字
+            // 首先需要把base64 缩略图 生成为 文件
+            if ($item->thumbnails_name) {
+                //存在 base64缩略图 需要生成静态页
+                preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
+                if (!empty($match)) {
+                    $this->form_img_frombase64($match[1][0], $item->thumbnails_name);
+                }
+            }
+            $temp_content = $this->form_img($item->content);
+            // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
             // 将A链接插入到内容中去
             $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
@@ -377,6 +385,57 @@ class Detailstatic extends Common
             $static_count++;
         }
         return $static_count - 1;
+    }
+
+    /**
+     * 根据内容生成图片
+     * @access public
+     */
+    public function form_img($content)
+    {
+        //从中提取出 base64 中的内容
+        //使用正则匹配
+        //匹配base64 文件类型
+        preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
+        if (!empty($match)) {
+            if (array_key_exists(1, $match)) {
+                foreach ($match[1] as $k => $v) {
+                    $img_name = md5(uniqid(rand(), true));
+                    list($file_name, $status) = $this->form_img_frombase64($v, $img_name);
+                    //需要替换掉内容中的数据
+                    if ($status) {
+                        $content = str_replace($v, $file_name, $content);
+                    }
+                }
+            }
+        }
+        return $content;
+    }
+
+
+    /**
+     * 根据base64 生成图片
+     * @access public
+     * @param $base64img data:image/png;base64,***********
+     * @param $img_name ***.jpg  ***.png
+     */
+    private function form_img_frombase64($base64img, $img_name)
+    {
+        //保存base64字符串为图片
+        //匹配出图片的格式
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64img, $result)) {
+            //匹配出 图片的类型
+            $new_file = "images/$img_name";
+            if (strpos($img_name, '.') === false) {
+                $type = $result[2];
+                $new_file = "images/$img_name" . '.' . $type;
+            }
+            //这个地方可以尝试下加水印
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64img)))) {
+                return ['/' . $new_file, true];
+            }
+            return ['/' . $new_file, false];
+        }
     }
 
 
