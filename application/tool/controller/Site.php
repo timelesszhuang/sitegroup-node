@@ -8,6 +8,7 @@ use app\tool\model\Rejection;
 use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
 use app\tool\model\SiteUser;
+use app\tool\model\UserDefinedForm;
 use think\Cache;
 use think\Config;
 use think\Db;
@@ -246,7 +247,6 @@ class Site extends Common
         }
         $definedform = userForm::get(['tag' => $tag]);
         //唯一标志
-        $tag = $definedform->tag;
         //node_id 获取到的node_id
         $node_id = $definedform->node_id;
         //表单数据
@@ -255,7 +255,6 @@ class Site extends Common
             return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
         }
         $form_info = unserialize($definedform->form_info);
-        $info = [];
         $rule = [];
         foreach ($form_info as $k => $v) {
             if ($v['require']) {
@@ -293,35 +292,37 @@ class Site extends Common
         }
         $data['create_time'] = time();
         $data['referer'] = '';
+        $tag = $definedform->tag;
+        $wh['tag'] = $tag;
+        $UserDefinedForm = (new UserDefinedForm())->where($wh)->find();
+//        dump($UserDefinedForm);die;
+        $data['tag_id'] = $UserDefinedForm['id'];
+//        dump($data['tag_id']);die;
         if (array_key_exists("field1", $formdata)) {
-            $data["field1"] = strip_tags(quotemeta($formdata['field1']));
-            $data1 = $form_info['field1']['name'] . $data['field1'];
-        }else{
-            $data["field1"]='';
-            $data1='';
+            $olddata["field1"] = strip_tags(quotemeta($formdata['field1']));
+            $data["field1"] = $form_info['field1']['name'] . ':' . $olddata['field1'];
+        } else {
+            $data["field1"] = '';
         }
         if (array_key_exists("field2", $formdata)) {
-            $data["field2"] = strip_tags(quotemeta($formdata['field2']));
-            $data2 = $form_info['field2']['name'] . $data['field2'];
-        }
-        else{
-            $data["field2"]='';
-            $data2='';
+            $olddata["field2"] = strip_tags(quotemeta($formdata['field2']));
+            $data["field2"] = $form_info['field2']['name'] . ':' . $olddata['field2'];
+        } else {
+            $data["field2"] = '';
         }
         if (array_key_exists("field3", $formdata)) {
-            $data["field3"] = strip_tags(quotemeta($formdata['field3']));
-            $data3 = $form_info['field3']['name'] . $data['field3'];
-        }else{
-            $data["field3"]='';
-            $data3='';
+            $olddata["field3"] = strip_tags(quotemeta($formdata['field3']));
+            $data["field3"] = $form_info['field3']['name'] . ':' . $olddata['field3'];
+        } else {
+            $data["field3"] = '';
         }
         if (array_key_exists("field4", $formdata)) {
-            $data["field4"] = strip_tags(quotemeta($formdata['field4']));
-            $data4 = $form_info['field4']['name'] . $data['field4'];
-        }else{
-            $data["field4"]='';
-            $data4='';
+            $olddata["field4"] = strip_tags(quotemeta($formdata['field4']));
+            $data["field4"] = $form_info['field4']['name'] . ':' . $olddata['field4'];
+        } else {
+            $data["field4"] = '';
         }
+//        dump($data1.$data2.$data3.$data4);die;
         //提交甩单次数过多
         $nowtime = time();
         $oldtime = time() - 60 * 2;
@@ -337,16 +338,23 @@ class Site extends Common
         if (!$validate->check($data)) {
             return $this->resultArray($validate->getError(), "failed");
         }
+        if (!isset($data['node_id'])) {
+            return $this->resultArray("申请失败", "failed");
+        }
         if (!Rejection::create($data)) {
             return $this->resultArray("申请失败", "failed");
         }
         $email = $this->getEmailAccount();
+//        dump($email);
         if ($email) {
             $site_obj = \app\tool\model\Site::get($siteinfo['id']);
+            dump($site_obj->user_id);
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
+//                dump($email["email"]);
+//                dump($siteUser->email);die;
                 if ($siteUser) {
-                    $content = $data1. "</br>" . $data2 . "</br>" . $data3. "</br>" . $data4;
+                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"];
                     $this->phpmailerSend($email["email"], $email["password"], $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
                 }
             }
