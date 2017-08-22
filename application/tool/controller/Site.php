@@ -255,20 +255,19 @@ class Site extends Common
             return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
         }
         $form_info = unserialize($definedform->form_info);
-        print_r($form_info);
-
-
-        $rule = [
-            ["name", "require", "请输入您的姓名"],
-            ["phone", "require", "请输入您的电话"],
-//            ["email", "require", "请输入您的邮箱"],
-//            ["company", "require", "请输入您的公司名"],
-        ];
+        $info = [];
+        $rule = [];
+        foreach ($form_info as $k => $v) {
+            if ($v['require']) {
+                $rule[] = [$k, 'require', '请输入您的' . $v['name']];
+            }
+        }
         $validate = new  Validate($rule);
         $nowip = $request->ip();
         $ipdata = $this->get_ip_info($nowip);
         $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
+//        dump($formdata);die;
         if (empty($ipdata['data'])) {
             $data['country_id'] = "";
             $data['area_id'] = "";
@@ -294,10 +293,35 @@ class Site extends Common
         }
         $data['create_time'] = time();
         $data['referer'] = '';
-        $data["name"] = strip_tags(quotemeta($formdata['name']));
-        $data["phone"] = strip_tags(quotemeta($formdata['phone']));
-        $data["email"] = strip_tags(addslashes($formdata['email']));
-        $data["company"] = strip_tags(addslashes($formdata['company']));
+        if (array_key_exists("field1", $formdata)) {
+            $data["field1"] = strip_tags(quotemeta($formdata['field1']));
+            $data1 = $form_info['field1']['name'] . $data['field1'];
+        }else{
+            $data["field1"]='';
+            $data1='';
+        }
+        if (array_key_exists("field2", $formdata)) {
+            $data["field2"] = strip_tags(quotemeta($formdata['field2']));
+            $data2 = $form_info['field2']['name'] . $data['field2'];
+        }
+        else{
+            $data["field2"]='';
+            $data2='';
+        }
+        if (array_key_exists("field3", $formdata)) {
+            $data["field3"] = strip_tags(quotemeta($formdata['field3']));
+            $data3 = $form_info['field3']['name'] . $data['field3'];
+        }else{
+            $data["field3"]='';
+            $data3='';
+        }
+        if (array_key_exists("field4", $formdata)) {
+            $data["field4"] = strip_tags(quotemeta($formdata['field4']));
+            $data4 = $form_info['field4']['name'] . $data['field4'];
+        }else{
+            $data["field4"]='';
+            $data4='';
+        }
         //提交甩单次数过多
         $nowtime = time();
         $oldtime = time() - 60 * 2;
@@ -322,7 +346,7 @@ class Site extends Common
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
                 if ($siteUser) {
-                    $content = "公司名称:" . $data["company"] . "</br>" . "联系人:" . $data["name"] . "</br>" . "电话:" . $data["phone"] . "</br>" . "邮箱:" . $data["email"];
+                    $content = $data1. "</br>" . $data2 . "</br>" . $data3. "</br>" . $data4;
                     $this->phpmailerSend($email["email"], $email["password"], $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
                 }
             }
