@@ -66,11 +66,12 @@ class ArticleList extends Common
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)->paginate(10);
             foreach($this->foreachArticle($article) as $item){
                 $data=$item();
-                $img='<img src="/templatestatic/default.jpg" alt=$item["title"]>';
+                $img="<img src='/templatestatic/default.jpg' alt=".$item["title"].">";
                 if(!empty($data["thumbnails_name"])){
                     $img=$data["thumbnails_name"];
                 }else if(!empty($data["thumbnails"])){
-                    $img=$data["thumbnails"];
+                    $src="/images/".$data['thumbnails'];
+                    $img="<img src=$src alt=".$item['title'].">";
                 }
                 $data["img"]=$img;
             }
