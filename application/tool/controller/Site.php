@@ -348,14 +348,14 @@ class Site extends Common
 //        dump($email);
         if ($email) {
             $site_obj = \app\tool\model\Site::get($siteinfo['id']);
-            dump($site_obj->user_id);
+//            dump($site_obj->user_id);
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
 //                dump($email["email"]);
 //                dump($siteUser->email);die;
                 if ($siteUser) {
                     $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"];
-                    $this->phpmailerSend($email["email"], $email["password"], $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
+                   $this->phpmailerSend('love1@sdwlbz.com.cn', 'Qiangbi12', $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
                 }
             }
         }
