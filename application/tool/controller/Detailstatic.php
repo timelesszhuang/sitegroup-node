@@ -344,6 +344,7 @@ class Detailstatic extends Common
                     $this->form_img_frombase64($match[1][0], $item->thumbnails_name);
                 }
             }
+            //替换图片 base64 为 图片文件
             $temp_content = $this->form_img($item->content);
             // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
