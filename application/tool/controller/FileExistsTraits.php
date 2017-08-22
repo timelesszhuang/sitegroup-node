@@ -297,7 +297,7 @@ trait FileExistsTraits
      */
     public function makeWater($base,$content,$name)
     {
-        $ttcPath=THINK_PATH.'public/6.ttc';
+        $ttcPath=THINK_PATH.'/6.ttc';
         if (!preg_match('/^(data:\s*image\/(\w+);base64,)/', $base,$result)) {
             return false;
         }
