@@ -355,7 +355,7 @@ class Site extends Common
 //                dump($siteUser->email);die;
                 if ($siteUser) {
                     $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"];
-                   $this->phpmailerSend($email["email"], $email["password"], $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
+                   $this->phpmailerSend('love1@sdwlbz.com.cn', 'Qiangbi12', $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
                 }
             }
         }
