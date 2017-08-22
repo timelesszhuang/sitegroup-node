@@ -63,8 +63,9 @@ class ArticleList extends Common
         if ($articleSyncCount) {
             $where="id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
             //获取当前type_id的文章
-            $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,summary")->where($where)->paginate(10);
+            $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)->paginate(10);
         }
+
         $assign_data['article'] = $article;
         file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
