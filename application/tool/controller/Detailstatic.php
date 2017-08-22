@@ -337,15 +337,16 @@ class Detailstatic extends Common
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
             // 首先需要把base64 缩略图 生成为 文件
+            $water = $assign_data['site_name'] .' '.$assign_data['url'];
             if ($item->thumbnails_name) {
                 //存在 base64缩略图 需要生成静态页
                 preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
                 if (!empty($match)) {
-                    $this->form_img_frombase64($match[1][0], $item->thumbnails_name);
+                    $this->form_img_frombase64($match[1][0], $item->thumbnails_name, $water);
                 }
             }
             //替换图片 base64 为 图片文件
-            $temp_content = $this->form_img($item->content);
+            $temp_content = $this->form_img($item->content, $water);
             // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
             // 将A链接插入到内容中去
@@ -392,7 +393,7 @@ class Detailstatic extends Common
      * 根据内容生成图片
      * @access public
      */
-    public function form_img($content)
+    public function form_img($content, $water)
     {
         //从中提取出 base64 中的内容
         //使用正则匹配
@@ -402,7 +403,7 @@ class Detailstatic extends Common
             if (array_key_exists(1, $match)) {
                 foreach ($match[1] as $k => $v) {
                     $img_name = md5(uniqid(rand(), true));
-                    list($file_name, $status) = $this->form_img_frombase64($v, $img_name);
+                    list($file_name, $status) = $this->form_img_frombase64($v, $img_name, $water);
                     //需要替换掉内容中的数据
                     if ($status) {
                         $content = str_replace($v, $file_name, $content);
@@ -419,8 +420,9 @@ class Detailstatic extends Common
      * @access public
      * @param $base64img data:image/png;base64,***********
      * @param $img_name ***.jpg  ***.png
+     * @param $water 水印字符串站点名+域名
      */
-    private function form_img_frombase64($base64img, $img_name)
+    private function form_img_frombase64($base64img, $img_name, $water)
     {
         //保存base64字符串为图片
         //匹配出图片的格式
@@ -430,9 +432,23 @@ class Detailstatic extends Common
             if (strpos($img_name, '.') === false) {
                 $type = $result[2];
                 $new_file = "images/$img_name" . '.' . $type;
+            } else {
+                //生成缩略图
+                $info = pathinfo($img_name);
+                $type = $info['extension'];
             }
-            //这个地方可以尝试下加水印
-            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64img)))) {
+            //获取图片的位置
+            $ttcPath = dirname(THINK_PATH) . '/6.ttc';
+            $dst = imagecreatefromstring(base64_decode(str_replace($result[1], '', $base64img)));
+            //水印颜色
+//            $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
+            $color = imagecolorallocatealpha($dst, 197, 37, 19, 30);
+            //添加水印
+            imagettftext($dst, 12, 0, 10, 22, $color, $ttcPath, $water);
+            $func = "image{$type}";
+            $create_status = $func($dst, $new_file);
+            imagedestroy($dst);
+            if ($create_status) {
                 return ['/' . $new_file, true];
             }
             return ['/' . $new_file, false];

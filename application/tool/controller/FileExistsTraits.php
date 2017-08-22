@@ -288,29 +288,5 @@ trait FileExistsTraits
         ];
     }
 
-    /**
-     * 生成水印图片
-     * @param $base  base64内容
-     * @param $content   要添加的水印内容
-     * @param $name       图片的路径和名称
-     * @return bool
-     */
-    public function makeWater($base,$content,$name)
-    {
-        $ttcPath=THINK_PATH.'public/6.ttc';
-        if (!preg_match('/^(data:\s*image\/(\w+);base64,)/', $base,$result)) {
-            return false;
-        }
-        $type = $result[2];
-        $dst = imagecreatefromstring(base64_decode(str_replace($result[1], '', $base)));
-        //水印颜色
-        $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
-        //添加水印
-        imagettftext($dst, 12, 0, 10, 22, $color, $ttcPath, $content);
-        header('Content-Type:image/$type');
-        imagepng($dst,$name.".$type");
-        imagedestroy($dst);
-    }
-
 
 }
