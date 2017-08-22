@@ -404,12 +404,12 @@ class Commontool extends Common
                 $art['title'] = $v['title'];
                 $art['a_href'] = '/article/article' . $v['id'] . '.html';
                 $art['summary'] = $v['summary'];
-                $img="<img src='/templatestatic/default.jpg' alt=".$v["title"].">";
-                if(!empty($v["thumbnails_name"])){
-                    $img=$v["thumbnails_name"];
-                }else if(!empty($v["thumbnails"])){
-                    $src="/images/".$v['thumbnails'];
-                    $img="<img src=$src alt=".$v['title'].">";
+                $img = "<img src='/templatestatic/default.jpg' alt=" . $v["title"] . ">";
+                if (!empty($v["thumbnails_name"])) {
+                    $src = "/images/" . $v['thumbnails_name'];
+                    $img = "<img src='$src' alt= '{$v['title']}'>";
+                } else if (!empty($v["thumbnails"])) {
+                    $img = $v["thumbnails"];
                 }
                 $art['thumbnails'] = $img;
                 $art['create_time'] = date('Y-m-d', $v['create_time']);
