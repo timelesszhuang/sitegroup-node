@@ -397,14 +397,21 @@ class Commontool extends Common
                 }
             }
             $where = "({$where}) and ((`is_sync`= '20') or (`is_sync`='10' and `site_id`='{$site_id}'))";
-            $article = Db::name('Article')->where($where)->field('id,title,thumbnails,summary,create_time')->order('id desc')->limit($limit)->select();
+            $article = Db::name('Article')->where($where)->field('id,title,thumbnails,thumbnails_name,summary,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
                 $art = [];
                 $art['title'] = $v['title'];
                 $art['a_href'] = '/article/article' . $v['id'] . '.html';
                 $art['summary'] = $v['summary'];
-                $art['thumbnails'] = $v['thumbnails'] ?: '<img src="/templatestatic/default.jpg"/>';
+                $img="<img src='/templatestatic/default.jpg' alt=".$v["title"].">";
+                if(!empty($v["thumbnails_name"])){
+                    $img=$v["thumbnails_name"];
+                }else if(!empty($v["thumbnails"])){
+                    $src="/images/".$v['thumbnails'];
+                    $img="<img src=$src alt=".$v['title'].">";
+                }
+                $art['thumbnails'] = $img;
                 $art['create_time'] = date('Y-m-d', $v['create_time']);
                 $articlelist[] = $art;
             }
