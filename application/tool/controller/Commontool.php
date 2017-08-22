@@ -90,7 +90,7 @@ class Commontool extends Common
         $page_id = 'index';
         $page_name = '首页';
         $page_type = 'index';
-        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             //tdk 是空的 需要 重新 从关键词中获取
             //首页的title ： A类关键词1_A类关键词2_A类关键词3-公司名
@@ -100,7 +100,6 @@ class Commontool extends Common
             $title = implode('_', $a_keywordname_arr) . '-' . $com_name;
             $keyword = implode(',', $a_keywordname_arr);
             $description = implode('，', $a_keywordname_arr) . '，' . $com_name;
-
             Db::name('SitePageinfo')->insert([
                 'menu_id' => 0,
                 'site_id' => $site_id,
@@ -112,7 +111,8 @@ class Commontool extends Common
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
-                'akeyword_id' => '',
+                'akeyword_id' => 0,
+                'pre_akeyword_id' => 0,
                 'create_time' => time(),
                 'update_time' => time()
             ]);
@@ -133,14 +133,19 @@ class Commontool extends Common
     public static function getMenuPageTDK($keyword_info, $page_id, $page_name, $site_id, $site_name, $node_id, $menu_id, $menu_name)
     {
         $page_type = 'menu';
-        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        //首先从数据库中获取当前站点设置的 tdk 等 相关数据
+        /**
+         * 表示页面是不是已经生成过
+         * 如果没有生成  则随机选择一个A类 关键词 按照规则拼接关键词
+         * 如果已经生成过 则需要比对现在的关键词是不是已经更换过 更换过的需要重新生成
+         */
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             // 栏目页面的 TDK 获取 A类关键词随机选择
             //栏目页的 title：B类关键词多个_A类关键词1-栏目名
             //        keyword：B类关键词多个,A类关键词
             //        description:拼接一段就可以栏目名
             $a_keyword_key = array_rand($keyword_info, 1);
-
             $a_child_info = $keyword_info[$a_keyword_key];
             $a_name = $a_child_info['name'];
             $a_keyword_id = $a_child_info['id'];
@@ -164,9 +169,38 @@ class Commontool extends Common
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
+                'pre_akeyword_id' => $a_keyword_id,
                 'akeyword_id' => $a_keyword_id,
                 'create_time' => time(),
                 'update_time' => time()
+            ]);
+        } elseif ($change_status) {
+            //需要验证下
+            $a_child_info = [];
+            foreach ($keyword_info as $k => $v) {
+                if ($v['id'] == $akeyword_id) {
+                    $a_child_info = $keyword_info[$k];
+                }
+            }
+            if (empty($a_child_info)) {
+                return ['', '', ''];
+            }
+            $a_name = $a_child_info['name'];
+            $a_keyword_id = $a_child_info['id'];
+            if (!array_key_exists('children', $a_child_info)) {
+                return ['', '', ''];
+            }
+            $b_keyword_info = $a_child_info['children'];
+            $b_keywordname_arr = array_column($b_keyword_info, 'name');
+            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
+            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
+            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
+            Db::name('SitePageInfo')->update([
+                'id' => $pageinfo_id,
+                'title' => $title,
+                'keyword' => $keyword,
+                'description' => $description,
+                'pre_akeyword_id' => $a_keyword_id
             ]);
         }
         return [$title, $keyword, $description];
@@ -185,7 +219,8 @@ class Commontool extends Common
     public static function getEnvMenuPageTDK($keyword_info, $page_id, $page_name, $site_id, $site_name, $node_id, $menu_name)
     {
         $page_type = 'envmenu';
-        list($title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        //a类 关键词是不是变化了
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             // 栏目页面的 TDK 获取 A类关键词随机选择
             //栏目页的 title：B类关键词多个_A类关键词1-栏目名
@@ -227,10 +262,39 @@ class Commontool extends Common
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
+                'pre_akeyword_id' => $a_keyword_id,
                 'akeyword_id' => $a_keyword_id,
                 'create_time' => time(),
                 'update_time' => time()
             ]);
+        } elseif ($change_status) {
+            //之前的关键词跟先在不一样  需要重新按照规则 生成
+            $a_child_info = [];
+            foreach ($keyword_info as $k => $v) {
+                if ($v['id'] == $akeyword_id) {
+                    $a_child_info = $keyword_info[$k];
+                }
+            }
+            if (empty($a_child_info)) {
+                return ['', '', ''];
+            }
+            $a_name = $a_child_info['name'];
+            $a_keyword_id = $a_child_info['id'];
+            if (!array_key_exists('children', $a_child_info)) {
+                return ['', '', ''];
+            }
+            $b_keyword_info = $a_child_info['children'];
+            $b_keywordname_arr = array_column($b_keyword_info, 'name');
+            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
+            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
+            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
+            Db::name('SitePageInfo')->update([
+                'title' => $title,
+                'keyword' => $keyword,
+                'description' => $description,
+                'pre_akeyword_id' => $a_keyword_id
+            ]);
+
         }
         return [$title, $keyword, $description];
     }
@@ -295,11 +359,17 @@ class Commontool extends Common
      */
     public static function getDbPageTDK($page_id, $node_id, $site_id, $page_type)
     {
-        $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('title,keyword,description')->find();
+        $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('id,title,keyword,description,pre_akeyword_id,akeyword_id')->find();
+        $akeyword_changestatus = false;
+        $akeyword_id = 0;
         if ($page_info) {
-            return [$page_info['title'], $page_info['keyword'], $page_info['description']];
+            if ($page_info['pre_akeyword_id'] != $page_info['akeyword_id']) {
+                $akeyword_changestatus = true;
+                $akeyword_id = $page_info['akeyword_id'];
+            }
+            return [$page_info['id'], $akeyword_id, $akeyword_changestatus, $page_info['title'], $page_info['keyword'], $page_info['description']];
         }
-        return ['', '', ''];
+        return [0, $akeyword_id, $akeyword_changestatus, '', '', ''];
     }
 
 
@@ -626,15 +696,14 @@ CODE;
                 list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
                 break;
         }
-
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
+        //首页获取文章列表改为二十篇
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
-
-        $article_list = self::getArticleList($artiletype_sync_info, $site_id);
+        $limit = $tag == 'index' ? 20 : 10;
+        $article_list = self::getArticleList($artiletype_sync_info, $site_id, $limit);
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
-
         //从数据库中取出 十条 最新的已经静态化的文章列表
         $partnersite = [];
         //获取友链

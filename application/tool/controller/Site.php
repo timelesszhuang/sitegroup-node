@@ -2,6 +2,7 @@
 
 namespace app\tool\controller;
 
+use app\tool\model\UserDefinedForm as userForm;
 use app\index\model\Pv;
 use app\tool\model\Rejection;
 use app\tool\model\SiteErrorInfo;
@@ -25,6 +26,7 @@ use app\tool\controller\FileExistsTraits;
 class Site extends Common
 {
     use FileExistsTraits;
+
     /**
      * 获取链轮的相关信息
      *  两种链轮类型  1 循环链轮  需要返回  next_site 也就是本网站需要链接到的网站  main_site  表示主节点 从id 小的 链接到比较大的  最大的id 链接到最小的id 上
@@ -169,38 +171,35 @@ class Site extends Common
         $ipdata = $this->get_ip_info($nowip);
         $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
-    if(empty($ipdata['data'])){
-        $data['country_id'] = "";
-        $data['area_id'] = "";
-        $data['region'] = "";
-        $data['region_id'] = "";
-        $data['city'] = "";
-        $data['city_id'] = "";
-        $data['country'] ="";
-        $data['country_id'] = "";
-        $data['ip'] = "";
-    }else{
-        $data['node_id'] = $siteinfo['node_id'];
-        $data['site_id'] = $siteinfo['id'];
-        //国家
-        $data['country'] = $ipdata['data']['country'];
-        $data['country_id'] = $ipdata['data']['country_id'];
-        $data['area_id'] = $ipdata['data']['area_id'];
-        $data['region'] = $ipdata['data']['region'];
-        $data['region_id'] = $ipdata['data']['region_id'];
-        $data['city'] = $ipdata['data']['city'];
-        $data['city_id'] = $ipdata['data']['city_id'];
-        $data['ip'] = $ipdata['data']['ip'];
-    }
-
-
+        if (empty($ipdata['data'])) {
+            $data['country_id'] = "";
+            $data['area_id'] = "";
+            $data['region'] = "";
+            $data['region_id'] = "";
+            $data['city'] = "";
+            $data['city_id'] = "";
+            $data['country'] = "";
+            $data['country_id'] = "";
+            $data['ip'] = "";
+        } else {
+            $data['node_id'] = $siteinfo['node_id'];
+            $data['site_id'] = $siteinfo['id'];
+            //国家
+            $data['country'] = $ipdata['data']['country'];
+            $data['country_id'] = $ipdata['data']['country_id'];
+            $data['area_id'] = $ipdata['data']['area_id'];
+            $data['region'] = $ipdata['data']['region'];
+            $data['region_id'] = $ipdata['data']['region_id'];
+            $data['city'] = $ipdata['data']['city'];
+            $data['city_id'] = $ipdata['data']['city_id'];
+            $data['ip'] = $ipdata['data']['ip'];
+        }
         $data['create_time'] = time();
         $data['referer'] = '';
         $data["name"] = strip_tags(quotemeta($formdata['name']));
         $data["phone"] = strip_tags(quotemeta($formdata['phone']));
         $data["email"] = strip_tags(addslashes($formdata['email']));
         $data["company"] = strip_tags(addslashes($formdata['company']));
-
         //提交甩单次数过多
         $nowtime = time();
         $oldtime = time() - 60 * 2;
@@ -219,15 +218,136 @@ class Site extends Common
         if (!Rejection::create($data)) {
             return $this->resultArray("申请失败", "failed");
         }
-        $email=$this->getEmailAccount();
-        if($email){
+        $email = $this->getEmailAccount();
+        if ($email) {
+            $site_obj = \app\tool\model\Site::get($siteinfo['id']);
+            if (isset($site_obj->user_id)) {
+                $siteUser = SiteUser::get($site_obj->user_id);
+                if ($siteUser) {
+                    $content = "公司名称:" . $data["company"] . "</br>" . "联系人:" . $data["name"] . "</br>" . "电话:" . $data["phone"] . "</br>" . "邮箱:" . $data["email"];
+                    $this->phpmailerSend($email["email"], $email["password"], $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
+                }
+            }
+        }
+        return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
+    }
 
-           $site_obj=\app\tool\model\Site::get($siteinfo['id']);
-            if(isset($site_obj->user_id)){
-                $siteUser=SiteUser::get($site_obj->user_id);
-                if($siteUser){
-                    $content="公司名称:".$data["company"]."</br>"."联系人:".$data["name"]."</br>"."电话:".$data["phone"]."</br>"."邮箱:".$data["email"];
-                    $this->phpmailerSend($email["email"],$email["password"],$email["host"],$siteUser->name."的甩单",$siteUser->email,$content,$email["email"]);
+
+    /**
+     * 甩单填写 注入相关操作
+     * @access public
+     */
+    public function DefinedRejection()
+    {
+        $request = Request::instance();
+        $tag = $request->post('tag');
+        if (!$tag) {
+            return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
+        }
+        $definedform = userForm::get(['tag' => $tag]);
+        //唯一标志
+        $tag = $definedform->tag;
+        //node_id 获取到的node_id
+        $node_id = $definedform->node_id;
+        //表单数据
+        $siteinfo = Site::getSiteInfo();
+        if ($node_id != $siteinfo['node_id']) {
+            return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
+        }
+        $form_info = unserialize($definedform->form_info);
+        $info = [];
+        $rule = [];
+        foreach ($form_info as $k => $v) {
+            if ($v['require']) {
+                $rule[] = [$k, 'require', '请输入您的' . $v['name']];
+            }
+        }
+        $validate = new  Validate($rule);
+        $nowip = $request->ip();
+        $ipdata = $this->get_ip_info($nowip);
+        $siteinfo = Site::getSiteInfo();
+        $formdata = $this->request->post();
+//        dump($formdata);die;
+        if (empty($ipdata['data'])) {
+            $data['country_id'] = "";
+            $data['area_id'] = "";
+            $data['region'] = "";
+            $data['region_id'] = "";
+            $data['city'] = "";
+            $data['city_id'] = "";
+            $data['country'] = "";
+            $data['country_id'] = "";
+            $data['ip'] = "";
+        } else {
+            $data['node_id'] = $siteinfo['node_id'];
+            $data['site_id'] = $siteinfo['id'];
+            //国家
+            $data['country'] = $ipdata['data']['country'];
+            $data['country_id'] = $ipdata['data']['country_id'];
+            $data['area_id'] = $ipdata['data']['area_id'];
+            $data['region'] = $ipdata['data']['region'];
+            $data['region_id'] = $ipdata['data']['region_id'];
+            $data['city'] = $ipdata['data']['city'];
+            $data['city_id'] = $ipdata['data']['city_id'];
+            $data['ip'] = $ipdata['data']['ip'];
+        }
+        $data['create_time'] = time();
+        $data['referer'] = '';
+        if (array_key_exists("field1", $formdata)) {
+            $data["field1"] = strip_tags(quotemeta($formdata['field1']));
+            $data1 = $form_info['field1']['name'] . $data['field1'];
+        }else{
+            $data["field1"]='';
+            $data1='';
+        }
+        if (array_key_exists("field2", $formdata)) {
+            $data["field2"] = strip_tags(quotemeta($formdata['field2']));
+            $data2 = $form_info['field2']['name'] . $data['field2'];
+        }
+        else{
+            $data["field2"]='';
+            $data2='';
+        }
+        if (array_key_exists("field3", $formdata)) {
+            $data["field3"] = strip_tags(quotemeta($formdata['field3']));
+            $data3 = $form_info['field3']['name'] . $data['field3'];
+        }else{
+            $data["field3"]='';
+            $data3='';
+        }
+        if (array_key_exists("field4", $formdata)) {
+            $data["field4"] = strip_tags(quotemeta($formdata['field4']));
+            $data4 = $form_info['field4']['name'] . $data['field4'];
+        }else{
+            $data["field4"]='';
+            $data4='';
+        }
+        //提交甩单次数过多
+        $nowtime = time();
+        $oldtime = time() - 60 * 2;
+        $where["create_time"] = ['between', [$oldtime, $nowtime]];
+        $countnum = Db::name('rejection')->where($where)->field('ip')->select();
+        $num = sizeof($countnum);
+        if ($num > 4) {
+            return $this->resultArray('访问次数过多', 'failed');
+        }
+        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
+            $data['referer'] = $_SERVER['HTTP_REFERER'];
+        }
+        if (!$validate->check($data)) {
+            return $this->resultArray($validate->getError(), "failed");
+        }
+        if (!Rejection::create($data)) {
+            return $this->resultArray("申请失败", "failed");
+        }
+        $email = $this->getEmailAccount();
+        if ($email) {
+            $site_obj = \app\tool\model\Site::get($siteinfo['id']);
+            if (isset($site_obj->user_id)) {
+                $siteUser = SiteUser::get($site_obj->user_id);
+                if ($siteUser) {
+                    $content = $data1. "</br>" . $data2 . "</br>" . $data3. "</br>" . $data4;
+                    $this->phpmailerSend($email["email"], $email["password"], $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
                 }
             }
         }

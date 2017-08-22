@@ -237,7 +237,6 @@ class Detailstatic extends Common
             $this->questionstatic($site_id, $site_name, $node_id, $question_type_keyword, $questionstatic_count);
         }
         if ($scatteredarticle_type_keyword && $scatteredstatic_count) {
-            print_r($scatteredarticle_type_keyword);
             $this->scatteredarticlestatic($site_id, $site_name, $node_id, $scatteredarticle_type_keyword, $scatteredstatic_count);
         }
     }
@@ -325,7 +324,6 @@ class Detailstatic extends Common
             }
             //获取下一篇
             $next_article = [];
-
             //获取下一篇 的网址
             if ($key < $step_limit) {
                 //最后一条 不需要有 下一页
@@ -452,7 +450,7 @@ class Detailstatic extends Common
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
             $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $keyword_id);
-            file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            //file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();

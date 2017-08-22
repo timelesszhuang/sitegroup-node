@@ -24,7 +24,7 @@ class Envpagestatic extends Common
         $env_info = Menu::getEnvMenuInfo();
         foreach ($env_info as $v) {
             $assign_data = Commontool::getEssentialElement('envmenu', $v['generate_name'], $v['name']);
-            file_put_contents('log/envmenu.txt', $this->separator . date('Y-m-d H:i:s') . 'env中菜单名' . $v['name'] . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            //file_put_contents('log/envmenu.txt', $this->separator . date('Y-m-d H:i:s') . 'env中菜单名' . $v['name'] . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //还需要 存储在数据库中 相关数据
             //页面中还需要填写隐藏的 表单 node_id site_id
             //判断下是不是有 模板文件
