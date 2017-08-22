@@ -93,7 +93,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $model->setRelation('pivot', $this->newPivot($pivot));
+            $model->pivot = $this->newPivot($pivot);
         }
     }
 
@@ -105,8 +105,9 @@ class BelongsToMany extends Relation
     {
         $foreignKey = $this->foreignKey;
         $localKey   = $this->localKey;
-        $pk         = $this->parent->getPk();
+        $middle     = $this->middle;
         // 关联查询
+        $pk                              = $this->parent->getPk();
         $condition['pivot.' . $localKey] = $this->parent->$pk;
         return $this->belongsToManyQuery($foreignKey, $localKey, $condition);
     }
@@ -161,9 +162,7 @@ class BelongsToMany extends Relation
     public function find($data = null)
     {
         $result = $this->buildQuery()->find($data);
-        if ($result) {
-            $this->hydratePivot([$result]);
-        }
+        $this->hydratePivot([$result]);
         return $result;
     }
 
@@ -358,7 +357,7 @@ class BelongsToMany extends Relation
                     }
                 }
             }
-            $set->setRelation('pivot', $this->newPivot($pivot));
+            $set->pivot                      = $this->newPivot($pivot);
             $data[$pivot[$this->localKey]][] = $set;
         }
         return $data;

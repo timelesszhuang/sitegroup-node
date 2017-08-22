@@ -386,7 +386,7 @@ abstract class Connection
                 return $this->close()->query($sql, $bind, $master, $pdo);
             }
             throw new PDOException($e, $this->config, $this->getLastsql());
-        } catch (\Exception $e) {
+        } catch (\ErrorException $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->query($sql, $bind, $master, $pdo);
             }
@@ -449,7 +449,7 @@ abstract class Connection
                 return $this->close()->execute($sql, $bind);
             }
             throw new PDOException($e, $this->config, $this->getLastsql());
-        } catch (\Exception $e) {
+        } catch (\ErrorException $e) {
             if ($this->isBreak($e)) {
                 return $this->close()->execute($sql, $bind);
             }

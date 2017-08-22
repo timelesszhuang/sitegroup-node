@@ -2,15 +2,20 @@
 application/database.php
 composer.phar
 /vendor/
-/.idea/
+.idea/workspace.xml
+.idea/modules.xml
+.idea/vcs.xml
 /thinkphp/
-/public/
-
 # Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
 # composer.lock
-#将删除 application/tool/model/Site.php
-#将删除 public/index.html
-#将删除 thinkphp/library/think/model/relation/MorphOne.php
-
-#将删除 node_modules/
+将删除 application/tool/model/Site.php
+将删除 public/index.html
+将删除 thinkphp/library/think/model/relation/MorphOne.php
+/public/
+将删除 public/article/article262.html
+将删除 public/article/article263.html
+将删除 public/article/article264.html
+将删除 public/article/article265.html
+将删除 public/log/index.txt
+将删除 public/log/questionlist.txt

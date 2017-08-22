@@ -51,6 +51,7 @@ class Mysql extends Connection
      */
     public function getFields($tableName)
     {
+        $this->initConnect(false);
         list($tableName) = explode(' ', $tableName);
         if (false === strpos($tableName, '`')) {
             if (strpos($tableName, '.')) {
@@ -58,8 +59,12 @@ class Mysql extends Connection
             }
             $tableName = '`' . $tableName . '`';
         }
-        $sql    = 'SHOW COLUMNS FROM ' . $tableName;
-        $pdo    = $this->query($sql, [], false, true);
+        $sql = 'SHOW COLUMNS FROM ' . $tableName;
+        // 调试开始
+        $this->debug(true);
+        $pdo = $this->linkID->query($sql);
+        // 调试结束
+        $this->debug(false, $sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         if ($result) {
@@ -86,8 +91,13 @@ class Mysql extends Connection
      */
     public function getTables($dbName = '')
     {
-        $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $pdo    = $this->query($sql, [], false, true);
+        $this->initConnect(false);
+        $sql = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
+        // 调试开始
+        $this->debug(true);
+        $pdo = $this->linkID->query($sql);
+        // 调试结束
+        $this->debug(false, $sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
         foreach ($result as $key => $val) {

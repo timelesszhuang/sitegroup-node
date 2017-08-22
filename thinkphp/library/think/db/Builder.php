@@ -22,12 +22,12 @@ abstract class Builder
     protected $query;
 
     // 数据库表达式
-    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'not like' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
+    protected $exp = ['eq' => '=', 'neq' => '<>', 'gt' => '>', 'egt' => '>=', 'lt' => '<', 'elt' => '<=', 'notlike' => 'NOT LIKE', 'like' => 'LIKE', 'in' => 'IN', 'exp' => 'EXP', 'notin' => 'NOT IN', 'not in' => 'NOT IN', 'between' => 'BETWEEN', 'not between' => 'NOT BETWEEN', 'notbetween' => 'NOT BETWEEN', 'exists' => 'EXISTS', 'notexists' => 'NOT EXISTS', 'not exists' => 'NOT EXISTS', 'null' => 'NULL', 'notnull' => 'NOT NULL', 'not null' => 'NOT NULL', '> time' => '> TIME', '< time' => '< TIME', '>= time' => '>= TIME', '<= time' => '<= TIME', 'between time' => 'BETWEEN TIME', 'not between time' => 'NOT BETWEEN TIME', 'notbetween time' => 'NOT BETWEEN TIME'];
 
     // SQL表达式
     protected $selectSql    = 'SELECT%DISTINCT% %FIELD% FROM %TABLE%%FORCE%%JOIN%%WHERE%%GROUP%%HAVING%%ORDER%%LIMIT% %UNION%%LOCK%%COMMENT%';
     protected $insertSql    = '%INSERT% INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
-    protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
+    protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
     protected $updateSql    = 'UPDATE %TABLE% SET %SET% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
     protected $deleteSql    = 'DELETE FROM %TABLE% %USING% %JOIN% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
@@ -88,7 +88,7 @@ abstract class Builder
         }
 
         // 获取绑定信息
-        $bind = $this->query->getFieldsBind($options['table']);
+        $bind = $this->query->getFieldsBind($options);
         if ('*' == $options['field']) {
             $fields = array_keys($bind);
         } else {
@@ -199,7 +199,7 @@ abstract class Builder
                     $key = strstr($key, '@think', true);
                 }
                 $key    = $this->parseSqlTable($key);
-                $item[] = $this->parseKey($key) . ' ' . (isset($options['alias'][$table]) ? $this->parseKey($options['alias'][$table]) : $this->parseKey($table));
+                $item[] = $this->parseKey($key) . ' ' . $this->parseKey($table);
             } else {
                 $table = $this->parseSqlTable($table);
                 if (isset($options['alias'][$table])) {
@@ -226,7 +226,7 @@ abstract class Builder
             // 附加软删除条件
             list($field, $condition) = $options['soft_delete'];
 
-            $binds    = $this->query->getFieldsBind($options['table']);
+            $binds    = $this->query->getFieldsBind($options);
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
             $whereStr = $whereStr . $this->parseWhereItem($field, $condition, '', $options, $binds);
         }
@@ -251,7 +251,7 @@ abstract class Builder
         }
 
         $whereStr = '';
-        $binds    = $this->query->getFieldsBind($options['table']);
+        $binds    = $this->query->getFieldsBind($options);
         foreach ($where as $key => $val) {
             $str = [];
             foreach ($val as $field => $value) {
@@ -376,17 +376,15 @@ abstract class Builder
             if ($value instanceof \Closure) {
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseClosure($value);
             } else {
-                $value = array_unique(is_array($value) ? $value : explode(',', $value));
+                $value = is_array($value) ? $value : explode(',', $value);
                 if (array_key_exists($field, $binds)) {
                     $bind  = [];
                     $array = [];
-                    $i     = 0;
-                    foreach ($value as $v) {
-                        $i++;
-                        if ($this->query->isBind($bindName . '_in_' . $i)) {
-                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $i;
+                    foreach ($value as $k => $v) {
+                        if ($this->query->isBind($bindName . '_in_' . $k)) {
+                            $bindKey = $bindName . '_in_' . uniqid() . '_' . $k;
                         } else {
-                            $bindKey = $bindName . '_in_' . $i;
+                            $bindKey = $bindName . '_in_' . $k;
                         }
                         $bind[$bindKey] = [$v, $bindType];
                         $array[]        = ':' . $bindKey;
@@ -721,14 +719,13 @@ abstract class Builder
      * @access public
      * @param array     $dataSet 数据集
      * @param array     $options 表达式
-     * @param bool      $replace 是否replace
      * @return string
      */
-    public function insertAll($dataSet, $options, $replace = false)
+    public function insertAll($dataSet, $options)
     {
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $fields = array_keys($this->query->getFieldsType($options['table']));
+            $fields = array_keys($this->query->getFieldsType($options));
         } else {
             $fields = $options['field'];
         }
@@ -757,9 +754,8 @@ abstract class Builder
         }
         $fields = array_map([$this, 'parseKey'], array_keys(reset($dataSet)));
         $sql    = str_replace(
-            ['%INSERT%', '%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
+            ['%TABLE%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
-                $replace ? 'REPLACE' : 'INSERT',
                 $this->parseTable($options['table'], $options),
                 implode(' , ', $fields),
                 implode(' UNION ALL ', $values),
