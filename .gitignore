@@ -12,7 +12,7 @@ composer.phar
 将删除 application/tool/model/Site.php
 将删除 public/index.html
 将删除 thinkphp/library/think/model/relation/MorphOne.php
-#/public/
+/public/
 将删除 public/article/article262.html
 将删除 public/article/article263.html
 将删除 public/article/article264.html
