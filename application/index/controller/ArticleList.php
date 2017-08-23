@@ -64,16 +64,17 @@ class ArticleList extends Common
             $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)->paginate(10);
-            foreach($this->foreachArticle($article) as $item){
-                $data=$item();
-                $img="<img src='/templatestatic/default.jpg' alt=".$data["title"].">";
-                if(!empty($data["thumbnails_name"])){
-                    $src="/images/".$data['thumbnails_name'];
-                    $img=$data["thumbnails_name"];
-                }else if(!empty($data["thumbnails"])){
-                    $img=$data["thumbnails"];
+            foreach ($this->foreachArticle($article) as $item) {
+                $data = $item();
+                $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . ">";
+                if (!empty($data["thumbnails_name"])) {
+                    //如果有本地图片则 为本地图片
+                    $src = "/images/" . $data['thumbnails_name'];
+                    $img = "<img src='$src' alt= '{$data['title']}'>";
+                } else if (!empty($data["thumbnails"])) {
+                    $img = $data["thumbnails"];
                 }
-                $data["img"]=$img;
+                $data["img"] = $img;
             }
         }
         $assign_data['article'] = $article;
@@ -93,8 +94,8 @@ class ArticleList extends Common
      */
     public function foreachArticle($data)
     {
-        foreach ($data as $item){
-            yield function() use ($item) {
+        foreach ($data as $item) {
+            yield function () use ($item) {
                 return $item;
             };
         }
