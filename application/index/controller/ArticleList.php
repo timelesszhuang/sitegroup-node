@@ -68,7 +68,7 @@ class ArticleList extends Common
                 $data=$item();
                 $img="<img src='/templatestatic/default.jpg' alt=".$data["title"].">";
                 if(!empty($data["thumbnails_name"])){
-                    $src="/images/".$data['thumbnails'];
+                    $src="/images/".$data['thumbnails_name'];
                     $img=$data["thumbnails_name"];
                 }else if(!empty($data["thumbnails"])){
                     $img=$data["thumbnails"];

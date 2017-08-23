@@ -406,9 +406,11 @@ class Commontool extends Common
                 $art['summary'] = $v['summary'];
                 $img = "<img src='/templatestatic/default.jpg' alt=" . $v["title"] . ">";
                 if (!empty($v["thumbnails_name"])) {
+                    //如果有本地图片则 为本地图片
                     $src = "/images/" . $v['thumbnails_name'];
                     $img = "<img src='$src' alt= '{$v['title']}'>";
                 } else if (!empty($v["thumbnails"])) {
+                    //如果没有本地图片则 直接显示 base64的
                     $img = $v["thumbnails"];
                 }
                 $art['thumbnails'] = $img;
