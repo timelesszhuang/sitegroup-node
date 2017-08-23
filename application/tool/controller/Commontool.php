@@ -195,7 +195,7 @@ class Commontool extends Common
             $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
             $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
             $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
-            Db::name('SitePageInfo')->update([
+            Db::name('SitePageinfo')->update([
                 'id' => $pageinfo_id,
                 'title' => $title,
                 'keyword' => $keyword,
@@ -288,7 +288,7 @@ class Commontool extends Common
             $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
             $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
             $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
-            Db::name('SitePageInfo')->update([
+            Db::name('SitePageinfo')->update([
                 'title' => $title,
                 'keyword' => $keyword,
                 'description' => $description,
