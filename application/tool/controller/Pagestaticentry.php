@@ -3,7 +3,8 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-
+use app\tool\controller\FileExistsTraits;
+use think\Request;
 
 /**
  * 页面静态化 入口文件
@@ -11,7 +12,7 @@ use app\common\controller\Common;
  */
 class Pagestaticentry extends Common
 {
-
+    use FileExistsTraits;
 
     /**
      * crontabstatic
@@ -88,6 +89,19 @@ class Pagestaticentry extends Common
         }
         exit(['status' => 'failed', 'msg' => '栏目页静态化生成完成。']);
     }
+
+
+    public function reGenerateHtml(Request $request)
+    {
+        $id=$request->post("id");
+        $searchType=$request->post("searchType");
+        $type=$request->post("type");
+        if($id && $searchType && $type){
+            file_put_contents("123.txt",print_r(["id"=>$id,"sty"=>$searchType,$type=>$type],true));
+            $this->exec_articlestatic($id,$searchType,$type);
+        }
+    }
+
 
 
 }
