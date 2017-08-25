@@ -56,3 +56,5 @@ Route::resource('externalAccess', 'index/ExternalAccess');
 Route::resource('Ceshi', 'tool/Ceshi');
 Route::post('ceshi', 'tool/Ceshi/ceshi');
 Route::get('sitemap', 'tool/SiteMap/index');
+//
+Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');

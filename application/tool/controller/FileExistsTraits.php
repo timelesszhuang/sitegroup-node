@@ -11,8 +11,10 @@ namespace app\tool\controller;
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\SiteErrorInfo;
+use app\tool\model\SitePageinfo;
 use think\Cache;
 use app\tool\model\SystemConfig;
+use think\View;
 
 trait FileExistsTraits
 {
@@ -288,5 +290,164 @@ trait FileExistsTraits
         ];
     }
 
+    public function exec_articlestatic($id,$searachType,$type_id)
+    {
+        $siteinfo = Site::getSiteInfo();
+        $site_id = $siteinfo['id'];
+        $site_name = $siteinfo['site_name'];
+        $node_id = $siteinfo['node_id'];
+        // 根据类型判断
+        switch($searachType){
+            case "article":
+                $commonType="articletype_id";
+                $model="\app\index\model\Article";
+                $content="content";
+                $title="title";
+                $field="id,title";
+                $href="/article/article";
+                $template="article.html";
+                break;
+        }
+        // 获取menu信息
+        $menuInfo=\app\tool\model\Menu::where([
+            "node_id"=>$node_id,
+            "type_id"=>$type_id
+        ])->find();
+        // 获取pageInfo信息
+        $sitePageInfo=SitePageinfo::where([
+            "node_id"=>$node_id,
+            "site_id"=>$site_id,
+            "menu_id"=>$menuInfo["id"]
+        ])->find();
+        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
+        $commonsql = "id = $id and node_id=$node_id and $commonType=$type_id and";
+        $common_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+        // 取出指定id的文章
+        $common_data = $model::where($common_list_sql)->find();
+        //截取出 页面的 description 信息
+        $description = mb_substr(strip_tags($common_data[$content]), 0, 200);
+        preg_replace('/^&.+\;$/is', '', $description);
+        //获取网站的 tdk 文章列表等相关 公共元素
+        $assign_data = Commontool::getEssentialElement('detail', $common_data[$title], $description, $sitePageInfo['akeyword_id']);
+        //获取上一篇和下一篇
+        //获取上一篇
+        $pre_common_sql = "id <$id and node_id=$node_id and $commonType=$type_id and ";
+        $pre_sql = "($pre_common_sql is_sync=20 ) or  ( $pre_common_sql site_id = $site_id)";
+        // 上一篇
+        $pre_common = $model::where($pre_sql)->field($field)->order("id", "desc")->find();
+        //上一页链接
+        if ($pre_common && ($searachType=="article")) {
+            $pre_common = ['href' => $href.$pre_common['id'].".html", 'title' => $pre_common['title']];
+        }else if($pre_common){
+            $pre_common = ['href' => $href.$pre_common['id'].".html"];
+        }
+        //最后一条 不需要有 下一页
+        $next_common_sql = "id >$id and node_id=$node_id and $commonType=$type_id and ";
+        $next_sql = "($next_common_sql is_sync=20 ) or  ( $next_common_sql site_id = $site_id)";
+        // 获取下一篇
+        $next_common = $model::where($next_sql)->field($field)->find();
+        //下一页链接
+        if ($next_common) {
+            $next_common['href'] = $href.$next_common['id'].".html";
+        }
+        // 首先需要把base64 缩略图 生成为 文件
+        $water = $assign_data['site_name'] .' '.$assign_data['url'];
+        if (($searachType=="article") && isset($common_data["thumbnails_name"])) {
+            //存在 base64缩略图 需要生成静态页
+            preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["thumbnails_name"], $match);
+            if (!empty($match[1])) {
+                $this->form_img_frombase64($match[1], $common_data["thumbnails_name"], $water);
+            }
+        }
+        //替换图片 base64 为 图片文件
+        $temp_content = $this->form_img($common_data[$content], $water);
+        // 替换关键字
+        $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
+        // 将A链接插入到内容中去
+        $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
+        if ($contentWIthLink) {
+            $temp_content = $contentWIthLink;
+        }
+        $content = (new View())->fetch('template/'.$template,
+            [
+                'd' => $assign_data,
+                'article' => ["title" => $common_data->title, "auther" => $common_data->auther, "create_time" => $common_data->create_time, "content" => $temp_content],
+                'pre_article' => $pre_common,
+                'next_article' => $next_common,
+            ]
+        );
 
+        //判断目录是否存在
+        if (!file_exists($searachType)) {
+            $this->make_error($searachType);
+            return false;
+        }
+        $make_web = file_put_contents('article/article' . $common_data["id"] . '.html', $content);
+    }
+
+
+    /**
+     * 根据base64 生成图片
+     * @access public
+     * @param $base64img data:image/png;base64,***********
+     * @param $img_name ***.jpg  ***.png
+     * @param $water 水印字符串站点名+域名
+     */
+    private function form_img_frombase64($base64img, $img_name, $water)
+    {
+        //保存base64字符串为图片
+        //匹配出图片的格式
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64img, $result)) {
+            //匹配出 图片的类型
+            $new_file = "images/$img_name";
+            if (strpos($img_name, '.') === false) {
+                $type = $result[2];
+                $new_file = "images/$img_name" . '.' . $type;
+            } else {
+                //生成缩略图
+                $info = pathinfo($img_name);
+                $type = $info['extension'];
+            }
+            //获取图片的位置
+            $ttcPath = dirname(THINK_PATH) . '/6.ttc';
+            $dst = imagecreatefromstring(base64_decode(str_replace($result[1], '', $base64img)));
+            //水印颜色
+//            $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
+            $color = imagecolorallocatealpha($dst, 197, 37, 19, 30);
+            //添加水印
+            imagettftext($dst, 12, 0, 10, 22, $color, $ttcPath, $water);
+            $func = "image{$type}";
+            $create_status = $func($dst, $new_file);
+            imagedestroy($dst);
+            if ($create_status) {
+                return ['/' . $new_file, true];
+            }
+            return ['/' . $new_file, false];
+        }
+    }
+
+    /**
+     * 根据内容生成图片
+     * @access public
+     */
+    public function form_img($content, $water)
+    {
+        //从中提取出 base64 中的内容
+        //使用正则匹配
+        //匹配base64 文件类型
+        preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
+        if (!empty($match)) {
+            if (array_key_exists(1, $match)) {
+                foreach ($match[1] as $k => $v) {
+                    $img_name = md5(uniqid(rand(), true));
+                    list($file_name, $status) = $this->form_img_frombase64($v, $img_name, $water);
+                    //需要替换掉内容中的数据
+                    if ($status) {
+                        $content = str_replace($v, $file_name, $content);
+                    }
+                }
+            }
+        }
+        return $content;
+    }
 }
