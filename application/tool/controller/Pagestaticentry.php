@@ -97,6 +97,8 @@ class Pagestaticentry extends Common
         $searchType=$request->post("searchType");
         $type=$request->post("type");
         if($id && $searchType && $type){
+            file_put_contents("123.txt",print_r(["id"=>$id,$sty=>$searchType,$type=>$type],true));
+
             $this->exec_articlestatic($id,$searchType,$type);
         }
     }
