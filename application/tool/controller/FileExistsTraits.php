@@ -290,6 +290,13 @@ trait FileExistsTraits
         ];
     }
 
+    /**
+     * 根据id重新生成文章
+     * @param $id
+     * @param $searachType
+     * @param $type_id
+     * @return bool
+     */
     public function exec_articlestatic($id,$searachType,$type_id)
     {
         $siteinfo = Site::getSiteInfo();
@@ -298,6 +305,7 @@ trait FileExistsTraits
         $node_id = $siteinfo['node_id'];
         // 根据类型判断
         switch($searachType){
+            // 文章
             case "article":
                 $commonType="articletype_id";
                 $model="\app\index\model\Article";
@@ -306,7 +314,23 @@ trait FileExistsTraits
                 $field="id,title";
                 $href="/article/article";
                 $template="article.html";
+                $generate_html="article/article";
                 break;
+            case "question":
+                $commonType="type_id";
+                $model="\app\index\model\Question";
+                $content="content_paragraph";
+                $title="question";
+                $href="/question/question";
+                $template="question.html";
+                $field="id,question as title";
+                $generate_html="question/question";
+                break;
+        }
+        //判断文件是否存在
+        if (!file_exists($generate_html.$id.".html")) {
+            $this->make_error($href.$id.".html");
+            return false;
         }
         // 获取menu信息
         $menuInfo=\app\tool\model\Menu::where([
@@ -319,9 +343,16 @@ trait FileExistsTraits
             "site_id"=>$site_id,
             "menu_id"=>$menuInfo["id"]
         ])->find();
-        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
-        $commonsql = "id = $id and node_id=$node_id and $commonType=$type_id and";
-        $common_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+        // 根据类型分配数据
+        switch($searachType){
+            case "article":
+                $commonsql = "id = $id and node_id=$node_id and $commonType=$type_id and";
+                $common_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+                break;
+            case "question":
+                $common_list_sql=["id" => $id, "type_id" => $type_id, "node_id" => $node_id];
+                break;
+        }
         // 取出指定id的文章
         $common_data = $model::where($common_list_sql)->find();
         //截取出 页面的 description 信息
@@ -331,8 +362,16 @@ trait FileExistsTraits
         $assign_data = Commontool::getEssentialElement('detail', $common_data[$title], $description, $sitePageInfo['akeyword_id']);
         //获取上一篇和下一篇
         //获取上一篇
-        $pre_common_sql = "id <$id and node_id=$node_id and $commonType=$type_id and ";
-        $pre_sql = "($pre_common_sql is_sync=20 ) or  ( $pre_common_sql site_id = $site_id)";
+        // 根据类型分配数据
+        switch($searachType){
+            case "article":
+                $pre_common_sql = "id <$id and node_id=$node_id and $commonType=$type_id and ";
+                $pre_sql = "($pre_common_sql is_sync=20 ) or  ( $pre_common_sql site_id = $site_id)";
+                break;
+            case "question":
+                $pre_sql=["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id];
+                break;
+        }
         // 上一篇
         $pre_common = $model::where($pre_sql)->field($field)->order("id", "desc")->find();
         //上一页链接
@@ -342,8 +381,16 @@ trait FileExistsTraits
             $pre_common = ['href' => $href.$pre_common['id'].".html"];
         }
         //最后一条 不需要有 下一页
-        $next_common_sql = "id >$id and node_id=$node_id and $commonType=$type_id and ";
-        $next_sql = "($next_common_sql is_sync=20 ) or  ( $next_common_sql site_id = $site_id)";
+        // 根据类型分配数据
+        switch($searachType){
+            case "article":
+                $next_common_sql = "id >$id and node_id=$node_id and $commonType=$type_id and ";
+                $next_sql = "($next_common_sql is_sync=20 ) or  ( $next_common_sql site_id = $site_id)";
+                break;
+            case "question":
+                $next_sql=["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id];
+                break;
+        }
         // 获取下一篇
         $next_common = $model::where($next_sql)->field($field)->find();
         //下一页链接
@@ -368,21 +415,28 @@ trait FileExistsTraits
         if ($contentWIthLink) {
             $temp_content = $contentWIthLink;
         }
-        $content = (new View())->fetch('template/'.$template,
-            [
-                'd' => $assign_data,
-                'article' => ["title" => $common_data->title, "auther" => $common_data->auther, "create_time" => $common_data->create_time, "content" => $temp_content],
-                'pre_article' => $pre_common,
-                'next_article' => $next_common,
-            ]
-        );
-
+        //最终数据
+        $latestData=[
+            'd' => $assign_data,
+            'pre_article' => $pre_common,
+            'next_article' => $next_common,
+        ];
+        // 根据类型分配数据
+        switch($searachType){
+            case "article":
+                $latestData['article']=["title" => $common_data->title, "auther" => $common_data->auther, "create_time" => $common_data->create_time, "content" => $temp_content];
+                break;
+            case "question":
+                $latestData["question"]=$common_data;
+                break;
+        }
+        $content = (new View())->fetch('template/'.$template,$latestData);
         //判断目录是否存在
         if (!file_exists($searachType)) {
             $this->make_error($searachType);
             return false;
         }
-        $make_web = file_put_contents('article/article' . $common_data["id"] . '.html', $content);
+        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', $content);
     }
 
 
