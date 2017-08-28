@@ -23,7 +23,7 @@ class QuestionList extends Common
      * 首页列表
      * @access public
      */
-    public function index($id)
+    public function index($id, $currentpage = 1)
     {
         $templatepath = 'template/questionlist.html';
         //判断模板是否存在
@@ -47,7 +47,11 @@ class QuestionList extends Common
 
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
-            $question = Question::order('id', "desc")->field("id,question,content_paragraph")->where($where)->paginate(10);
+            $question = Question::order('id', "desc")->field("id,question,content_paragraph")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/questionlist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
         }
         //获取当前type_id的文章
         $assign_data['question'] = $question;

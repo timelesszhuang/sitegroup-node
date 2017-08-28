@@ -23,7 +23,7 @@ class NewsList extends Common
      * 首页列表
      * @access public
      */
-    public function index($id)
+    public function index($id, $currentpage)
     {
         $templatepath = 'template/newslist.html';
         //判断模板是否存在
@@ -47,7 +47,11 @@ class NewsList extends Common
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章
-            $newslist = \app\index\model\ScatteredTitle::order('id', "desc")->field("id,title")->where($where)->paginate(10);
+            $newslist = \app\index\model\ScatteredTitle::order('id', "desc")->field("id,title")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/newslist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
         }
         $assign_data['newslist'] = $newslist;
         //file_put_contents('log/newslist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);

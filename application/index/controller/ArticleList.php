@@ -25,7 +25,7 @@ class ArticleList extends Common
      * @access public
      * @todo 需要考虑一下  文章列表 中列出来的文章需要从  sync_count 表中获取
      */
-    public function index($id)
+    public function index($id, $currentpage = 1)
     {
         $templatepath = 'template/articlelist.html';
         //判断模板是否存在
@@ -71,7 +71,11 @@ class ArticleList extends Common
         if ($articleSyncCount) {
             $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
             //获取当前type_id的文章
-            $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)->paginate(10);
+            $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)
+                ->paginate(10, false,[
+                        'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
+                        'page' => $currentpage
+                    ]);
             foreach ($article as $data) {
                 $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . ">";
                 if (!empty($data["thumbnails_name"])) {

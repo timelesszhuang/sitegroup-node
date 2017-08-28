@@ -24,7 +24,7 @@ class ProductList
      * 首页列表
      * @access public
      */
-    public function index($id)
+    public function index($id, $currentpage)
     {
         $templatelist = 'template/productlist.html';
         //判断模板是否存在
@@ -48,7 +48,11 @@ class ProductList
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章
-            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name")->where($where)->paginate(10);
+            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/productlist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
             //循环展现产品的相关数据
             foreach ($productlist as $data) {
                 //如果有本地图片则 为本地图片

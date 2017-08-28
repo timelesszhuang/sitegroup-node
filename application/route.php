@@ -14,14 +14,24 @@ use think\Route;
 
 //只有当后缀是 html 的元素的时候才会有
 //当请求文章列表 的时候 首先隐藏 index.php
+Route::get('newslist/:id/:currentpage', 'index/NewsList/index', ['ext' => 'html']);
 Route::get('newslist/:id', 'index/NewsList/index', ['ext' => 'html']);
-//当请求列表 的时候 首先隐藏 index.php
-Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
-//当请求列表 的时候 首先隐藏 index.php
-Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
-//请求产品列表的时候
-Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 
+//当请求列表 的时候 首先隐藏 index.php
+Route::get('questionlist/:id/:currentpage', 'index/QuestionList/index', ['ext' => 'html']);
+//
+Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
+
+
+//当请求列表 的时候 首先隐藏 index.php
+Route::get('articlelist/:id/:currentpage', 'index/ArticleList/index', ['ext' => 'html']);
+//第一页的时候默认没有当前页面的值
+Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
+
+
+//请求产品列表的时候
+Route::get('productlist/:id/:currentpage', 'index/ProductList/index', ['ext' => 'html']);
+Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 
 
 //模板文件 活动文件管理
