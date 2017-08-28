@@ -316,6 +316,7 @@ trait FileExistsTraits
                 $template="article.html";
                 $generate_html="article/article";
                 break;
+             // 问答
             case "question":
                 $commonType="type_id";
                 $model="\app\index\model\Question";
@@ -325,6 +326,17 @@ trait FileExistsTraits
                 $template="question.html";
                 $field="id,question as title";
                 $generate_html="question/question";
+                break;
+            // 产品
+            case "product":
+                $commonType="type_id";
+                $model="\app\index\model\Product";
+                $content="detail";
+                $title="name";
+                $href="/product/product";
+                $template="product.html";
+                $field="*";
+                $generate_html="product/product";
                 break;
         }
         //判断文件是否存在
@@ -352,6 +364,9 @@ trait FileExistsTraits
             case "question":
                 $common_list_sql=["id" => $id, "type_id" => $type_id, "node_id" => $node_id];
                 break;
+            case "product":
+                $common_list_sql="id = $id and node_id=$node_id and type_id=$type_id";
+                break;
         }
         // 取出指定id的文章
         $common_data = $model::where($common_list_sql)->find();
@@ -370,6 +385,9 @@ trait FileExistsTraits
                 break;
             case "question":
                 $pre_sql=["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id];
+                break;
+            case "product":
+                $pre_sql="id =id <$id and node_id=$node_id and type_id=$type_id ";
                 break;
         }
         // 上一篇
@@ -390,6 +408,9 @@ trait FileExistsTraits
             case "question":
                 $next_sql=["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id];
                 break;
+            case "product":
+                $next_sql="id >id and node_id=$node_id and type_id=$type_id";
+                break;
         }
         // 获取下一篇
         $next_common = $model::where($next_sql)->field($field)->find();
@@ -404,6 +425,12 @@ trait FileExistsTraits
             preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["thumbnails_name"], $match);
             if (!empty($match[1])) {
                 $this->form_img_frombase64($match[1], $common_data["thumbnails_name"], $water);
+            }
+        }else if(($searachType=="product") && isset($common_data["base64"])){
+            //存在 base64缩略图 需要生成静态页
+            preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["base64"], $match);
+            if (!empty($match[1])) {
+                $this->form_img_frombase64($match[1], $common_data["base64"], $water);
             }
         }
         //替换图片 base64 为 图片文件
@@ -428,6 +455,9 @@ trait FileExistsTraits
                 break;
             case "question":
                 $latestData["question"]=$common_data;
+                break;
+            case "product":
+                $latestData['product'] = ["name" => $common_data->name, "image" => "<img src='/images/{$common_data->image_name}' alt='{$common_data->name}'>", 'sn' => $common_data->sn, 'type_name' => $common_data->type_name, "summary" => $common_data->summary, "detail" => $common_data->detail, "create_time" => $common_data->create_time];
                 break;
         }
         $content = (new View())->fetch('template/'.$template,$latestData);
