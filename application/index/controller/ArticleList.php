@@ -66,7 +66,7 @@ class ArticleList extends Common
         }
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
         //取出同步的总数
-        $articleSyncCount = ArticleSyncCount::where(["site_id" => $data["site_id"], "node_id" => $data["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
+        $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $article = [];
         if ($articleSyncCount) {
             $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
