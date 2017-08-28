@@ -785,7 +785,7 @@ class Detailstatic extends Common
                 //存在 base64缩略图 需要生成静态页
                 $this->form_img_frombase64($item->base64, $item->image_name, $water);
             }
-            $content = (new View())->fetch('template/article.html',
+            $content = (new View())->fetch('template/product.html',
                 [
                     'd' => $assign_data,
                     'product' => ["name" => $item->name, "image" => "<img src='/images/{$item->image_name}' alt='{$item->name}'>", 'sn' => $item->sn, 'type_name' => $item->type_name, "summary" => $item->summary, "detail" => $item->detail, "create_time" => $item->create_time],
