@@ -424,6 +424,46 @@ class Commontool extends Common
 
 
     /**
+     * 获取 产品列表 获取十条产品
+     * @access public
+     * @param $sync_info 该站点所有文章分类的 静态化状况
+     * @param $site_id 如果是 detail 的话 应该给
+     * @param int $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     */
+    public static function getProductList($sync_info, $site_id, $limit = 10)
+    {
+        $product_sync_info = array_key_exists('product', $sync_info) ? $sync_info['product'] : [];
+        if ($product_sync_info) {
+            $where = '';
+            foreach ($product_sync_info as $k => $v) {
+                if ($k == 0) {
+                    $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                } else {
+                    $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+            }
+            $product = Db::name('Product')->where($where)->field('id,name,image_name,sn,payway,type_name,summary,create_time')->order('id desc')->limit($limit)->select();
+            $productlist = [];
+            foreach ($product as $k => $v) {
+                $art = [];
+                $art['name'] = $v['name'];
+                $art['a_href'] = '/product/product' . $v['id'] . '.html';
+                $art['summary'] = $v['summary'];
+                //$img = "<img src='/templatestatic/default.jpg' alt=" . $v["name"] . ">";
+                $src = "/images/" . $v['image_name'];
+                $img = "<img src='{$src}' alt= '{$v['name']}'>";
+                $art['thumbnails'] = $img;
+                $art['create_time'] = date('Y-m-d', $v['create_time']);
+                $productlist[] = $art;
+            }
+            return $productlist;
+        }
+        return [];
+    }
+
+
+    /**
      * 获取 问题列表 获取十条　文件名如 question1 　question2
      * @access public
      * @param $sync_info
@@ -431,7 +471,8 @@ class Commontool extends Common
      * @param int $limit
      * @return array
      */
-    public static function getQuestionList($sync_info, $site_id, $limit = 10)
+    public
+    static function getQuestionList($sync_info, $site_id, $limit = 10)
     {
         $question_sync_info = array_key_exists('question', $sync_info) ? $sync_info['question'] : [];
         if ($question_sync_info) {
@@ -466,7 +507,8 @@ class Commontool extends Common
      * @param int $limit
      * @return array
      */
-    public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
+    public
+    static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
     {
         $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
         if ($scattered_sync_info) {
@@ -498,7 +540,8 @@ class Commontool extends Common
      * @param $link_id 站点中设置的友链ids 多个数据
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getPatternLink($link_id)
+    public
+    static function getPatternLink($link_id)
     {
         //友链信息
         $partnersite_info = Db::name('links')->where(['id' => ['in', array_filter(explode(',', $link_id))]])->field('id,name,domain')->select();
@@ -514,7 +557,8 @@ class Commontool extends Common
      * 获取公共代码
      * @access public
      */
-    public static function getCommonCode($code_ids)
+    public
+    static function getCommonCode($code_ids)
     {
         $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code,position')->select();
         $pre_head_code_list = [];
@@ -540,7 +584,8 @@ class Commontool extends Common
      * @param $site_id 站点的id 信息
      * @return array
      */
-    public static function getDbArticleListId($menu_ids, $site_id)
+    public
+    static function getDbArticleListId($menu_ids, $site_id)
     {
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
@@ -578,7 +623,8 @@ class Commontool extends Common
      * 获取活动列表
      * @access public
      */
-    public static function getActivity($sync_id)
+    public
+    static function getActivity($sync_id)
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
@@ -603,7 +649,8 @@ class Commontool extends Common
      * 获取搜索引擎的 referer 不支持百度 谷歌 现仅支持 搜狗 好搜
      * @access public
      */
-    public static function getRefereerDemo()
+    public
+    static function getRefereerDemo()
     {
         return <<<CODE
                 <script>
@@ -631,7 +678,8 @@ CODE;
      * 获取版本控制　软件
      * ＠access public
      */
-    public static function getSiteCopyright($com_name)
+    public
+    static function getSiteCopyright($com_name)
     {
         //返回copyright
         return '2015-' . date('Y') . ' © ' . $com_name;
@@ -649,7 +697,8 @@ CODE;
      * @param string $param2
      * @return array
      */
-    public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
+    public
+    static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
     {
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
@@ -710,9 +759,14 @@ CODE;
         //首页获取文章列表改为二十篇
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
         $limit = $tag == 'index' ? 20 : 10;
+        //正常的文章类型
         $article_list = self::getArticleList($artiletype_sync_info, $site_id, $limit);
+        //问答类型
         $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
+        //零散段落类型
         $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
+        //产品类型 列表获取
+        $product_list = self::getProductList($artiletype_sync_info, $site_id);
         //从数据库中取出 十条 最新的已经静态化的文章列表
         $partnersite = [];
         //获取友链
@@ -777,7 +831,7 @@ CODE;
         //版本　copyright
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
-        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list');
+        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list','product_list');
     }
 
 
@@ -787,7 +841,8 @@ CODE;
      * @param $len
      * @return mixed
      */
-    public static function utf8chstringsubstr($str, $len)
+    public
+    static function utf8chstringsubstr($str, $len)
     {
         for ($i = 0; $i < $len; $i++) {
             $temp_str = substr($str, 0, 1);

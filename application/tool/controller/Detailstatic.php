@@ -227,6 +227,10 @@ class Detailstatic extends Common
                             $scatteredarticle_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
+                    case 'product':
+                        //产品类型 不需要限制生成数量一次性添加就可
+                        $product_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
+                        break;
                 }
             }
         }
@@ -238,6 +242,9 @@ class Detailstatic extends Common
         }
         if ($scatteredarticle_type_keyword && $scatteredstatic_count) {
             $this->scatteredarticlestatic($site_id, $site_name, $node_id, $scatteredarticle_type_keyword, $scatteredstatic_count);
+        }
+        if ($product_type_keyword) {
+            $this->productstatic($site_id, $site_name, $node_id, $product_type_keyword);
         }
     }
 
@@ -337,7 +344,7 @@ class Detailstatic extends Common
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
             // 首先需要把base64 缩略图 生成为 文件
-            $water = $assign_data['site_name'] .' '.$assign_data['url'];
+            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
             if ($item->thumbnails_name) {
                 //存在 base64缩略图 需要生成静态页
                 preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
@@ -424,6 +431,7 @@ class Detailstatic extends Common
      */
     private function form_img_frombase64($base64img, $img_name, $water)
     {
+
         //保存base64字符串为图片
         //匹配出图片的格式
         if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64img, $result)) {
@@ -691,6 +699,123 @@ class Detailstatic extends Common
             $static_count++;
         }
         return $static_count - 1;
+    }
+
+
+    /**
+     * 文章详情页面的静态化
+     * @access public
+     * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
+     * @todo 需要指定生成文章数量的数量
+     * @param $site_id 站点的id
+     * @param $site_name 站点名
+     * @param $node_id 节点的id
+     * @param $article_type_keyword 文章分类id 所对应的A类关键词
+     * @param $type_id 文章的分类id
+     * @param $a_keyword_id 栏目所对应的a类 关键词
+     */
+    private function productstatic($site_id, $site_name, $node_id, $article_type_keyword)
+    {
+        //判断模板是否存在
+        if (!$this->fileExists('template/product.html')) {
+            return;
+        }
+        foreach ($article_type_keyword as $v) {
+            $this->exec_productstatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id']);
+        }
+    }
+
+
+    /**
+     * 执行页面静态化相关操作
+     * @access private
+     * @return count 返回生成文章的数量
+     */
+    private function exec_productstatic($site_id, $site_name, $node_id, $type_id, $keyword_id)
+    {
+        $type_name = "product";
+        $where = [
+            'type_id' => $type_id,
+            'type_name' => $type_name,
+            "node_id" => $node_id,
+            "site_id" => $site_id
+        ];
+        $pre_stop = 0;
+        //获取 站点 某个栏目同步到的文章id
+        $productCount = ArticleSyncCount::where($where)->find();
+        //判断下是否有数据 没有就创建模型
+        if (isset($productCount->count) && $productCount->count > 0) {
+            $pre_stop = $productCount->count;
+        } else {
+            // 没有获取到 某个栏目静态化到的网址 后续需要添加一个
+            $article_sync = new ArticleSyncCount();
+        }
+        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
+        $productsql = "id >= $pre_stop and node_id=$node_id and type_id=$type_id";
+        // 要 step_limit+1 因为要 获取上次的最后一条
+        $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
+        foreach ($product_data as $key => $item) {
+            //截取出 页面的 description 信息
+            $description = mb_substr(strip_tags($item->summary), 0, 200);
+            preg_replace('/^&.+\;$/is', '', $description);
+            //获取网站的 tdk 文章列表等相关 公共元素
+            $assign_data = Commontool::getEssentialElement('detail', $item->name, $description, $keyword_id);
+            // 把 站点的相关的数据写入数据库中
+            // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            //获取上一篇和下一篇
+            //获取上一篇
+            $pre_product = [];
+            $pre_productcommon_sql = "id <{$item['id']} and node_id=$node_id and type_id=$type_id ";
+            $pre_product = \app\index\model\Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
+            //上一页链接
+            if ($pre_product) {
+                $pre_product = ['href' => "/product/product{$pre_product['id']}.html", 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
+            }
+            //获取下一篇
+            $next_product = [];
+            $next_productcommon_sql = "id >{$item['id']} and node_id=$node_id and type_id=$type_id ";
+            $next_product = \app\index\model\Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
+            //下一页链接
+            if ($next_product) {
+                $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
+            }
+            // 首先需要把base64 缩略图 生成为 文件
+            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+            if ($item->base64) {
+                //存在 base64缩略图 需要生成静态页
+                $this->form_img_frombase64($item->base64, $item->image_name, $water);
+            }
+            $content = (new View())->fetch('template/article.html',
+                [
+                    'd' => $assign_data,
+                    'product' => ["name" => $item->name, "image" => "<img src='/images/{$item->image_name}' alt='{$item->name}'>", 'sn' => $item->sn, 'type_name' => $item->type_name, "summary" => $item->summary, "detail" => $item->detail, "create_time" => $item->create_time],
+                    'pre_article' => $pre_product,
+                    'next_article' => $next_product,
+                ]
+            );
+            //判断目录是否存在
+            if (!file_exists('product')) {
+                $this->make_error("product");
+                return false;
+            }
+            $make_web = file_put_contents('product/product' . $item["id"] . '.html', $content);
+            //开始同步数据库
+            if ($make_web) {
+                $articleCountModel = ArticleSyncCount::where($where)->find();
+                if (is_null($articleCountModel)) {
+                    $article_sync->count = $item["id"];
+                    $article_sync->type_id = $type_id;
+                    $article_sync->type_name = $type_name;
+                    $article_sync->node_id = $node_id;
+                    $article_sync->site_id = $site_id;
+                    $article_sync->site_name = $site_name;
+                    $article_sync->save();
+                } else {
+                    $articleCountModel->count = $item["id"];
+                    $articleCountModel->save();
+                }
+            }
+        }
     }
 
 

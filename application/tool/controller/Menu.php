@@ -28,7 +28,7 @@ class Menu extends Common
             return $menu;
         }
         $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
-        $field = 'id,name,title,generate_name,flag,type_id,content';
+        $field = 'id,name,title,generate_name,flag,type_id';
         $menu = Db::name('menu')->where($where)->order("sort", "desc")->field($field)->select();
         if (empty($menu)) {
             //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
@@ -99,14 +99,20 @@ class Menu extends Common
                     $type = '';
                     switch ($v['flag']) {
                         case '2':
+                            //问答分类
                             $type = 'questionlist';
                             break;
                         case '3':
+                            //文章分类
                             $type = 'articlelist';
                             break;
                         case '4':
+                            //零散段落分类
                             $type = 'newslist';
                             break;
+                        case '5':
+                            //产品分类
+                            $type = 'productlist';
                     }
                     $v['generate_name'] = '/' . $type . '/' . $v['id'] . '.html';
                 }
@@ -150,6 +156,9 @@ class Menu extends Common
                     break;
                 case 4:
                     $type = 'scatteredarticle';
+                    break;
+                case 5:
+                    $type = 'product';
                     break;
             }
             $type_arr = [
