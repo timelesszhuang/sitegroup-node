@@ -17,6 +17,7 @@ use app\tool\controller\FileExistsTraits;
 class QuestionList extends Common
 {
     use FileExistsTraits;
+    use SpiderComefrom;
 
     /**
      * 首页列表
@@ -30,6 +31,7 @@ class QuestionList extends Common
             return;
         }
         $siteinfo = Site::getSiteInfo();
+        $this->spidercomefrom($siteinfo);
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
         }

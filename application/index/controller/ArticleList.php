@@ -18,6 +18,8 @@ class ArticleList extends Common
 {
     use FileExistsTraits;
 
+    use SpiderComefrom;
+
     /**
      * 首页列表
      * @access public
@@ -31,22 +33,27 @@ class ArticleList extends Common
             return;
         }
         $siteinfo = Site::getSiteInfo();
-        $data['node_id'] = $siteinfo['node_id'];
-        $data['site_id'] = $siteinfo['id'];
-        $data['useragent'] = $_SERVER['HTTP_USER_AGENT'];
-        if (preg_match("/Baiduspider/i", $_SERVER['HTTP_USER_AGENT'])) {
-            $data['engine'] = "baidu";
-            Useragent::create($data);
-        } elseif (preg_match("/Sogou web spider/i", $_SERVER['HTTP_USER_AGENT'])) {
-            $data['engine'] = "Sogou";
-            Useragent::create($data);
-        } elseif (preg_match("/HaoSouSpider/i", $_SERVER['HTTP_USER_AGENT'])) {
-            $data['engine'] = "360haosou";
-            Useragent::create($data);
-        } elseif (preg_match("/Googlebot/i", $_SERVER['HTTP_USER_AGENT'])) {
-            $data['engine'] = 'google';
-            Useragent::create($data);
-        }
+
+//        $data['node_id'] = $siteinfo['node_id'];
+//        $data['site_id'] = $siteinfo['id'];
+//        $data['useragent'] = $_SERVER['HTTP_USER_AGENT'];
+//        if (preg_match("/Baiduspider/i", $_SERVER['HTTP_USER_AGENT'])) {
+//            $data['engine'] = "baidu";
+//            Useragent::create($data);
+//        } elseif (preg_match("/Sogou web spider/i", $_SERVER['HTTP_USER_AGENT'])) {
+//            $data['engine'] = "Sogou";
+//            Useragent::create($data);
+//        } elseif (preg_match("/HaoSouSpider/i", $_SERVER['HTTP_USER_AGENT'])) {
+//            $data['engine'] = "360haosou";
+//            Useragent::create($data);
+//        } elseif (preg_match("/Googlebot/i", $_SERVER['HTTP_USER_AGENT'])) {
+//            $data['engine'] = 'google';
+//            Useragent::create($data);
+//        }
+
+        //爬虫来源 统计
+        $this->spidercomefrom($siteinfo);
+
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
         }
@@ -78,7 +85,7 @@ class ArticleList extends Common
                 $data["img"] = $img;
             }
         }
-        $assign_data['article'] = $article;
+        $assign_data['article'] = $article->toArray();
         //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
         return (new View())->fetch($templatepath,

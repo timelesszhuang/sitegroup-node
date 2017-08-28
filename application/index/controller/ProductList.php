@@ -18,7 +18,7 @@ use think\View;
 class ProductList
 {
     use FileExistsTraits;
-
+    use SpiderComefrom;
     /**
      * 首页列表
      * @access public
@@ -31,6 +31,7 @@ class ProductList
             return;
         }
         $siteinfo = Site::getSiteInfo();
+        $this->spidercomefrom($siteinfo);
         if (empty($siteinfo["menu"])) {
             exit("当前站点菜单配置异常");
         }
@@ -42,7 +43,7 @@ class ProductList
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "product", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
-        $newslist = [];
+        $productlist = [];
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章
