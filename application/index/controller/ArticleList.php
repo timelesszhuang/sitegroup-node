@@ -85,7 +85,7 @@ class ArticleList extends Common
                 $data["img"] = $img;
             }
         }
-        $assign_data['article'] = $article->toArray();
+        $assign_data['article'] = $article;
         //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
         return (new View())->fetch($templatepath,

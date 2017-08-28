@@ -49,7 +49,8 @@ class ProductList
             //获取当前type_id的文章
             $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image")->where($where)->paginate(10);
         }
-        $assign_data['productlist'] = $productlist->toArray();
+
+        $assign_data['productlist'] = $productlist;
         //file_put_contents('log/productlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
         return (new View())->fetch($templatelist,
