@@ -19,6 +19,7 @@ class ProductList
 {
     use FileExistsTraits;
     use SpiderComefrom;
+
     /**
      * 首页列表
      * @access public
@@ -47,9 +48,15 @@ class ProductList
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章
-            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image")->where($where)->paginate(10);
+            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name")->where($where)->paginate(10);
+            //循环展现产品的相关数据
+            foreach ($productlist as $data) {
+                //如果有本地图片则 为本地图片
+                $src = "/images/" . $data['image_name'];
+                $img = "<img src='$src' alt= '{$data['name']}'>";
+                $data["img"] = $img;
+            }
         }
-
         $assign_data['productlist'] = $productlist;
         //file_put_contents('log/productlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
@@ -59,4 +66,6 @@ class ProductList
             ]
         );
     }
+
+
 }
