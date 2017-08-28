@@ -24,8 +24,9 @@ class QuestionList extends Common
      */
     public function index($id)
     {
+        $templatepath = 'template/questionlist.html';
         //判断模板是否存在
-        if (!$this->fileExists('template/questionlist.html')) {
+        if (!$this->fileExists($templatepath)) {
             return;
         }
         $siteinfo = Site::getSiteInfo();
@@ -40,7 +41,7 @@ class QuestionList extends Common
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
         $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "question", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
-        $question=[];
+        $question = [];
 
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
@@ -48,9 +49,9 @@ class QuestionList extends Common
         }
         //获取当前type_id的文章
         $assign_data['question'] = $question;
-        file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+//        file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
-        return (new View())->fetch('template/questionlist.html',
+        return (new View())->fetch($templatepath,
             [
                 'd' => $assign_data
             ]

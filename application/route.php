@@ -19,6 +19,9 @@ Route::get('newslist/:id', 'index/NewsList/index', ['ext' => 'html']);
 Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
 //当请求列表 的时候 首先隐藏 index.php
 Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
+//请求产品列表的时候
+Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
+
 
 
 //模板文件 活动文件管理
@@ -57,4 +60,4 @@ Route::resource('Ceshi', 'tool/Ceshi');
 Route::post('ceshi', 'tool/Ceshi/ceshi');
 Route::get('sitemap', 'tool/SiteMap/index');
 //
-Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');
+Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
