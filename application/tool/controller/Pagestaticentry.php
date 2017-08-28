@@ -90,14 +90,16 @@ class Pagestaticentry extends Common
         exit(['status' => 'failed', 'msg' => '栏目页静态化生成完成。']);
     }
 
-
+    /**
+     * 根据id和类型 重新生成静态化
+     * @param Request $request
+     */
     public function reGenerateHtml(Request $request)
     {
         $id=$request->post("id");
         $searchType=$request->post("searchType");
         $type=$request->post("type");
         if($id && $searchType && $type){
-            file_put_contents("123.txt",print_r(["id"=>$id,"sty"=>$searchType,$type=>$type],true));
             $this->exec_articlestatic($id,$searchType,$type);
         }
     }
