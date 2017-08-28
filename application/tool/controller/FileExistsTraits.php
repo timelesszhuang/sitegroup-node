@@ -299,6 +299,7 @@ trait FileExistsTraits
      */
     public function exec_articlestatic($id,$searachType,$type_id)
     {
+        file_put_contents("123.txt",print_r([$id,$searachType,$type_id],true));
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
