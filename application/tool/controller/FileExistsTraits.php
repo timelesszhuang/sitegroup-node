@@ -314,6 +314,7 @@ trait FileExistsTraits
                 $field="id,title";
                 $href="/article/article";
                 $template="article.html";
+                $generate_html="article/article";
                 break;
             case "question":
                 $commonType="type_id";
@@ -323,7 +324,13 @@ trait FileExistsTraits
                 $href="/question/question";
                 $template="question.html";
                 $field="id,question as title";
+                $generate_html="question/question";
                 break;
+        }
+        //判断目录是否存在
+        if (!file_exists($href.$id.".html")) {
+            $this->make_error($href.$id.".html");
+            return false;
         }
         // 获取menu信息
         $menuInfo=\app\tool\model\Menu::where([
@@ -429,7 +436,7 @@ trait FileExistsTraits
             $this->make_error($searachType);
             return false;
         }
-        $make_web = file_put_contents($href . $common_data["id"] . '.html', $content);
+        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', $content);
     }
 
 
