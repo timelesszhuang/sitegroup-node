@@ -24,7 +24,7 @@ class ProductList
      * 首页列表
      * @access public
      */
-    public function index($id, $currentpage)
+    public function index($id, $currentpage=1)
     {
         $templatelist = 'template/productlist.html';
         //判断模板是否存在

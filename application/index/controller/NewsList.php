@@ -23,7 +23,7 @@ class NewsList extends Common
      * 首页列表
      * @access public
      */
-    public function index($id, $currentpage)
+    public function index($id, $currentpage=1)
     {
         $templatepath = 'template/newslist.html';
         //判断模板是否存在

@@ -57,6 +57,7 @@ class ArticleList extends Common
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
         }
+
         if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
             exit("当前网站无此栏目");
         }
