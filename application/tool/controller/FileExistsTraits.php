@@ -327,7 +327,7 @@ trait FileExistsTraits
                 $generate_html="question/question";
                 break;
         }
-        //判断目录是否存在
+        //判断文件是否存在
         if (!file_exists($href.$id.".html")) {
             $this->make_error($href.$id.".html");
             return false;
