@@ -299,7 +299,6 @@ trait FileExistsTraits
      */
     public function exec_articlestatic($id,$searachType,$type_id)
     {
-        file_put_contents("123.txt",print_r([$id,$searachType,$type_id],true));
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -329,7 +328,7 @@ trait FileExistsTraits
                 break;
         }
         //判断文件是否存在
-        if (!file_exists($href.$id.".html")) {
+        if (!file_exists($generate_html.$id.".html")) {
             $this->make_error($href.$id.".html");
             return false;
         }
