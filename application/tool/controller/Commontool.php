@@ -758,7 +758,7 @@ CODE;
         //配置的菜单信息  用于获取 文章的列表
         //首页获取文章列表改为二十篇
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
-        $limit = $tag == 'index' ? 20 : 10;
+        $limit = $tag == 'index' ? 15 : 10;
         //正常的文章类型
         $article_list = self::getArticleList($artiletype_sync_info, $site_id, $limit);
         //问答类型
@@ -831,7 +831,7 @@ CODE;
         //版本　copyright
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
-        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list','product_list');
+        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list');
     }
 
 

@@ -188,6 +188,7 @@ class Detailstatic extends Common
         $article_type_keyword = [];
         $question_type_keyword = [];
         $scatteredarticle_type_keyword = [];
+        $product_type_keyword = [];
         foreach ($menu_typeid_arr as $detail_key => $v) {
             // $detail_key 为 类目的类型
             // $v 为
@@ -310,7 +311,7 @@ class Detailstatic extends Common
         $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
         $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
         // 要 step_limit+1 因为要 获取上次的最后一条
-            $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
+        $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
         $static_count = 0;
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
