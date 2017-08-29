@@ -355,6 +355,8 @@ class Detailstatic extends Common
             }
             //替换图片 base64 为 图片文件
             $temp_content = $this->form_img($item->content, $water);
+            // 替换关键词为指定链接 遍历全文和所有关键词
+            $temp_content=$this->articleReplaceKeyword($temp_content);
             // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
             // 将A链接插入到内容中去

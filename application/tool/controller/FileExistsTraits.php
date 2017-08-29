@@ -10,6 +10,7 @@ namespace app\tool\controller;
 
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
+use app\tool\model\ArticleReplaceKeyword;
 use app\tool\model\SiteErrorInfo;
 use app\tool\model\SitePageinfo;
 use think\Cache;
@@ -533,5 +534,29 @@ trait FileExistsTraits
             }
         }
         return $content;
+    }
+
+    /**
+     * 关键词替换
+     * @param $content
+     * @return string
+     */
+    public function articleReplaceKeyword($content)
+    {
+        $siteinfo = Site::getSiteInfo();
+        $site_id = $siteinfo['id'];
+        $node_id = $siteinfo['node_id'];
+        $data=ArticleReplaceKeyword::where([
+            "node_id"=>$node_id,
+            "site_id"=>$site_id
+        ])->select();
+        if(empty($data)){
+            return $content;
+        }
+        $temContent=$content;
+        foreach ($data as $item){
+            $temContent=str_replace($item->keyword,$item->replaceLink,$temContent);
+        }
+        return $temContent;
     }
 }
