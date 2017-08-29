@@ -71,5 +71,3 @@ Route::post('ceshi', 'tool/Ceshi/ceshi');
 Route::get('sitemap', 'tool/SiteMap/index');
 //重新生成文章 根据id等信息
 Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');
-//关键词替换指定的链接
-Route::resource('articleReplaceKeyword','tool/ArticleReplaceKeyword');
