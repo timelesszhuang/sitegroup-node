@@ -581,52 +581,6 @@ trait FileExistsTraits
         ];
     }
 
-    /**
-     * 获取静态文件列表
-     * @param $type
-     * @param $page
-     * @return array|string
-     */
-    public function staticList($type,$page)
-    {
-        // 检查文件夹
-        if(!is_dir($type)){
-            return $this->resultArray("文件夹不存在");
-        }
-//        $arr=scandir($type);
-//        array_shift($arr);
-//        array_shift($arr);
-//        sort($arr);
-//        dump($arr);die;
-        $resource=opendir($type);
-        // 文件总数
-        $total=0;
-        // 存放html的数组
-        $htmlArr=[];
-        // site 每页显示20条
-        $size=20;
-        // 获取文章的总数
-        $count=$page*$size;
-        while(($html=readdir($resource))!=false){
-            if(strpos($html,".html")!==false){
-                $total++;
-                if($total<=$count){
-                    $htmlArr[]=[
-                        "name"=>$html,
-                        "create_time"=>date("Y-m-d",filemtime($type."/".$html))
-                        ];
-                }
-            }
-        }
-        return json_encode([
-            "msg"=>"",
-            "stat"=>"success",
-            "data"=>[
-                "rows"=>$htmlArr,
-                "total"=>$total
-            ]
-        ]);
-    }
 
     /**
      * 获取静态文件列表

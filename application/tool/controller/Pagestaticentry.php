@@ -104,17 +104,6 @@ class Pagestaticentry extends Common
         }
     }
 
-    /**
-     * 遍历静态文件列表
-     * @param $type
-     */
-    public function showStaticList($type,$page)
-    {
-        if(intval($page)<1){
-            return $this->resultArray("数据错误");
-        }
-         return $this->staticList($type,$page);
-    }
 
     /**
      * 获取单条数据内容

@@ -71,8 +71,6 @@ Route::post('ceshi', 'tool/Ceshi/ceshi');
 Route::get('sitemap', 'tool/SiteMap/index');
 //重新生成文章 根据id等信息
 Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');
-// 遍历静态文件列表
-Route::get('showStaticList/:type/:page','tool/Pagestaticentry/showStaticList');
 // 获取静态文件 单条
 Route::get('getStaticOne/:type/:name','tool/Pagestaticentry/staticOneHtml');
 // 修改单个静态文件
