@@ -644,8 +644,8 @@ trait FileExistsTraits
         $content='';
         while(($html=readdir($resource))!=false){
             if(strpos($html,".html")!==false){
-                if($name==$html){
-                    $content=file_get_contents($type."/".$name);
+                if($name.".html"==$html){
+                    $content=file_get_contents(ROOT_PATH."public/".$type."/".$html);
                 }
             }
         }
