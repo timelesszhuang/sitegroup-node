@@ -636,7 +636,7 @@ trait FileExistsTraits
                     if(file_exists(ROOT_PATH."public/".$type."/".$html)){
                         $content=file_put_contents(ROOT_PATH."public/".$type."/".$html,$content);
                         return json_encode([
-                            "msg"=>"",
+                            "msg"=>"修改成功",
                             "status"=>"success",
                             "data"=>""
                         ]);
