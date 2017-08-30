@@ -655,4 +655,31 @@ trait FileExistsTraits
             "data"=>$content
         ]);
     }
+
+    /**
+     * 获取静态文件列表
+     * @param $type
+     * @param $page
+     * @return array|string
+     */
+    public function generateStaticOne($type,$name,$content)
+    {
+        // 检查文件夹
+        if(!is_dir($type)){
+            return $this->resultArray("文件夹不存在");
+        }
+        $resource=opendir($type);
+        while(($html=readdir($resource))!=false){
+            if(strpos($html,".html")!==false){
+                if($name.".html"==$html){
+                    $content=file_put_contents(ROOT_PATH."public/".$type."/".$html,$content);
+                }
+            }
+        }
+        return json_encode([
+            "msg"=>"",
+            "stat"=>"success",
+            "data"=>""
+        ]);
+    }
 }

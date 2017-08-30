@@ -126,4 +126,19 @@ class Pagestaticentry extends Common
     {
         return $this->staticOne($type,$name);
     }
+
+    /**
+     * 修改指定静态文件的内容
+     * @param $type
+     * @param $name
+     * @return array
+     */
+    public function generateOne($type,$name)
+    {
+        $content=$this->request->post("content");
+        if(empty($content)){
+            return $this->resultArray("数据为空");
+        }
+        $this->generateStaticOne($type,$name,$content);
+    }
 }

@@ -75,3 +75,5 @@ Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');
 Route::get('showStaticList/:type/:page','tool/Pagestaticentry/showStaticList');
 // 获取静态文件 单条
 Route::get('getStaticOne/:type/:name','tool/Pagestaticentry/staticOneHtml');
+// 修改单个静态文件
+Route::post('generateOne/:type/:name','tool/Pagestaticentry/generateOne');
