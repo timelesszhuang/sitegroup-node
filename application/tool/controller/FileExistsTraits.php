@@ -617,7 +617,7 @@ trait FileExistsTraits
             "msg"=>"",
             "stat"=>"success",
             "data"=>[
-                "data"=>$htmlArr,
+                "rows"=>$htmlArr,
                 "total"=>$total
             ]
         ]);
