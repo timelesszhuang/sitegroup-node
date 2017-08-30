@@ -559,4 +559,67 @@ trait FileExistsTraits
         }
         return $temContent;
     }
+
+    /**
+     * 返回对象  默认不填为success 否则是failed
+     * @param $array 响应数据
+     * @return array
+     * @return array
+     * @author guozhen
+     */
+    public function resultArray($msg = 0, $stat = '', $data = 0)
+    {
+        if (empty($stat)) {
+            $status = "success";
+        } else {
+            $status = "failed";
+        }
+        return [
+            'status' => $status,
+            'data' => $data,
+            'msg' => $msg
+        ];
+    }
+
+
+    public function staticList($type,$page)
+    {
+        // 检查文件夹
+        if(!is_dir($type)){
+            return $this->resultArray("文件夹不存在");
+        }
+//        $arr=scandir($type);
+//        array_shift($arr);
+//        array_shift($arr);
+//        sort($arr);
+//        dump($arr);die;
+        $resource=opendir($type);
+        // 文件总数
+        $total=0;
+        // 存放html的数组
+        $htmlArr=[];
+        // site 每页显示20条
+        $size=20;
+        // 获取文章的总数
+        $count=$page*$size;
+        while(($html=readdir($resource))!=false){
+            if(strpos($html,".html")!==false){
+                $total++;
+                if($total<=$count){
+                    $htmlArr[]=[
+                        "name"=>$html,
+                        "create_time"=>date("Y-m-d",filemtime($type."/".$html))
+                        ];
+                }
+            }
+        }
+        return json_encode([
+            "msg"=>"",
+            "stat"=>"success",
+            "data"=>[
+                "data"=>$htmlArr,
+                "total"=>$total
+            ]
+        ]);
+    }
 }
