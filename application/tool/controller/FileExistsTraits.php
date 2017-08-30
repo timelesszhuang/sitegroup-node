@@ -599,21 +599,21 @@ trait FileExistsTraits
         while(($html=readdir($resource))!=false){
             if(strpos($html,".html")!==false){
                 if($name.".html"==$html){
-                    if(!file_exists(ROOT_PATH."public/".$type."/".$html)){
+                    if(file_exists(ROOT_PATH."public/".$type."/".$html)){
+                        $content=file_get_contents(ROOT_PATH."public/".$type."/".$html);
                         return json_encode([
-                            "msg"=>"文件未生成",
-                            "status"=>"failed",
-                            "data"=>''
+                            "msg"=>"",
+                            "status"=>"success",
+                            "data"=>$content
                         ]);
                     }
-                    $content=file_get_contents(ROOT_PATH."public/".$type."/".$html);
                 }
             }
         }
         return json_encode([
-            "msg"=>"",
-            "status"=>"success",
-            "data"=>$content
+                "msg"=>"文件未生成",
+                "status"=>"failed",
+                "data"=>''
         ]);
     }
 
@@ -634,20 +634,20 @@ trait FileExistsTraits
             if(strpos($html,".html")!==false){
                 if($name.".html"==$html){
                     if(!file_exists(ROOT_PATH."public/".$type."/".$html)){
+                        $content=file_put_contents(ROOT_PATH."public/".$type."/".$html,$content);
                         return json_encode([
-                            "msg"=>"文件未生成",
-                            "status"=>"failed",
-                            "data"=>''
+                            "msg"=>"",
+                            "status"=>"success",
+                            "data"=>""
                         ]);
                     }
-                    $content=file_put_contents(ROOT_PATH."public/".$type."/".$html,$content);
                 }
             }
         }
         return json_encode([
-            "msg"=>"",
-            "status"=>"success",
-            "data"=>""
+            "msg"=>"文件未生成",
+            "status"=>"failed",
+            "data"=>''
         ]);
     }
 }
