@@ -633,7 +633,7 @@ trait FileExistsTraits
         while(($html=readdir($resource))!=false){
             if(strpos($html,".html")!==false){
                 if($name.".html"==$html){
-                    if(!file_exists(ROOT_PATH."public/".$type."/".$html)){
+                    if(file_exists(ROOT_PATH."public/".$type."/".$html)){
                         $content=file_put_contents(ROOT_PATH."public/".$type."/".$html,$content);
                         return json_encode([
                             "msg"=>"",
