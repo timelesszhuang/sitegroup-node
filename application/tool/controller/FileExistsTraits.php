@@ -596,20 +596,15 @@ trait FileExistsTraits
         }
         $resource=opendir($type);
         $content='';
-        while(($html=readdir($resource))!=false){
-            if(strpos($html,".html")!==false){
-                if($name.".html"==$html){
-                    if(file_exists(ROOT_PATH."public/".$type."/".$html)){
-                        $content=file_get_contents(ROOT_PATH."public/".$type."/".$html);
-                        return json_encode([
-                            "msg"=>"",
-                            "status"=>"success",
-                            "data"=>$content
-                        ]);
-                    }
+        $filename=ROOT_PATH."public/".$type."/".$name.".html";
+        if(file_exists($filename)){
+        $content=file_get_contents($filename);
+        return json_encode([
+            "msg"=>"",
+            "status"=>"success",
+            "data"=>$content
+                 ]);
                 }
-            }
-        }
         return json_encode([
                 "msg"=>"文件未生成",
                 "status"=>"failed",
@@ -630,20 +625,15 @@ trait FileExistsTraits
             return $this->resultArray("文件夹不存在");
         }
         $resource=opendir($type);
-        while(($html=readdir($resource))!=false){
-            if(strpos($html,".html")!==false){
-                if($name.".html"==$html){
-                    if(file_exists(ROOT_PATH."public/".$type."/".$html)){
-                        $content=file_put_contents(ROOT_PATH."public/".$type."/".$html,$content);
+        $filename=ROOT_PATH."public/".$type."/".$name.".html";
+                    if(file_exists($filename)){
+                        $content=file_put_contents($filename,$content);
                         return json_encode([
                             "msg"=>"修改成功",
                             "status"=>"success",
                             "data"=>""
                         ]);
                     }
-                }
-            }
-        }
         return json_encode([
             "msg"=>"文件未生成",
             "status"=>"failed",
