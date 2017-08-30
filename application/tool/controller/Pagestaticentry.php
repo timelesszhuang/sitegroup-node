@@ -116,4 +116,14 @@ class Pagestaticentry extends Common
          return $this->staticList($type,$page);
     }
 
+    /**
+     * 获取单条数据内容
+     * @param $type
+     * @param $name
+     * @return array|string
+     */
+    public function staticOneHtml($type,$name)
+    {
+        return $this->staticOne($type,$name);
+    }
 }

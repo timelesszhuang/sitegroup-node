@@ -581,7 +581,12 @@ trait FileExistsTraits
         ];
     }
 
-
+    /**
+     * 获取静态文件列表
+     * @param $type
+     * @param $page
+     * @return array|string
+     */
     public function staticList($type,$page)
     {
         // 检查文件夹
@@ -620,6 +625,34 @@ trait FileExistsTraits
                 "rows"=>$htmlArr,
                 "total"=>$total
             ]
+        ]);
+    }
+
+    /**
+     * 获取静态文件列表
+     * @param $type
+     * @param $page
+     * @return array|string
+     */
+    public function staticOne($type,$name)
+    {
+        // 检查文件夹
+        if(!is_dir($type)){
+            return $this->resultArray("文件夹不存在");
+        }
+        $resource=opendir($type);
+        $content='';
+        while(($html=readdir($resource))!=false){
+            if(strpos($html,".html")!==false){
+                if($name==$html){
+                    $content=file_get_contents($type."/".$name);
+                }
+            }
+        }
+        return json_encode([
+            "msg"=>"",
+            "stat"=>"success",
+            "data"=>$content
         ]);
     }
 }

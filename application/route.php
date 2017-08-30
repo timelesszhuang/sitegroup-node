@@ -73,3 +73,5 @@ Route::get('sitemap', 'tool/SiteMap/index');
 Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');
 // 遍历静态文件列表
 Route::get('showStaticList/:type/:page','tool/Pagestaticentry/showStaticList');
+// 获取静态文件 单条
+Route::get('getStaticOne/:type/:name','tool/Pagestaticentry/staticOneHtml');
