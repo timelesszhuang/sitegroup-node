@@ -290,6 +290,7 @@ class Detailstatic extends Common
      */
     private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
     {
+        $siteinfo = Site::getSiteInfo();
         $type_name = "article";
         $where = [
             'type_id' => $type_id,
@@ -345,7 +346,8 @@ class Detailstatic extends Common
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
             // 首先需要把base64 缩略图 生成为 文件
-            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+            $water = $siteinfo['walterString'];
             if ($item->thumbnails_name) {
                 //存在 base64缩略图 需要生成静态页
                 preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
@@ -736,6 +738,7 @@ class Detailstatic extends Common
      */
     private function exec_productstatic($site_id, $site_name, $node_id, $type_id, $keyword_id)
     {
+        $siteinfo = Site::getSiteInfo();
         $type_name = "product";
         $where = [
             'type_id' => $type_id,
@@ -783,7 +786,8 @@ class Detailstatic extends Common
                 $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
             }
             // 首先需要把base64 缩略图 生成为 文件
-            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+            $water = $siteinfo['walterString'];
             if ($item->base64) {
                 //存在 base64缩略图 需要生成静态页
                 $this->form_img_frombase64($item->base64, $item->image_name, $water);
