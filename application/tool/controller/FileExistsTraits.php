@@ -599,7 +599,7 @@ trait FileExistsTraits
         $filename=ROOT_PATH."public/".$type."/".$name.".html";
         if(file_exists($filename)){
         $content=file_get_contents($filename);
-        return json_encode([
+        exit( [
             "msg"=>"",
             "status"=>"success",
             "data"=>gzcompress($content,1)
