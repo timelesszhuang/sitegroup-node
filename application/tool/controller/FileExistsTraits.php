@@ -467,7 +467,7 @@ trait FileExistsTraits
             $this->make_error($searachType);
             return false;
         }
-        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', $content);
+        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
     }
 
 
@@ -625,16 +625,16 @@ trait FileExistsTraits
         if(!is_dir($type)){
             return $this->resultArray("文件夹不存在");
         }
-        $resource=opendir($type);
-        $filename=ROOT_PATH."public/".$type."/".$name.".html";
-                    if(file_exists($filename)){
-                        $content=file_put_contents($filename,$content);
-                        return json_encode([
-                            "msg"=>"修改成功",
-                            "status"=>"success",
-                            "data"=>""
-                        ]);
-                    }
+        $resource = opendir($type);
+        $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
+        if (file_exists($filename)) {
+            $content = file_put_contents($filename, chr(0xEF).chr(0xBB).chr(0xBF).$content);
+            return json_encode([
+                "msg" => "修改成功",
+                "status" => "success",
+                "data" => ""
+            ]);
+        }
         return json_encode([
             "msg"=>"文件未生成",
             "status"=>"failed",
