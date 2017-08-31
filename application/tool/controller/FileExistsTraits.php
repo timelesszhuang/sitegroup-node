@@ -598,7 +598,7 @@ trait FileExistsTraits
         $content='';
         $filename=ROOT_PATH."public/".$type."/".$name.".html";
         if(file_exists($filename)){
-        $content=base64_encode(file_get_contents($filename));
+        $content=gzcompress(base64_encode(file_get_contents($filename)),9);
         return json_encode([
             "msg"=>"",
             "status"=>"success",
@@ -613,7 +613,7 @@ trait FileExistsTraits
     }
 
     /**
-     * 获取静态文件列表
+     * 修改静态文件列表
      * @param $type
      * @param $page
      * @return array|string
