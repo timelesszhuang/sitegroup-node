@@ -85,15 +85,15 @@ trait FileExistsTraits
     public function getKey($content, $count = 3)
     {
         $arr = [];
-        $temp_arr = [];
+        $temp_arr=[];
         if (!empty($content)) {
             preg_match_all("/./u", $content, $arr);
             $i = 0;
             while ($i < $count) {
                 $temp_arr = array_rand($arr[0], $count);
                 // 如果count是1 有可能返回的不是数组 需要判断下
-                if (!is_array($temp_arr)) {
-                    $temp_arr = [$temp_arr];
+                if(!is_array($temp_arr)){
+                    $temp_arr=[$temp_arr];
                 }
                 foreach ($temp_arr as $item) {
                     if (!$this->checkAscii($arr[0][$item]) || $item < 15) {
@@ -602,7 +602,7 @@ trait FileExistsTraits
         return json_encode([
             "msg"=>"",
             "status"=>"success",
-            "data"=>$content
+            "data"=>gzcompress($content,9)
                  ]);
                 }
         return json_encode([
