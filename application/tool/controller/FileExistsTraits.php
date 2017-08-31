@@ -420,7 +420,8 @@ trait FileExistsTraits
             $next_common['href'] = $href.$next_common['id'].".html";
         }
         // 首先需要把base64 缩略图 生成为 文件
-        $water = $assign_data['site_name'] .' '.$assign_data['url'];
+//        $water = $assign_data['site_name'] .' '.$assign_data['url'];
+        $water = $siteinfo['walterString'];
         if (($searachType=="article") && isset($common_data["thumbnails_name"])) {
             //存在 base64缩略图 需要生成静态页
             preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["thumbnails_name"], $match);
