@@ -602,7 +602,7 @@ trait FileExistsTraits
         return [
             "msg"=>"",
             "status"=>"success",
-            "data"=>gzcompress($content,9)
+            "data"=>111
                  ];
                 }
         return json_encode([
