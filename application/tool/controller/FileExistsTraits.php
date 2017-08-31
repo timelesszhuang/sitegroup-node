@@ -592,7 +592,10 @@ trait FileExistsTraits
     {
         // 检查文件夹
         if(!is_dir($type)){
-            return $this->resultArray("文件夹不存在");
+            return json_encode([
+                "msg"=>"文件未生成",
+                "status"=>"failed",
+            ]);
         }
         $resource=opendir($type);
         $content='';
@@ -605,7 +608,6 @@ trait FileExistsTraits
             "data"=>$content
         ]);
                 }
-                return 1;
         return json_encode([
                 "msg"=>"文件未生成",
                 "status"=>"failed",
