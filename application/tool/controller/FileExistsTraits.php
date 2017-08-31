@@ -603,7 +603,8 @@ trait FileExistsTraits
             "msg"=>"",
             "status"=>"success",
             "data"=>gzcompress($content,9)
-        ],true);die;
+        ],true);
+        return;
                 }
         return json_encode([
                 "msg"=>"文件未生成",
