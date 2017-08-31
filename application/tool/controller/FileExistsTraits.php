@@ -608,7 +608,6 @@ trait FileExistsTraits
         return json_encode([
                 "msg"=>"文件未生成",
                 "status"=>"failed",
-                "data"=>''
         ]);
     }
 
