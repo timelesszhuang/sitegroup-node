@@ -599,12 +599,11 @@ trait FileExistsTraits
         $filename=ROOT_PATH."public/".$type."/".$name.".html";
         if(file_exists($filename)){
         $content=file_get_contents($filename);
-        print_r([
+        die(print_r([
             "msg"=>"",
             "status"=>"success",
             "data"=>gzcompress($content,9)
-        ]);
-        return;
+        ]));
                 }
         return json_encode([
                 "msg"=>"文件未生成",
