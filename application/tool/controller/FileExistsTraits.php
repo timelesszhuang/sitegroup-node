@@ -603,7 +603,7 @@ trait FileExistsTraits
             "msg"=>"",
             "status"=>"success",
             "data"=>gzcompress($content,9)
-        ],true);
+        ]);
         return;
                 }
         return json_encode([
