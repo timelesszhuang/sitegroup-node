@@ -377,7 +377,7 @@ class Detailstatic extends Common
                 $this->make_error("article");
                 return false;
             }
-            $make_web = file_put_contents('article/article' . $item["id"] . '.html', $content);
+            $make_web = file_put_contents('article/article' . $item["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
@@ -564,7 +564,7 @@ class Detailstatic extends Common
                 $this->make_error("news");
                 return false;
             }
-            $make_web = file_put_contents('news/news' . $item["id"] . '.html', $content);
+            $make_web = file_put_contents('news/news' . $item["id"] . '.html',chr(0xEF).chr(0xBB).chr(0xBF).$content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
@@ -682,7 +682,7 @@ class Detailstatic extends Common
                 $this->make_error("question");
                 return false;
             }
-            $make_web = file_put_contents('question/question' . $item["id"] . '.html', $content);
+            $make_web = file_put_contents('question/question' . $item["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
@@ -801,7 +801,7 @@ class Detailstatic extends Common
                 $this->make_error("product");
                 return false;
             }
-            $make_web = file_put_contents('product/product' . $item["id"] . '.html', $content);
+            $make_web = file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();

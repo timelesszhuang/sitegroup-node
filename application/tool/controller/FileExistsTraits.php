@@ -467,7 +467,7 @@ trait FileExistsTraits
             $this->make_error($searachType);
             return false;
         }
-        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', $content);
+        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
     }
 
 
@@ -627,7 +627,7 @@ trait FileExistsTraits
         $resource = opendir($type);
         $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
         if (file_exists($filename)) {
-            $content = file_put_contents($filename, $content);
+            $content = file_put_contents($filename, chr(0xEF).chr(0xBB).chr(0xBF).$content);
             return json_encode([
                 "msg" => "修改成功",
                 "status" => "success",
