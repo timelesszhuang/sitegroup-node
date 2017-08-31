@@ -605,6 +605,7 @@ trait FileExistsTraits
             "data"=>$content
         ]);
                 }
+                return 1;
         return json_encode([
                 "msg"=>"文件未生成",
                 "status"=>"failed",
