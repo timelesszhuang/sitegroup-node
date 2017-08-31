@@ -598,7 +598,7 @@ trait FileExistsTraits
         $content='';
         $filename=ROOT_PATH."public/".$type."/".$name.".html";
         if(file_exists($filename)){
-        $content=gzcompress(base64_encode(file_get_contents($filename)),9);
+        $content=file_get_contents($filename);
         return json_encode([
             "msg"=>"",
             "status"=>"success",

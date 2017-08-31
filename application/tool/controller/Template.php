@@ -115,7 +115,7 @@ class Template extends Common
         //读取文件内容
         $content = file_get_contents($file_path);
         if ($content) {
-            return json_encode(['status' => '', 'msg' => '获取模板内容成功。', 'filename' => $filename, 'content' => base64_encode($content)]);
+            return json_encode(['status' => '', 'msg' => '获取模板内容成功。', 'filename' => $filename, 'content' => $content]);
         } else {
             return json_encode(['status' => 'failed', 'msg' => '获取模板内容失败，请稍后重试。', 'filename' => $filename, 'content' => '']);
         }
