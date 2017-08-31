@@ -596,16 +596,15 @@ trait FileExistsTraits
         }
         $resource=opendir($type);
         $content='';
-        $filename=ROOT_PATH."public/".$type."/".$name.".html";
-        if(file_exists($filename)){
-        $content=file_get_contents($filename);
-        $data=json_encode([
-            "msg"=>"",
-            "status"=>"success",
-            "data"=>$content
-        ]);
-        return $data;
-                }
+                    $filename=ROOT_PATH."public/".$type."/".$name.".html";
+                    if(file_exists(ROOT_PATH."public/".$type."/".$html)){
+                        $content=file_get_contents(ROOT_PATH."public/".$type."/".$html);
+                        return json_encode([
+                            "msg"=>"",
+                            "status"=>"success",
+                            "data"=>$content
+                        ]);
+                    }
         return json_encode([
                 "msg"=>"文件未生成",
                 "status"=>"failed",
