@@ -600,9 +600,7 @@ trait FileExistsTraits
         if(file_exists($filename)){
         $content=file_get_contents($filename);
         $body=<<<ENDIF
-        <?php
-            echo date('Y-m-d',time());
-        ?>
+      3423423
 ENDIF;
 
 
