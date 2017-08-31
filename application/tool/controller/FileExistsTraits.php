@@ -599,16 +599,10 @@ trait FileExistsTraits
         $filename=ROOT_PATH."public/".$type."/".$name.".html";
         if(file_exists($filename)){
         $content=file_get_contents($filename);
-        $body=<<<ENDIF
-      3423423
-ENDIF;
-
-
-
         return json_encode([
             "msg"=>"",
             "status"=>"success",
-            "data"=>gzcompress($body,9)
+            "data"=>gzcompress($content,1)
                  ]);
                 }
         return json_encode([
