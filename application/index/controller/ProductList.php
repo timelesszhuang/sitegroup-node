@@ -37,7 +37,7 @@ class ProductList
         // 从缓存中获取数据
         $assign_data=Cache::remember("articlelist".$id,function() use($id,$siteinfo,$currentpage){
             return $this->generateProductList($id,$siteinfo,$currentpage);
-        });
+        },0);
 
         //file_put_contents('log/productlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
