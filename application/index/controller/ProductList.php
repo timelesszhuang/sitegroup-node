@@ -35,7 +35,7 @@ class ProductList
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $assign_data=Cache::remember("articlelist".$id,function() use($id,$siteinfo,$currentpage){
+        $assign_data=Cache::remember("productlist".$id,function() use($id,$siteinfo,$currentpage){
             return $this->generateProductList($id,$siteinfo,$currentpage);
         },0);
 
