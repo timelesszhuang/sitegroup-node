@@ -33,31 +33,11 @@ class ArticleList extends Common
             return;
         }
         $siteinfo = Site::getSiteInfo();
-
-//        $data['node_id'] = $siteinfo['node_id'];
-//        $data['site_id'] = $siteinfo['id'];
-//        $data['useragent'] = $_SERVER['HTTP_USER_AGENT'];
-//        if (preg_match("/Baiduspider/i", $_SERVER['HTTP_USER_AGENT'])) {
-//            $data['engine'] = "baidu";
-//            Useragent::create($data);
-//        } elseif (preg_match("/Sogou web spider/i", $_SERVER['HTTP_USER_AGENT'])) {
-//            $data['engine'] = "Sogou";
-//            Useragent::create($data);
-//        } elseif (preg_match("/HaoSouSpider/i", $_SERVER['HTTP_USER_AGENT'])) {
-//            $data['engine'] = "360haosou";
-//            Useragent::create($data);
-//        } elseif (preg_match("/Googlebot/i", $_SERVER['HTTP_USER_AGENT'])) {
-//            $data['engine'] = 'google';
-//            Useragent::create($data);
-//        }
-
         //爬虫来源 统计
         $this->spidercomefrom($siteinfo);
-
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
         }
-
         if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
             exit("当前网站无此栏目");
         }
