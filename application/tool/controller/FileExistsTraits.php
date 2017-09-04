@@ -8,6 +8,8 @@
 
 namespace app\tool\controller;
 
+use app\index\model\Question;
+use app\index\model\ScatteredTitle;
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\ArticleReplaceKeyword;
@@ -420,7 +422,8 @@ trait FileExistsTraits
             $next_common['href'] = $href.$next_common['id'].".html";
         }
         // 首先需要把base64 缩略图 生成为 文件
-        $water = $assign_data['site_name'] .' '.$assign_data['url'];
+//        $water = $assign_data['site_name'] .' '.$assign_data['url'];
+        $water = $siteinfo['walterString'];
         if (($searachType=="article") && isset($common_data["thumbnails_name"])) {
             //存在 base64缩略图 需要生成静态页
             preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["thumbnails_name"], $match);
@@ -592,7 +595,10 @@ trait FileExistsTraits
     {
         // 检查文件夹
         if(!is_dir($type)){
-            return $this->resultArray("文件夹不存在");
+            return json_encode([
+                "msg"=>"文件未生成",
+                "status"=>"failed",
+            ]);
         }
         $resource=opendir($type);
         $content='';
@@ -608,12 +614,11 @@ trait FileExistsTraits
         return json_encode([
                 "msg"=>"文件未生成",
                 "status"=>"failed",
-                "data"=>''
         ]);
     }
 
     /**
-     * 获取静态文件列表
+     * 修改静态文件列表
      * @param $type
      * @param $page
      * @return array|string
@@ -624,7 +629,6 @@ trait FileExistsTraits
         if(!is_dir($type)){
             return $this->resultArray("文件夹不存在");
         }
-        $resource = opendir($type);
         $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
         if (file_exists($filename)) {
             $content = file_put_contents($filename, chr(0xEF).chr(0xBB).chr(0xBF).$content);
@@ -640,4 +644,169 @@ trait FileExistsTraits
             "data"=>''
         ]);
     }
+
+    /**
+     * article列表静态化
+     * @param $id
+     * @param int $currentpage
+     * @return array
+     */
+    public function generateArticleList($id,$siteinfo,$currentpage = 1)
+    {
+
+        if (empty($siteinfo["menu"])) {
+            exit("当前栏目为空");
+        }
+
+        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
+            exit("当前网站无此栏目");
+        }
+        $menu_info = \app\index\model\Menu::get($id);
+        if (is_null($menu_info)) {
+            exit("unkown article");
+        }
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        //取出同步的总数
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
+        $article = [];
+        if ($articleSyncCount) {
+            $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
+            //获取当前type_id的文章
+            $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)
+                ->paginate(10, false,[
+                    'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
+            foreach ($article as $data) {
+                $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . ">";
+                if (!empty($data["thumbnails_name"])) {
+                    //如果有本地图片则 为本地图片
+                    $src = "/images/" . $data['thumbnails_name'];
+                    $img = "<img src='$src' alt= '{$data['title']}'>";
+                } else if (!empty($data["thumbnails"])) {
+                    $img = $data["thumbnails"];
+                }
+                $data["img"] = $img;
+            }
+        }
+        $assign_data['article'] = $article;
+        return $assign_data;
+    }
+
+    /**
+     * product列表静态化
+     * @param $id
+     * @param $siteinfo
+     * @param int $currentpage
+     * @return array
+     */
+    public function generateProductList($id,$siteinfo,$currentpage = 1)
+    {
+        if (empty($siteinfo["menu"])) {
+            exit("当前站点菜单配置异常");
+        }
+        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
+            exit("当前网站无此栏目");
+        }
+        $siteinfo = Site::getSiteInfo();
+        $menu_info = \app\index\model\Menu::get($id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "product", 'type_id' => $menu_info['type_id']])->find();
+        $where["type_id"] = $menu_info->type_id;
+        $productlist = [];
+        if ($articleSyncCount) {
+            $where["id"] = ["elt", $articleSyncCount->count];
+            //获取当前type_id的文章
+            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/productlist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
+            //循环展现产品的相关数据
+            foreach ($productlist as $data) {
+                //如果有本地图片则 为本地图片
+                $src = "/images/" . $data['image_name'];
+                $img = "<img src='$src' alt= '{$data['name']}'>";
+                $data["img"] = $img;
+            }
+        }
+        $assign_data['productlist'] = $productlist;
+        return $assign_data;
+    }
+
+    /**
+     * question列表静态化
+     * @param $id
+     * @param $siteinfo
+     * @param int $currentpage
+     * @return array
+     */
+    public function generateQuestionList($id,$siteinfo,$currentpage = 1)
+    {
+        if (empty($siteinfo["menu"])) {
+            exit("当前站点菜单配置异常");
+        }
+        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
+            exit("当前网站无此栏目");
+        }
+
+        $siteinfo = Site::getSiteInfo();
+        $menu_info = \app\index\model\Menu::get($id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "question", 'type_id' => $menu_info['type_id']])->find();
+        $where["type_id"] = $menu_info->type_id;
+        $question = [];
+        if ($articleSyncCount) {
+            $where["id"] = ["elt", $articleSyncCount->count];
+            $question = Question::order('id', "desc")->field("id,question,content_paragraph")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/questionlist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
+        }
+        //获取当前type_id的文章
+        $assign_data['question'] = $question;
+        return $assign_data;
+    }
+
+
+
+    /**
+     * NEWS列表静态化
+     * @param $id
+     * @param $siteinfo
+     * @param int $currentpage
+     * @return array
+     */
+    public function generateNewsList($id,$siteinfo,$currentpage = 1)
+    {
+        if (empty($siteinfo["menu"])) {
+            exit("当前站点菜单配置异常");
+        }
+        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
+            exit("当前网站无此栏目");
+        }
+
+        $siteinfo = Site::getSiteInfo();
+        $menu_info = \app\index\model\Menu::get($id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "scatteredarticle", 'type_id' => $menu_info['type_id']])->find();
+        $where["articletype_id"] = $menu_info->type_id;
+        $newslist = [];
+        if ($articleSyncCount) {
+            $where["id"] = ["elt", $articleSyncCount->count];
+            //获取当前type_id的文章
+            $newslist = ScatteredTitle::order('id', "desc")->field("id,title")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/newslist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
+        }
+        $assign_data['newslist'] = $newslist;
+        //获取当前type_id的文章
+        return $assign_data;
+    }
+
+
+
 }

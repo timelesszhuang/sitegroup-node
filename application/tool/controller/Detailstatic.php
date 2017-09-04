@@ -6,6 +6,7 @@ use app\common\controller\Common;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
 use app\index\model\ScatteredTitle;
+use think\Cache;
 use think\Db;
 use think\View;
 
@@ -290,6 +291,7 @@ class Detailstatic extends Common
      */
     private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
     {
+        $siteinfo = Site::getSiteInfo();
         $type_name = "article";
         $where = [
             'type_id' => $type_id,
@@ -312,6 +314,10 @@ class Detailstatic extends Common
         $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
         // 要 step_limit+1 因为要 获取上次的最后一条
         $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
+        // 如果有数据的话清除掉列表的缓存
+        if(isset($article_data)){
+            Cache::rm("articlelist".$type_id);
+        }
         $static_count = 0;
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
@@ -345,7 +351,8 @@ class Detailstatic extends Common
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
             // 首先需要把base64 缩略图 生成为 文件
-            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+            $water = $siteinfo['walterString'];
             if ($item->thumbnails_name) {
                 //存在 base64缩略图 需要生成静态页
                 preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
@@ -736,6 +743,7 @@ class Detailstatic extends Common
      */
     private function exec_productstatic($site_id, $site_name, $node_id, $type_id, $keyword_id)
     {
+        $siteinfo = Site::getSiteInfo();
         $type_name = "product";
         $where = [
             'type_id' => $type_id,
@@ -757,6 +765,10 @@ class Detailstatic extends Common
         $productsql = "id >= $pre_stop and node_id=$node_id and type_id=$type_id";
         // 要 step_limit+1 因为要 获取上次的最后一条
         $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
+        // 如果有数据的话清除掉列表的缓存
+        if(isset($article_data)){
+            Cache::rm("articlelist".$type_id);
+        }
         foreach ($product_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->summary), 0, 200);
@@ -783,7 +795,8 @@ class Detailstatic extends Common
                 $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
             }
             // 首先需要把base64 缩略图 生成为 文件
-            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+            $water = $siteinfo['walterString'];
             if ($item->base64) {
                 //存在 base64缩略图 需要生成静态页
                 $this->form_img_frombase64($item->base64, $item->image_name, $water);
