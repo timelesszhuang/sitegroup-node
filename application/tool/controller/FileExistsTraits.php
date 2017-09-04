@@ -8,6 +8,8 @@
 
 namespace app\tool\controller;
 
+use app\index\model\Question;
+use app\index\model\ScatteredTitle;
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\ArticleReplaceKeyword;
@@ -709,7 +711,7 @@ trait FileExistsTraits
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
-        $articleSyncCount = ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "product", 'type_id' => $menu_info['type_id']])->find();
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "product", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
         $productlist = [];
         if ($articleSyncCount) {
@@ -731,5 +733,80 @@ trait FileExistsTraits
         $assign_data['productlist'] = $productlist;
         return $assign_data;
     }
+
+    /**
+     * question列表静态化
+     * @param $id
+     * @param $siteinfo
+     * @param int $currentpage
+     * @return array
+     */
+    public function generateQuestionList($id,$siteinfo,$currentpage = 1)
+    {
+        if (empty($siteinfo["menu"])) {
+            exit("当前站点菜单配置异常");
+        }
+        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
+            exit("当前网站无此栏目");
+        }
+
+        $siteinfo = Site::getSiteInfo();
+        $menu_info = \app\index\model\Menu::get($id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "question", 'type_id' => $menu_info['type_id']])->find();
+        $where["type_id"] = $menu_info->type_id;
+        $question = [];
+        if ($articleSyncCount) {
+            $where["id"] = ["elt", $articleSyncCount->count];
+            $question = Question::order('id', "desc")->field("id,question,content_paragraph")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/questionlist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
+        }
+        //获取当前type_id的文章
+        $assign_data['question'] = $question;
+        return $assign_data;
+    }
+
+
+
+    /**
+     * NEWS列表静态化
+     * @param $id
+     * @param $siteinfo
+     * @param int $currentpage
+     * @return array
+     */
+    public function generateNewsList($id,$siteinfo,$currentpage = 1)
+    {
+        if (empty($siteinfo["menu"])) {
+            exit("当前站点菜单配置异常");
+        }
+        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
+            exit("当前网站无此栏目");
+        }
+
+        $siteinfo = Site::getSiteInfo();
+        $menu_info = \app\index\model\Menu::get($id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "scatteredarticle", 'type_id' => $menu_info['type_id']])->find();
+        $where["articletype_id"] = $menu_info->type_id;
+        $newslist = [];
+        if ($articleSyncCount) {
+            $where["id"] = ["elt", $articleSyncCount->count];
+            //获取当前type_id的文章
+            $newslist = ScatteredTitle::order('id', "desc")->field("id,title")->where($where)
+                ->paginate(10, false, [
+                    'path' => url('/newslist', '', '') . "/{$id}/[PAGE].html",
+                    'page' => $currentpage
+                ]);
+        }
+        $assign_data['newslist'] = $newslist;
+        //获取当前type_id的文章
+        return $assign_data;
+    }
+
+
 
 }
