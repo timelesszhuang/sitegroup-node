@@ -13,6 +13,7 @@ use app\index\model\ArticleSyncCount;
 use app\tool\controller\Commontool;
 use app\tool\controller\FileExistsTraits;
 use app\tool\controller\Site;
+use think\Cache;
 use think\View;
 
 class ProductList
