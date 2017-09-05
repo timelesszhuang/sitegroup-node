@@ -537,6 +537,9 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $pre_stop], "articletype_id" => $type_id])->limit($step_limit + 1)->select();
+        if(isset($scatTitleArray)){
+            Cache::rm("scatteredarticle".$type_id);
+        }
         $static_count = 0;
         foreach ($scatTitleArray as $key => $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
@@ -658,6 +661,9 @@ class Detailstatic extends Common
             $question_sync = new ArticleSyncCount();
         }
         $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
+        if(isset($question_data)){
+            Cache::rm("question".$type_id);
+        }
         $static_count = 0;
         foreach ($question_data as $key => $item) {
             $description = mb_substr(strip_tags($item->content_paragraph), 0, 200);
