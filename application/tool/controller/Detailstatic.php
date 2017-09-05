@@ -195,9 +195,10 @@ class Detailstatic extends Common
             // $v 为
             //[
             //{
-            //  id 为 文章分类的id
-            //  name 为 文章的分类name
-            //  menu_id 菜单的id
+            //  id 为 文章分类的 id
+            //  name 为 文章的分类 name
+            //  menu_id 菜单的 id
+            //  menu_name 菜单的 name
             //},
             //{}
             //]
@@ -216,22 +217,22 @@ class Detailstatic extends Common
                 switch ($detail_key) {
                     case'article':
                         if ($articlestatic_status) {
-                            $article_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
+                            $article_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case'question':
                         if ($questionstatic_status) {
-                            $question_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
+                            $question_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case'scatteredarticle':
                         if ($scatteredstatic_status) {
-                            $scatteredarticle_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
+                            $scatteredarticle_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case 'product':
                         //产品类型 不需要限制生成数量一次性添加就可
-                        $product_type_keyword[] = ['type_id' => $type['id'], 'keyword_id' => $a_keyword_id];
+                        $product_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         break;
                 }
             }
@@ -273,7 +274,7 @@ class Detailstatic extends Common
             //计算出该栏目需要静态化的数量
             $count = $step_limit - $static_count;
             if ($count > 0) {
-                $step_count = $this->exec_articlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $count);
+                $step_count = $this->exec_articlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
                 if ($step_count !== false) {
                     $static_count = $static_count + $step_count;
                 } else {
@@ -289,7 +290,7 @@ class Detailstatic extends Common
      * @access private
      * @return count 返回生成文章的数量
      */
-    private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
+    private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
     {
         $siteinfo = Site::getSiteInfo();
         $type_name = "article";
@@ -315,8 +316,8 @@ class Detailstatic extends Common
         // 要 step_limit+1 因为要 获取上次的最后一条
         $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
         // 如果有数据的话清除掉列表的缓存
-        if(isset($article_data)){
-            Cache::rm("articlelist".$type_id);
+        if (isset($article_data)) {
+            Cache::rm("articlelist" . $type_id);
         }
         $static_count = 0;
         foreach ($article_data as $key => $item) {
@@ -324,7 +325,7 @@ class Detailstatic extends Common
             $description = mb_substr(strip_tags($item->content), 0, 200);
             preg_replace('/^&.+\;$/is', '', $description);
             //获取网站的 tdk 文章列表等相关 公共元素
-            $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id, $menu_id, $menu_name, 'articlelist');
             // 把 站点的相关的数据写入数据库中
             // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
@@ -363,7 +364,7 @@ class Detailstatic extends Common
             //替换图片 base64 为 图片文件
             $temp_content = $this->form_img($item->content, $water);
             // 替换关键词为指定链接 遍历全文和所有关键词
-            $temp_content=$this->articleReplaceKeyword($temp_content);
+            $temp_content = $this->articleReplaceKeyword($temp_content);
             // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
             // 将A链接插入到内容中去
@@ -384,7 +385,7 @@ class Detailstatic extends Common
                 $this->make_error("article");
                 return false;
             }
-            $make_web = file_put_contents('article/article' . $item["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
+            $make_web = file_put_contents('article/article' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
@@ -497,7 +498,7 @@ class Detailstatic extends Common
             //计算出该栏目需要静态化的数量
             $count = $step_limit - $static_count;
             if ($count > 0) {
-                $step_count = $this->exec_scatteredarticlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $count);
+                $step_count = $this->exec_scatteredarticlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
                 if ($step_count !== false) {
                     $static_count = $static_count + $static_count;
                 } else {
@@ -517,7 +518,7 @@ class Detailstatic extends Common
      * @param $site_name 站点name
      * @param $node_id 节点id
      */
-    public function exec_scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
+    public function exec_scatteredarticlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -537,13 +538,16 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $pre_stop], "articletype_id" => $type_id])->limit($step_limit + 1)->select();
+        if(isset($scatTitleArray)){
+            Cache::rm("scatteredarticle".$type_id);
+        }
         $static_count = 0;
         foreach ($scatTitleArray as $key => $item) {
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
             $temp_arr = $item->toArray();
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $keyword_id, $menu_id, $menu_name, 'newslist');
             //file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
@@ -571,7 +575,7 @@ class Detailstatic extends Common
                 $this->make_error("news");
                 return false;
             }
-            $make_web = file_put_contents('news/news' . $item["id"] . '.html',chr(0xEF).chr(0xBB).chr(0xBF).$content);
+            $make_web = file_put_contents('news/news' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
@@ -618,7 +622,7 @@ class Detailstatic extends Common
             //计算出该栏目需要静态化的数量
             $count = $step_limit - $static_count;
             if ($count > 0) {
-                $step_count = $this->exec_questionstatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $count);
+                $step_count = $this->exec_questionstatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
                 if ($step_count !== false) {
                     $static_count = $static_count + $step_count;
                 } else {
@@ -637,7 +641,7 @@ class Detailstatic extends Common
      * @param $type_id
      * @param $a_keyword_id
      */
-    public function exec_questionstatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $step_limit)
+    public function exec_questionstatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
     {
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
@@ -658,10 +662,13 @@ class Detailstatic extends Common
             $question_sync = new ArticleSyncCount();
         }
         $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
+        if(isset($question_data)){
+            Cache::rm("question".$type_id);
+        }
         $static_count = 0;
         foreach ($question_data as $key => $item) {
             $description = mb_substr(strip_tags($item->content_paragraph), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $item->question, $description, $keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $item->question, $description, $keyword_id, $menu_id, $menu_name, 'questionlist');
             //file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
@@ -689,7 +696,7 @@ class Detailstatic extends Common
                 $this->make_error("question");
                 return false;
             }
-            $make_web = file_put_contents('question/question' . $item["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
+            $make_web = file_put_contents('question/question' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
@@ -731,7 +738,7 @@ class Detailstatic extends Common
             return;
         }
         foreach ($article_type_keyword as $v) {
-            $this->exec_productstatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id']);
+            $this->exec_productstatic($site_id, $site_name, $node_id, $v['type_id'], $v['menu_id'], $v['menu_name'], $v['keyword_id']);
         }
     }
 
@@ -741,7 +748,7 @@ class Detailstatic extends Common
      * @access private
      * @return count 返回生成文章的数量
      */
-    private function exec_productstatic($site_id, $site_name, $node_id, $type_id, $keyword_id)
+    private function exec_productstatic($site_id, $site_name, $node_id, $type_id, $menu_id, $menu_name, $keyword_id)
     {
         $siteinfo = Site::getSiteInfo();
         $type_name = "product";
@@ -766,15 +773,15 @@ class Detailstatic extends Common
         // 要 step_limit+1 因为要 获取上次的最后一条
         $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
         // 如果有数据的话清除掉列表的缓存
-        if(isset($article_data)){
-            Cache::rm("articlelist".$type_id);
+        if (isset($article_data)) {
+            Cache::rm("articlelist" . $type_id);
         }
         foreach ($product_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->summary), 0, 200);
             preg_replace('/^&.+\;$/is', '', $description);
             //获取网站的 tdk 文章列表等相关 公共元素
-            $assign_data = Commontool::getEssentialElement('detail', $item->name, $description, $keyword_id);
+            $assign_data = Commontool::getEssentialElement('detail', $item->name, $description, $keyword_id, $menu_id, $menu_name, 'productlist');
             // 把 站点的相关的数据写入数据库中
             // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
@@ -814,7 +821,7 @@ class Detailstatic extends Common
                 $this->make_error("product");
                 return false;
             }
-            $make_web = file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
+            $make_web = file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();

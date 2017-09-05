@@ -471,8 +471,7 @@ class Commontool extends Common
      * @param int $limit
      * @return array
      */
-    public
-    static function getQuestionList($sync_info, $site_id, $limit = 10)
+    public static function getQuestionList($sync_info, $site_id, $limit = 10)
     {
         $question_sync_info = array_key_exists('question', $sync_info) ? $sync_info['question'] : [];
         if ($question_sync_info) {
@@ -507,8 +506,7 @@ class Commontool extends Common
      * @param int $limit
      * @return array
      */
-    public
-    static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
+    public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
     {
         $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
         if ($scattered_sync_info) {
@@ -540,8 +538,7 @@ class Commontool extends Common
      * @param $link_id 站点中设置的友链ids 多个数据
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public
-    static function getPatternLink($link_id)
+    public static function getPatternLink($link_id)
     {
         //友链信息
         $partnersite_info = Db::name('links')->where(['id' => ['in', array_filter(explode(',', $link_id))]])->field('id,name,domain')->select();
@@ -557,8 +554,7 @@ class Commontool extends Common
      * 获取公共代码
      * @access public
      */
-    public
-    static function getCommonCode($code_ids)
+    public static function getCommonCode($code_ids)
     {
         $code = Db::name('code')->where(['id' => ['in', array_filter(explode(',', $code_ids))]])->field('code,position')->select();
         $pre_head_code_list = [];
@@ -584,8 +580,7 @@ class Commontool extends Common
      * @param $site_id 站点的id 信息
      * @return array
      */
-    public
-    static function getDbArticleListId($menu_ids, $site_id)
+    public static function getDbArticleListId($menu_ids, $site_id)
     {
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
         //配置的菜单信息  用于获取 文章的列表
@@ -623,8 +618,7 @@ class Commontool extends Common
      * 获取活动列表
      * @access public
      */
-    public
-    static function getActivity($sync_id)
+    public static function getActivity($sync_id)
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
@@ -649,8 +643,7 @@ class Commontool extends Common
      * 获取搜索引擎的 referer 不支持百度 谷歌 现仅支持 搜狗 好搜
      * @access public
      */
-    public
-    static function getRefereerDemo()
+    public static function getRefereerDemo()
     {
         return <<<CODE
                 <script>
@@ -678,8 +671,7 @@ CODE;
      * 获取版本控制　软件
      * ＠access public
      */
-    public
-    static function getSiteCopyright($com_name)
+    public static function getSiteCopyright($com_name)
     {
         //返回copyright
         return '2015-' . date('Y') . ' © ' . $com_name;
@@ -691,14 +683,13 @@ CODE;
      *
      * @param string $tag index 或者 menu detail
      * @param string $param 如果是  index  第二第三个参数没用
-     *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id
+     *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id   $param4 表示菜单类型 articlelist newslist  questionlist  productlist
      *                              envmenu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name
-     *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容   $param3 是 a_keyword_id
+     *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容   $param3 是 a_keyword_id  $param4  表示 menu_id  $param5 表示 menu_name $param6 用于生成面包屑的时候 获取 栏目菜单的url
      * @param string $param2
      * @return array
      */
-    public
-    static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '')
+    public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '')
     {
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
@@ -711,18 +702,33 @@ CODE;
         $activity = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
+        $breadcrumb = [];
         switch ($tag) {
             case 'index':
                 $page_id = 'index';
                 //然后获取 TDK 等数据  首先到数据库
                 list($title, $keyword, $description) = self::getIndexPageTDK($keyword_info, $site_id, $site_name, $node_id, $siteinfo['com_name']);
+                //获取首页面包屑
+                //Breadcrumb 面包屑
+                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url']);
                 break;
             case 'menu':
                 //菜单 页面的TDK
                 $page_id = $param;
                 $menu_name = $param2;
                 $menu_id = $param3;
+                $type = $param4;
                 list($title, $keyword, $description) = self::getMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_id, $menu_name);
+                //获取菜单的 面包屑 导航
+                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
+                break;
+            case 'envmenu':
+                //.env 文件中的配置菜单信息
+                $page_id = $param;
+                $menu_name = $param2;
+                list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
+                //获取 面包屑
+                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name);
                 break;
             case 'detail':
                 //详情页面
@@ -730,6 +736,9 @@ CODE;
                 $articletitle = $param;
                 $articlecontent = $param2;
                 $a_keyword_id = $param3;
+                $menu_id = $param4;
+                $menu_name = $param5;
+                $type = $param6;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $a_keyword_id);
                 //需要考虑到一个问题  如果前台取消了选择的关键词的话  a_keyword_id 取出对应的关键词会取不到
                 if (!$title) {
@@ -746,12 +755,8 @@ CODE;
                         'update_time' => time()
                     ]);
                 }
-                break;
-            case 'envmenu':
-                //.env 文件中的配置菜单信息
-                $page_id = $param;
-                $menu_name = $param2;
-                list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
+                //获取详情页面的面包屑
+                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
                 break;
         }
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
@@ -831,7 +836,7 @@ CODE;
         //版本　copyright
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
-        return compact('com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list');
     }
 
 
@@ -841,8 +846,7 @@ CODE;
      * @param $len
      * @return mixed
      */
-    public
-    static function utf8chstringsubstr($str, $len)
+    public static function utf8chstringsubstr($str, $len)
     {
         for ($i = 0; $i < $len; $i++) {
             $temp_str = substr($str, 0, 1);
@@ -859,6 +863,35 @@ CODE;
         }
         //把数组元素组合为string
         return join($new_str);
+    }
+
+
+    /**
+     * 获取面包屑 相关信息
+     * @access
+     */
+    public static function getBreadCrumb($tag, $url, $page_id = '', $menu_name = '', $menu_id = 0, $type = '')
+    {
+        $breadcrumb = [
+            ['text' => '首页', 'href' => $url],
+        ];
+        switch ($tag) {
+            case 'index':
+                break;
+            case 'menu':
+                //菜单 页面的TDK
+                array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $type . '/' . $menu_id . '.html']);
+                break;
+            case 'envmenu':
+                //.env 文件中的配置菜单信息
+                array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $page_id . '.html']);
+                break;
+            case 'detail':
+                //详情页面
+                array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $type . '/' . $menu_id . '.html']);
+                break;
+        }
+        return $breadcrumb;
     }
 
 
