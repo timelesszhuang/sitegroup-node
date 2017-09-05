@@ -35,7 +35,7 @@ class ProductList
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $html=Cache::remember("productlist".$id,function() use($id,$siteinfo,$currentpage){
+        $html=Cache::remember("productlist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
             return $this->generateProductList($id,$siteinfo,$templatelist,$currentpage);
         },0);
         //file_put_contents('log/productlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);

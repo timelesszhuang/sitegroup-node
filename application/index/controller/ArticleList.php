@@ -37,7 +37,7 @@ class ArticleList extends Common
         //爬虫来源 统计
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $html=Cache::remember("articlelist".$id,function() use($id,$siteinfo,$currentpage){
+        $html=Cache::remember("articlelist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
             return $this->generateArticleList($id,$siteinfo,$templatepath,$currentpage);
         },0);
         //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
