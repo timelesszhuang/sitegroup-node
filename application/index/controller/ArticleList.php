@@ -37,9 +37,9 @@ class ArticleList extends Common
         //爬虫来源 统计
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $assign_data=Cache::remember("articlelist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
-            return $this->generateArticleList($id,$siteinfo,$templatepath,$currentpage);
-        },0);
+        $assign_data = Cache::remember("articlelist" . $id, function () use ($id, $siteinfo, $templatepath, $currentpage) {
+            return $this->generateArticleList($id, $siteinfo, $templatepath, $currentpage);
+        }, 0);
         //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         return (new View())->fetch($templatepath,
             [
@@ -55,7 +55,7 @@ class ArticleList extends Common
      * @param int $currentpage
      * @return array
      */
-    public function generateArticleList($id,$siteinfo,$templatepath,$currentpage = 1)
+    public function generateArticleList($id, $siteinfo, $templatepath, $currentpage = 1)
     {
 
         if (empty($siteinfo["menu"])) {
@@ -69,7 +69,7 @@ class ArticleList extends Common
         if (is_null($menu_info)) {
             exit("unkown article");
         }
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'articlelist');
         //取出同步的总数
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $article = [];
@@ -77,7 +77,7 @@ class ArticleList extends Common
             $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)
-                ->paginate(10, false,[
+                ->paginate(10, false, [
                     'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
