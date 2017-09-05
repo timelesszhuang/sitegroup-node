@@ -7,6 +7,7 @@ use app\index\model\Useragent;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use app\common\controller\Common;
+use think\Cache;
 use think\View;
 use app\tool\controller\FileExistsTraits;
 
