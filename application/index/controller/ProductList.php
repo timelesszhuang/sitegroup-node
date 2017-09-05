@@ -35,11 +35,15 @@ class ProductList
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $html=Cache::remember("productlist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
+        $assign_data=Cache::remember("productlist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
             return $this->generateProductList($id,$siteinfo,$templatelist,$currentpage);
         },0);
         //file_put_contents('log/productlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-        return $html;
+        return  (new View())->fetch($templatelist,
+            [
+                'd' => $assign_data
+            ]
+        );
     }
 
     /**
@@ -80,11 +84,7 @@ class ProductList
             }
         }
         $assign_data['productlist'] = $productlist;
-        return  (new View())->fetch($templatelist,
-            [
-                'd' => $assign_data
-            ]
-        );
+        return $assign_data;
     }
 
 }

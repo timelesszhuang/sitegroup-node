@@ -42,12 +42,16 @@ class NewsList extends Common
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $html=Cache::remember("newslist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
+        $assign_data=Cache::remember("newslist".$id,function() use($id,$siteinfo,$templatepath,$currentpage){
             return $this->generateNewsList($id,$siteinfo,$currentpage);
         },0);
         //file_put_contents('log/newslist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //页面中还需要填写隐藏的 表单 node_id site_id
-        return $html;
+        return (new View())->fetch($templatepath,
+            [
+                'd' => $assign_data
+            ]
+        );
     }
 
 
@@ -84,10 +88,6 @@ class NewsList extends Common
         }
         $assign_data['newslist'] = $newslist;
         //获取当前type_id的文章
-        return (new View())->fetch($templatepath,
-            [
-                'd' => $assign_data
-            ]
-        );
+        return $assign_data;
     }
 }
