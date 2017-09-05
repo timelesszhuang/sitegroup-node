@@ -138,7 +138,7 @@ class Menu extends Common
             return $type_id_arr;
         }
         $menu_id_arr = array_filter(explode(',', $menu_ids));
-        $field = 'id,flag,flag_name,type_id,type_name';
+        $field = 'id,name,flag,flag_name,type_id,type_name';
         $where = [
             'id' => ['in', $menu_id_arr],
             'flag' => ['neq', 1],
@@ -168,6 +168,8 @@ class Menu extends Common
                 'name' => $v['type_name'],
                 //菜单的id
                 'menu_id' => $v['id'],
+                //菜单的name
+                'menu_name' => $v['name']
             ];
             if (!array_key_exists($type, $type_id_arr)) {
                 $type_id_arr[$type] = [];

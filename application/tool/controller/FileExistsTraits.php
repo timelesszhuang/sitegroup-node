@@ -87,15 +87,15 @@ trait FileExistsTraits
     public function getKey($content, $count = 3)
     {
         $arr = [];
-        $temp_arr=[];
+        $temp_arr = [];
         if (!empty($content)) {
             preg_match_all("/./u", $content, $arr);
             $i = 0;
             while ($i < $count) {
                 $temp_arr = array_rand($arr[0], $count);
                 // 如果count是1 有可能返回的不是数组 需要判断下
-                if(!is_array($temp_arr)){
-                    $temp_arr=[$temp_arr];
+                if (!is_array($temp_arr)) {
+                    $temp_arr = [$temp_arr];
                 }
                 foreach ($temp_arr as $item) {
                     if (!$this->checkAscii($arr[0][$item]) || $item < 15) {
@@ -127,12 +127,12 @@ trait FileExistsTraits
         }
         $temp_data = collection($data)->toArray();
         // 总数
-        $count=count($temp_data);
-        $keys=rand(1,5);
-        if($count<=5){
-            $keys=$count;
+        $count = count($temp_data);
+        $keys = rand(1, 5);
+        if ($count <= 5) {
+            $keys = $count;
         }
-        return $this->runGetKeys($content,$keys,$temp_data);
+        return $this->runGetKeys($content, $keys, $temp_data);
     }
 
     /**
@@ -142,16 +142,16 @@ trait FileExistsTraits
      * @param $links_data
      * @return string
      */
-    public function runGetKeys($content,$count,$links_data)
+    public function runGetKeys($content, $count, $links_data)
     {
         //获取文章中的指定点  并且是从大到小排好序的
-         $positions=$this->getKey($content,$count);
-         $links=[];
-        foreach ($this->foreachLink($links_data,$count) as $item) {
+        $positions = $this->getKey($content, $count);
+        $links = [];
+        foreach ($this->foreachLink($links_data, $count) as $item) {
             array_push($links, $item);
         }
-        $tempContent=$content;
-        for($i=($count-1);$i>-1;$i--){
+        $tempContent = $content;
+        for ($i = ($count - 1); $i > -1; $i--) {
             $pre_one = mb_substr($tempContent, 0, $positions[$i]);
             $next_one = mb_substr($tempContent, $positions[$i]);
             $tempContent = $pre_one . $links[$i] . $next_one;
@@ -166,12 +166,12 @@ trait FileExistsTraits
      * @param $site_id
      * @return \Generator
      */
-    public function foreachLink($data,$count)
+    public function foreachLink($data, $count)
     {
         //随机取a链接 有可能是1个链接  或多个链接
         $for_arr = array_rand($data, $count);
-        if(!is_array($for_arr)){
-            $for_arr=[$for_arr];
+        if (!is_array($for_arr)) {
+            $for_arr = [$for_arr];
         }
         foreach ($for_arr as $item) {
             yield $this->makeALink($data[$item]);
@@ -300,75 +300,75 @@ trait FileExistsTraits
      * @param $type_id
      * @return bool
      */
-    public function exec_articlestatic($id,$searachType,$type_id)
+    public function exec_articlestatic($id, $searachType, $type_id)
     {
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
         // 根据类型判断
-        switch($searachType){
+        switch ($searachType) {
             // 文章
             case "article":
-                $commonType="articletype_id";
-                $model="\app\index\model\Article";
-                $content="content";
-                $title="title";
-                $field="id,title";
-                $href="/article/article";
-                $template="article.html";
-                $generate_html="article/article";
+                $commonType = "articletype_id";
+                $model = "\app\index\model\Article";
+                $content = "content";
+                $title = "title";
+                $field = "id,title";
+                $href = "/article/article";
+                $template = "article.html";
+                $generate_html = "article/article";
                 break;
-             // 问答
+            // 问答
             case "question":
-                $commonType="type_id";
-                $model="\app\index\model\Question";
-                $content="content_paragraph";
-                $title="question";
-                $href="/question/question";
-                $template="question.html";
-                $field="id,question as title";
-                $generate_html="question/question";
+                $commonType = "type_id";
+                $model = "\app\index\model\Question";
+                $content = "content_paragraph";
+                $title = "question";
+                $href = "/question/question";
+                $template = "question.html";
+                $field = "id,question as title";
+                $generate_html = "question/question";
                 break;
             // 产品
             case "product":
-                $commonType="type_id";
-                $model="\app\index\model\Product";
-                $content="detail";
-                $title="name";
-                $href="/product/product";
-                $template="product.html";
-                $field="*";
-                $generate_html="product/product";
+                $commonType = "type_id";
+                $model = "\app\index\model\Product";
+                $content = "detail";
+                $title = "name";
+                $href = "/product/product";
+                $template = "product.html";
+                $field = "*";
+                $generate_html = "product/product";
                 break;
         }
         //判断文件是否存在
-        if (!file_exists($generate_html.$id.".html")) {
-            $this->make_error($href.$id.".html");
+        if (!file_exists($generate_html . $id . ".html")) {
+            $this->make_error($href . $id . ".html");
             return false;
         }
         // 获取menu信息
-        $menuInfo=\app\tool\model\Menu::where([
-            "node_id"=>$node_id,
-            "type_id"=>$type_id
+        $menuInfo = \app\tool\model\Menu::where([
+            "node_id" => $node_id,
+            "type_id" => $type_id
         ])->find();
         // 获取pageInfo信息
-        $sitePageInfo=SitePageinfo::where([
-            "node_id"=>$node_id,
-            "site_id"=>$site_id,
-            "menu_id"=>$menuInfo["id"]
+        $sitePageInfo = SitePageinfo::where([
+            "node_id" => $node_id,
+            "site_id" => $site_id,
+            "menu_id" => $menuInfo["id"]
         ])->find();
         // 根据类型分配数据
-        switch($searachType){
+        switch ($searachType) {
             case "article":
                 $commonsql = "id = $id and node_id=$node_id and $commonType=$type_id and";
                 $common_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
                 break;
             case "question":
-                $common_list_sql=["id" => $id, "type_id" => $type_id, "node_id" => $node_id];
+                $common_list_sql = ["id" => $id, "type_id" => $type_id, "node_id" => $node_id];
                 break;
             case "product":
-                $common_list_sql="id = $id and node_id=$node_id and type_id=$type_id";
+                $common_list_sql = "id = $id and node_id=$node_id and type_id=$type_id";
                 break;
         }
         // 取出指定id的文章
@@ -381,56 +381,56 @@ trait FileExistsTraits
         //获取上一篇和下一篇
         //获取上一篇
         // 根据类型分配数据
-        switch($searachType){
+        switch ($searachType) {
             case "article":
                 $pre_common_sql = "id <$id and node_id=$node_id and $commonType=$type_id and ";
                 $pre_sql = "($pre_common_sql is_sync=20 ) or  ( $pre_common_sql site_id = $site_id)";
                 break;
             case "question":
-                $pre_sql=["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id];
+                $pre_sql = ["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id];
                 break;
             case "product":
-                $pre_sql="id =id <$id and node_id=$node_id and type_id=$type_id ";
+                $pre_sql = "id =id <$id and node_id=$node_id and type_id=$type_id ";
                 break;
         }
         // 上一篇
         $pre_common = $model::where($pre_sql)->field($field)->order("id", "desc")->find();
         //上一页链接
-        if ($pre_common && ($searachType=="article")) {
-            $pre_common = ['href' => $href.$pre_common['id'].".html", 'title' => $pre_common['title']];
-        }else if($pre_common){
-            $pre_common = ['href' => $href.$pre_common['id'].".html"];
+        if ($pre_common && ($searachType == "article")) {
+            $pre_common = ['href' => $href . $pre_common['id'] . ".html", 'title' => $pre_common['title']];
+        } else if ($pre_common) {
+            $pre_common = ['href' => $href . $pre_common['id'] . ".html"];
         }
         //最后一条 不需要有 下一页
         // 根据类型分配数据
-        switch($searachType){
+        switch ($searachType) {
             case "article":
                 $next_common_sql = "id >$id and node_id=$node_id and $commonType=$type_id and ";
                 $next_sql = "($next_common_sql is_sync=20 ) or  ( $next_common_sql site_id = $site_id)";
                 break;
             case "question":
-                $next_sql=["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id];
+                $next_sql = ["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id];
                 break;
             case "product":
-                $next_sql="id >id and node_id=$node_id and type_id=$type_id";
+                $next_sql = "id >id and node_id=$node_id and type_id=$type_id";
                 break;
         }
         // 获取下一篇
         $next_common = $model::where($next_sql)->field($field)->find();
         //下一页链接
         if ($next_common) {
-            $next_common['href'] = $href.$next_common['id'].".html";
+            $next_common['href'] = $href . $next_common['id'] . ".html";
         }
         // 首先需要把base64 缩略图 生成为 文件
 //        $water = $assign_data['site_name'] .' '.$assign_data['url'];
         $water = $siteinfo['walterString'];
-        if (($searachType=="article") && isset($common_data["thumbnails_name"])) {
+        if (($searachType == "article") && isset($common_data["thumbnails_name"])) {
             //存在 base64缩略图 需要生成静态页
             preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["thumbnails_name"], $match);
             if (!empty($match[1])) {
                 $this->form_img_frombase64($match[1], $common_data["thumbnails_name"], $water);
             }
-        }else if(($searachType=="product") && isset($common_data["base64"])){
+        } else if (($searachType == "product") && isset($common_data["base64"])) {
             //存在 base64缩略图 需要生成静态页
             preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $common_data["base64"], $match);
             if (!empty($match[1])) {
@@ -447,30 +447,30 @@ trait FileExistsTraits
             $temp_content = $contentWIthLink;
         }
         //最终数据
-        $latestData=[
+        $latestData = [
             'd' => $assign_data,
             'pre_article' => $pre_common,
             'next_article' => $next_common,
         ];
         // 根据类型分配数据
-        switch($searachType){
+        switch ($searachType) {
             case "article":
-                $latestData['article']=["title" => $common_data->title, "auther" => $common_data->auther, "create_time" => $common_data->create_time, "content" => $temp_content];
+                $latestData['article'] = ["title" => $common_data->title, "auther" => $common_data->auther, "create_time" => $common_data->create_time, "content" => $temp_content];
                 break;
             case "question":
-                $latestData["question"]=$common_data;
+                $latestData["question"] = $common_data;
                 break;
             case "product":
                 $latestData['product'] = ["name" => $common_data->name, "image" => "<img src='/images/{$common_data->image_name}' alt='{$common_data->name}'>", 'sn' => $common_data->sn, 'type_name' => $common_data->type_name, "summary" => $common_data->summary, "detail" => $common_data->detail, "create_time" => $common_data->create_time];
                 break;
         }
-        $content = (new View())->fetch('template/'.$template,$latestData);
+        $content = (new View())->fetch('template/' . $template, $latestData);
         //判断目录是否存在
         if (!file_exists($searachType)) {
             $this->make_error($searachType);
             return false;
         }
-        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', chr(0xEF).chr(0xBB).chr(0xBF).$content);
+        $make_web = file_put_contents($generate_html . $common_data["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
     }
 
 
@@ -549,16 +549,16 @@ trait FileExistsTraits
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $node_id = $siteinfo['node_id'];
-        $data=ArticleReplaceKeyword::where([
-            "node_id"=>$node_id,
-            "site_id"=>$site_id
+        $data = ArticleReplaceKeyword::where([
+            "node_id" => $node_id,
+            "site_id" => $site_id
         ])->select();
-        if(empty($data)){
+        if (empty($data)) {
             return $content;
         }
-        $temContent=$content;
-        foreach ($data as $item){
-            $temContent=str_replace($item->keyword,$item->replaceLink,$temContent);
+        $temContent = $content;
+        foreach ($data as $item) {
+            $temContent = str_replace($item->keyword, $item->replaceLink, $temContent);
         }
         return $temContent;
     }
@@ -591,29 +591,29 @@ trait FileExistsTraits
      * @param $page
      * @return array|string
      */
-    public function staticOne($type,$name)
+    public function staticOne($type, $name)
     {
         // 检查文件夹
-        if(!is_dir($type)){
+        if (!is_dir($type)) {
             return json_encode([
-                "msg"=>"文件未生成",
-                "status"=>"failed",
+                "msg" => "文件未生成",
+                "status" => "failed",
             ]);
         }
-        $resource=opendir($type);
-        $content='';
-        $filename=ROOT_PATH."public/".$type."/".$name.".html";
-        if(file_exists($filename)){
-        $content=base64_encode(file_get_contents($filename));
+        $resource = opendir($type);
+        $content = '';
+        $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
+        if (file_exists($filename)) {
+            $content = base64_encode(file_get_contents($filename));
+            return json_encode([
+                "msg" => "",
+                "status" => "success",
+                "data" => $content
+            ]);
+        }
         return json_encode([
-            "msg"=>"",
-            "status"=>"success",
-            "data"=>$content
-        ]);
-                }
-        return json_encode([
-                "msg"=>"文件未生成",
-                "status"=>"failed",
+            "msg" => "文件未生成",
+            "status" => "failed",
         ]);
     }
 
@@ -623,15 +623,15 @@ trait FileExistsTraits
      * @param $page
      * @return array|string
      */
-    public function generateStaticOne($type,$name,$content)
+    public function generateStaticOne($type, $name, $content)
     {
         // 检查文件夹
-        if(!is_dir($type)){
+        if (!is_dir($type)) {
             return $this->resultArray("文件夹不存在");
         }
         $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
         if (file_exists($filename)) {
-            $content = file_put_contents($filename, chr(0xEF).chr(0xBB).chr(0xBF).$content);
+            $content = file_put_contents($filename, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             return json_encode([
                 "msg" => "修改成功",
                 "status" => "success",
@@ -639,9 +639,9 @@ trait FileExistsTraits
             ]);
         }
         return json_encode([
-            "msg"=>"文件未生成",
-            "status"=>"failed",
-            "data"=>''
+            "msg" => "文件未生成",
+            "status" => "failed",
+            "data" => ''
         ]);
     }
 
@@ -651,7 +651,7 @@ trait FileExistsTraits
      * @param int $currentpage
      * @return array
      */
-    public function generateArticleList($id,$siteinfo,$currentpage = 1)
+    public function generateArticleList($id, $siteinfo, $currentpage = 1)
     {
 
         if (empty($siteinfo["menu"])) {
@@ -665,7 +665,7 @@ trait FileExistsTraits
         if (is_null($menu_info)) {
             exit("unkown article");
         }
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'articlelist');
         //取出同步的总数
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $article = [];
@@ -673,7 +673,7 @@ trait FileExistsTraits
             $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,content,thumbnails,thumbnails_name,summary")->where($where)
-                ->paginate(10, false,[
+                ->paginate(10, false, [
                     'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
@@ -700,7 +700,7 @@ trait FileExistsTraits
      * @param int $currentpage
      * @return array
      */
-    public function generateProductList($id,$siteinfo,$currentpage = 1)
+    public function generateProductList($id, $siteinfo, $currentpage = 1)
     {
         if (empty($siteinfo["menu"])) {
             exit("当前站点菜单配置异常");
@@ -710,7 +710,7 @@ trait FileExistsTraits
         }
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'productlist');
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "product", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
         $productlist = [];
@@ -741,7 +741,7 @@ trait FileExistsTraits
      * @param int $currentpage
      * @return array
      */
-    public function generateQuestionList($id,$siteinfo,$currentpage = 1)
+    public function generateQuestionList($id, $siteinfo, $currentpage = 1)
     {
         if (empty($siteinfo["menu"])) {
             exit("当前站点菜单配置异常");
@@ -752,7 +752,7 @@ trait FileExistsTraits
 
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "question", 'type_id' => $menu_info['type_id']])->find();
         $where["type_id"] = $menu_info->type_id;
         $question = [];
@@ -770,7 +770,6 @@ trait FileExistsTraits
     }
 
 
-
     /**
      * NEWS列表静态化
      * @param $id
@@ -778,7 +777,7 @@ trait FileExistsTraits
      * @param int $currentpage
      * @return array
      */
-    public function generateNewsList($id,$siteinfo,$currentpage = 1)
+    public function generateNewsList($id, $siteinfo, $currentpage = 1)
     {
         if (empty($siteinfo["menu"])) {
             exit("当前站点菜单配置异常");
@@ -786,10 +785,9 @@ trait FileExistsTraits
         if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
             exit("当前网站无此栏目");
         }
-
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id);
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'newslist');
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "scatteredarticle", 'type_id' => $menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         $newslist = [];
@@ -806,7 +804,6 @@ trait FileExistsTraits
         //获取当前type_id的文章
         return $assign_data;
     }
-
 
 
 }
