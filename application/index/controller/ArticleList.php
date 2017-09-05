@@ -41,7 +41,11 @@ class ArticleList extends Common
             return $this->generateArticleList($id,$siteinfo,$templatepath,$currentpage);
         },0);
         //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-        return $html;
+        return (new View())->fetch($templatepath,
+            [
+                'd' => $html
+            ]
+        );
     }
 
 
@@ -90,6 +94,7 @@ class ArticleList extends Common
             }
         }
         $assign_data['article'] = $article;
+        return $assign_data;
         return (new View())->fetch($templatepath,
             [
                 'd' => $assign_data
