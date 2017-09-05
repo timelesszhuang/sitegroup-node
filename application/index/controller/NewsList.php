@@ -4,6 +4,7 @@ namespace app\index\controller;
 
 use app\common\controller\Common;
 use app\index\model\ArticleSyncCount;
+use app\index\model\ScatteredTitle;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use think\Cache;
