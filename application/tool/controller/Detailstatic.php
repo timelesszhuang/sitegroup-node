@@ -317,7 +317,7 @@ class Detailstatic extends Common
         $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
         // 如果有数据的话清除掉列表的缓存
         if (isset($article_data)) {
-            Cache::rm("articlelist" . $type_id);
+            Cache::clear();
         }
         $static_count = 0;
         foreach ($article_data as $key => $item) {
@@ -539,7 +539,7 @@ class Detailstatic extends Common
         }
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $pre_stop], "articletype_id" => $type_id])->limit($step_limit + 1)->select();
         if(isset($scatTitleArray)){
-            Cache::rm("scatteredarticle".$type_id);
+            Cache::clear();
         }
         $static_count = 0;
         foreach ($scatTitleArray as $key => $item) {
@@ -663,7 +663,7 @@ class Detailstatic extends Common
         }
         $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
         if(isset($question_data)){
-            Cache::rm("question".$type_id);
+            Cache::clear();
         }
         $static_count = 0;
         foreach ($question_data as $key => $item) {
@@ -774,7 +774,7 @@ class Detailstatic extends Common
         $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
         // 如果有数据的话清除掉列表的缓存
         if (isset($article_data)) {
-            Cache::rm("articlelist" . $type_id);
+            Cache::clear();
         }
         foreach ($product_data as $key => $item) {
             //截取出 页面的 description 信息
