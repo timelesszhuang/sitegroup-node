@@ -130,6 +130,7 @@ class Site extends Common
      */
     public function pv()
     {
+        session_write_close();
         $request = Request::instance();
         $nowip = $request->ip();
         $data = $this->get_ip_info($nowip);
@@ -160,6 +161,7 @@ class Site extends Common
      */
     public function Rejection()
     {
+        session_write_close();
         $rule = [
             ["name", "require", "请输入您的姓名"],
             ["phone", "require", "请输入您的电话"],
@@ -240,6 +242,7 @@ class Site extends Common
      */
     public function DefinedRejection()
     {
+        session_write_close();
         $request = Request::instance();
         $tag = $request->post('tag');
         if (!$tag) {
@@ -295,9 +298,7 @@ class Site extends Common
         $tag = $definedform->tag;
         $wh['tag'] = $tag;
         $UserDefinedForm = (new UserDefinedForm())->where($wh)->find();
-//        dump($UserDefinedForm);die;
         $data['tag_id'] = $UserDefinedForm['id'];
-//        dump($data['tag_id']);die;
         if (array_key_exists("field1", $formdata)) {
             $olddata["field1"] = strip_tags(quotemeta($formdata['field1']));
             $data["field1"] = $form_info['field1']['name'] . ':' . $olddata['field1'];
@@ -322,7 +323,6 @@ class Site extends Common
         } else {
             $data["field4"] = '';
         }
-//        dump($data1.$data2.$data3.$data4);die;
         //提交甩单次数过多
         $nowtime = time();
         $oldtime = time() - 60 * 2;
@@ -345,17 +345,14 @@ class Site extends Common
             return $this->resultArray("申请失败", "failed");
         }
         $email = $this->getEmailAccount();
-//        dump($email);
         if ($email) {
             $site_obj = \app\tool\model\Site::get($siteinfo['id']);
-//            dump($site_obj->user_id);
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
-//                dump($email["email"]);
-//                dump($siteUser->email);die;
                 if ($siteUser) {
-                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"];
-                   $this->phpmailerSend('love1@sdwlbz.com.cn', 'Qiangbi12', $email["host"], $siteUser->name . "的甩单", $siteUser->email, $content, $email["email"]);
+                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"].'</br>'.'【乐销易－北京易至信科技有限公司】';
+                    //这个地方有问题
+                    $this->phpmailerSend($email['email'], $email['password'], $email["host"], $siteUser->name . "您有新的线索", $siteUser->email, $content, $email["email"]);
                 }
             }
         }
