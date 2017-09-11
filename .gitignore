@@ -11,7 +11,7 @@ composer.phar
 # composer.lock
 将删除 application/tool/model/Site.php
 将删除 public/index.html
-将删除 thinkphp/library/think/model/relation/MorphOne.php
+#将删除 thinkphp/library/think/model/relation/MorphOne.php
 /public/
 将删除 public/article/article262.html
 将删除 public/article/article263.html
