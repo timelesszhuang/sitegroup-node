@@ -350,7 +350,10 @@ class Site extends Common
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
                 if ($siteUser) {
-                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"].'</br>'.'【乐销易－北京易至信科技有限公司】';
+                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"] . '</br>' . '【乐销易－北京易至信科技有限公司】';
+                    file_put_contents('demo.txt', print_r($content, true), FILE_APPEND);
+                    file_put_contents('demo.txt', print_r($email, true), FILE_APPEND);
+                    file_put_contents('demo.txt', $siteUser->name . $siteUser->email, FILE_APPEND);
                     //这个地方有问题
                     $this->phpmailerSend($email['email'], $email['password'], $email["host"], $siteUser->name . "您有新的线索", $siteUser->email, $content, $email["email"]);
                 }
