@@ -174,7 +174,6 @@ class Detailstatic extends Common
 //        ignore_user_abort();
         // 获取站点的相关的相关信息
         $siteinfo = Site::getSiteInfo();
-        dump($siteinfo);die;
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
