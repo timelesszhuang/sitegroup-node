@@ -404,6 +404,7 @@ class Detailstatic extends Common
             }
             $static_count++;
         }
+        // 请求当前网站列表页 提前生成列表静态化页面
         $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
         $this->curl_get($curl);
         return $static_count - 1;
@@ -718,6 +719,7 @@ class Detailstatic extends Common
             }
             $static_count++;
         }
+        // 请求当前网站列表页 提前生成列表静态化页面
         $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
         $this->curl_get($curl);
         return $static_count - 1;
@@ -844,6 +846,7 @@ class Detailstatic extends Common
                 }
             }
         }
+        // 请求当前网站列表页 提前生成列表静态化页面
         $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
         $this->curl_get($curl);
     }
