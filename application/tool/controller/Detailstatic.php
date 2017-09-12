@@ -170,10 +170,11 @@ class Detailstatic extends Common
      */
     public function index($requesttype = '')
     {
-        set_time_limit(0);
-        ignore_user_abort();
+//        set_time_limit(0);
+//        ignore_user_abort();
         // 获取站点的相关的相关信息
         $siteinfo = Site::getSiteInfo();
+        dump($siteinfo);die;
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
@@ -404,6 +405,7 @@ class Detailstatic extends Common
             }
             $static_count++;
         }
+        pclose(popen("curl ".$siteinfo["url"]."/".$type_name.'/'.$type_id."html &", 'r'));
         return $static_count - 1;
     }
 
@@ -643,6 +645,7 @@ class Detailstatic extends Common
      */
     public function exec_questionstatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
     {
+        $siteinfo = Site::getSiteInfo();
         //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
         //  关键词
         //当前分类名称
@@ -715,6 +718,7 @@ class Detailstatic extends Common
             }
             $static_count++;
         }
+        pclose(popen("curl ".$siteinfo["url"]."/".$type_name.'/'.$type_id."html &", 'r'));
         return $static_count - 1;
     }
 
@@ -839,6 +843,7 @@ class Detailstatic extends Common
                 }
             }
         }
+        pclose(popen("curl ".$siteinfo["url"]."/".$type_name.'/'.$type_id."html &", 'r'));
     }
 
 
