@@ -20,12 +20,14 @@ trait SpiderComefrom
         $data['site_id'] = $siteinfo['id'];
         $data['useragent'] = $_SERVER['HTTP_USER_AGENT'];
         if (preg_match("/Baiduspider/i", $_SERVER['HTTP_USER_AGENT'])) {
+            //百度搜索
             $data['engine'] = "baidu";
             Useragent::create($data);
-        } elseif (preg_match("/Sogou web spider/i", $_SERVER['HTTP_USER_AGENT'])) {
+        } elseif (preg_match("/Sogou/i", $_SERVER['HTTP_USER_AGENT'])) {
+            //搜狗搜索
             $data['engine'] = "Sogou";
             Useragent::create($data);
-        } elseif (preg_match("/HaoSouSpider/i", $_SERVER['HTTP_USER_AGENT'])) {
+        } elseif (preg_match("/360/i", $_SERVER['HTTP_USER_AGENT'])) {
             $data['engine'] = "360haosou";
             Useragent::create($data);
         } elseif (preg_match("/Googlebot/i", $_SERVER['HTTP_USER_AGENT'])) {
