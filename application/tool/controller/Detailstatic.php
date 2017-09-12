@@ -404,7 +404,8 @@ class Detailstatic extends Common
             }
             $static_count++;
         }
-        pclose(popen("curl ".$siteinfo["url"]."/".$type_name.'/'.$type_id."html &", 'r'));
+        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
+        $this->curl_get($curl);
         return $static_count - 1;
     }
 
@@ -717,7 +718,8 @@ class Detailstatic extends Common
             }
             $static_count++;
         }
-        pclose(popen("curl ".$siteinfo["url"]."/".$type_name.'/'.$type_id."html &", 'r'));
+        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
+        $this->curl_get($curl);
         return $static_count - 1;
     }
 
@@ -842,7 +844,8 @@ class Detailstatic extends Common
                 }
             }
         }
-        pclose(popen("curl ".$siteinfo["url"]."/".$type_name.'/'.$type_id."html &", 'r'));
+        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
+        $this->curl_get($curl);
     }
 
 
