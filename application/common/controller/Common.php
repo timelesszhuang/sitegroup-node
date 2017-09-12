@@ -23,6 +23,7 @@ class Common extends Controller
      */
     public function __construct()
     {
+        session_write_close();
         parent::__construct();
     }
 
