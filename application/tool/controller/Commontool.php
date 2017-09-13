@@ -720,6 +720,7 @@ CODE;
                 $type = $param4;
                 list($title, $keyword, $description) = self::getMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_id, $menu_name);
                 //获取菜单的 面包屑 导航
+                //需要注意下 详情型的菜单 没有type
                 $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
                 break;
             case 'envmenu':
@@ -880,7 +881,11 @@ CODE;
                 break;
             case 'menu':
                 //菜单 页面的TDK
-                array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $type . '/' . $menu_id . '.html']);
+                if ($type) {
+                    array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $type . '/' . $menu_id . '.html']);
+                } else {
+                    array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $page_id . '.html']);
+                }
                 break;
             case 'envmenu':
                 //.env 文件中的配置菜单信息
