@@ -674,7 +674,8 @@ CODE;
     public static function getSiteCopyright($com_name)
     {
         //返回copyright
-        return '2015-' . date('Y') . ' © ' . $com_name;
+//        Copyright©2016-2020 山东强比信息技术有限公司 All Rights Reserved
+        return '© 2015-' . date('Y') . '  ' . $com_name.' All Rights Reserved';
     }
 
 
