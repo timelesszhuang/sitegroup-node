@@ -80,7 +80,7 @@ class QuestionList extends Common
         $question = [];
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
-            $question = Question::order('id', "desc")->field("id,question,content_paragraph")->where($where)
+            $question = Question::order('id', "desc")->field("id,question")->where($where)
                 ->paginate(10, false, [
                     'path' => url('/questionlist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
