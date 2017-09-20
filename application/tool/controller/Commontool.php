@@ -674,8 +674,7 @@ CODE;
     public static function getSiteCopyright($com_name)
     {
         //返回copyright
-//        Copyright©2016-2020 山东强比信息技术有限公司 All Rights Reserved
-        return '© 2015-' . date('Y') . '  ' . $com_name.' All Rights Reserved';
+        return '© 2015-' . date('Y') . '  ' . $com_name . ' All Rights Reserved.';
     }
 
 
@@ -698,7 +697,9 @@ CODE;
         $node_id = $siteinfo['node_id'];
         $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $site_id, $site_name, $node_id);
         //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
-        $menu = Menu::getMergedMenu($siteinfo['menu'], $site_id, $site_name, $node_id);
+        //该站点的网址
+        $url = $siteinfo['url'];
+        $menu = self::getMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id, $url, $tag, $param2, $param3);
         //活动创意相关操作
         $activity = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
@@ -831,8 +832,7 @@ CODE;
                 $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
             }
         }
-        //该站点的网址
-        $url = $siteinfo['url'];
+
         //公司名称
         $com_name = $siteinfo['com_name'];
         //版本　copyright
@@ -841,6 +841,60 @@ CODE;
         return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list');
     }
 
+
+    /**
+     * 获取当前栏目的菜单信息
+     * @access private
+     * @todo 如果是menu或者是index  需要优化当前栏目比如前段需要表示出来当前页 并且给出有区别的样式
+     * @param $menu_ids 栏目的ids
+     * $param $site_id 站点的id
+     * $param $site_name 站点的name
+     * $param $node_id 节点的id
+     * $param $url 网站的根目录
+     * $param $tag 标志  index、menu、 envmenu、detail
+     * $param $generate_name 生成菜单的英文名
+     * $param $menu_id 菜单的id
+     */
+    private static function getMenuInfo($menu_ids, $site_id, $site_name, $node_id, $url, $tag, $generate_name, $menu_id)
+    {
+        //需要把首页链接追加进来 而且需要在首位
+        $menu = Menu::getMergedMenu($menu_ids, $site_id, $site_name, $node_id);
+        array_unshift($menu, ['id' => 0, 'name' => '首页', 'title' => $site_name, 'generate_name' => $url]);
+        //这个地方还需要当前menu 给出提示
+        switch ($tag) {
+            case'index':
+                foreach ($menu as $k => $v) {
+                    if ($v['name'] == '首页') {
+                        $v['actived'] = true;
+                    } else {
+                        $v['actived'] = false;
+                    }
+                    $menu[$k] = $v;
+                }
+                break;
+            case'menu':
+                foreach ($menu as $k => $v) {
+                    if ($v['id'] == $menu_id) {
+                        $v['actived'] = true;
+                    } else {
+                        $v['actived'] = false;
+                    }
+                    $menu[$k] = $v;
+                }
+                break;
+            case'envmenu':
+                foreach ($menu as $k => $v) {
+                    if (strpos($generate_name, $v['generate_name']) !== false) {
+                        $v['actived'] = true;
+                    } else {
+                        $v['actived'] = false;
+                    }
+                    $menu[$k] = $v;
+                }
+                break;
+        }
+        return $menu;
+    }
 
     /**
      * 截取中文字符串  utf-8

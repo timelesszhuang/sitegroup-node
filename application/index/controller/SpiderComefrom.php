@@ -13,7 +13,6 @@ use app\index\model\Useragent;
 
 trait SpiderComefrom
 {
-
     public function spidercomefrom($siteinfo)
     {
         $data['node_id'] = $siteinfo['node_id'];
@@ -35,5 +34,4 @@ trait SpiderComefrom
             Useragent::create($data);
         }
     }
-
 }
