@@ -671,4 +671,36 @@ trait FileExistsTraits
         //显示获得的数据
         return $data;
     }
+
+    /**
+     * ping百度程序
+     * @param $data
+     */
+    public function pingBaidu($data)
+    {
+        $siteinfo = Site::getSiteInfo();
+        $html=<<<ENF
+<?xml version="1.0" encoding="UTF-8"?>
+<methodCall>
+    <methodName>weblogUpdates.extendedPing</methodName>
+    <params>
+        <param>
+            <value><string>{$siteinfo['site_name']}</string></value>
+        </param>
+        <param>
+            <value><string>{$siteinfo['url']}</string></value>
+        </param>
+ENF;
+
+        foreach ($data as $item) {
+            $html .= <<<ONE
+        <param>
+            <value><string>{$item}</string></value>
+        </param>
+ONE;
+            $html.="</params></methodCall>";
+            dump($html);die;
+            $this->curl_post("http://ping.baidu.com/ping/RPC2",$html);
+        }
+    }
 }

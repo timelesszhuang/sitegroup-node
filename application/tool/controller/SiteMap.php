@@ -28,7 +28,6 @@ class SiteMap extends Common
         if (empty($trimSite)) {
             exit("no menu");
         }
-        $siteinfo = Site::getSiteInfo();
         $menu_arr = Menu::getMergedMenu($siteinfo["menu"], $siteinfo["id"], $siteinfo["site_name"], $siteinfo["node_id"]);
         //所有栏目
         $menus = Commontool::getDbArticleListId($trimSite, $siteinfo['id']);

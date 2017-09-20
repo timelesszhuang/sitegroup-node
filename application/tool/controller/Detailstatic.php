@@ -402,8 +402,11 @@ class Detailstatic extends Common
                     $articleCountModel->save();
                 }
             }
+            // ping baidu 数组存放
+            $pingBaidu[]= $siteinfo["url"]."/article/article".$item["id"] . '.html';
             $static_count++;
         }
+        $this->pingBaidu($pingBaidu);
         // 请求当前网站列表页 提前生成列表静态化页面
         $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
         $this->curl_get($curl);
