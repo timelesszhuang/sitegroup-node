@@ -240,6 +240,7 @@ trait FileExistsTraits
         $mail->Send();
     }
 
+
     /**
      * 获取support邮箱帐号
      * @return array|bool
