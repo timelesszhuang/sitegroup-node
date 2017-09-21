@@ -90,7 +90,6 @@ class ArticleList extends Common
                     $img = $data["thumbnails"];
                 }
                 $data["img"] = $img;
-                $data['create_time'] = date('Y-m-d H:i', $data['create_time']);
             }
         }
         $assign_data['article'] = $article;

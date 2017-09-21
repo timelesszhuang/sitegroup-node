@@ -86,9 +86,6 @@ class NewsList extends Common
                     'path' => url('/newslist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
-            foreach ($newslist as $k => $v) {
-                $v['create_time'] = date('Y-m-d H:i', $v['create_time']);
-            }
         }
         $assign_data['newslist'] = $newslist;
         //获取当前type_id的文章

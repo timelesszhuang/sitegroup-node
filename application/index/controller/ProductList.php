@@ -81,7 +81,6 @@ class ProductList
                 $src = "/images/" . $data['image_name'];
                 $img = "<img src='$src' alt= '{$data['name']}'>";
                 $data["img"] = $img;
-                $data['create_time'] = date('Y-m-d H:i', $data['create_time']);
             }
         }
         $assign_data['productlist'] = $productlist;

@@ -71,7 +71,6 @@ class QuestionList extends Common
         if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
             exit("当前网站无此栏目");
         }
-
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
@@ -85,9 +84,6 @@ class QuestionList extends Common
                     'path' => url('/questionlist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
-            foreach ($question as $data) {
-                $data['create_time'] = date('Y-m-d H:i', $data['create_time']);
-            }
         }
         //获取当前type_id的文章
         $assign_data['question'] = $question;
