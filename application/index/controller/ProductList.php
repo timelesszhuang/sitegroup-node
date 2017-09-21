@@ -70,7 +70,7 @@ class ProductList
         if ($articleSyncCount) {
             $where["id"] = ["elt", $articleSyncCount->count];
             //获取当前type_id的文章
-            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name")->where($where)
+            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name,create_time")->where($where)
                 ->paginate(10, false, [
                     'path' => url('/productlist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
@@ -81,6 +81,7 @@ class ProductList
                 $src = "/images/" . $data['image_name'];
                 $img = "<img src='$src' alt= '{$data['name']}'>";
                 $data["img"] = $img;
+                $data['create_time'] = date('Y-m-d H:i', $data['create_time']);
             }
         }
         $assign_data['productlist'] = $productlist;
