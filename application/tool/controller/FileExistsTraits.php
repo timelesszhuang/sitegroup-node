@@ -700,6 +700,7 @@ trait FileExistsTraits
         return $data;
     }
 
+
     /**
      * ping百度程序
      * @param $data
