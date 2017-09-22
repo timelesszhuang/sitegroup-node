@@ -320,6 +320,7 @@ class Detailstatic extends Common
             Cache::clear();
         }
         $static_count = 0;
+        $pingBaidu=[];
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->content), 0, 200);
@@ -853,6 +854,4 @@ class Detailstatic extends Common
         $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
         $this->curl_get($curl);
     }
-
-
 }
