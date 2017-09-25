@@ -258,7 +258,9 @@ class Site extends Common
         if ($node_id != $siteinfo['node_id']) {
             return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
         }
+        //dump($definedform->form_info);die;
         $form_info = unserialize($definedform->form_info);
+//dump($form_info);die;
         $rule = [];
         foreach ($form_info as $k => $v) {
             if ($v['require']) {
@@ -368,6 +370,5 @@ class Site extends Common
         }
         return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
     }
-
 
 }
