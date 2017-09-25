@@ -270,7 +270,6 @@ class Site extends Common
         $validate = new  Validate($rule);
         $nowip = $request->ip();
         $ipdata = $this->get_ip_info($nowip);
-        $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
 //        dump($formdata);die;
         if (empty($ipdata['data'])) {
