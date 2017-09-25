@@ -221,7 +221,7 @@ trait FileExistsTraits
      */
     public function phpmailerSend($sendUser, $sendpwd, $host, $subject, $toUser, $sendBody, $fromname)
     {
-        $mail = new \PHPMailer;
+        $mail = new \PHPMailer();
         $mail->IsSmtp(true);                         // 设置使用 SMTP
         $mail->Host = $host;       // 指定的 SMTP 服务器地址
         $mail->SMTPAuth = true;                  // 设置为安全验证方式

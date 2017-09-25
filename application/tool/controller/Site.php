@@ -215,7 +215,7 @@ class Site extends Common
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             $data['referer'] = $_SERVER['HTTP_REFERER'];
         }
-        dump($data);die;
+
         if (!$validate->check($data)) {
             return $this->resultArray($validate->getError(), "failed");
         }
@@ -272,6 +272,8 @@ class Site extends Common
         $formdata = $this->request->post();
 //        dump($formdata);die;
         if (empty($ipdata['data'])) {
+            $data['node_id'] = $siteinfo['node_id'];
+            $data['site_id'] = $siteinfo['id'];
             $data['country_id'] = "";
             $data['area_id'] = "";
             $data['region'] = "";
