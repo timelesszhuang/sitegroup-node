@@ -215,6 +215,7 @@ class Site extends Common
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             $data['referer'] = $_SERVER['HTTP_REFERER'];
         }
+        dump($data);die;
         if (!$validate->check($data)) {
             return $this->resultArray($validate->getError(), "failed");
         }
