@@ -320,7 +320,7 @@ class Detailstatic extends Common
             Cache::clear();
         }
         $static_count = 0;
-        $pingBaidu=[];
+        $pingBaidu = [];
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->content), 0, 200);
@@ -363,7 +363,7 @@ class Detailstatic extends Common
                 }
             }
             //替换图片 base64 为 图片文件
-            $temp_content = $this->form_img($item->content, $water);
+            $temp_content = $this->form_img($item->title, $item->content, $water);
             // 替换关键词为指定链接 遍历全文和所有关键词
             $temp_content = $this->articleReplaceKeyword($temp_content);
             // 替换关键字
@@ -404,12 +404,12 @@ class Detailstatic extends Common
                 }
             }
             // ping baidu 数组存放
-            $pingBaidu[]= $siteinfo["url"]."/article/article".$item["id"] . '.html';
+            $pingBaidu[] = $siteinfo["url"] . "/article/article" . $item["id"] . '.html';
             $static_count++;
         }
         $this->pingBaidu($pingBaidu);
         // 请求当前网站列表页 提前生成列表静态化页面
-        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
+        $curl = $siteinfo["url"] . "/" . $type_name . '/' . $type_id . "html";
         $this->curl_get($curl);
         return $static_count - 1;
     }
@@ -418,7 +418,7 @@ class Detailstatic extends Common
      * 根据内容生成图片
      * @access public
      */
-    public function form_img($content, $water)
+    public function form_img($title, $content, $water)
     {
         //从中提取出 base64 中的内容
         //使用正则匹配
@@ -426,6 +426,12 @@ class Detailstatic extends Common
         preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
         if (!empty($match)) {
             if (array_key_exists(1, $match)) {
+                //需要先给图片添加title 所以要先替换
+                foreach ($match[0] as $k => $v) {
+                    $replace_img = str_replace(">", " alt='$title' title='$title'>", $v);
+                    $content = str_replace($v, $replace_img, $content);
+                }
+                //替换base64的src 为图片地址
                 foreach ($match[1] as $k => $v) {
                     $img_name = md5(uniqid(rand(), true));
                     list($file_name, $status) = $this->form_img_frombase64($v, $img_name, $water);
@@ -545,7 +551,7 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $pre_stop], "articletype_id" => $type_id])->limit($step_limit + 1)->select();
-        if(isset($scatTitleArray)){
+        if (isset($scatTitleArray)) {
             Cache::clear();
         }
         $static_count = 0;
@@ -670,7 +676,7 @@ class Detailstatic extends Common
             $question_sync = new ArticleSyncCount();
         }
         $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
-        if(isset($question_data)){
+        if (isset($question_data)) {
             Cache::clear();
         }
         $static_count = 0;
@@ -724,7 +730,7 @@ class Detailstatic extends Common
             $static_count++;
         }
         // 请求当前网站列表页 提前生成列表静态化页面
-        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
+        $curl = $siteinfo["url"] . "/" . $type_name . '/' . $type_id . "html";
         $this->curl_get($curl);
         return $static_count - 1;
     }
@@ -851,7 +857,7 @@ class Detailstatic extends Common
             }
         }
         // 请求当前网站列表页 提前生成列表静态化页面
-        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
+        $curl = $siteinfo["url"] . "/" . $type_name . '/' . $type_id . "html";
         $this->curl_get($curl);
     }
 }
