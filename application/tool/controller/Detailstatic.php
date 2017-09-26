@@ -845,6 +845,7 @@ class Detailstatic extends Common
                     $article_sync->site_name = $site_name;
                     $article_sync->save();
                 } else {
+
                     $articleCountModel->count = $item["id"];
                     $articleCountModel->save();
                 }
