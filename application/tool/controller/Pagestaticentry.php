@@ -20,6 +20,7 @@ class Pagestaticentry extends Common
      */
     public function crontabstatic()
     {
+        Cache::clear();
         // 详情页面生成
         (new Detailstatic())->index('crontab');
         // 配置文件中的静态化
@@ -38,6 +39,7 @@ class Pagestaticentry extends Common
      */
     public function allstatic()
     {
+        Cache::clear();
         //全部的页面的静态化
         // 详情页面生成
         (new Detailstatic())->index();
@@ -57,6 +59,7 @@ class Pagestaticentry extends Common
      */
     public function indexstatic()
     {
+        Cache::clear();
         // 首先首页更新
         if ((new Indexstatic())->index()) {
             exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
@@ -71,6 +74,7 @@ class Pagestaticentry extends Common
      */
     public function articlestatic()
     {
+        Cache::clear();
         //文章页面的静态化
         (new Detailstatic())->index();
         exit(['status' => 'success', 'msg' => '文章页面生成完成。']);
@@ -83,6 +87,7 @@ class Pagestaticentry extends Common
      */
     public function menustatic()
     {
+        Cache::clear();
         //菜单详情页面 静态化 配置页面静态化
         if ((new Detailmenupagestatic())->index() && (new Envpagestatic())->index()) {
             exit(['status' => 'success', 'msg' => '栏目页静态化生成完成。']);
@@ -96,6 +101,7 @@ class Pagestaticentry extends Common
      */
     public function reGenerateHtml(Request $request)
     {
+        Cache::clear();
         $id=$request->post("id");
         $searchType=$request->post("searchType");
         $type=$request->post("type");
