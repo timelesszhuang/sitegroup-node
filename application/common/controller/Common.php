@@ -10,11 +10,11 @@ namespace app\common\controller;
 
 use think\Controller;
 use think\Db;
-
+use app\tool\controller\FileExistsTraits;
 
 class Common extends Controller
 {
-
+    use FileExistsTraits;
     public $separator = '||||||||||||||||||||||||';
 
     /**
@@ -24,6 +24,7 @@ class Common extends Controller
     public function __construct()
     {
         session_write_close();
+        $this->getSiteId();
         parent::__construct();
     }
 

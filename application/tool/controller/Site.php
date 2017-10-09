@@ -89,6 +89,7 @@ class Site extends Common
      */
     public static function getSiteInfo()
     {
+
         if ($info = Cache::get(Config::get('site.CACHE_LIST')['SITEINFO'])) {
             return $info;
         }

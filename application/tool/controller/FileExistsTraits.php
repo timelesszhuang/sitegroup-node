@@ -731,4 +731,65 @@ ONE;
             $this->curl_post("http://ping.baidu.com/ping/RPC2",$html);
         }
     }
+
+    /**
+     * 获取站点id
+     */
+    public function getSiteId()
+    {
+        $directory=dirname(THINK_PATH)."/application/extra/site.php";
+        if(file_exists($directory)){
+            return;
+        }
+        $site=$_SERVER['SERVER_NAME'];
+        if(empty($site)){
+            (new SiteErrorInfo)->addError([
+                'msg' => "站点获取域名失败!!",
+                'operator' => '获取当前站点域名',
+                'site_id' => 0,
+                'site_name' => '未获取到',
+                'node_id' => 0,
+            ]);
+            exit(0);
+        }
+        $domain="http://$site";
+        $resoure=\app\tool\model\Site::where(["url"=>$domain])->find();
+        if(is_null($resoure)){
+            (new SiteErrorInfo)->addError([
+                'msg' => "站点获取site_id失败!!",
+                'operator' => '获取当前站点site_id',
+                'site_id' => 0,
+                'site_name' => '未获取到',
+                'node_id' => 0,
+            ]);
+            exit(0);
+        }
+        $html=<<<ENF
+<?php
+
+
+return [
+    //节点的id 信息部署的时候需要修改该id 的值
+    'SITE_ID' => {$resoure->id},
+    //缓存十分钟
+    'CACHE_TIME' => 600,
+    //缓存的文件的列表
+    'CACHE_LIST' => [
+        //
+        'SITEINFO' => 'siteinfo',
+        //菜单
+        'MENU' => 'menu',
+        //关键词
+        'KEYWORD' => 'keyword',
+        //该配置主要用于 获取菜单选择的 文章或者 零散文章 问答文章的分类
+        'MENUTYPEID' => 'menutypeid',
+        //手机站点 网址  还有跳转链接
+        'MOBILE_SITE_INFO' => 'mobile_site_info',
+        //
+    ],
+];
+ENF;
+
+        file_put_contents($directory,$html);
+    }
 }
