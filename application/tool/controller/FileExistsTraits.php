@@ -731,5 +731,4 @@ ONE;
             $this->curl_post("http://ping.baidu.com/ping/RPC2",$html);
         }
     }
-
 }
