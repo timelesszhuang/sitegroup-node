@@ -753,7 +753,9 @@ ONE;
             exit(0);
         }
         $domain="http://$site";
-        $resoure=\app\tool\model\Site::where(["url"=>$domain])->find();
+        $https_domain="https://$site";
+        $map['url'] =  array(['=',$domain],['=',$https_domain],'or');
+        $resoure=\app\tool\model\Site::where(["url"=>$map])->find();
         if(is_null($resoure)){
             (new SiteErrorInfo)->addError([
                 'msg' => "站点获取site_id失败!!",
