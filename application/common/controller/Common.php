@@ -159,7 +159,7 @@ class Common extends Controller
         }
         $site=$_SERVER['SERVER_NAME'];
         if(empty($site)){
-            (new SiteErrorInfo)->addError([
+            (new \app\tool\model\SiteErrorInfo)->addError([
                 'msg' => "站点获取域名失败!!",
                 'operator' => '获取当前站点域名',
                 'site_id' => 0,
@@ -173,7 +173,7 @@ class Common extends Controller
         $map['url'] =  array(['=',$domain],['=',$https_domain],'or');
         $resoure=\app\tool\model\Site::where($map)->find();
         if(is_null($resoure)){
-            (new SiteErrorInfo)->addError([
+            (new \app\tool\model\SiteErrorInfo)->addError([
                 'msg' => "站点获取site_id失败!!",
                 'operator' => '获取当前站点site_id',
                 'site_id' => 0,
