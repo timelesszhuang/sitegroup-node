@@ -38,7 +38,7 @@ class Detailstatic extends Common
      * @param $requesttype 请求的类型 crontab 或者是 后台动态请求
      * @return array
      */
-    private static function check_static_time($site_id, $requesttype)
+    public static function check_static_time($site_id, $requesttype)
     {
         $default_count = self::$system_default_count;
         if (!$requesttype) {
@@ -131,7 +131,7 @@ class Detailstatic extends Common
      * 获取配置信息
      * @access private
      */
-    private static function get_staticconfig_info($site_id)
+    public static function get_staticconfig_info($site_id)
     {
         $config_info = Db::name('site_staticconfig')->where(['site_id' => $site_id])->field('id,type,starttime,stoptime,staticcount,laststatic_time')->select();
         $config_sync_info = [];
@@ -155,7 +155,7 @@ class Detailstatic extends Common
      * 上次 静态化时间
      * @access private
      */
-    private static function set_laststatic_time($id)
+    public static function set_laststatic_time($id)
     {
         Db::name('site_staticconfig')->where(['id' => $id])->update(['laststatic_time' => time()]);
     }
@@ -263,7 +263,7 @@ class Detailstatic extends Common
      * @param $type_id 文章的分类id
      * @param $a_keyword_id 栏目所对应的a类 关键词
      */
-    private function articlestatic($site_id, $site_name, $node_id, $article_type_keyword, $step_limit)
+    public function articlestatic($site_id, $site_name, $node_id, $article_type_keyword, $step_limit)
     {
         //判断模板是否存在
         if (!$this->fileExists('template/article.html')) {
@@ -290,7 +290,7 @@ class Detailstatic extends Common
      * @access private
      * @return count 返回生成文章的数量
      */
-    private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
+    public function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
     {
         $siteinfo = Site::getSiteInfo();
         $type_name = "article";
