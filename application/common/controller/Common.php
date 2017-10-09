@@ -23,6 +23,7 @@ class Common extends Controller
      */
     public function __construct()
     {
+        echo $_SERVER['SERVER_NAME'];die;
         session_write_close();
         $this->getSiteId();
         parent::__construct();
