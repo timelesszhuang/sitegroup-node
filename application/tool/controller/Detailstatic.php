@@ -320,13 +320,14 @@ class Detailstatic extends Common
             Cache::clear();
         }
         $static_count = 0;
-        $pingBaidu=[];
+        $pingBaidu = [];
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->content), 0, 200);
             preg_replace('/^&.+\;$/is', '', $description);
             //获取网站的 tdk 文章列表等相关 公共元素
             $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id, $menu_id, $menu_name, 'articlelist');
+
             // 把 站点的相关的数据写入数据库中
             // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
@@ -353,7 +354,6 @@ class Detailstatic extends Common
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
             // 首先需要把base64 缩略图 生成为 文件
-//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
             $water = $siteinfo['walterString'];
             if ($item->thumbnails_name) {
                 //存在 base64缩略图 需要生成静态页
@@ -404,7 +404,7 @@ class Detailstatic extends Common
                 }
             }
             // ping baidu 数组存放
-            $pingBaidu[]= $siteinfo["url"]."/article/article".$item["id"] . '.html';
+            $pingBaidu[] = $siteinfo["url"] . "/article/article" . $item["id"] . '.html';
             $static_count++;
         }
 //        $this->pingBaidu($pingBaidu);
@@ -467,10 +467,11 @@ class Detailstatic extends Common
             $ttcPath = dirname(THINK_PATH) . '/6.ttc';
             $dst = imagecreatefromstring(base64_decode(str_replace($result[1], '', $base64img)));
             //水印颜色
-//            $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
-            $color = imagecolorallocatealpha($dst, 197, 37, 19, 30);
+//            $color = imagecolorallocatealpha($dst, 197, 37, 19, 30);
+            $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
             //添加水印
-            imagettftext($dst, 12, 0, 10, 22, $color, $ttcPath, $water);
+//            imagettftext($dst, 12, 0, 11, 22, $color, $ttcPath, $water);
+            imagettftext($dst, 14, 0, 14, 22, $color, $ttcPath, $water);
             $func = "image{$type}";
             $create_status = $func($dst, $new_file);
             imagedestroy($dst);
@@ -545,7 +546,7 @@ class Detailstatic extends Common
             $article_temp = new ArticleSyncCount();
         }
         $scatTitleArray = (new ScatteredTitle())->where(["id" => ["egt", $pre_stop], "articletype_id" => $type_id])->limit($step_limit + 1)->select();
-        if(isset($scatTitleArray)){
+        if (isset($scatTitleArray)) {
             Cache::clear();
         }
         $static_count = 0;
@@ -670,7 +671,7 @@ class Detailstatic extends Common
             $question_sync = new ArticleSyncCount();
         }
         $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
-        if(isset($question_data)){
+        if (isset($question_data)) {
             Cache::clear();
         }
         $static_count = 0;

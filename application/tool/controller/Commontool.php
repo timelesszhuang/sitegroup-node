@@ -384,8 +384,8 @@ class Commontool extends Common
      */
     public static function getArticleList($sync_info, $site_id, $limit = 10)
     {
-
         $article_sync_info = array_key_exists('article', $sync_info) ? $sync_info['article'] : [];
+        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         if ($article_sync_info) {
             $where = '';
             //还需要　只获取　允许同步的文章
@@ -394,6 +394,10 @@ class Commontool extends Common
                     $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 } else {
                     $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+                //比如一般的列表中都会有更多操作 随机从文章列表中选出一个菜单的id来组织数据
+                if ($more['href'] == '/') {
+                    $more = ['title' => $v['menu_name'], 'href' => "/articlelist/{$v['menu_id']}.html", 'text' => '更多'];
                 }
             }
             $where = "({$where}) and ((`is_sync`= '20') or (`is_sync`='10' and `site_id`='{$site_id}'))";
@@ -417,9 +421,9 @@ class Commontool extends Common
                 $art['create_time'] = date('Y-m-d', $v['create_time']);
                 $articlelist[] = $art;
             }
-            return $articlelist;
+            return [$articlelist, $more];
         }
-        return [];
+        return [[], $more];
     }
 
 
@@ -434,6 +438,7 @@ class Commontool extends Common
     public static function getProductList($sync_info, $site_id, $limit = 10)
     {
         $product_sync_info = array_key_exists('product', $sync_info) ? $sync_info['product'] : [];
+        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         if ($product_sync_info) {
             $where = '';
             foreach ($product_sync_info as $k => $v) {
@@ -441,6 +446,9 @@ class Commontool extends Common
                     $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 } else {
                     $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+                if ($more['href'] == '/') {
+                    $more = ['title' => $v['menu_name'], 'href' => "/productlist/{$v['menu_id']}.html", 'text' => '更多'];
                 }
             }
             $product = Db::name('Product')->where($where)->field('id,name,image_name,sn,payway,type_name,summary,create_time')->order('id desc')->limit($limit)->select();
@@ -457,9 +465,9 @@ class Commontool extends Common
                 $art['create_time'] = date('Y-m-d', $v['create_time']);
                 $productlist[] = $art;
             }
-            return $productlist;
+            return [$productlist, $more];
         }
-        return [];
+        return [[], $more];
     }
 
 
@@ -474,6 +482,7 @@ class Commontool extends Common
     public static function getQuestionList($sync_info, $site_id, $limit = 10)
     {
         $question_sync_info = array_key_exists('question', $sync_info) ? $sync_info['question'] : [];
+        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         if ($question_sync_info) {
             $where = '';
             foreach ($question_sync_info as $k => $v) {
@@ -481,6 +490,9 @@ class Commontool extends Common
                     $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 } else {
                     $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+                if ($more['href'] == '/') {
+                    $more = ['title' => $v['menu_name'], "/questionlist/{$v['menu_id']}.html", 'text' => '更多'];
                 }
             }
             $question = Db::name('Question')->where($where)->field('id,question,create_time')->order('id desc')->limit($limit)->select();
@@ -492,9 +504,9 @@ class Commontool extends Common
                     'create_time' => date('Y-m-d', $v['create_time']),
                 ];
             }
-            return $questionlist;
+            return [$questionlist, $more];
         }
-        return [];
+        return [[], $more];
     }
 
 
@@ -509,6 +521,7 @@ class Commontool extends Common
     public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
     {
         $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
+        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         if ($scattered_sync_info) {
             $where = '';
             foreach ($scattered_sync_info as $k => $v) {
@@ -516,6 +529,9 @@ class Commontool extends Common
                     $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
                 } else {
                     $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+                }
+                if ($more['href'] == '/') {
+                    $more = ['title' => $v['menu_name'], 'href' => "/news/{$v['menu_id']}.html", 'text' => '更多'];
                 }
             }
             $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title,create_time')->order('id desc')->limit($limit)->select();
@@ -527,9 +543,9 @@ class Commontool extends Common
                     'create_time' => date('Y-m-d', $v['create_time'])
                 ];
             }
-            return $articlelist;
+            return [$articlelist, $more];
         }
-        return [];
+        return [[], $more];
     }
 
 
@@ -583,9 +599,16 @@ class Commontool extends Common
     public static function getDbArticleListId($menu_ids, $site_id)
     {
         //获取页面中  会用到的 文章列表 问题列表 零散段落列表
-        //配置的菜单信息  用于获取 文章的列表
+        //配置的菜单信息
+        //类型：  id 为文章分类  name 为文章分类名
+        // question:{
+        //           ['id'=>,'name'=>,'menu_id'=>,'menu_name'=>''],
+        //           ['id'=>,'name'=>'','menu_id'=>,'menu_name'=>],
+        //          }
+        // article:{
+        //          ['id'=>,'name'=>,'menu_id'=>,'menu_name'=>],
+        //         }
         $type_id_arr = Menu::getTypeIdInfo($menu_ids);
-
         //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
         $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_id,type_name,count')->select();
         $article_sync_list = [];
@@ -608,7 +631,7 @@ class Commontool extends Common
                     $sync_article_data[$type] = [
                     ];
                 }
-                array_push($sync_article_data[$type], ['type_id' => $menu['id'], 'max_id' => $max_id]);
+                array_push($sync_article_data[$type], ['type_id' => $menu['id'], 'menu_id' => $menu['menu_id'], 'menu_name' => $menu['menu_name'], 'max_id' => $max_id]);
             }
         }
         return $sync_article_data;
@@ -707,6 +730,9 @@ CODE;
         $breadcrumb = [];
         switch ($tag) {
             case 'index':
+                /**
+                 * 关于关键词 改变之后 需要手动到搜索引擎优化部分主动修改关键词
+                 */
                 $page_id = 'index';
                 //然后获取 TDK 等数据  首先到数据库
                 list($title, $keyword, $description) = self::getIndexPageTDK($keyword_info, $site_id, $site_name, $node_id, $siteinfo['com_name']);
@@ -768,13 +794,13 @@ CODE;
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
         $limit = $tag == 'index' ? 15 : 10;
         //正常的文章类型
-        $article_list = self::getArticleList($artiletype_sync_info, $site_id, $limit);
+        list($article_list, $article_more) = self::getArticleList($artiletype_sync_info, $site_id, $limit);
         //问答类型
-        $question_list = self::getQuestionList($artiletype_sync_info, $site_id);
+        list($question_list, $question_more) = self::getQuestionList($artiletype_sync_info, $site_id);
         //零散段落类型
-        $scatteredarticle_list = self::getScatteredArticleList($artiletype_sync_info, $site_id);
+        list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $site_id);
         //产品类型 列表获取
-        $product_list = self::getProductList($artiletype_sync_info, $site_id);
+        list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
         //从数据库中取出 十条 最新的已经静态化的文章列表
         $partnersite = [];
         //获取友链
@@ -832,13 +858,50 @@ CODE;
                 $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
             }
         }
-
+        $tdk = self::form_tdk_html($title, $keyword, $description);
+        $share = self::get_share_code();
         //公司名称
         $com_name = $siteinfo['com_name'];
         //版本　copyright
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'title', 'keyword', 'description', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list');
+        //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more');
+    }
+
+    /**
+     * 获取页面的分享代码
+     * @access private
+     */
+    private static function get_share_code()
+    {
+        return <<<code
+    <div class="bdsharebuttonbox">
+        <a href="#" class="bds_more" data-cmd="more"></a>
+        <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+        <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+        <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+        <a href="#" class="bds_ibaidu" data-cmd="ibaidu" title="分享到百度中心"></a>
+        <a href="#" class="bds_bdhome" data-cmd="bdhome" title="分享到百度新首页"></a>
+        <a href="#" class="bds_tieba" data-cmd="tieba" title="分享到百度贴吧"></a>
+    </div>
+    <script>
+        window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+    </script>
+code;
+    }
+
+
+    /**
+     * 生成tdk 相关html
+     * @access private
+     */
+    private static function form_tdk_html($title, $keyword, $description)
+    {
+        $title_template = "<title>%s</title>";
+        $keywords_template = "<meta name='keyword' content='%s'>";
+        $description_template = "<meta name='description' content='%s'>";
+        return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
     }
 
 
@@ -854,6 +917,7 @@ CODE;
      * $param $tag 标志  index、menu、 envmenu、detail
      * $param $generate_name 生成菜单的英文名
      * $param $menu_id 菜单的id
+     * @return array|false|\PDOStatement|string|\think\Collection
      */
     private static function getMenuInfo($menu_ids, $site_id, $site_name, $node_id, $url, $tag, $generate_name, $menu_id)
     {

@@ -2,8 +2,6 @@
 
 namespace app\index\controller;
 
-use app\index\model\ArticleSyncCount;
-use app\index\model\Useragent;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use app\common\controller\Common;
@@ -57,7 +55,6 @@ class ArticleList extends Common
      */
     public function generateArticleList($id, $siteinfo, $templatepath, $currentpage = 1)
     {
-
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
         }
