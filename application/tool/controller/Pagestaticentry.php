@@ -140,6 +140,19 @@ class Pagestaticentry extends Common
         $this->generateStaticOne($type, $name, $content);
     }
 
+
+    /**
+     * url 安全的base64 编码
+     * @access private
+     */
+    private function urlsafe_b64encode($string)
+    {
+        $data = base64_encode($string);
+        $data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+        return $data;
+    }
+
+
     /**
      * oss 测试
      */
@@ -148,9 +161,19 @@ class Pagestaticentry extends Common
         $accessKeyId = "mHENtCjneaNtqGOC";
         $accessKeySecret = "iIaCOZXiqrbk81mwn8t3fTtNFOXyeJ";
         $endpoint = "oss-cn-qingdao.aliyuncs.com";
-        $bucket = "salesman3";
-        $object = "a.php";
+        $bucket = "salesman1";
+        $object = "141414.jpg";
         $filePath = __FILE__;
+
+        //图片加水印
+//        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+//        $download_file = 'demo.jpg';
+//        $water = '山东强比信息技术有限公司';
+//        $code = $this->urlsafe_b64encode($water);
+//        $options = array(
+//            OssClient::OSS_FILE_DOWNLOAD => $download_file,
+//            OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
+//        $ossClient->getObject($bucket, $object, $options);
 
 //        try{
 //            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
@@ -176,21 +199,23 @@ class Pagestaticentry extends Common
 //        print(__FUNCTION__ . ": OK" . "\n");
 //        EXIT;
 
+
 //      下载资源
 //        $object = "141414.jpg";
-        $localfile = "141414.php";
-        $options = array(
-            OssClient::OSS_FILE_DOWNLOAD => $localfile,
-        );
-        try {
-            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-            $ossClient->getObject($bucket, $object, $options);
-        } catch (OssException $e) {
-            printf(__FUNCTION__ . ": FAILED\n");
-            printf($e->getMessage() . "\n");
-            return;
-        }
-        print(__FUNCTION__ . ": OK, please check localfile: 'upload-test-object-name.txt'" . "\n");
+//        $localfile = "141414.php";
+//        $options = array(
+//            OssClient::OSS_FILE_DOWNLOAD => $localfile,
+//        );
+//        try {
+//            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+//            $ossClient->getObject($bucket, $object, $options);
+//        } catch (OssException $e) {
+//            printf(__FUNCTION__ . ": FAILED\n");
+//            printf($e->getMessage() . "\n");
+//            return;
+//        }
+//        print(__FUNCTION__ . ": OK, please check localfile: 'upload-test-object-name.txt'" . "\n");
+//
     }
 
 }
