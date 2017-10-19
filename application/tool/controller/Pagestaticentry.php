@@ -148,18 +148,49 @@ class Pagestaticentry extends Common
         $accessKeyId = "mHENtCjneaNtqGOC";
         $accessKeySecret = "iIaCOZXiqrbk81mwn8t3fTtNFOXyeJ";
         $endpoint = "oss-cn-qingdao.aliyuncs.com";
-        $bucket = "salesman2";
-        $object = "public/demo/demo.png";
-        $filePath = THINK_PATH;
-        try{
+        $bucket = "salesman3";
+        $object = "a.php";
+        $filePath = __FILE__;
+
+//        try{
+//            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+//            $ossClient->uploadFile($bucket, $object, $filePath);
+//        } catch(OssException $e) {
+//            printf(__FUNCTION__ . ": FAILED\n");
+//            printf($e->getMessage() . "\n");
+//            return;
+//        }
+//        print(__FUNCTION__ . ": OK" . "\n");
+//        exit;
+
+
+//        创建资源包
+//        try {
+//            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+//            $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
+//        } catch (OssException $e) {
+//            printf(__FUNCTION__ . ": FAILED\n");
+//            printf($e->getMessage() . "\n");
+//            return;
+//        }
+//        print(__FUNCTION__ . ": OK" . "\n");
+//        EXIT;
+
+//      下载资源
+//        $object = "141414.jpg";
+        $localfile = "141414.php";
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $localfile,
+        );
+        try {
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-            $ossClient->uploadFile($bucket, $object, $filePath);
-        } catch(OssException $e) {
+            $ossClient->getObject($bucket, $object, $options);
+        } catch (OssException $e) {
             printf(__FUNCTION__ . ": FAILED\n");
             printf($e->getMessage() . "\n");
             return;
         }
-        print(__FUNCTION__ . ": OK" . "\n");
+        print(__FUNCTION__ . ": OK, please check localfile: 'upload-test-object-name.txt'" . "\n");
     }
 
 }
