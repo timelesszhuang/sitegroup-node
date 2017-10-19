@@ -76,3 +76,5 @@ Route::get('getStaticOne/:type/:name','tool/Pagestaticentry/staticOneHtml');
 // 修改单个静态文件
 Route::post('generateOne/:type/:name','tool/Pagestaticentry/generateOne');
 
+//
+Route::get('oss', 'tool/Pagestaticentry/ossdemo');

@@ -5,6 +5,7 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\tool\controller\FileExistsTraits;
 
+use OSS\OssClient;
 use think\Cache;
 use think\Request;
 
@@ -104,11 +105,11 @@ class Pagestaticentry extends Common
     public function reGenerateHtml(Request $request)
     {
         Cache::clear();
-        $id=$request->post("id");
-        $searchType=$request->post("searchType");
-        $type=$request->post("type");
-        if($id && $searchType && $type){
-            $this->exec_articlestatic($id,$searchType,$type);
+        $id = $request->post("id");
+        $searchType = $request->post("searchType");
+        $type = $request->post("type");
+        if ($id && $searchType && $type) {
+            $this->exec_articlestatic($id, $searchType, $type);
         }
     }
 
@@ -119,9 +120,9 @@ class Pagestaticentry extends Common
      * @param $name
      * @return array|string
      */
-    public function staticOneHtml($type,$name)
+    public function staticOneHtml($type, $name)
     {
-        return $this->staticOne($type,$name);
+        return $this->staticOne($type, $name);
     }
 
     /**
@@ -130,12 +131,35 @@ class Pagestaticentry extends Common
      * @param $name
      * @return array
      */
-    public function generateOne($type,$name)
+    public function generateOne($type, $name)
     {
-        $content=$this->request->post("content");
-        if(empty($content)){
+        $content = $this->request->post("content");
+        if (empty($content)) {
             return $this->resultArray("数据为空");
         }
-        $this->generateStaticOne($type,$name,$content);
+        $this->generateStaticOne($type, $name, $content);
     }
+
+    /**
+     * oss 测试
+     */
+    public function ossdemo()
+    {
+        $accessKeyId = "mHENtCjneaNtqGOC";
+        $accessKeySecret = "iIaCOZXiqrbk81mwn8t3fTtNFOXyeJ";
+        $endpoint = "oss-cn-qingdao.aliyuncs.com";
+        $bucket = "salesman2";
+        $object = "public/demo/demo.png";
+        $filePath = THINK_PATH;
+        try{
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+            $ossClient->uploadFile($bucket, $object, $filePath);
+        } catch(OssException $e) {
+            printf(__FUNCTION__ . ": FAILED\n");
+            printf($e->getMessage() . "\n");
+            return;
+        }
+        print(__FUNCTION__ . ": OK" . "\n");
+    }
+
 }
