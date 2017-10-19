@@ -899,7 +899,7 @@ code;
     private static function form_tdk_html($title, $keyword, $description)
     {
         $title_template = "<title>%s</title>";
-        $keywords_template = "<meta name='keyword' content='%s'>";
+        $keywords_template = "<meta name='keywords' content='%s'>";
         $description_template = "<meta name='description' content='%s'>";
         return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
     }
