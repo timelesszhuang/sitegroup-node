@@ -368,6 +368,8 @@ class Detailstatic extends Common
             $temp_content = $this->articleReplaceKeyword($temp_content);
             // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
+            // 将阿里云图片拉取到本地
+            $temp_content=$this->generateAliyunImage($temp_content);
             // 将A链接插入到内容中去
             $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
             if ($contentWIthLink) {

@@ -678,7 +678,7 @@ trait FileExistsTraits
      * @param $data post数据 数组格式
      * @return mixed
      */
-    public function curl_post($url,$data)
+    public function curl_post($url, $data)
     {
         //初始化
         $curl = curl_init();
@@ -708,7 +708,7 @@ trait FileExistsTraits
     public function pingBaidu($data)
     {
         $siteinfo = Site::getSiteInfo();
-        $html=<<<ENF
+        $html = <<<ENF
 <?xml version="1.0" encoding="UTF-8"?>
 <methodCall>
     <methodName>weblogUpdates.extendedPing</methodName>
@@ -727,8 +727,40 @@ ENF;
             <value><string>{$item}</string></value>
         </param>
 ONE;
-            $html.="</params></methodCall>";
-            $this->curl_post("http://ping.baidu.com/ping/RPC2",$html);
+            $html .= "</params></methodCall>";
+            $this->curl_post("http://ping.baidu.com/ping/RPC2", $html);
         }
+    }
+
+    /**
+     * 获取阿里云图片
+     * @param $content
+     * @return mixed
+     */
+    public function generateAliyunImage($content)
+    {
+        $url = "https://lexiaoyi.oss-cn-beijing.aliyuncs.com";
+        preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
+        if ($match) {
+            foreach ($match[1] as $key=>$link) {
+                // 获取图片信息
+                $image_info = pathinfo($link);
+                if (empty($image_info)) {
+                    break;
+                }
+                // 下载后的路径
+                $generate_path = ROOT_PATH . "public/images/" . $image_info["basename"];
+                // 替换后的路径
+                $replace_path="/images/". $image_info["basename"];
+                // 获取文件
+                $image = file_get_contents($link);
+                // 生成图片
+                $generated=file_put_contents($generate_path, $image);
+                if($generated){
+                    $content=str_replace($match[1][$key],$replace_path,$content);
+                }
+            }
+        }
+        return $content;
     }
 }
