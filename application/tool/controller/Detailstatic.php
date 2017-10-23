@@ -368,8 +368,6 @@ class Detailstatic extends Common
             $temp_content = $this->articleReplaceKeyword($temp_content);
             // 替换关键字
             $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
-            // 将阿里云图片拉取到本地
-            $temp_content=$this->generateAliyunImage($temp_content);
             // 将A链接插入到内容中去
             $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
             if ($contentWIthLink) {
@@ -426,10 +424,15 @@ class Detailstatic extends Common
         //使用正则匹配
         //匹配base64 文件类型
         preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
-        if (!empty($match)) {
+        if (!empty($match[0])) {
             if (array_key_exists(1, $match)) {
                 foreach ($match[1] as $k => $v) {
                     $img_name = md5(uniqid(rand(), true));
+                    //阿里云图片生成
+                    $generated=$this->generateAliyunImage($v);
+                    if($generated){
+                        $content = str_replace($v, $generated, $content);
+                    }
                     list($file_name, $status) = $this->form_img_frombase64($v, $img_name, $water);
                     //需要替换掉内容中的数据
                     if ($status) {

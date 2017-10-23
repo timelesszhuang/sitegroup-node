@@ -737,30 +737,25 @@ ONE;
      * @param $content
      * @return mixed
      */
-    public function generateAliyunImage($content)
+    public function generateAliyunImage($img)
     {
         $url = "https://lexiaoyi.oss-cn-beijing.aliyuncs.com";
-        preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
-        if ($match) {
-            foreach ($match[1] as $key=>$link) {
-                // 获取图片信息
-                $image_info = pathinfo($link);
-                if (empty($image_info)) {
-                    break;
-                }
-                // 下载后的路径
-                $generate_path = ROOT_PATH . "public/images/" . $image_info["basename"];
-                // 替换后的路径
-                $replace_path="/images/". $image_info["basename"];
-                // 获取文件
-                $image = file_get_contents($link);
-                // 生成图片
-                $generated=file_put_contents($generate_path, $image);
-                if($generated){
-                    $content=str_replace($match[1][$key],$replace_path,$content);
-                }
+        if (strpos($img, $url) !== false) {
+            $image_info = pathinfo($img);
+            if (empty($image_info)) {
+                return false;
+            }
+            // 下载后的路径
+            $generate_path = ROOT_PATH . "public/images/" . $image_info["basename"];
+            // 替换后的路径
+            $replace_path = "/images/" . $image_info["basename"];
+            // 获取文件
+            $image = file_get_contents($img);
+            // 生成图片
+            $generated = file_put_contents($generate_path, $image);
+            if ($generated) {
+                return $replace_path;
             }
         }
-        return $content;
     }
 }
