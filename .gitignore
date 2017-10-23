@@ -21,3 +21,4 @@ composer.phar
 将删除 public/log/questionlist.txt
 /application/extra/site.php
 !/application/extra/site.php
+/application/extra/

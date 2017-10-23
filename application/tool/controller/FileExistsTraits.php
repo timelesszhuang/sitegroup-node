@@ -780,7 +780,12 @@ ONE;
         $options = array(
             OssClient::OSS_FILE_DOWNLOAD => $download_path,
             OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
-        return $ossClient->getObject($bucket, $img_name, $options);
+        try{
+            $ossClient->getObject($bucket, $img_name, $options);
+            return true;
+        }catch(Exception $e){
+            return false;
+        }
     }
 
     /**
