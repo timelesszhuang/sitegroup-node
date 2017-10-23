@@ -736,13 +736,15 @@ ONE;
 
     /**
      * 获取阿里云图片
-     * @param $content
+     * @param $img  传过来的图片
      * @return mixed
      */
     public function generateAliyunImage($img)
     {
         $url = "https://lexiaoyi.oss-cn-beijing.aliyuncs.com/";
+        // 匹配阿里云网址
         if (strpos($img, $url) !== false) {
+            // 获取图片信息
             $image_info = pathinfo($img);
             if (empty($image_info)) {
                 return false;
@@ -758,13 +760,14 @@ ONE;
                 return $replace_path;
             }
         }
+        return false;
     }
 
     /**
      * 获取阿里云图片并添加水印
-     * @param $file_path
-     * @param $img_name
-     * @return mixed
+     * @param $img_name          阿里云全路径地址
+     * @param $download_path     下载到的绝对路径
+     * @return bool
      */
     public function generateWaterMark($img_name,$download_path)
     {
