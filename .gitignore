@@ -19,5 +19,5 @@ composer.phar
 将删除 public/article/article265.html
 将删除 public/log/index.txt
 将删除 public/log/questionlist.txt
-/application/extra/
 /application/extra/site.php
+!/application/extra/site.php

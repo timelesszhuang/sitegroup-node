@@ -15,8 +15,10 @@ use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\ArticleReplaceKeyword;
 use app\tool\model\SiteErrorInfo;
 use app\tool\model\SitePageinfo;
+use OSS\OssClient;
 use think\Cache;
 use app\tool\model\SystemConfig;
+use think\Config;
 use think\View;
 
 trait FileExistsTraits
@@ -739,23 +741,56 @@ ONE;
      */
     public function generateAliyunImage($img)
     {
-        $url = "https://lexiaoyi.oss-cn-beijing.aliyuncs.com";
+        $url = "https://lexiaoyi.oss-cn-beijing.aliyuncs.com/";
         if (strpos($img, $url) !== false) {
             $image_info = pathinfo($img);
             if (empty($image_info)) {
                 return false;
             }
+            $down_path=str_replace($url,'',$img);
             // 下载后的路径
             $generate_path = ROOT_PATH . "public/images/" . $image_info["basename"];
             // 替换后的路径
             $replace_path = "/images/" . $image_info["basename"];
-            // 获取文件
-            $image = file_get_contents($img);
-            // 生成图片
-            $generated = file_put_contents($generate_path, $image);
+            // 获取文件 生成图片
+            $generated = $this->generateWaterMark($down_path,$generate_path);
             if ($generated) {
                 return $replace_path;
             }
         }
+    }
+
+    /**
+     * 获取阿里云图片并添加水印
+     * @param $file_path
+     * @param $img_name
+     * @return mixed
+     */
+    public function generateWaterMark($img_name,$download_path)
+    {
+        $accessKeyId = Config::get('oss.accessKeyId');
+        $accessKeySecret = Config::get("oss.accessKeySecret");
+        $endpoint = Config::get('oss.endpoint');
+        $bucket = "lexiaoyi";
+        //图片加水印
+        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+        $siteinfo = Site::getSiteInfo();
+        $water=$siteinfo["site_name"];
+        $code = $this->urlsafe_b64encode($water);
+        $options = array(
+            OssClient::OSS_FILE_DOWNLOAD => $download_path,
+            OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
+        return $ossClient->getObject($bucket, $img_name, $options);
+    }
+
+    /**
+     * url 安全的base64 编码
+     * @access private
+     */
+    private function urlsafe_b64encode($string)
+    {
+        $data = base64_encode($string);
+        $data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+        return $data;
     }
 }
