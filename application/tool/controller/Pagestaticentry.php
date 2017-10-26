@@ -3,8 +3,8 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use app\tool\controller\FileExistsTraits;
 
+use app\tool\traits\FileExistsTraits;
 use OSS\OssClient;
 use think\Cache;
 use think\Request;
@@ -100,6 +100,7 @@ class Pagestaticentry extends Common
 
     /**
      * 根据id和类型 重新生成静态化
+     * 比如 修改文章相关信息之后重新生成
      * @param Request $request
      */
     public function reGenerateHtml(Request $request)

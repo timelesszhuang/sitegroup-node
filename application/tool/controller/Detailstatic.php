@@ -6,7 +6,10 @@ use app\common\controller\Common;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
 use app\index\model\ScatteredTitle;
+use app\tool\traits\FileExistsTraits;
+use app\tool\traits\Osstrait;
 use think\Cache;
+use think\Config;
 use think\Db;
 use think\View;
 
@@ -17,6 +20,7 @@ use think\View;
 class Detailstatic extends Common
 {
     use FileExistsTraits;
+    use Osstrait;
 
     private static $system_default_count;
 
@@ -324,12 +328,14 @@ class Detailstatic extends Common
         foreach ($article_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->content), 0, 200);
-            preg_replace('/^&.+\;$/is', '', $description);
+            $description = preg_replace('/^&.+\;$/is', '', $description);
+            //页面的描述
+            $summary = $description ?: $item['summary'];
+            //页面的描述
+            $keywords = $item['keywords'];
             //获取网站的 tdk 文章列表等相关 公共元素
-            $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id, $menu_id, $menu_name, 'articlelist');
-
+            $assign_data = Commontool::getEssentialElement('detail', $item->title, $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
             // 把 站点的相关的数据写入数据库中
-            // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
             //获取上一篇
             $pre_articlecommon_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
@@ -353,17 +359,14 @@ class Detailstatic extends Common
                 $next_article = $next_article->toArray();
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
-            // 首先需要把base64 缩略图 生成为 文件
+            //首先修改缩略图
             $water = $siteinfo['walterString'];
             if ($item->thumbnails_name) {
-                //存在 base64缩略图 需要生成静态页
-                preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
-                if (!empty($match)) {
-                    $this->form_img_frombase64($match[1][0], $item->thumbnails_name, $water);
-                }
+                $this->get_osswater_img($item->thumbnails, $item->thumbnails_name, $water);
             }
             //替换图片 base64 为 图片文件
-            $temp_content = $this->form_img($item->content, $water);
+            $temp_content = $this->form_content_img($item->content, $water);
+
             // 替换关键词为指定链接 遍历全文和所有关键词
             $temp_content = $this->articleReplaceKeyword($temp_content);
             // 替换关键字
@@ -418,73 +421,32 @@ class Detailstatic extends Common
      * 根据内容生成图片
      * @access public
      */
-    public function form_img($content, $water)
+    public function form_content_img($content, $water)
     {
-        //从中提取出 base64 中的内容
-        //使用正则匹配
-        //匹配base64 文件类型
+        //使用正则匹配 从文章中获取oss图片链接
         preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
+        //两种均可
+        /*preg_match_all('/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg]))[\'|\"].*?[\/]?>/', $content, $match);*/
         if (!empty($match[0])) {
             if (array_key_exists(1, $match)) {
+                $endpoint = Config::get('oss.endpoint');
+                $bucket = Config::get('oss.bucket');
                 foreach ($match[1] as $k => $v) {
-                    $img_name = md5(uniqid(rand(), true));
-                    //阿里云图片生成
-                    $generated=$this->generateAliyunImage($v);
-                    if($generated){
-                        $content = str_replace($v, $generated, $content);
+                    $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
+                    if (strpos($v, $endpointurl) === false) {
+                        continue;
                     }
-                    list($file_name, $status) = $this->form_img_frombase64($v, $img_name, $water);
-                    //需要替换掉内容中的数据
-                    if ($status) {
-                        $content = str_replace($v, $file_name, $content);
+                    $imgname = $this->formUniqueString();
+                    $filetype = $this->analyseUrlFileType($v);
+                    //阿里云图片生成
+                    $filepath = $imgname . '.' . $filetype;
+                    if ($this->get_osswater_img($v, $filepath, $water)) {
+                        $content = str_replace($v, '/images/' . $filepath, $content);
                     }
                 }
             }
         }
         return $content;
-    }
-
-
-    /**
-     * 根据base64 生成图片
-     * @access public
-     * @param $base64img data:image/png;base64,***********
-     * @param $img_name ***.jpg  ***.png
-     * @param $water 水印字符串站点名+域名
-     */
-    private function form_img_frombase64($base64img, $img_name, $water)
-    {
-
-        //保存base64字符串为图片
-        //匹配出图片的格式
-        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64img, $result)) {
-            //匹配出 图片的类型
-            $new_file = "images/$img_name";
-            if (strpos($img_name, '.') === false) {
-                $type = $result[2];
-                $new_file = "images/$img_name" . '.' . $type;
-            } else {
-                //生成缩略图
-                $info = pathinfo($img_name);
-                $type = $info['extension'];
-            }
-            //获取图片的位置
-            $ttcPath = dirname(THINK_PATH) . '/6.ttc';
-            $dst = imagecreatefromstring(base64_decode(str_replace($result[1], '', $base64img)));
-            //水印颜色
-//            $color = imagecolorallocatealpha($dst, 197, 37, 19, 30);
-            $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
-            //添加水印
-//            imagettftext($dst, 12, 0, 11, 22, $color, $ttcPath, $water);
-            imagettftext($dst, 14, 0, 14, 22, $color, $ttcPath, $water);
-            $func = "image{$type}";
-            $create_status = $func($dst, $new_file);
-            imagedestroy($dst);
-            if ($create_status) {
-                return ['/' . $new_file, true];
-            }
-            return ['/' . $new_file, false];
-        }
     }
 
 
@@ -560,7 +522,7 @@ class Detailstatic extends Common
             $temp_arr = $item->toArray();
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $keyword_id, $menu_id, $menu_name, 'newslist');
+            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, '', $keyword_id, $menu_id, $menu_name, 'newslist');
             //file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
@@ -681,8 +643,11 @@ class Detailstatic extends Common
         }
         $static_count = 0;
         foreach ($question_data as $key => $item) {
-            $description = mb_substr(strip_tags($item->content_paragraph), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $item->question, $description, $keyword_id, $menu_id, $menu_name, 'questionlist');
+            $description = $item['description'];
+            $description = $description ?: mb_substr(strip_tags($item->content_paragraph), 0, 200);
+            //页面的描述
+            $keywords = $item['keywords'];
+            $assign_data = Commontool::getEssentialElement('detail', $item->question, $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
             //file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
@@ -697,12 +662,16 @@ class Detailstatic extends Common
             if ($next_question) {
                 $next_question['href'] = "/question/question{$next_question['id']}.html";
             }
+            $water = $siteinfo['walterString'];
+            $item->content_paragraph = $this->form_content_img($item->content_paragraph, $water);
             $content = (new View())->fetch('template/question.html',
                 [
                     'd' => $assign_data,
                     'question' => $item,
                     'pre_article' => $pre_question,
-                    'next_article' => $next_question
+                    'next_article' => $next_question,
+                    'pre_question' => $pre_question,
+                    'next_question' => $next_question,
                 ]
             );
             //判断目录是否存在
@@ -796,9 +765,11 @@ class Detailstatic extends Common
         foreach ($product_data as $key => $item) {
             //截取出 页面的 description 信息
             $description = mb_substr(strip_tags($item->summary), 0, 200);
-            preg_replace('/^&.+\;$/is', '', $description);
+            $description = preg_replace('/^&.+\;$/is', '', $description);
+            $summary = $item->summary ?: $description;
+            $keywords = $item->keywords;
             //获取网站的 tdk 文章列表等相关 公共元素
-            $assign_data = Commontool::getEssentialElement('detail', $item->name, $description, $keyword_id, $menu_id, $menu_name, 'productlist');
+            $assign_data = Commontool::getEssentialElement('detail', $item->name, $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
             // 把 站点的相关的数据写入数据库中
             // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
@@ -818,19 +789,30 @@ class Detailstatic extends Common
             if ($next_product) {
                 $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
             }
-            // 首先需要把base64 缩略图 生成为 文件
-//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
+            //首先修改缩略图
             $water = $siteinfo['walterString'];
-            if ($item->base64) {
-                //存在 base64缩略图 需要生成静态页
-                $this->form_img_frombase64($item->base64, $item->image_name, $water);
+            if ($item->image_name) {
+                $this->get_osswater_img($item->image, $item->image_name, $water);
             }
+            //替换图片 base64 为 图片文件
+            $item->detail = $this->form_content_img($item->detail, $water);
+            // 相关图片
+            $imgser = $item->imgser;
+            $local_img = [];
+            $imglist = unserialize($imgser);
+            if ($imglist) {
+                //本地的图片链接 需要随机生成链接
+                $local_img = $this->form_imgser_img($imglist, $water);
+            }
+            //其他相关信息
             $content = (new View())->fetch('template/product.html',
                 [
                     'd' => $assign_data,
-                    'product' => ["name" => $item->name, "image" => "<img src='/images/{$item->image_name}' alt='{$item->name}'>", 'sn' => $item->sn, 'type_name' => $item->type_name, "summary" => $item->summary, "detail" => $item->detail, "create_time" => $item->create_time],
+                    'product' => ["name" => $item->name, 'images' => $local_img, "image" => "<img src='/images/{$item->image_name}' alt='{$item->name}'>", 'sn' => $item->sn, 'type_name' => $item->type_name, "summary" => $item->summary, "detail" => $item->detail, "create_time" => $item->create_time],
                     'pre_article' => $pre_product,
                     'next_article' => $next_product,
+                    'pre_product' => $pre_product,
+                    'next_product' => $next_product,
                 ]
             );
             //判断目录是否存在
@@ -851,14 +833,39 @@ class Detailstatic extends Common
                     $article_sync->site_name = $site_name;
                     $article_sync->save();
                 } else {
-
                     $articleCountModel->count = $item["id"];
                     $articleCountModel->save();
                 }
             }
         }
-        // 请求当前网站列表页 提前生成列表静态化页面
-//        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
-//        $this->curl_get($curl);
     }
+
+
+    /**
+     * 生成产品的多张图片
+     * @access private
+     */
+    private function form_imgser_img($img_arr, $water)
+    {
+        print_r($img_arr);
+        $endpoint = Config::get('oss.endpoint');
+        $bucket = Config::get('oss.bucket');
+        $local_imgarr = [];
+        foreach ($img_arr as $k => $v) {
+            $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
+            //表示链接不存在
+            $imgname = $v['imgname'];
+            $osssrc = $v['osssrc'];
+            if (strpos($osssrc, $endpointurl) === false) {
+                array_push($local_imgarr, $osssrc);
+                continue;
+            }
+            if ($this->get_osswater_img($osssrc, $imgname, $water)) {
+                array_push($local_imgarr, '/images/' . $imgname);
+            }
+        }
+        return $local_imgarr;
+    }
+
+
 }
