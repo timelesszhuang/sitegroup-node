@@ -11,8 +11,8 @@ namespace app\index\controller;
 
 use app\index\model\ArticleSyncCount;
 use app\tool\controller\Commontool;
-use app\tool\controller\FileExistsTraits;
 use app\tool\controller\Site;
+use app\tool\traits\FileExistsTraits;
 use think\Cache;
 use think\View;
 
