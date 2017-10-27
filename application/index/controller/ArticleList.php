@@ -78,13 +78,13 @@ class ArticleList extends Common
                     'page' => $currentpage
                 ]);
             foreach ($article as $data) {
-                $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . ">";
+                $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . " title='{$data['title']}'>";
                 if (!empty($data["thumbnails_name"])) {
                     //如果有本地图片则 为本地图片
                     $src = "/images/" . $data['thumbnails_name'];
-                    $img = "<img src='$src' alt= '{$data['title']}'>";
+                    $img = "<img src='$src' alt= '{$data['title']}' title='{$data['title']}'>";
                 } else if (!empty($data["thumbnails"])) {
-                    $img = $data["thumbnails"];
+                    $img = "<img src='{$data["thumbnails"]}' alt= '{$data['title']}' title='{$data['title']}'>";
                 }
                 $data["img"] = $img;
             }

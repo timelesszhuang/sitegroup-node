@@ -362,9 +362,10 @@ class Detailstatic extends Common
             //首先修改缩略图
             $water = $siteinfo['walterString'];
             if ($item->thumbnails_name) {
+                //表示是oss的
                 $this->get_osswater_img($item->thumbnails, $item->thumbnails_name, $water);
             }
-            //替换图片 base64 为 图片文件
+            //替换图片静态化内容中图片文件
             $temp_content = $this->form_content_img($item->content, $water);
 
             // 替换关键词为指定链接 遍历全文和所有关键词
@@ -847,7 +848,6 @@ class Detailstatic extends Common
      */
     private function form_imgser_img($img_arr, $water)
     {
-        print_r($img_arr);
         $endpoint = Config::get('oss.endpoint');
         $bucket = Config::get('oss.bucket');
         $local_imgarr = [];
