@@ -366,21 +366,21 @@ class Detailstatic extends Common
                 $this->get_osswater_img($item->thumbnails, $item->thumbnails_name, $water);
             }
             //替换图片静态化内容中图片文件
-            $temp_content = $this->form_content_img($item->content, $water);
+            $item->content = $this->form_content_img($item->content, $water);
 
             // 替换关键词为指定链接 遍历全文和所有关键词
-            $temp_content = $this->articleReplaceKeyword($temp_content);
+            $item->content = $this->articleReplaceKeyword($item->content);
             // 替换关键字
-            $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
+            $item->content = $this->replaceKeyword($node_id, $site_id, $item->content);
             // 将A链接插入到内容中去
-            $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
+            $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $item->content);
             if ($contentWIthLink) {
-                $temp_content = $contentWIthLink;
+                $item->content = $contentWIthLink;
             }
             $content = (new View())->fetch('template/article.html',
                 [
                     'd' => $assign_data,
-                    'article' => ["title" => $item->title, "auther" => $item->auther, "create_time" => $item->create_time, "content" => $temp_content],
+                    'article' => $item,
                     'pre_article' => $pre_article,
                     'next_article' => $next_article,
                 ]
