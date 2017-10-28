@@ -77,7 +77,7 @@ class ArticleList extends Common
                     'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
-            foreach ($article as $data) {
+            foreach ($article as $v) {
                 $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
                 $img = sprintf($img_template, '/templatestatic/default.jpg');
                 if (!empty($v["thumbnails_name"])) {
@@ -88,7 +88,7 @@ class ArticleList extends Common
                     //如果没有本地图片则 直接显示 base64的
                     $img = sprintf($img_template, $v['thumbnails']);
                 }
-                $data["img"] = $img;
+                $v["img"] = $img;
             }
         }
         $assign_data['article'] = $article;
