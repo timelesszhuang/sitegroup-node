@@ -78,13 +78,15 @@ class ArticleList extends Common
                     'page' => $currentpage
                 ]);
             foreach ($article as $data) {
-                $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . " title='{$data['title']}'>";
-                if (!empty($data["thumbnails_name"])) {
+                $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
+                $img = sprintf($img_template, '/templatestatic/default.jpg');
+                if (!empty($v["thumbnails_name"])) {
                     //如果有本地图片则 为本地图片
-                    $src = "/images/" . $data['thumbnails_name'];
-                    $img = "<img src='$src' alt= '{$data['title']}' title='{$data['title']}'>";
-                } else if (!empty($data["thumbnails"])) {
-                    $img = "<img src='{$data["thumbnails"]}' alt= '{$data['title']}' title='{$data['title']}'>";
+                    $src = "/images/" . $v['thumbnails_name'];
+                    $img = sprintf($img_template, $src);
+                } else if (!empty($v["thumbnails"])) {
+                    //如果没有本地图片则 直接显示 base64的
+                    $img = sprintf($img_template, $v['thumbnails']);
                 }
                 $data["img"] = $img;
             }
