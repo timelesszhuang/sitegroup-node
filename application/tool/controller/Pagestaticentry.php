@@ -110,7 +110,8 @@ class Pagestaticentry extends Common
         $searchType = $request->post("searchType");
         $type = $request->post("type");
         if ($id && $searchType && $type) {
-            $this->exec_articlestatic($id, $searchType, $type);
+            //重新生成
+            (new Detailrestatic())->exec_refilestatic($id, $searchType, $type);
         }
     }
 
@@ -127,7 +128,7 @@ class Pagestaticentry extends Common
     }
 
     /**
-     * 修改指定静态文件的内容
+     * 修改指定静态文件的内容 比如模板之类
      * @param $type
      * @param $name
      * @return array

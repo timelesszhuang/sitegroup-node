@@ -33,6 +33,8 @@ Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
 Route::get('productlist/:id/:currentpage', 'index/ProductList/index', ['ext' => 'html']);
 Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 
+//新支持的页面预览功能
+Route::get('preview/:type/:id', 'tool/Preview/preview', ['ext' => 'html']);
 
 //模板文件 活动文件管理
 Route::rule('filemanage/uploadFile', 'tool/Filemanage/uploadFile');
@@ -66,15 +68,17 @@ Route::post('Rejection', 'tool/Site/Rejection');
 Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //统计
 Route::resource('externalAccess', 'index/ExternalAccess');
+
 Route::resource('Ceshi', 'tool/Ceshi');
 Route::get('ceshi', 'tool/Ceshi/ceshi');
-Route::get('sitemap', 'tool/SiteMap/index');
-//重新生成文章 根据id等信息
-Route::post('generateHtml','tool/Pagestaticentry/reGenerateHtml');
-// 获取静态文件 单条
-Route::get('getStaticOne/:type/:name','tool/Pagestaticentry/staticOneHtml');
-// 修改单个静态文件
-Route::post('generateOne/:type/:name','tool/Pagestaticentry/generateOne');
 
-//
+Route::get('sitemap', 'tool/SiteMap/index');
+//重新生成文章 根据id等信息 重新生成其他各类数据
+Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
+// 获取静态文件 单条
+Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
+// 修改单个静态文件
+Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
+
+//oss测试
 Route::get('oss', 'tool/Pagestaticentry/ossdemo');

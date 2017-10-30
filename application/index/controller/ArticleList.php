@@ -70,7 +70,9 @@ class ArticleList extends Common
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $article = [];
         if ($articleSyncCount) {
-            $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
+//          $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
+
+            $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id}";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,thumbnails,thumbnails_name,summary,create_time")->where($where)
                 ->paginate(10, false, [
