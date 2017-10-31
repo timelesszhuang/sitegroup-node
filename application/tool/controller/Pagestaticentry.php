@@ -109,6 +109,9 @@ class Pagestaticentry extends Common
         $id = $request->post("id");
         $searchType = $request->post("searchType");
         $type = $request->post("type");
+        file_put_contents('a.txt', print_r($searchType, true));
+        file_put_contents('a.txt', print_r($id, true));
+        file_put_contents('a.txt', print_r($type, true));
         if ($id && $searchType && $type) {
             //重新生成
             (new Detailrestatic())->exec_refilestatic($id, $searchType, $type);
