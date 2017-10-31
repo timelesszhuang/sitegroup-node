@@ -9,7 +9,12 @@
 namespace app\tool\controller;
 
 
+use app\index\model\Product;
+use app\index\model\Question;
+use app\tool\model\SitePageinfo;
 use app\tool\traits\FileExistsTraits;
+use app\index\model\Article;
+use think\View;
 
 class Detailrestatic
 {
@@ -57,20 +62,22 @@ class Detailrestatic
         ])->find();
         // 取出指定id的文章
         $articlesql = "id = $id and node_id=$node_id and articletype_id=$type_id";
-        $article = \app\admin\model\Article::where($articlesql)->find()->toArray();
+        $article = Article::where($articlesql)->find()->toArray();
 
         $pre_article_sql = "id <{$id} and node_id=$node_id and articletype_id=$type_id";
-        $pre_article = \app\index\model\Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find()->toArray();
+        $pre_article = Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
         //上一页链接
         if ($pre_article) {
+            $pre_article = $pre_article->toArray();
             $pre_article = ['href' => "/article/article{$pre_article['id']}.html", 'title' => $pre_article['title']];
         }
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
         $next_article_sql = "id >{$id} and node_id=$node_id and articletype_id=$type_id";
-        $next_article = \app\index\model\Article::where($next_article_sql)->field("id,title")->find()->toArray();
+        $next_article = Article::where($next_article_sql)->field("id,title")->find();
         //下一页链接
         if ($next_article) {
+            $next_article = $next_article->toArray();
             $next_article['href'] = "/article/article{$next_article['id']}.html";
         }
         $water = $siteinfo['walterString'];
@@ -130,10 +137,10 @@ class Detailrestatic
         ])->find();
         // 取出指定id的文章
         $productsql = "id = $id and node_id=$node_id and type_id=$type_id";
-        $product = \app\admin\model\Product::where($productsql)->find()->toArray();
+        $product = Product::where($productsql)->find()->toArray();
         $water = $siteinfo['walterString'];
-        $content = (new Detailstatic())->form_perproduct($product, $node_id, $type_id, $water, $sitePageInfo['akeyword_id'],  $menuInfo['id'], $menuInfo['name']);
-        $make_web = file_put_contents('article/article' . $id . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
+        $content = (new Detailstatic())->form_perproduct($product, $node_id, $type_id, $water, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $make_web = file_put_contents('product/product' . $id . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
         return $make_web;
     }
 
@@ -173,19 +180,19 @@ class Detailrestatic
             "menu_id" => $menuInfo["id"]
         ])->find();
         //获取上一篇和下一篇
-        $pre_question = \app\index\model\Question::where(["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+        $pre_question = Question::where(["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
         if ($pre_question) {
             $pre_question['href'] = "/question/question{$pre_question['id']}.html";
         }
         //下一篇可能会导致其他问题
-        $next_question = \app\index\model\Question::where(["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
+        $next_question = Question::where(["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
         }
         $questionsql = "id = $id and node_id=$node_id and type_id=$type_id";
-        $question = \app\admin\model\Product::where($questionsql)->find()->toArray();
+        $question = Question::where($questionsql)->find()->toArray();
         $water = $siteinfo['walterString'];
-        $assign_data = $this->form_perquestion($question, $water, $sitePageInfo['akeyword_id'],  $menuInfo['id'], $menuInfo['name']);
+        $assign_data = (new Detailstatic())->form_perquestion($question, $water, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
         $content = (new View())->fetch('template/question.html',
             [
                 'd' => $assign_data,

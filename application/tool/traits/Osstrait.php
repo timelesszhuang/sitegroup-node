@@ -44,9 +44,6 @@ trait Osstrait
             $msg = '上传成功';
         } catch (OssException $e) {
             $msg = $e->getMessage();
-//            if($e->getCode()=='404'){
-//                //表示bucket 不存在创建
-//            }
             $status = false;
         }
         return ['status' => $status, 'msg' => $msg];
