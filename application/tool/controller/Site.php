@@ -9,12 +9,12 @@ use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
 use app\tool\model\SiteUser;
 use app\tool\model\UserDefinedForm;
+use app\tool\traits\FileExistsTraits;
 use think\Cache;
 use think\Config;
 use think\Db;
 use think\Request;
 use think\Validate;
-use app\tool\controller\FileExistsTraits;
 
 /**
  * 站点相关操作

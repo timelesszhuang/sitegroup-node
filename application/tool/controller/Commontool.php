@@ -311,7 +311,7 @@ class Commontool extends Common
      * @return array
      * @todo 详情页不需要 存储在数据库中 TDK定死就行
      */
-    public static function getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $a_keyword_id)
+    public static function getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id)
     {
         //需要知道 栏目的关键词等
         //$keyword_info, $site_id, $node_id, $articletitle, $articlecontent
@@ -326,10 +326,28 @@ class Commontool extends Common
                 break;
             }
         }
-        if (!$a_child_info) {
-            //需要处理下 如果没有的话 怎么处理
-            return ['', '', ''];
+        // 该A类下 没有关键词 需要更换
+        if (empty($a_child_info)) {
+            //需要处理下 如果没有的话 怎么处理 也就是说该网站取消选择某个关键词
+            $a_keyword_key = array_rand($keyword_info, 1);
+            $new_a_keyword_id = $keyword_info[$a_keyword_key]['id'];
+            //更新一下数据库中的页面的a类 关键词
+            Db::name('SitePageinfo')->where([
+                'site_id' => $site_id,
+                'node_id' => $node_id,
+                'akeyword_id' => $a_keyword_id,
+            ])->update([
+                'akeyword_id' => $new_a_keyword_id,
+                'update_time' => time()
+            ]);
+            foreach ($keyword_info as $k => $v) {
+                if ($v['id'] == $new_a_keyword_id) {
+                    $a_child_info = $v['children'];
+                    break;
+                }
+            }
         }
+        //随机取 一个a类下的b类
         $b_child_info = $a_child_info[array_rand($a_child_info)];
         $c_keyword_arr = [];
         if (array_key_exists('children', $b_child_info)) {
@@ -347,7 +365,7 @@ class Commontool extends Common
         }
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
         $title = $articletitle . '-' . implode('_', $c_keywordname_arr);
-        $keyword = implode(',', $c_keywordname_arr);
+        $keyword = $keywords ? $keywords : implode(',', $c_keywordname_arr);
         $description = $articlecontent;
         return [$title, $keyword, $description];
     }
@@ -404,22 +422,25 @@ class Commontool extends Common
             $article = Db::name('Article')->where($where)->field('id,title,thumbnails,thumbnails_name,summary,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
+
                 $art = [];
                 $art['title'] = $v['title'];
                 $art['a_href'] = '/article/article' . $v['id'] . '.html';
                 $art['summary'] = $v['summary'];
-                $img = "<img src='/templatestatic/default.jpg' alt=" . $v["title"] . ">";
+                $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
+                $img = sprintf($img_template, '/templatestatic/default.jpg');
                 if (!empty($v["thumbnails_name"])) {
                     //如果有本地图片则 为本地图片
                     $src = "/images/" . $v['thumbnails_name'];
-                    $img = "<img src='$src' alt= '{$v['title']}'>";
+                    $img = sprintf($img_template, $src);
                 } else if (!empty($v["thumbnails"])) {
                     //如果没有本地图片则 直接显示 base64的
-                    $img = $v["thumbnails"];
+                    $img = sprintf($img_template, $v['thumbnails']);
                 }
                 $art['thumbnails'] = $img;
                 $art['create_time'] = date('Y-m-d', $v['create_time']);
                 $articlelist[] = $art;
+
             }
             return [$articlelist, $more];
         }
@@ -708,11 +729,11 @@ CODE;
      * @param string $param 如果是  index  第二第三个参数没用
      *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id   $param4 表示菜单类型 articlelist newslist  questionlist  productlist
      *                              envmenu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name
-     *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容   $param3 是 a_keyword_id  $param4  表示 menu_id  $param5 表示 menu_name $param6 用于生成面包屑的时候 获取 栏目菜单的url
+     *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容 $param3 表示文章设置的keywords  $param4 是 a_keyword_id  $para5  表示 menu_id  $param6 表示 menu_name $param7 用于生成面包屑的时候 获取 栏目菜单的url
      * @param string $param2
      * @return array
      */
-    public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '')
+    public static function getEssentialElement($tag = 'index', $param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '', $param7 = '')
     {
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
@@ -762,28 +783,18 @@ CODE;
             case 'detail':
                 //详情页面
                 $page_id = '';
+                //文章的标题
                 $articletitle = $param;
+                //文章的summary
                 $articlecontent = $param2;
-                $a_keyword_id = $param3;
-                $menu_id = $param4;
-                $menu_name = $param5;
-                $type = $param6;
-                list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $a_keyword_id);
-                //需要考虑到一个问题  如果前台取消了选择的关键词的话  a_keyword_id 取出对应的关键词会取不到
-                if (!$title) {
-                    $a_keyword_key = array_rand($keyword_info, 1);
-                    $new_a_keyword_id = $keyword_info[$a_keyword_key]['id'];
-                    list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $new_a_keyword_id);
-                    //更新一下数据库中的页面的a类 关键词
-                    Db::name('SitePageinfo')->where([
-                        'site_id' => $site_id,
-                        'node_id' => $node_id,
-                        'akeyword_id' => $a_keyword_id,
-                    ])->update([
-                        'akeyword_id' => $new_a_keyword_id,
-                        'update_time' => time()
-                    ]);
-                }
+                //关键词 文章中的关键词
+                $keywords = $param3;
+                //该文章所属的父类的a类关键词
+                $a_keyword_id = $param4;
+                $menu_id = $param5;
+                $menu_name = $param6;
+                $type = $param7;
+                list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
                 $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
                 break;

@@ -5,8 +5,12 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
+use app\index\model\Product;
 use app\index\model\ScatteredTitle;
+use app\tool\traits\FileExistsTraits;
+use app\tool\traits\Osstrait;
 use think\Cache;
+use think\Config;
 use think\Db;
 use think\View;
 
@@ -17,6 +21,7 @@ use think\View;
 class Detailstatic extends Common
 {
     use FileExistsTraits;
+    use Osstrait;
 
     private static $system_default_count;
 
@@ -170,8 +175,6 @@ class Detailstatic extends Common
      */
     public function index($requesttype = '')
     {
-//        set_time_limit(0);
-//        ignore_user_abort();
         // 获取站点的相关的相关信息
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
@@ -310,9 +313,12 @@ class Detailstatic extends Common
             // 没有获取到 某个栏目静态化到的网址 后续需要添加一个
             $article_sync = new ArticleSyncCount();
         }
-        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
-        $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
-        $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+        //删除掉是否同步功能
+//获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
+//        $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
+//        $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+        $article_list_sql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id";
+
         // 要 step_limit+1 因为要 获取上次的最后一条
         $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
         // 如果有数据的话清除掉列表的缓存
@@ -322,30 +328,31 @@ class Detailstatic extends Common
         $static_count = 0;
         $pingBaidu = [];
         foreach ($article_data as $key => $item) {
-            //截取出 页面的 description 信息
-            $description = mb_substr(strip_tags($item->content), 0, 200);
-            preg_replace('/^&.+\;$/is', '', $description);
-            //获取网站的 tdk 文章列表等相关 公共元素
-            $assign_data = Commontool::getEssentialElement('detail', $item->title, $description, $keyword_id, $menu_id, $menu_name, 'articlelist');
-
+            //首先修改缩略图
             // 把 站点的相关的数据写入数据库中
-            // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //获取上一篇和下一篇
             //获取上一篇
-            $pre_articlecommon_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
-            $pre_article_sql = "($pre_articlecommon_sql is_sync=20 ) or  ( $pre_articlecommon_sql site_id = $site_id)";
+            // $pre_articlecommon_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
+            // $pre_article_sql = "($pre_articlecommon_sql is_sync=20 ) or  ( $pre_articlecommon_sql site_id = $site_id)";
+            //
+            //判断目录是否存在
+            if (!file_exists('article')) {
+                $this->make_error("article");
+                return false;
+            }
+            $pre_article_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id";
             $pre_article = \app\index\model\Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
-                $pre_article = ['href' => "/article/article{$pre_article['id']}.html", 'title' => $pre_article['title']];
+                $pre_article = $pre_article->toArray();
+                $pre_article['href'] = "/article/article{$pre_article['id']}.html";
             }
             //获取下一篇
             $next_article = [];
             //获取下一篇 的网址
             if ($key < $step_limit) {
                 //最后一条 不需要有 下一页
-                $next_articlecommon_sql = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
-                $next_article_sql = "($next_articlecommon_sql is_sync=20 ) or  ( $next_articlecommon_sql site_id = $site_id)";
+                $next_article_sql = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id";
                 $next_article = \app\index\model\Article::where($next_article_sql)->field("id,title")->find();
             }
             //下一页链接
@@ -353,39 +360,18 @@ class Detailstatic extends Common
                 $next_article = $next_article->toArray();
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
-            // 首先需要把base64 缩略图 生成为 文件
+            //首先修改缩略图
             $water = $siteinfo['walterString'];
-            if ($item->thumbnails_name) {
-                //存在 base64缩略图 需要生成静态页
-                preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $item->thumbnails, $match);
-                if (!empty($match)) {
-                    $this->form_img_frombase64($match[1][0], $item->thumbnails_name, $water);
-                }
-            }
-            //替换图片 base64 为 图片文件
-            $temp_content = $this->form_img($item->content, $water);
-            // 替换关键词为指定链接 遍历全文和所有关键词
-            $temp_content = $this->articleReplaceKeyword($temp_content);
-            // 替换关键字
-            $temp_content = $this->replaceKeyword($node_id, $site_id, $temp_content);
-            // 将A链接插入到内容中去
-            $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $temp_content);
-            if ($contentWIthLink) {
-                $temp_content = $contentWIthLink;
-            }
+            //静态化图片等
+            $assign_data = $this->form_perarticle_content($item, $node_id, $site_id, $water, $keyword_id, $menu_id, $menu_name);
             $content = (new View())->fetch('template/article.html',
                 [
                     'd' => $assign_data,
-                    'article' => ["title" => $item->title, "auther" => $item->auther, "create_time" => $item->create_time, "content" => $temp_content],
+                    'article' => $item,
                     'pre_article' => $pre_article,
                     'next_article' => $next_article,
                 ]
             );
-            //判断目录是否存在
-            if (!file_exists('article')) {
-                $this->make_error("article");
-                return false;
-            }
             $make_web = file_put_contents('article/article' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
@@ -414,77 +400,71 @@ class Detailstatic extends Common
         return $static_count - 1;
     }
 
+
+    /**
+     * 生成单独的文章内容
+     * @access public
+     */
+    public function form_perarticle_content(&$item, $node_id, $site_id, $water, $keyword_id, $menu_id, $menu_name)
+    {
+        //截取出 页面的 description 信息
+        $description = mb_substr(strip_tags($item['content']), 0, 200);
+        $description = preg_replace('/^&.+\;$/is', '', $description);
+        //页面的描述
+        $summary = $description ?: $item['summary'];
+        //页面的描述
+        $keywords = $item['keywords'];
+        //获取网站的 tdk 文章列表等相关 公共元素
+        $assign_data = Commontool::getEssentialElement('detail', $item['title'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
+        if ($item['thumbnails_name']) {
+            //表示是oss的
+            $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $water);
+        }
+        //替换图片静态化内容中图片文件
+        $item['content'] = $this->form_content_img($item['content'], $water);
+        // 替换关键词为指定链接 遍历全文和所有关键词
+        $item['content'] = $this->articleReplaceKeyword($item['content']);
+        // 替换关键字
+        $item['content'] = $this->replaceKeyword($node_id, $site_id, $item['content']);
+        // 将A链接插入到内容中去
+        $contentWIthLink = $this->contentJonintALink($node_id, $site_id, $item['content']);
+        if ($contentWIthLink) {
+            $item['content'] = $contentWIthLink;
+        }
+        return $assign_data;
+    }
+
+
     /**
      * 根据内容生成图片
      * @access public
      */
-    public function form_img($content, $water)
+    public function form_content_img($content, $water)
     {
-        //从中提取出 base64 中的内容
-        //使用正则匹配
-        //匹配base64 文件类型
+        //使用正则匹配 从文章中获取oss图片链接
         preg_match_all('/<img[^>]+src\s*=\\s*[\'\"]([^\'\"]+)[\'\"][^>]*>/i', $content, $match);
+        //两种均可
+        /*preg_match_all('/<[img|IMG].*?src=[\'|\"](.*?(?:[\.gif|\.jpg]))[\'|\"].*?[\/]?>/', $content, $match);*/
         if (!empty($match[0])) {
             if (array_key_exists(1, $match)) {
+                $endpoint = Config::get('oss.endpoint');
+                $bucket = Config::get('oss.bucket');
                 foreach ($match[1] as $k => $v) {
-                    $img_name = md5(uniqid(rand(), true));
-                    //阿里云图片生成
-                    $generated=$this->generateAliyunImage($v);
-                    if($generated){
-                        $content = str_replace($v, $generated, $content);
+                    $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
+                    if (strpos($v, $endpointurl) === false) {
+                        continue;
                     }
-                    list($file_name, $status) = $this->form_img_frombase64($v, $img_name, $water);
-                    //需要替换掉内容中的数据
-                    if ($status) {
-                        $content = str_replace($v, $file_name, $content);
+                    $imgname = $this->formUniqueString();
+                    $filetype = $this->analyseUrlFileType($v);
+                    //阿里云图片生成
+                    $filepath = $imgname . '.' . $filetype;
+                    if ($this->get_osswater_img($v, $filepath, $water)) {
+                        $content = str_replace($v, '/images/' . $filepath, $content);
                     }
                 }
             }
         }
         return $content;
-    }
-
-
-    /**
-     * 根据base64 生成图片
-     * @access public
-     * @param $base64img data:image/png;base64,***********
-     * @param $img_name ***.jpg  ***.png
-     * @param $water 水印字符串站点名+域名
-     */
-    private function form_img_frombase64($base64img, $img_name, $water)
-    {
-
-        //保存base64字符串为图片
-        //匹配出图片的格式
-        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64img, $result)) {
-            //匹配出 图片的类型
-            $new_file = "images/$img_name";
-            if (strpos($img_name, '.') === false) {
-                $type = $result[2];
-                $new_file = "images/$img_name" . '.' . $type;
-            } else {
-                //生成缩略图
-                $info = pathinfo($img_name);
-                $type = $info['extension'];
-            }
-            //获取图片的位置
-            $ttcPath = dirname(THINK_PATH) . '/6.ttc';
-            $dst = imagecreatefromstring(base64_decode(str_replace($result[1], '', $base64img)));
-            //水印颜色
-//            $color = imagecolorallocatealpha($dst, 197, 37, 19, 30);
-            $color = imagecolorallocatealpha($dst, 255, 255, 255, 30);
-            //添加水印
-//            imagettftext($dst, 12, 0, 11, 22, $color, $ttcPath, $water);
-            imagettftext($dst, 14, 0, 14, 22, $color, $ttcPath, $water);
-            $func = "image{$type}";
-            $create_status = $func($dst, $new_file);
-            imagedestroy($dst);
-            if ($create_status) {
-                return ['/' . $new_file, true];
-            }
-            return ['/' . $new_file, false];
-        }
     }
 
 
@@ -556,16 +536,22 @@ class Detailstatic extends Common
         }
         $static_count = 0;
         foreach ($scatTitleArray as $key => $item) {
+            //判断目录是否存在
+            if (!file_exists('news')) {
+                $this->make_error("news");
+                return false;
+            }
             $scatArticleArray = Db::name('ScatteredArticle')->where(["id" => ["in", $item->article_ids]])->column('content_paragraph');
             $temp_arr = $item->toArray();
             $temp_arr['content'] = implode('<br/>', $scatArticleArray);
             $temp_content = mb_substr(strip_tags($temp_arr['content']), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, $keyword_id, $menu_id, $menu_name, 'newslist');
+            $assign_data = Commontool::getEssentialElement('detail', $temp_arr["title"], $temp_content, '', $keyword_id, $menu_id, $menu_name, 'newslist');
             //file_put_contents('log/scatteredarticle.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_article = \app\index\model\ScatteredTitle::where(["id" => ["lt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->order("id", "desc")->find();
             if ($pre_article) {
+                $pre_article = $pre_article->toArray();
                 $pre_article['href'] = "/news/news{$pre_article['id']}.html";
             }
             $next_article = [];
@@ -573,6 +559,7 @@ class Detailstatic extends Common
                 $next_article = \app\index\model\ScatteredTitle::where(["id" => ["gt", $item["id"]], "node_id" => $node_id, "articletype_id" => $type_id])->field("id,title")->find();
             }
             if ($next_article) {
+                $next_article = $next_article->toArray();
                 $next_article['href'] = "/news/news{$next_article['id']}.html";
             }
             $content = (new View())->fetch('template/news.html',
@@ -583,18 +570,13 @@ class Detailstatic extends Common
                     'next_article' => $next_article
                 ]
             );
-            //判断模板是否存在
-            if (!file_exists('news')) {
-                $this->make_error("news");
-                return false;
-            }
             $make_web = file_put_contents('news/news' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
                 $articleCountModel = ArticleSyncCount::where($where)->find();
                 if (is_null($articleCountModel)) {
                     //之前 栏目生成配置 记录没有添加过
-                    $article_temp->count = $item->id;
+                    $article_temp->count = $item['id'];
                     $article_temp->type_id = $type_id;
                     $article_temp->type_name = $type_name;
                     $article_temp->node_id = $node_id;
@@ -602,7 +584,7 @@ class Detailstatic extends Common
                     $article_temp->site_name = $site_name;
                     $article_temp->save();
                 } else {
-                    $articleCountModel->count = $item->id;
+                    $articleCountModel->count = $item['id'];
                     $articleCountModel->save();
                 }
             }
@@ -680,36 +662,41 @@ class Detailstatic extends Common
             Cache::clear();
         }
         $static_count = 0;
+        //首先修改缩略图
+        $water = $siteinfo['walterString'];
         foreach ($question_data as $key => $item) {
-            $description = mb_substr(strip_tags($item->content_paragraph), 0, 200);
-            $assign_data = Commontool::getEssentialElement('detail', $item->question, $description, $keyword_id, $menu_id, $menu_name, 'questionlist');
-            //file_put_contents('log/question.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-            //页面中还需要填写隐藏的 表单 node_id site_id
-            //获取上一篇和下一篇
-            $pre_question = \app\index\model\Question::where(["id" => ["lt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
-            if ($pre_question) {
-                $pre_question['href'] = "/question/question{$pre_question['id']}.html";
-            }
-            $next_question = [];
-            if ($key < $step_limit) {
-                $next_question = \app\index\model\Question::where(["id" => ["gt", $item->id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
-            }
-            if ($next_question) {
-                $next_question['href'] = "/question/question{$next_question['id']}.html";
-            }
-            $content = (new View())->fetch('template/question.html',
-                [
-                    'd' => $assign_data,
-                    'question' => $item,
-                    'pre_article' => $pre_question,
-                    'next_article' => $next_question
-                ]
-            );
             //判断目录是否存在
             if (!file_exists('question')) {
                 $this->make_error("question");
                 return false;
             }
+            //页面中还需要填写隐藏的 表单 node_id site_id
+            //获取上一篇和下一篇
+            $pre_question = \app\index\model\Question::where(["id" => ["lt", $item['id']], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+            if ($pre_question) {
+                $pre_question = $pre_question->toArray();
+                $pre_question['href'] = "/question/question{$pre_question['id']}.html";
+            }
+            $next_question = [];
+            if ($key < $step_limit) {
+                $next_question = \app\index\model\Question::where(["id" => ["gt", $item['id']], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
+            }
+            if ($next_question) {
+                $next_question = $next_question->toArray();
+                $next_question['href'] = "/question/question{$next_question['id']}.html";
+            }
+            $assign_data = $this->form_perquestion($item, $water, $keyword_id, $menu_id, $menu_name);
+            $content = (new View())->fetch('template/question.html',
+                [
+                    'd' => $assign_data,
+                    'question' => $item,
+                    //之前的文章
+                    'pre_article' => $pre_question,
+                    'next_article' => $next_question,
+                    'pre_question' => $pre_question,
+                    'next_question' => $next_question,
+                ]
+            );
             $make_web = file_put_contents('question/question' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
@@ -737,16 +724,29 @@ class Detailstatic extends Common
 
 
     /**
+     * 格式化每个问题页面
+     * @access public
+     */
+    public function form_perquestion(&$item, $water, $keyword_id, $menu_id, $menu_name)
+    {
+        $description = $item['description'];
+        $description = $description ?: mb_substr(strip_tags($item['content_paragraph']), 0, 200);
+        //页面的描述
+        $keywords = $item['keywords'];
+        $assign_data = Commontool::getEssentialElement('detail', $item['question'], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
+        $item['content_paragraph'] = $this->form_content_img($item['content_paragraph'], $water);
+        return $assign_data;
+    }
+
+
+    /**
      * 文章详情页面的静态化
      * @access public
-     * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
-     * @todo 需要指定生成文章数量的数量
+     * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面 产品呢是一次性生成的
      * @param $site_id 站点的id
      * @param $site_name 站点名
      * @param $node_id 节点的id
      * @param $article_type_keyword 文章分类id 所对应的A类关键词
-     * @param $type_id 文章的分类id
-     * @param $a_keyword_id 栏目所对应的a类 关键词
      */
     private function productstatic($site_id, $site_name, $node_id, $article_type_keyword)
     {
@@ -785,7 +785,6 @@ class Detailstatic extends Common
             // 没有获取到 某个栏目静态化到的网址 后续需要添加一个
             $article_sync = new ArticleSyncCount();
         }
-        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
         $productsql = "id >= $pre_stop and node_id=$node_id and type_id=$type_id";
         // 要 step_limit+1 因为要 获取上次的最后一条
         $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
@@ -793,51 +792,14 @@ class Detailstatic extends Common
         if (isset($product_data)) {
             Cache::clear();
         }
+        $water = $siteinfo['walterString'];
         foreach ($product_data as $key => $item) {
-            //截取出 页面的 description 信息
-            $description = mb_substr(strip_tags($item->summary), 0, 200);
-            preg_replace('/^&.+\;$/is', '', $description);
-            //获取网站的 tdk 文章列表等相关 公共元素
-            $assign_data = Commontool::getEssentialElement('detail', $item->name, $description, $keyword_id, $menu_id, $menu_name, 'productlist');
-            // 把 站点的相关的数据写入数据库中
-            // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-            //获取上一篇和下一篇
-            //获取上一篇
-            $pre_product = [];
-            $pre_productcommon_sql = "id <{$item['id']} and node_id=$node_id and type_id=$type_id ";
-            $pre_product = \app\index\model\Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
-            //上一页链接
-            if ($pre_product) {
-                $pre_product = ['href' => "/product/product{$pre_product['id']}.html", 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
-            }
-            //获取下一篇
-            $next_product = [];
-            $next_productcommon_sql = "id >{$item['id']} and node_id=$node_id and type_id=$type_id ";
-            $next_product = \app\index\model\Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
-            //下一页链接
-            if ($next_product) {
-                $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
-            }
-            // 首先需要把base64 缩略图 生成为 文件
-//            $water = $assign_data['site_name'] . ' ' . $assign_data['url'];
-            $water = $siteinfo['walterString'];
-            if ($item->base64) {
-                //存在 base64缩略图 需要生成静态页
-                $this->form_img_frombase64($item->base64, $item->image_name, $water);
-            }
-            $content = (new View())->fetch('template/product.html',
-                [
-                    'd' => $assign_data,
-                    'product' => ["name" => $item->name, "image" => "<img src='/images/{$item->image_name}' alt='{$item->name}'>", 'sn' => $item->sn, 'type_name' => $item->type_name, "summary" => $item->summary, "detail" => $item->detail, "create_time" => $item->create_time],
-                    'pre_article' => $pre_product,
-                    'next_article' => $next_product,
-                ]
-            );
-            //判断目录是否存在
             if (!file_exists('product')) {
                 $this->make_error("product");
                 return false;
             }
+            $content = $this->form_perproduct($item, $node_id, $site_id, $water, $keyword_id, $menu_id, $menu_name);
+            //判断目录是否存在
             $make_web = file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
@@ -851,14 +813,97 @@ class Detailstatic extends Common
                     $article_sync->site_name = $site_name;
                     $article_sync->save();
                 } else {
-
                     $articleCountModel->count = $item["id"];
                     $articleCountModel->save();
                 }
             }
         }
-        // 请求当前网站列表页 提前生成列表静态化页面
-//        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
-//        $this->curl_get($curl);
     }
+
+
+    /**
+     * 生成单个产品 因为不用考虑定期生成 多少篇
+     * @access public
+     */
+    public function form_perproduct($item, $node_id, $type_id, $water, $keyword_id, $menu_id, $menu_name)
+    {
+        //截取出 页面的 description 信息
+        $description = mb_substr(strip_tags($item['summary']), 0, 200);
+        $description = preg_replace('/^&.+\;$/is', '', $description);
+        $summary = $item['summary'] ?: $description;
+        $keywords = $item['keywords'];
+        //获取网站的 tdk 文章列表等相关 公共元素
+        $assign_data = Commontool::getEssentialElement('detail', $item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
+
+        // 把 站点的相关的数据写入数据库中
+        // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+        //获取上一篇和下一篇
+        //获取上一篇
+        $pre_productcommon_sql = "id <{$item['id']} and node_id=$node_id and type_id=$type_id ";
+        $pre_product = Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
+        //上一页链接
+        if ($pre_product) {
+            $pre_product = $pre_product->toArray();
+            $pre_product = ['href' => "/product/product{$pre_product['id']}.html", 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
+        }
+        //获取下一篇
+        $next_productcommon_sql = "id >{$item['id']} and node_id=$node_id and type_id=$type_id ";
+        $next_product = \app\index\model\Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
+        //下一页链接
+        if ($next_product) {
+            $next_product = $next_product->toArray();
+            $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
+        }
+        if ($item['image_name']) {
+            $this->get_osswater_img($item['image'], $item['image_name'], $water);
+        }
+        //替换图片 base64 为 图片文件
+        $item['detail'] = $this->form_content_img($item['detail'], $water);
+        // 相关图片
+        $imgser = $item['imgser'];
+        $local_img = [];
+        $imglist = unserialize($imgser);
+        if ($imglist) {
+            //本地的图片链接 需要随机生成链接
+            $local_img = $this->form_imgser_img($imglist, $water);
+        }
+        //其他相关信息
+        $content = (new View())->fetch('template/product.html',
+            [
+                'd' => $assign_data,
+                'product' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
+                'pre_product' => $pre_product,
+                'next_product' => $next_product,
+            ]
+        );
+        return $content;
+    }
+
+
+    /**
+     * 生成产品的多张图片
+     * @access private
+     */
+    private function form_imgser_img($img_arr, $water)
+    {
+        $endpoint = Config::get('oss.endpoint');
+        $bucket = Config::get('oss.bucket');
+        $local_imgarr = [];
+        foreach ($img_arr as $k => $v) {
+            $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
+            //表示链接不存在
+            $imgname = $v['imgname'];
+            $osssrc = $v['osssrc'];
+            if (strpos($osssrc, $endpointurl) === false) {
+                array_push($local_imgarr, $osssrc);
+                continue;
+            }
+            if ($this->get_osswater_img($osssrc, $imgname, $water)) {
+                array_push($local_imgarr, '/images/' . $imgname);
+            }
+        }
+        return $local_imgarr;
+    }
+
+
 }

@@ -5,9 +5,9 @@ namespace app\index\controller;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use app\common\controller\Common;
+use app\tool\traits\FileExistsTraits;
 use think\Cache;
 use think\View;
-use app\tool\controller\FileExistsTraits;
 
 /**
  * 文章列表相关操作 列表伪静态
@@ -70,23 +70,27 @@ class ArticleList extends Common
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $article = [];
         if ($articleSyncCount) {
-            $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
+//          $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
+
+            $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id}";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,thumbnails,thumbnails_name,summary,create_time")->where($where)
                 ->paginate(10, false, [
                     'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
-            foreach ($article as $data) {
-                $img = "<img src='/templatestatic/default.jpg' alt=" . $data["title"] . ">";
-                if (!empty($data["thumbnails_name"])) {
+            foreach ($article as $v) {
+                $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
+                $img = sprintf($img_template, '/templatestatic/default.jpg');
+                if (!empty($v["thumbnails_name"])) {
                     //如果有本地图片则 为本地图片
-                    $src = "/images/" . $data['thumbnails_name'];
-                    $img = "<img src='$src' alt= '{$data['title']}'>";
-                } else if (!empty($data["thumbnails"])) {
-                    $img = $data["thumbnails"];
+                    $src = "/images/" . $v['thumbnails_name'];
+                    $img = sprintf($img_template, $src);
+                } else if (!empty($v["thumbnails"])) {
+                    //如果没有本地图片则 直接显示 base64的
+                    $img = sprintf($img_template, $v['thumbnails']);
                 }
-                $data["img"] = $img;
+                $v["img"] = $img;
             }
         }
         $assign_data['article'] = $article;

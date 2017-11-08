@@ -7,9 +7,9 @@ use app\index\model\ArticleSyncCount;
 use app\index\model\ScatteredTitle;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
+use app\tool\traits\FileExistsTraits;
 use think\Cache;
 use think\View;
-use app\tool\controller\FileExistsTraits;
 
 /**
  * 文章列表零散段落相关操作 列表伪静态

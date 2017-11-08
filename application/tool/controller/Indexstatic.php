@@ -3,6 +3,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\tool\traits\FileExistsTraits;
 use think\View;
 
 /**

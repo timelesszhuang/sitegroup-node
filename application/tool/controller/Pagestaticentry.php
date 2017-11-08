@@ -3,8 +3,8 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use app\tool\controller\FileExistsTraits;
 
+use app\tool\traits\FileExistsTraits;
 use OSS\OssClient;
 use think\Cache;
 use think\Request;
@@ -100,6 +100,7 @@ class Pagestaticentry extends Common
 
     /**
      * 根据id和类型 重新生成静态化
+     * 比如 修改文章相关信息之后重新生成
      * @param Request $request
      */
     public function reGenerateHtml(Request $request)
@@ -108,8 +109,12 @@ class Pagestaticentry extends Common
         $id = $request->post("id");
         $searchType = $request->post("searchType");
         $type = $request->post("type");
+        file_put_contents('a.txt', print_r($searchType, true),FILE_APPEND);
+        file_put_contents('a.txt', print_r($id, true),FILE_APPEND);
+        file_put_contents('a.txt', print_r($type, true),FILE_APPEND);
         if ($id && $searchType && $type) {
-            $this->exec_articlestatic($id, $searchType, $type);
+            //重新生成
+            (new Detailrestatic())->exec_refilestatic($id, $searchType, $type);
         }
     }
 
@@ -126,7 +131,7 @@ class Pagestaticentry extends Common
     }
 
     /**
-     * 修改指定静态文件的内容
+     * 修改指定静态文件的内容 比如模板之类
      * @param $type
      * @param $name
      * @return array
@@ -164,7 +169,6 @@ class Pagestaticentry extends Common
         $bucket = "salesman1";
         $object = "141414.jpg";
         $filePath = __FILE__;
-
         //图片加水印
 //        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
 //        $download_file = 'demo.jpg';
