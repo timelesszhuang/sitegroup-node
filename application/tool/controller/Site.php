@@ -328,6 +328,8 @@ class Site extends Common
         } else {
             $data["field4"] = '';
         }
+        $rejectionfinish =   Db::name('rejection')->find()->limit();
+        dump($rejectionfinish);die;
         //提交甩单次数过多
         $nowtime = time();
         $oldtime = time() - 60 * 2;
