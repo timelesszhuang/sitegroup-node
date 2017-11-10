@@ -331,7 +331,7 @@ class Site extends Common
         $rejectionfinish =  (new Rejection())->order('id desc')->find();
         if($rejectionfinish){
             if($rejectionfinish['field2'] ==  $data["field2"]){
-                return $this->resultArray("重复申请", "failed");
+                return $this->resultArray("请不要重复申请", "failed");
             }
         }
         //提交甩单次数过多
