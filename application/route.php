@@ -37,7 +37,7 @@ Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 Route::get('preview/:type/:id', 'tool/Preview/preview', ['ext' => 'html']);
 
 //模板文件 活动文件管理
-Route::rule('filemanage/uploadFile', 'tool/Filemanage/uploadFile');
+Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
 
 //模板文件列表相关操作
 Route::get('templatelist', 'tool/Template/templatelist');
