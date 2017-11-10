@@ -309,6 +309,7 @@ class Response
     {
         if (null == $this->content) {
             $content = $this->output($this->data);
+
             if (null !== $content && !is_string($content) && !is_numeric($content) && !is_callable([
                 $content,
                 '__toString',
