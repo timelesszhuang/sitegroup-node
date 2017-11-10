@@ -331,45 +331,45 @@ class Site extends Common
         $rejectionfinish =   Db::name('rejection')->find()->limit();
         dump($rejectionfinish);die;
         //提交甩单次数过多
-        $nowtime = time();
-        $oldtime = time() - 60 * 2;
-        $where["create_time"] = ['between', [$oldtime, $nowtime]];
-        $countnum = Db::name('rejection')->where($where)->field('ip')->select();
-        $num = sizeof($countnum);
-        if ($num > 4) {
-            return $this->resultArray('访问次数过多', 'failed');
-        }
-        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
-            $data['referer'] = $_SERVER['HTTP_REFERER'];
-        }
-        if (!$validate->check($data)) {
-            return $this->resultArray($validate->getError(), "failed");
-        }
-        if (!isset($data['node_id'])) {
-            return $this->resultArray("申请失败", "failed");
-        }
-        if (!Rejection::create($data)) {
-            return $this->resultArray("申请失败", "failed");
-        }
-        $email = $this->getEmailAccount();
-//        $this->phpmailerSend($email['email'], $email['password'], $email["host"], "您有新的线索","1318911846@qq.com", "sfasd",$email['email']);
-//        die;
-//        dump($email);die;
-        if ($email) {
-            $site_obj = \app\tool\model\Site::get($siteinfo['id']);
-            if (isset($site_obj->user_id)) {
-                $siteUser = SiteUser::get($site_obj->user_id);
-                if ($siteUser) {
-                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"] . '</br>' . '【乐销易－北京易至信科技有限公司】';
-//                    file_put_contents('demo.txt', print_r($content, true), FILE_APPEND);
-//                    file_put_contents('demo.txt', print_r($email, true), FILE_APPEND);
-//                    file_put_contents('demo.txt', $siteUser->name . $siteUser->email, FILE_APPEND);
-                    //这个地方有问题
-//                    dump();die;
-                    $this->phpmailerSend($email['email'], $email['password'], $email["host"], $siteUser->name . "您有新的线索", $siteUser->email, $content, $email["email"]);
-                }
-            }
-        }
+//        $nowtime = time();
+//        $oldtime = time() - 60 * 2;
+//        $where["create_time"] = ['between', [$oldtime, $nowtime]];
+//        $countnum = Db::name('rejection')->where($where)->field('ip')->select();
+//        $num = sizeof($countnum);
+//        if ($num > 4) {
+//            return $this->resultArray('访问次数过多', 'failed');
+//        }
+//        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
+//            $data['referer'] = $_SERVER['HTTP_REFERER'];
+//        }
+//        if (!$validate->check($data)) {
+//            return $this->resultArray($validate->getError(), "failed");
+//        }
+//        if (!isset($data['node_id'])) {
+//            return $this->resultArray("申请失败", "failed");
+//        }
+//        if (!Rejection::create($data)) {
+//            return $this->resultArray("申请失败", "failed");
+//        }
+//        $email = $this->getEmailAccount();
+////        $this->phpmailerSend($email['email'], $email['password'], $email["host"], "您有新的线索","1318911846@qq.com", "sfasd",$email['email']);
+////        die;
+////        dump($email);die;
+//        if ($email) {
+//            $site_obj = \app\tool\model\Site::get($siteinfo['id']);
+//            if (isset($site_obj->user_id)) {
+//                $siteUser = SiteUser::get($site_obj->user_id);
+//                if ($siteUser) {
+//                    $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"] . '</br>' . '【乐销易－北京易至信科技有限公司】';
+////                    file_put_contents('demo.txt', print_r($content, true), FILE_APPEND);
+////                    file_put_contents('demo.txt', print_r($email, true), FILE_APPEND);
+////                    file_put_contents('demo.txt', $siteUser->name . $siteUser->email, FILE_APPEND);
+//                    //这个地方有问题
+////                    dump();die;
+//                    $this->phpmailerSend($email['email'], $email['password'], $email["host"], $siteUser->name . "您有新的线索", $siteUser->email, $content, $email["email"]);
+//                }
+//            }
+//        }
         return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
     }
 
