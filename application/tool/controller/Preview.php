@@ -40,9 +40,9 @@ class Preview
         }
         $generate_html = "article/article";
         $file_name = $generate_html . $id . ".html";
-        if (!$this->checkhtmlexists($file_name)) {
-            return false;
-        }
+//        if (!$this->checkhtmlexists($file_name)) {
+//            return false;
+//        }
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -118,9 +118,9 @@ class Preview
         }
         $generate_html = "product/product";
         $file_name = $generate_html . $id . ".html";
-        if (!$this->checkhtmlexists($file_name)) {
-            return false;
-        }
+//        if (!$this->checkhtmlexists($file_name)) {
+//            return false;
+//        }
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -164,9 +164,9 @@ class Preview
         }
         $generate_html = "question/question";
         $file_name = $generate_html . $id . ".html";
-        if (!$this->checkhtmlexists($file_name)) {
-            return false;
-        }
+//        if (!$this->checkhtmlexists($file_name)) {
+//            return false;
+//        }
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
