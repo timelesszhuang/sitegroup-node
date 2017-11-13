@@ -69,9 +69,6 @@ Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //统计
 Route::resource('externalAccess', 'index/ExternalAccess');
 
-Route::resource('Ceshi', 'tool/Ceshi');
-Route::get('ceshi', 'tool/Ceshi/ceshi');
-
 Route::get('sitemap', 'tool/SiteMap/index');
 //重新生成文章 根据id等信息 重新生成其他各类数据
 Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');

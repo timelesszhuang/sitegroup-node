@@ -184,6 +184,7 @@ class Detailstatic extends Common
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的菜单对应的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
+
         //菜单 typeid_arr 根据栏目的分类 返回 menu 的信息
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
         //验证下 是不是这个时间段内 是不是可以生成
@@ -314,9 +315,9 @@ class Detailstatic extends Common
             $article_sync = new ArticleSyncCount();
         }
         //删除掉是否同步功能
-//获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
-//        $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
-//        $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
+        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
+        //        $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
+        //        $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
         $article_list_sql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id";
 
         // 要 step_limit+1 因为要 获取上次的最后一条
@@ -854,19 +855,22 @@ class Detailstatic extends Common
             $next_product = $next_product->toArray();
             $next_product = ['href' => "/product/product{$next_product['id']}.html", 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
         }
+
         if ($item['image_name']) {
             $this->get_osswater_img($item['image'], $item['image_name'], $water);
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail'], $water);
+
         // 相关图片
         $imgser = $item['imgser'];
         $local_img = [];
-        $imglist = unserialize($imgser);
-        if ($imglist) {
+        if ($imgser) {
+            $imglist = unserialize($imgser);
             //本地的图片链接 需要随机生成链接
             $local_img = $this->form_imgser_img($imglist, $water);
         }
+
         //其他相关信息
         $content = (new View())->fetch('template/product.html',
             [
