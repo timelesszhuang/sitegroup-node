@@ -36,7 +36,6 @@ class Activitystatic
         // 首先得获取到没有静态化的活动
         $siteinfo = Site::getSiteInfo();
         $activity_ids = $siteinfo['sync_id'];
-        echo '<pre>';
         if (!$activity_ids) {
             return;
         }
@@ -53,7 +52,7 @@ class Activitystatic
     }
 
     /**
-     * 修改单个之后重新生成操作
+     * 修改单个活动之后重新生成操作
      * @access public
      */
     public function restatic($id)
@@ -71,6 +70,7 @@ class Activitystatic
     {
         //获取活动 ativity
         $assign_data = Commontool::getActivityEssentialElement($siteinfo, $id);
+
         //当前id的活动信息
         $a_data = $assign_data['data'];
         unset($assign_data['data']);

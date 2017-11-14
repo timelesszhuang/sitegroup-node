@@ -557,18 +557,14 @@ class Commontool extends Common
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
-        $sync = Db::name('Activity')->where($where)->field('name,detail,directory_name')->select();
+        $activity = Activity::where($where)->field('id,title,img_name,url,summary')->select();
         $activity_list = [];
-        foreach ($sync as $k => $v) {
-            $path = '/activity/' . $v['directory_name'];
+        foreach ($activity as $k => $v) {
             $activity = [];
-            $activity['name'] = $v['name'];
-            $activity['detail'] = $v['detail'];
-            $activity['a_href'] = $path;
-            $activity['pc_bigimg'] = $path . '/pcbig.jpg';
-            $activity['pc_smallimg'] = $path . '/pcsmall.jpg';
-            $activity['m_bigimg'] = $path . '/mbig.jpg';
-            $activity['m_smallimg'] = $path . '/msmall.jpg';
+            $activity['name'] = $v['title'];
+            $activity['summary'] = $v['summary'];
+            $activity['imgsrc'] = "/images/{$v['img_name']}";
+            $activity['a_href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
             $activity_list[] = $activity;
         }
         return $activity_list;
