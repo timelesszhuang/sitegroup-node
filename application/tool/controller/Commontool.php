@@ -846,7 +846,7 @@ CODE;
             return false;
         }
         if ($data['url']) {
-            return false;
+            return ['data' => $data];
         }
         $data = $data->toArray();
         $title = $data['title'];

@@ -38,7 +38,7 @@ class Activitystatic
         }
         $activity_status = true;
         // 如果活动模板不存在则找些优化的地方  如果模板不存在的话怎么处理
-        if (!$this->fileExists('template/activity.html')) {
+        if (!file_exists('template/activity.html')) {
             //只需要静态化下图片就可以
             $activity_status = false;
         }
@@ -61,7 +61,7 @@ class Activitystatic
     {
         $siteinfo = Site::getSiteInfo();
         // 判断模板是否存在  如果模板不存在的话怎么处理
-        if (!$this->fileExists('template/activity.html')) {
+        if (!file_exists('template/activity.html')) {
             //如果没有模板的情况
             $this->staticImg($siteinfo, $id);
             return;
@@ -97,8 +97,15 @@ class Activitystatic
         //当前id的活动信息
         $a_data = $assign_data['data'];
         unset($assign_data['data']);
-        $imgser = $a_data['imgser'];
         $water = $siteinfo['walterString'];
+        if ($a_data['url']) {
+            //表示是其他网页的链接不需要静态化 实例页面
+            if ($a_data['img_name']) {
+                $this->get_osswater_img($a_data['oss_img_src'], $a_data['img_name'], $water);
+            }
+            return;
+        }
+        $imgser = $a_data['imgser'];
         //多张图片
         $local_img = [];
         if ($imgser) {
