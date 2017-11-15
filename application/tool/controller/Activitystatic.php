@@ -52,7 +52,7 @@ class Activitystatic
             //判断下是不是有相关文件静态文件
             if (file_exists(sprintf($this->activity_path, $activity_id))) {
                 //已经静态化的直接跳过
-                return;
+                continue;
             }
             $this->staticOne($siteinfo, $activity_id);
         }
@@ -69,6 +69,7 @@ class Activitystatic
         if (!$this->fileExists('template/activity.html')) {
             //如果没有模板的情况
             $this->staticImg($siteinfo, $id);
+            return;
         }
         $this->staticOne($siteinfo, $id);
     }
