@@ -69,9 +69,6 @@ Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //统计
 Route::resource('externalAccess', 'index/ExternalAccess');
 
-Route::resource('Ceshi', 'tool/Ceshi');
-Route::get('ceshi', 'tool/Ceshi/ceshi');
-
 Route::get('sitemap', 'tool/SiteMap/index');
 //重新生成文章 根据id等信息 重新生成其他各类数据
 Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
@@ -79,6 +76,8 @@ Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
 Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
 // 修改单个静态文件
 Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
+//重新生成单个活动页面
+Route::get('regenerateactivity','tool/Activitystatic/restatic');
 
 //oss测试
 Route::get('oss', 'tool/Pagestaticentry/ossdemo');

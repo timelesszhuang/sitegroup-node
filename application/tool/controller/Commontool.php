@@ -3,6 +3,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\tool\model\Activity;
 use think\Cache;
 use think\Config;
 use think\Db;
@@ -32,28 +33,26 @@ class Commontool extends Common
      */
     public static function getMobileSiteInfo()
     {
-        //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
-        if ($mobile_info = Cache::get(Config::get('site.CACHE_LIST')['MOBILE_SITE_INFO'])) {
-            return $mobile_info;
-        }
-        //获取手机相关信息
-        $siteinfo = Site::getSiteInfo();
-        $m_site_url = '';
-        //手机重定向的站点
-        $m_redirect_code = '';
-        //如果是pc 站的话 获取下对应的手机站
-        if ($siteinfo['is_mobile'] == '10') {
-            //是 pc
-            $m_site_id = $siteinfo['m_site_id'];
-            if ($m_site_id) {
-                //这个地方如果取出来不是手机站的话 需要给出提示错误
-                $m_site_url = Db::name('site')->where(['id' => $m_site_id])->field('url')->find()['url'];
-                $m_redirect_code = self::getRedirectCode($m_site_url);
+        $mobileinfo = Cache::remember('mobileinfo', function () {
+            //获取手机相关信息
+            $siteinfo = Site::getSiteInfo();
+            $m_site_url = '';
+            //手机重定向的站点
+            $m_redirect_code = '';
+            //如果是pc 站的话 获取下对应的手机站
+            if ($siteinfo['is_mobile'] == '10') {
+                //是 pc
+                $m_site_id = $siteinfo['m_site_id'];
+                if ($m_site_id) {
+                    //这个地方如果取出来不是手机站的话 需要给出提示错误
+                    $m_site_url = Db::name('site')->where(['id' => $m_site_id])->field('url')->find()['url'];
+                    $m_redirect_code = self::getRedirectCode($m_site_url);
+                }
             }
-        }
-        $mobile_info = [$m_site_url, $m_redirect_code];
-        Cache::set(Config::get('site.CACHE_LIST')['MOBILE_SITE_INFO'], $mobile_info, Config::get('site.CACHE_TIME'));
-        return $mobile_info;
+            $mobileinfo = [$m_site_url, $m_redirect_code];
+            return $mobileinfo;
+        });
+        return $mobileinfo;
     }
 
 
@@ -88,9 +87,11 @@ class Commontool extends Common
         $keyword = '';
         $description = '';
         $page_id = 'index';
+        //默认首页的menu_id 为零
+        $menu_id = 0;
         $page_name = '首页';
         $page_type = 'index';
-        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($menu_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             //tdk 是空的 需要 重新 从关键词中获取
             //首页的title ： A类关键词1_A类关键词2_A类关键词3-公司名
@@ -139,7 +140,7 @@ class Commontool extends Common
          * 如果没有生成  则随机选择一个A类 关键词 按照规则拼接关键词
          * 如果已经生成过 则需要比对现在的关键词是不是已经更换过 更换过的需要重新生成
          */
-        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
+        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($menu_id, $node_id, $site_id, $page_type);
         if (empty($title)) {
             // 栏目页面的 TDK 获取 A类关键词随机选择
             //栏目页的 title：B类关键词多个_A类关键词1-栏目名
@@ -202,99 +203,6 @@ class Commontool extends Common
                 'description' => $description,
                 'pre_akeyword_id' => $a_keyword_id
             ]);
-        }
-        return [$title, $keyword, $description];
-    }
-
-
-    /**
-     * 获取配置文件中的栏目页面的 tdk 相关数据
-     * @param $keyword_info 关键词相关
-     * @param $page_id 页面的id  比如 contactme
-     * @param $site_id 站点的id
-     * @param $node_id 节点的id
-     * @param $menu_name 栏目名
-     * @return array
-     */
-    public static function getEnvMenuPageTDK($keyword_info, $page_id, $page_name, $site_id, $site_name, $node_id, $menu_name)
-    {
-        $page_type = 'envmenu';
-        //a类 关键词是不是变化了
-        list($pageinfo_id, $akeyword_id, $change_status, $title, $keyword, $description) = self::getDbPageTDK($page_id, $node_id, $site_id, $page_type);
-        if (empty($title)) {
-            // 栏目页面的 TDK 获取 A类关键词随机选择
-            //栏目页的 title：B类关键词多个_A类关键词1-栏目名
-            //        keyword：B类关键词多个,A类关键词
-            //        description:拼接一段就可以栏目名
-            $a_keyword_key = array_rand($keyword_info, 1);
-            $a_child_info = $keyword_info[$a_keyword_key];
-            $a_name = $a_child_info['name'];
-            $a_keyword_id = $a_child_info['id'];
-            if (!array_key_exists('children', $a_child_info)) {
-                return ['', '', ''];
-            }
-            //需要 从b类关键词中选择 四个
-            $b_keyword_info = $a_child_info['children'];
-            $length = count($b_keyword_info);
-            $randamcount = $length > 4 ? 4 : $length;
-            $b_rand_key = array_rand($b_keyword_info, $randamcount);
-            $b_keyword_arr = [];
-            if (is_array($b_rand_key)) {
-                foreach ($b_rand_key as $v) {
-                    $b_keyword_arr[] = $b_keyword_info[$v];
-                }
-            } else {
-                $b_keyword_arr[] = $b_keyword_info[$b_rand_key];
-            }
-            $b_keywordname_arr = array_column($b_keyword_arr, 'name');
-            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
-            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
-            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
-            //选择好了 之后需要添加到数据库中 一定是新增
-            Db::name('SitePageinfo')->insert([
-                'menu_id' => 0,
-                'site_id' => $site_id,
-                'site_name' => $site_name,
-                'page_type' => $page_type,
-                'node_id' => $node_id,
-                'page_id' => $page_id,
-                'page_name' => $page_name,
-                'title' => $title,
-                'keyword' => $keyword,
-                'description' => $description,
-                'pre_akeyword_id' => $a_keyword_id,
-                'akeyword_id' => $a_keyword_id,
-                'create_time' => time(),
-                'update_time' => time()
-            ]);
-        } elseif ($change_status) {
-            //之前的关键词跟先在不一样  需要重新按照规则 生成
-            $a_child_info = [];
-            foreach ($keyword_info as $k => $v) {
-                if ($v['id'] == $akeyword_id) {
-                    $a_child_info = $keyword_info[$k];
-                }
-            }
-            if (empty($a_child_info)) {
-                return ['', '', ''];
-            }
-            $a_name = $a_child_info['name'];
-            $a_keyword_id = $a_child_info['id'];
-            if (!array_key_exists('children', $a_child_info)) {
-                return ['', '', ''];
-            }
-            $b_keyword_info = $a_child_info['children'];
-            $b_keywordname_arr = array_column($b_keyword_info, 'name');
-            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
-            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
-            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
-            Db::name('SitePageinfo')->update([
-                'title' => $title,
-                'keyword' => $keyword,
-                'description' => $description,
-                'pre_akeyword_id' => $a_keyword_id
-            ]);
-
         }
         return [$title, $keyword, $description];
     }
@@ -375,9 +283,9 @@ class Commontool extends Common
      * 从数据库中获取页面的相关信息
      * @access public
      */
-    public static function getDbPageTDK($page_id, $node_id, $site_id, $page_type)
+    public static function getDbPageTDK($menu_id, $node_id, $site_id, $page_type)
     {
-        $page_info = Db::name('site_pageinfo')->where(['page_id' => $page_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('id,title,keyword,description,pre_akeyword_id,akeyword_id')->find();
+        $page_info = Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $node_id, 'site_id' => $site_id, 'page_type' => $page_type])->field('id,title,keyword,description,pre_akeyword_id,akeyword_id')->find();
         $akeyword_changestatus = false;
         $akeyword_id = 0;
         if ($page_info) {
@@ -571,23 +479,6 @@ class Commontool extends Common
 
 
     /**
-     * 获取友链
-     * @param $link_id 站点中设置的友链ids 多个数据
-     * @return false|\PDOStatement|string|\think\Collection
-     */
-    public static function getPatternLink($link_id)
-    {
-        //友链信息
-        $partnersite_info = Db::name('links')->where(['id' => ['in', array_filter(explode(',', $link_id))]])->field('id,name,domain')->select();
-        $site_list = [];
-        foreach ($partnersite_info as $k => $v) {
-            $site_list[$v['domain']] = $v['name'];
-        }
-        return $site_list;
-    }
-
-
-    /**
      * 获取公共代码
      * @access public
      */
@@ -666,18 +557,14 @@ class Commontool extends Common
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
-        $sync = Db::name('Activity')->where($where)->field('name,detail,directory_name')->select();
+        $activity = Activity::where($where)->field('id,title,img_name,url,summary')->select();
         $activity_list = [];
-        foreach ($sync as $k => $v) {
-            $path = '/activity/' . $v['directory_name'];
+        foreach ($activity as $k => $v) {
             $activity = [];
-            $activity['name'] = $v['name'];
-            $activity['detail'] = $v['detail'];
-            $activity['a_href'] = $path;
-            $activity['pc_bigimg'] = $path . '/pcbig.jpg';
-            $activity['pc_smallimg'] = $path . '/pcsmall.jpg';
-            $activity['m_bigimg'] = $path . '/mbig.jpg';
-            $activity['m_smallimg'] = $path . '/msmall.jpg';
+            $activity['name'] = $v['title'];
+            $activity['summary'] = $v['summary'];
+            $activity['imgsrc'] = "/images/{$v['img_name']}";
+            $activity['a_href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
             $activity_list[] = $activity;
         }
         return $activity_list;
@@ -686,6 +573,7 @@ class Commontool extends Common
     /**
      * 获取搜索引擎的 referer 不支持百度 谷歌 现仅支持 搜狗 好搜
      * @access public
+     * @todo 这个地方有bug 会有安全隐患 太low
      */
     public static function getRefereerDemo()
     {
@@ -719,6 +607,117 @@ CODE;
     {
         //返回copyright
         return '© 2015-' . date('Y') . '  ' . $com_name . ' All Rights Reserved.';
+    }
+
+    /**
+     * 获取站点的js 公共代码
+     * @access public
+     */
+    public static function getSiteJsCode($siteinfo)
+    {
+        //获取公共代码
+        list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
+        //获取页面pv 操作页面
+        $after_head_jscode[] = "<script src='/index.php/pv'></script>";
+        //head前后的代码
+        $before_head = $siteinfo['before_header_jscode'];
+        $after_head = $siteinfo['other_jscode'];
+        if ($before_head) {
+            array_push($pre_head_jscode, $before_head);
+        }
+        if ($after_head) {
+            array_push($after_head_jscode, $after_head);
+        }
+        $refere_code = self::getRefereerDemo();
+        if ($refere_code) {
+            array_push($after_head_jscode, $refere_code);
+        }
+        $pre_head_js = '';
+        foreach ($pre_head_jscode as $v) {
+            $pre_head_js = $pre_head_js . $v;
+        }
+        $after_head_js = '';
+        foreach ($after_head_jscode as $v) {
+            $after_head_js = $after_head_js . $v;
+        }
+        return [$pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js];
+    }
+
+    /**
+     * 获取备案信息
+     * @access public
+     */
+    public static function getBeianInfo($siteinfo)
+    {
+        //公司备案
+        $beian_link = 'www.miitbeian.gov.cn';
+        $beian = ['beian_num' => '', 'link' => $beian_link];
+        $domain_id = $siteinfo['domain_id'];
+        if ($domain_id) {
+            //这个地方应该也添加缓存
+            $domain_info = Cache::remember('domain_info', function () use ($domain_id) {
+                return Db::name('domain')->where('id', $domain_id)->find();
+            });
+            if ($domain_info) {
+                $beian_num = $domain_info['filing_num'];
+                $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
+            }
+        }
+        return $beian;
+    }
+
+    /**
+     * 获取联系人信息
+     * @access public
+     */
+    public static function getContactInfo($siteinfo)
+    {
+        $contact_way_id = $siteinfo['support_hotline'];
+        $contact_info = [];
+        if ($contact_way_id) {
+            //缓存中有 则用缓存中的
+            $contact_info = Cache::remember('contactway', function () use ($contact_way_id) {
+                return Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
+            });
+        }
+        return $contact_info;
+    }
+
+
+    /**
+     * 获取外链
+     * @access public
+     */
+    public static function getPatternLink($siteinfo)
+    {
+        //友链信息
+        $link_info = Cache::remember('linkinfo', function () use ($siteinfo) {
+            return Db::name('links')->where(['id' => ['in', array_filter(explode(',', $siteinfo['link_id']))]])->field('id,name,domain')->select();
+        });
+        $partnersite = [];
+        foreach ($link_info as $k => $v) {
+            $partnersite[$v['domain']] = $v['name'];
+        }
+        //链轮的类型
+        $chain_type = '';
+        //该站点需要链接到的站点
+        $next_site = [];
+        //主站是哪个
+        $main_site = [];
+        $is_mainsite = $siteinfo['main_site'];
+        if ($is_mainsite == '10') {
+            //表示不是主站
+            //站点类型 用于取出主站 以及链轮类型 来
+            $site_type_id = $siteinfo['site_type'];
+            list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $siteinfo['id'], $siteinfo['site_name'], $siteinfo['node_id']);
+        }
+        if ($next_site) {
+            $partnersite[$next_site['url']] = $next_site['site_name'];
+        }
+        if ($main_site) {
+            $partnersite[$main_site['url']] = $main_site['site_name'];
+        }
+        return $partnersite;
     }
 
 
@@ -772,14 +771,6 @@ CODE;
                 //需要注意下 详情型的菜单 没有type
                 $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
                 break;
-            case 'envmenu':
-                //.env 文件中的配置菜单信息
-                $page_id = $param;
-                $menu_name = $param2;
-                list($title, $keyword, $description) = self::getEnvMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_name);
-                //获取 面包屑
-                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name);
-                break;
             case 'detail':
                 //详情页面
                 $page_id = '';
@@ -804,6 +795,7 @@ CODE;
         //首页获取文章列表改为二十篇
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
         $limit = $tag == 'index' ? 15 : 10;
+        //这个地方其实可以返回更多的信息
         //正常的文章类型
         list($article_list, $article_more) = self::getArticleList($artiletype_sync_info, $site_id, $limit);
         //问答类型
@@ -812,63 +804,17 @@ CODE;
         list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $site_id);
         //产品类型 列表获取
         list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
-        //从数据库中取出 十条 最新的已经静态化的文章列表
-        $partnersite = [];
+
         //获取友链
-        $partnersite = self::getPatternLink($siteinfo['link_id']);
-        //链轮的类型
-        $chain_type = '';
-        //该站点需要链接到的站点
-        $next_site = [];
-        //主站是哪个
-        $main_site = [];
-        $is_mainsite = $siteinfo['main_site'];
-        if ($is_mainsite == '10') {
-            //表示不是主站
-            //站点类型 用于取出主站 以及链轮类型 来
-            $site_type_id = $siteinfo['site_type'];
-            list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $site_id, $site_name, $node_id);
-        }
-        if ($next_site) {
-            $partnersite[$next_site['url']] = $next_site['site_name'];
-        }
-        if ($main_site) {
-            $partnersite[$main_site['url']] = $main_site['site_name'];
-        }
+        $partnersite = self::getPatternLink($siteinfo);
+
         //获取公共代码
-        list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
-        //获取页面pv 操作页面
-        $after_head_jscode[] = "<script src='/index.php/pv'></script>";
-        //head前后的代码
-        $before_head = $siteinfo['before_header_jscode'];
-        $after_head = $siteinfo['other_jscode'];
-        if ($before_head) {
-            array_push($pre_head_jscode, $before_head);
-        }
-        if ($after_head) {
-            array_push($after_head_jscode, $after_head);
-        }
-        $refere_code = self::getRefereerDemo();
-        if ($refere_code) {
-            array_push($after_head_jscode, $refere_code);
-        }
-        //获取公司联系方式等 会在右上角或者其他位置添加
-        $contact_way_id = $siteinfo['support_hotline'];
-        $contact_info = [];
-        if ($contact_way_id) {
-            $contact_info = Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
-        }
-        //公司备案
-        $beian_link = 'www.miitbeian.gov.cn';
-        $beian = ['beian_num' => '', 'link' => $beian_link];
-        $domain_id = $siteinfo['domain_id'];
-        if ($domain_id) {
-            $domain_info = Db::name('domain')->where('id', $domain_id)->find();
-            if ($domain_info) {
-                $beian_num = $domain_info['filing_num'];
-                $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
-            }
-        }
+        list($pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
+
+        //获取公司联系方式等 会在右上角或者其他位置添加  这个应该支持小后台能自己修改才对
+        $contact_info = self::getContactInfo($siteinfo);
+        //获取备案信息
+        $beian = self::getBeianInfo($siteinfo);
         $tdk = self::form_tdk_html($title, $keyword, $description);
         $share = self::get_share_code();
         //公司名称
@@ -877,8 +823,53 @@ CODE;
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more');
     }
+
+
+    /**
+     * 获取活动页面需要的信息
+     * @access public
+     */
+    public static function getActivityEssentialElement($siteinfo, $id)
+    {
+        //title keywords description
+        $data = Activity::Where('id', '=', $id)->find();
+        if (!$data) {
+            return;
+        }
+        //没有找到的情况
+        if ($data['status'] != '10') {
+            return false;
+        }
+        if (!$data) {
+            return false;
+        }
+        if ($data['url']) {
+            return ['data' => $data];
+        }
+        $data = $data->toArray();
+        $title = $data['title'];
+        $keyword = $data['keywords'];
+        $description = $data['summary'];
+        //获取单独的tdk数据
+        $tdk = self::form_tdk_html($title, $keyword, $description);
+        //获取公司联系方式等 会在右上角或者其他位置添加  这个应该支持小后台能自己修改才对
+        $contact_info = self::getContactInfo($siteinfo);
+        //公司名称
+        $com_name = $siteinfo['com_name'];
+        //版本　copyright
+        $copyright = self::getSiteCopyright($com_name);
+        $site_name = $siteinfo['site_name'];
+        //获取公共代码
+        list($pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
+        //分享链接
+        $share = self::get_share_code();
+        //公司备案
+        $beian = self::getBeianInfo($siteinfo);
+        return compact('data', 'com_name', 'site_name', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'menu', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js');
+    }
+
 
     /**
      * 获取页面的分享代码
@@ -950,16 +941,6 @@ code;
             case'menu':
                 foreach ($menu as $k => $v) {
                     if ($v['id'] == $menu_id) {
-                        $v['actived'] = true;
-                    } else {
-                        $v['actived'] = false;
-                    }
-                    $menu[$k] = $v;
-                }
-                break;
-            case'envmenu':
-                foreach ($menu as $k => $v) {
-                    if (strpos($generate_name, $v['generate_name']) !== false) {
                         $v['actived'] = true;
                     } else {
                         $v['actived'] = false;

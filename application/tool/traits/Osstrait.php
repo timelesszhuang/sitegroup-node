@@ -115,6 +115,10 @@ trait Osstrait
     public function get_osswater_img($object, $localfilename, $water)
     {
         $localfilename = ROOT_PATH . 'public/images/' . $localfilename;
+        if (file_exists($localfilename)) {
+            //文件已经存在的 不需要再请求一次
+            return true;
+        }
         $accessKeyId = Config::get('oss.accessKeyId');
         $accessKeySecret = Config::get("oss.accessKeySecret");
         $endpoint = Config::get('oss.endpoint');

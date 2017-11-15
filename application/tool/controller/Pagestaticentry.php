@@ -25,9 +25,8 @@ class Pagestaticentry extends Common
     {
         Cache::clear();
         // 详情页面生成
+        (new Activitystatic())->index();
         (new Detailstatic())->index('crontab');
-        // 配置文件中的静态化
-        (new Envpagestatic())->index();
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
         (new Indexstatic())->index();
@@ -45,9 +44,8 @@ class Pagestaticentry extends Common
         Cache::clear();
         //全部的页面的静态化
         // 详情页面生成
+        (new Activitystatic())->index();
         (new Detailstatic())->index();
-        // 配置文件中的静态化
-        (new Envpagestatic())->index();
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
         (new Indexstatic())->index();
@@ -92,7 +90,7 @@ class Pagestaticentry extends Common
     {
         Cache::clear();
         //菜单详情页面 静态化 配置页面静态化
-        if ((new Detailmenupagestatic())->index() && (new Envpagestatic())->index()) {
+        if ((new Detailmenupagestatic())->index()) {
             exit(['status' => 'success', 'msg' => '栏目页静态化生成完成。']);
         }
         exit(['status' => 'failed', 'msg' => '栏目页静态化生成完成。']);
@@ -109,9 +107,6 @@ class Pagestaticentry extends Common
         $id = $request->post("id");
         $searchType = $request->post("searchType");
         $type = $request->post("type");
-        file_put_contents('a.txt', print_r($searchType, true),FILE_APPEND);
-        file_put_contents('a.txt', print_r($id, true),FILE_APPEND);
-        file_put_contents('a.txt', print_r($type, true),FILE_APPEND);
         if ($id && $searchType && $type) {
             //重新生成
             (new Detailrestatic())->exec_refilestatic($id, $searchType, $type);
@@ -120,7 +115,7 @@ class Pagestaticentry extends Common
 
 
     /**
-     * 获取单条数据内容
+     * 获取单条数据内容 获取制定模板的id
      * @param $type
      * @param $name
      * @return array|string
@@ -157,69 +152,5 @@ class Pagestaticentry extends Common
         return $data;
     }
 
-
-    /**
-     * oss 测试
-     */
-    public function ossdemo()
-    {
-        $accessKeyId = "mHENtCjneaNtqGOC";
-        $accessKeySecret = "iIaCOZXiqrbk81mwn8t3fTtNFOXyeJ";
-        $endpoint = "oss-cn-qingdao.aliyuncs.com";
-        $bucket = "salesman1";
-        $object = "141414.jpg";
-        $filePath = __FILE__;
-        //图片加水印
-//        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-//        $download_file = 'demo.jpg';
-//        $water = '山东强比信息技术有限公司';
-//        $code = $this->urlsafe_b64encode($water);
-//        $options = array(
-//            OssClient::OSS_FILE_DOWNLOAD => $download_file,
-//            OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
-//        $ossClient->getObject($bucket, $object, $options);
-
-//        try{
-//            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-//            $ossClient->uploadFile($bucket, $object, $filePath);
-//        } catch(OssException $e) {
-//            printf(__FUNCTION__ . ": FAILED\n");
-//            printf($e->getMessage() . "\n");
-//            return;
-//        }
-//        print(__FUNCTION__ . ": OK" . "\n");
-//        exit;
-
-
-//        创建资源包
-//        try {
-//            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-//            $ossClient->createBucket($bucket, OssClient::OSS_ACL_TYPE_PRIVATE);
-//        } catch (OssException $e) {
-//            printf(__FUNCTION__ . ": FAILED\n");
-//            printf($e->getMessage() . "\n");
-//            return;
-//        }
-//        print(__FUNCTION__ . ": OK" . "\n");
-//        EXIT;
-
-
-//      下载资源
-//        $object = "141414.jpg";
-//        $localfile = "141414.php";
-//        $options = array(
-//            OssClient::OSS_FILE_DOWNLOAD => $localfile,
-//        );
-//        try {
-//            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
-//            $ossClient->getObject($bucket, $object, $options);
-//        } catch (OssException $e) {
-//            printf(__FUNCTION__ . ": FAILED\n");
-//            printf($e->getMessage() . "\n");
-//            return;
-//        }
-//        print(__FUNCTION__ . ": OK, please check localfile: 'upload-test-object-name.txt'" . "\n");
-//
-    }
 
 }

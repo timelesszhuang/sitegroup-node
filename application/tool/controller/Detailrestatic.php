@@ -38,6 +38,7 @@ class Detailrestatic
             $this->make_error("template/article.html");
             return false;
         }
+
         $generate_html = "article/article";
         $file_name = $generate_html . $id . ".html";
         if (!$this->checkhtmlexists($file_name)) {

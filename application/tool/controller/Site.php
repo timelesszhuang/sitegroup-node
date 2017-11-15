@@ -89,20 +89,17 @@ class Site extends Common
      */
     public static function getSiteInfo()
     {
-
-        if ($info = Cache::get(Config::get('site.CACHE_LIST')['SITEINFO'])) {
+        return Cache::remember('siteinfo', function () {
+            $site_id = Config::get('site.SITE_ID');
+            //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
+            $info = Db::name('site')->where('id', $site_id)->find();
+            if (empty($info)) {
+                //如果为空的话 处理方式
+                //表示该
+                exit("未找到站点id {$site_id} 的配置信息");
+            }
             return $info;
-        }
-        $site_id = Config::get('site.SITE_ID');
-        //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
-        $info = Db::name('site')->where('id', $site_id)->find();
-        if (empty($info)) {
-            //如果为空的话 处理方式
-            //表示该
-            exit("未找到站点id {$site_id} 的配置信息");
-        }
-        Cache::set(Config::get('site.CACHE_LIST')['SITEINFO'], $info, Config::get('site.CACHE_TIME'));
-        return $info;
+        });
     }
 
     /**
@@ -327,6 +324,12 @@ class Site extends Common
             $data["field4"] = $form_info['field4']['name'] . ':' . $olddata['field4'];
         } else {
             $data["field4"] = '';
+        }
+        $rejectionfinish =  (new Rejection())->order('id desc')->find();
+        if($rejectionfinish){
+            if($rejectionfinish['field2'] ==  $data["field2"]){
+                return $this->resultArray("请不要重复申请", "failed");
+            }
         }
         //提交甩单次数过多
         $nowtime = time();
