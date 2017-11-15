@@ -35,6 +35,12 @@ trait SpiderComefrom
         } elseif (preg_match("/Yisouspider/i", $_SERVER['HTTP_USER_AGENT'])){
             $data['engine'] = 'shenma';
             Useragent::create($data);
+        } elseif (preg_match("/Bingbot/i", $_SERVER['HTTP_USER_AGENT'])){
+            $data['engine'] = 'bing';
+            Useragent::create($data);
+        }elseif (preg_match("/Slurp/i", $_SERVER['HTTP_USER_AGENT'])){
+            $data['engine'] = 'yahoo';
+            Useragent::create($data);
         }
     }
 }
