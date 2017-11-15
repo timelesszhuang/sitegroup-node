@@ -10,6 +10,7 @@
 namespace app\tool\controller;
 
 
+use app\tool\model\Activity;
 use app\tool\traits\FileExistsTraits;
 use app\tool\traits\Osstrait;
 use think\Config;
@@ -29,19 +30,25 @@ class Activitystatic
      */
     public function index()
     {
-        // 判断模板是否存在
-        if (!$this->fileExists('template/activity.html')) {
-            return;
-        }
         // 首先得获取到没有静态化的活动
         $siteinfo = Site::getSiteInfo();
         $activity_ids = $siteinfo['sync_id'];
         if (!$activity_ids) {
             return;
         }
+        $activity_status = true;
+        // 如果活动模板不存在则找些优化的地方  如果模板不存在的话怎么处理
+        if (!$this->fileExists('template/activity.html')) {
+            //只需要静态化下图片就可以
+            $activity_status = false;
+        }
         $ids = array_filter(explode(',', $activity_ids));
         //修改之后怎么处理
         foreach ($ids as $activity_id) {
+            if (!$activity_status) {
+                $this->staticImg($siteinfo, $activity_id);
+                continue;
+            }
             //判断下是不是有相关文件静态文件
             if (file_exists(sprintf($this->activity_path, $activity_id))) {
                 //已经静态化的直接跳过
@@ -58,7 +65,28 @@ class Activitystatic
     public function restatic($id)
     {
         $siteinfo = Site::getSiteInfo();
+        // 判断模板是否存在  如果模板不存在的话怎么处理
+        if (!$this->fileExists('template/activity.html')) {
+            //如果没有模板的情况
+            $this->staticImg($siteinfo, $id);
+        }
         $this->staticOne($siteinfo, $id);
+    }
+
+    /**
+     * 只需要静态化图片
+     * @param $id id数据
+     * @access public
+     */
+    public function staticImg($siteinfo, $id)
+    {
+        $data = Activity::Where('id', '=', $id)->field('oss_img_src,img_name')->find();
+        if ($data) {
+            $data = $data->toArray();
+            $img_name = $data['img_name'];
+            $oss_img_src = $data['oss_img_src'];
+            $this->get_osswater_img($oss_img_src, $img_name, $siteinfo['walterString']);
+        }
     }
 
 
@@ -70,7 +98,6 @@ class Activitystatic
     {
         //获取活动 ativity
         $assign_data = Commontool::getActivityEssentialElement($siteinfo, $id);
-
         //当前id的活动信息
         $a_data = $assign_data['data'];
         unset($assign_data['data']);
@@ -112,7 +139,6 @@ class Activitystatic
             $osssrc = $v['osssrc'];
             if (strpos($osssrc, $endpointurl) === false) {
                 array_push($local_imgarr, $osssrc);
-
                 continue;
             }
             if ($this->get_osswater_img($osssrc, $imgname, $water)) {
