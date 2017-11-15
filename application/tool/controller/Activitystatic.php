@@ -49,11 +49,6 @@ class Activitystatic
                 $this->staticImg($siteinfo, $activity_id);
                 continue;
             }
-            //判断下是不是有相关文件静态文件
-            if (file_exists(sprintf($this->activity_path, $activity_id))) {
-                //已经静态化的直接跳过
-                continue;
-            }
             $this->staticOne($siteinfo, $activity_id);
         }
     }
