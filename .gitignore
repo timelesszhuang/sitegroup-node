@@ -22,3 +22,4 @@ composer.phar
 /application/extra/site.php
 !/application/extra/site.php
 /application/extra/
+将删除 application/common/model/
