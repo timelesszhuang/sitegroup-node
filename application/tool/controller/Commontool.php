@@ -330,11 +330,11 @@ class Commontool extends Common
             $article = Db::name('Article')->where($where)->field('id,title,thumbnails,thumbnails_name,summary,create_time')->order('id desc')->limit($limit)->select();
             $articlelist = [];
             foreach ($article as $k => $v) {
-
                 $art = [];
                 $art['title'] = $v['title'];
                 $art['a_href'] = '/article/article' . $v['id'] . '.html';
                 $art['summary'] = $v['summary'];
+                $v['title'] = str_replace('%', '', $v['title']);
                 $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
                 $img = sprintf($img_template, '/templatestatic/default.jpg');
                 if (!empty($v["thumbnails_name"])) {
@@ -342,13 +342,11 @@ class Commontool extends Common
                     $src = "/images/" . $v['thumbnails_name'];
                     $img = sprintf($img_template, $src);
                 } else if (!empty($v["thumbnails"])) {
-                    //如果没有本地图片则 直接显示 base64的
                     $img = sprintf($img_template, $v['thumbnails']);
                 }
                 $art['thumbnails'] = $img;
                 $art['create_time'] = date('Y-m-d', $v['create_time']);
                 $articlelist[] = $art;
-
             }
             return [$articlelist, $more];
         }
@@ -387,7 +385,6 @@ class Commontool extends Common
                 $art['name'] = $v['name'];
                 $art['a_href'] = '/product/product' . $v['id'] . '.html';
                 $art['summary'] = $v['summary'];
-                //$img = "<img src='/templatestatic/default.jpg' alt=" . $v["name"] . ">";
                 $src = "/images/" . $v['image_name'];
                 $img = "<img src='{$src}' alt= '{$v['name']}'>";
                 $art['thumbnails'] = $img;
@@ -667,6 +664,29 @@ CODE;
     }
 
     /**
+     * 获取站点的logo 相关信息
+     * @access private
+     * @param $site_info 站点相关数据
+     * @return string
+     */
+    private static function getSiteLogo($site_info)
+    {
+        $id = $site_info['sitelogo_id'];
+        $site_name = $site_info['site_name'];
+        $site_id = $site_info['id'];
+        $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($id) {
+            return Db::name('site_logo')->where('id', $id)->find();
+        });
+        if ($site_logoinfo) {
+            $oss_file_path = $site_logoinfo['oss_logo_path'];
+            $ext = pathinfo(parse_url($oss_file_path)['path'])['extension'];
+            return "<img src='/images/logo{$site_id}.{$ext}' title='$site_name'>";
+        }
+        return $site_name;
+    }
+
+
+    /**
      * 获取联系人信息
      * @access public
      */
@@ -738,6 +758,8 @@ CODE;
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
+        //获取站点的logo
+        $logo = self::getSiteLogo($siteinfo);
         $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $site_id, $site_name, $node_id);
         //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
         //该站点的网址
@@ -804,13 +826,10 @@ CODE;
         list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $site_id);
         //产品类型 列表获取
         list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
-
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
-
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
-
         //获取公司联系方式等 会在右上角或者其他位置添加  这个应该支持小后台能自己修改才对
         $contact_info = self::getContactInfo($siteinfo);
         //获取备案信息
@@ -823,7 +842,7 @@ CODE;
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more');
     }
 
 
@@ -833,6 +852,7 @@ CODE;
      */
     public static function getActivityEssentialElement($siteinfo, $id)
     {
+        $logo = self::getSiteLogo($siteinfo);
         //title keywords description
         $data = Activity::Where('id', '=', $id)->find();
         if (!$data) {
@@ -867,7 +887,7 @@ CODE;
         $share = self::get_share_code();
         //公司备案
         $beian = self::getBeianInfo($siteinfo);
-        return compact('data', 'com_name', 'site_name', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'menu', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js');
+        return compact('data', 'com_name', 'site_name', 'contact_info', 'beian', 'copyright', 'logo', 'tdk', 'title', 'keyword', 'description', 'share', 'menu', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js');
     }
 
 

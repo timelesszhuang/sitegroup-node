@@ -38,7 +38,6 @@ class ArticleList extends Common
         $assign_data = Cache::remember("articlelist" . "-" . $id . "-" . $currentpage, function () use ($id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateArticleList($id, $siteinfo, $templatepath, $currentpage);
         }, 0);
-        //file_put_contents('log/questionlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         return (new View())->fetch($templatepath,
             [
                 'd' => $assign_data
@@ -80,6 +79,7 @@ class ArticleList extends Common
                     'page' => $currentpage
                 ]);
             foreach ($article as $v) {
+                $v['title'] = str_replace('%', '', $v['title']);
                 $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
                 $img = sprintf($img_template, '/templatestatic/default.jpg');
                 if (!empty($v["thumbnails_name"])) {
