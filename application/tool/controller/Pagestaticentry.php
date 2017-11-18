@@ -48,6 +48,9 @@ class Pagestaticentry extends Common
     private function checkSiteLogo($siteinfo)
     {
         $logo_id = $siteinfo['sitelogo_id'];
+        if (!$logo_id) {
+            return;
+        }
         $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($logo_id) {
             return Db::name('site_logo')->where('id', $logo_id)->find();
         });
