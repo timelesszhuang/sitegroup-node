@@ -799,7 +799,7 @@ class Detailstatic extends Common
                 $this->make_error("product");
                 return false;
             }
-            $content = $this->form_perproduct($item, $node_id, $site_id, $water, $keyword_id, $menu_id, $menu_name);
+            $content = $this->form_perproduct($item, $node_id, $type_id, $water, $keyword_id, $menu_id, $menu_name);
             //判断目录是否存在
             $make_web = file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
@@ -861,7 +861,6 @@ class Detailstatic extends Common
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail'], $water);
-
         // 相关图片
         $imgser = $item['imgser'];
         $local_img = [];
@@ -870,7 +869,6 @@ class Detailstatic extends Common
             //本地的图片链接 需要随机生成链接
             $local_img = $this->form_imgser_img($imglist, $water);
         }
-
         //其他相关信息
         $content = (new View())->fetch('template/product.html',
             [

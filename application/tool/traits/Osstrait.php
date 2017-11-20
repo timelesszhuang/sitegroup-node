@@ -66,6 +66,10 @@ trait Osstrait
         );
         try {
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+            if (!$this->checkObjectExist($ossClient, $bucket, $object)) {
+                //表示文件不存在的情况
+                return true;
+            }
             //把 oss 的https://***/ 替换掉
             $object = str_replace(sprintf("https://%s.%s/", $bucket, $endpoint), '', $object);
             $ossClient->getObject($bucket, $object, $options);
@@ -92,9 +96,14 @@ trait Osstrait
         $bucket = Config::get('oss.bucket');
         //如果路径里边包含绝对https 之类路径则替换掉 https://***/
         $object = str_replace($url = sprintf("https://%s.%s/", $bucket, $endpoint), '', $object);
+
         $status = true;
         try {
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+            if (!$this->checkObjectExist($ossClient, $bucket, $object)) {
+                //表示水印图片不存在的情况
+                return $status;
+            }
             $ossClient->deleteObject($bucket, $object);
             $msg = '删除成功';
         } catch (OssException $e) {
@@ -126,9 +135,13 @@ trait Osstrait
         //把 oss 的https://***/ 替换掉
         $object = str_replace(sprintf("https://%s.%s/", $bucket, $endpoint), '', $object);
         //图片加水印
-        $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
         $status = true;
         try {
+            $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+            if (!$this->checkObjectExist($ossClient, $bucket, $object)) {
+                //表示水印图片不存在的情况
+                return true;
+            }
             $code = $this->urlsafe_b64encode($water);
             $options = array(
                 OssClient::OSS_FILE_DOWNLOAD => $localfilename,
@@ -138,6 +151,25 @@ trait Osstrait
             $status = false;
         }
         return $status;
+    }
+
+
+    /**
+     * 判断object是否存在
+     *
+     * @param OssClient $ossClient OSSClient实例
+     * @param string $bucket bucket名字
+     * @return null
+     */
+    function checkObjectExist($ossClient, $bucket, $object)
+    {
+        $exist = false;
+        try {
+            $exist = $ossClient->doesObjectExist($bucket, $object);
+        } catch (OssException $e) {
+            //不存在的情况
+        }
+        return $exist;
     }
 
 

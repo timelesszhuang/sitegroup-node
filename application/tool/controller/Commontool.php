@@ -673,6 +673,9 @@ CODE;
     {
         $id = $site_info['sitelogo_id'];
         $site_name = $site_info['site_name'];
+        if (!$id) {
+            return $site_name;
+        }
         $site_id = $site_info['id'];
         $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($id) {
             return Db::name('site_logo')->where('id', $id)->find();

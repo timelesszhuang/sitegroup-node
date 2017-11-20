@@ -48,9 +48,16 @@ class Pagestaticentry extends Common
     private function checkSiteLogo($siteinfo)
     {
         $logo_id = $siteinfo['sitelogo_id'];
+        if (!$logo_id) {
+            return;
+        }
         $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($logo_id) {
             return Db::name('site_logo')->where('id', $logo_id)->find();
         });
+        //如果logo记录被删除的话怎么操作
+        if (!$site_logoinfo) {
+            return;
+        }
         //如果存在logo 名字就叫 ××.jpg
         $oss_logo_path = $site_logoinfo['oss_logo_path'];
         $file_ext = $this->analyseUrlFileType($oss_logo_path);
