@@ -673,7 +673,7 @@ CODE;
     {
         $id = $site_info['sitelogo_id'];
         $site_name = $site_info['site_name'];
-        if ($id) {
+        if (!$id) {
             return $site_name;
         }
         $site_id = $site_info['id'];
