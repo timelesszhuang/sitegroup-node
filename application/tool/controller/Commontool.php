@@ -692,6 +692,9 @@ CODE;
      */
     public static function getContactInfo($siteinfo)
     {
+        if(!empty($siteinfo["site_contact"])){
+            return $siteinfo["site_contact"];
+        }
         $contact_way_id = $siteinfo['support_hotline'];
         $contact_info = [];
         if ($contact_way_id) {
