@@ -28,6 +28,8 @@ class Preview
      */
     private function articlepreview($id)
     {
+        //判断某个文件是不是已经存在了存在的话直接重定向到制定的文件
+
         //判断目录是否存在
         if (!file_exists('article')) {
             $this->make_error("article");
@@ -40,9 +42,9 @@ class Preview
         }
         $generate_html = "article/article";
         $file_name = $generate_html . $id . ".html";
-//        if (!$this->checkhtmlexists($file_name)) {
-//            return false;
-//        }
+        if ($this->checkhtmlexists($file_name)) {
+            return;
+        }
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
@@ -217,15 +219,17 @@ class Preview
 
     /**
      * htmlexists
-     *
+     * 如果文件存在的话直接展现已经生成的页面
      */
     private function checkhtmlexists($htmlfilename)
     {
         //判断文件是否存在
-        if (!file_exists($htmlfilename)) {
-            return false;
+        if (file_exists($htmlfilename)) {
+            $code = file_get_contents($htmlfilename);
+            echo $code;
+            return true;
         }
-        return true;
+        return false;
     }
 
 
