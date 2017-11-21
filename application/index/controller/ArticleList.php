@@ -16,7 +16,6 @@ use think\View;
 class ArticleList extends Common
 {
     use FileExistsTraits;
-
     use SpiderComefrom;
 
     /**
@@ -26,6 +25,8 @@ class ArticleList extends Common
      */
     public function index($id, $currentpage = 1)
     {
+        print_r($id);
+        exit;
         $templatepath = 'template/articlelist.html';
         //判断模板是否存在
         if (!$this->fileExists($templatepath)) {
@@ -69,13 +70,11 @@ class ArticleList extends Common
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
         $article = [];
         if ($articleSyncCount) {
-//          $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and is_sync=20 or  (id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id} and site_id = {$siteinfo['id']})";
-
             $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id}";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,thumbnails,thumbnails_name,summary,create_time")->where($where)
                 ->paginate(10, false, [
-                    'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
+                    'path' => url('/articlelist', '', '') . "-{$id}-[PAGE].html",
                     'page' => $currentpage
                 ]);
             foreach ($article as $v) {
