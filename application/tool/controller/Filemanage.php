@@ -100,7 +100,6 @@ class Filemanage extends Common
             exit("文件获取失败");
         }
 
-
         //首先把之前的文件备份             //首先把 之前的备份一下
         $zip = new \ZipArchive();
         $filename = self::$templateBk . DIRECTORY_SEPARATOR . 'template' . date('Y-m-d-H-m-s', time()) . '.zip';
