@@ -12,6 +12,7 @@ namespace app\tool\controller;
 
 
 use app\common\controller\Common;
+use think\Cache;
 use think\Config;
 use think\Db;
 use think\Exception;
@@ -47,6 +48,7 @@ class Filemanage extends Common
      */
     public function uploadFile($id)
     {
+        Cache::clear();
         ini_set('max_execution_time', '0');
         set_time_limit(0);
         $this->checkOrigin();
@@ -99,7 +101,6 @@ class Filemanage extends Common
         if (!$ossObj["status"]) {
             exit("文件获取失败");
         }
-
         //首先把之前的文件备份             //首先把 之前的备份一下
         $zip = new \ZipArchive();
         $filename = self::$templateBk . DIRECTORY_SEPARATOR . 'template' . date('Y-m-d-H-m-s', time()) . '.zip';
@@ -114,7 +115,6 @@ class Filemanage extends Common
         self::deldirs(self::$templateStaticPath);
         mkdir(self::$templateHtmlPath);
         mkdir(self::$templateStaticPath);
-
 
         //解压缩主题文件到指定的目录中
         $realTemplateUnzipPath = ROOT_PATH . 'public' . DIRECTORY_SEPARATOR . self::$templateHtmlPath;
