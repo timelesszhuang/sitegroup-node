@@ -30,9 +30,8 @@ class Filemanage extends Common
     static $templateHtmlPath = 'template';
     //静态模板文件解压到的地方
     static $templateStaticPath = 'templatestatic';
-
-    //活动html要解压到的地方
-    static $activityHtmlPath = 'activity';
+    //备份的模板目录
+    static $templateBk = 'templatebk';
 
 
     //因为需要递归操作文件
@@ -48,10 +47,10 @@ class Filemanage extends Common
      */
     public function uploadFile($id)
     {
-//        ini_set('max_execution_time', '0');
-//        set_time_limit(0);
-//        $this->checkOrigin();
-        file_put_contents('a.txt', $id, FILE_APPEND);
+        ini_set('max_execution_time', '0');
+        set_time_limit(0);
+        $this->checkOrigin();
+//        file_put_contents('a.txt', $id, FILE_APPEND);
         $this->manageTemplate();
     }
 
@@ -91,18 +90,34 @@ class Filemanage extends Common
     {
         $siteinfo = Site::getSiteInfo();
         //模板id
-        $template=\app\common\model\Template::get($siteinfo["template_id"]);
+        $template = \app\common\model\Template::get($siteinfo["template_id"]);
         $pathinfo = pathinfo($template->path_oss);
         // 文件名
         $file_name = $pathinfo['filename'];
-        $zipTemplateFilePath = ROOT_PATH . 'public/' . self::$zipTemplatePath."/".$file_name.".zip";
-        $ossObj=$this->ossGetObject($template->path_oss,$zipTemplateFilePath);
-        if(!$ossObj["status"]){
+        $zipTemplateFilePath = ROOT_PATH . 'public' . DIRECTORY_SEPARATOR . self::$zipTemplatePath . DIRECTORY_SEPARATOR . $file_name . ".zip";
+        $ossObj = $this->ossGetObject($template->path_oss, $zipTemplateFilePath);
+        if (!$ossObj["status"]) {
             exit("文件获取失败");
         }
+
+        //首先把之前的文件备份             //首先把 之前的备份一下
+        $zip = new \ZipArchive();
+        $filename = self::$templateBk . DIRECTORY_SEPARATOR . 'template' . date('Y-m-d-H-m-s', '') . '.zip';
+        fopen($filename, 'w');
+        if ($zip->open($filename, \ZipArchive::OVERWRITE) === TRUE) {
+            $this->addFileToZip(self::$templateHtmlPath, $zip); //调用方法，对要打包的根目录进行操作，并将ZipArchive的对象传递给方法
+            $this->addFileToZip(self::$templateStaticPath, $zip);
+            $zip->close(); //关闭处理的zip文件
+        }//然后删除目录
+        //删除之前的模板文件
+        self::deldirs(self::$templateHtmlPath);
+        self::deldirs(self::$templateStaticPath);
+        mkdir(self::$templateHtmlPath);
+        mkdir(self::$templateStaticPath);
         //解压缩主题文件到指定的目录中
-        $realTemplateUnzipPath = ROOT_PATH . 'public/' . self::$templateHtmlPath;
-        $realStaticPath = ROOT_PATH . 'public/' . self::$templateStaticPath;
+        $realTemplateUnzipPath = ROOT_PATH . 'public' . DIRECTORY_SEPARATOR . self::$templateHtmlPath;
+        $realStaticPath = ROOT_PATH . 'public' . DIRECTORY_SEPARATOR . self::$templateStaticPath;
+        // 首先
         if ($this->unzipFile($zipTemplateFilePath, $realTemplateUnzipPath)) {
             //因为 模板文件解压缩之后 会在/template 下 生成文件夹  所以需要把 文件夹中的 文件复制到上级目录中
             //复制 所有文件到上级目录中  然后删除 临时的模板解压文件
@@ -117,10 +132,11 @@ class Filemanage extends Common
                 self::copy_only_file($realStaticPath);
             }
             //删除临时解压到的目录
-            self::deldirs($realTemplateUnzipPath . DIRECTORY_SEPARATOR . 'template');
+            self::deldirs($realTemplateUnzipPath . DIRECTORY_SEPARATOR . self::$templateHtmlPath);
             self::deldirs($realTemplateUnzipPath . DIRECTORY_SEPARATOR . self::$templateStaticPath);
-            return  '文件解压缩成功';
+            return true;
         }
+        return false;
     }
 
 
@@ -152,7 +168,6 @@ class Filemanage extends Common
         $handle = dir($source);
         while ($entry = $handle->read()) {
             if (($entry !== ".") && ($entry !== "..")) {
-//                echo $source . '/' . $entry . '<br>';
                 if (is_dir($source . DIRECTORY_SEPARATOR . $entry)) {
                     if ($child)
                         self::copydir_recurse($source . DIRECTORY_SEPARATOR . $entry, $destination . DIRECTORY_SEPARATOR . $entry, $child, $entry);
@@ -197,7 +212,7 @@ class Filemanage extends Common
         $dh = opendir($dir);
         while ($file = readdir($dh)) {
             if ($file !== "." && $file !== "..") {
-                $fullpath = $dir . "/" . $file;
+                $fullpath = $dir . DIRECTORY_SEPARATOR . $file;
                 if (!is_dir($fullpath)) {
                     unlink($fullpath);
                 } else {
@@ -211,6 +226,25 @@ class Filemanage extends Common
         } else {
             return false;
         }
+    }
+
+
+    /**
+     * 递归压缩文件
+     */
+    public function addFileToZip($path, $zip)
+    {
+        $handler = opendir($path); //打开当前文件夹由$path指定。
+        while (($filename = readdir($handler)) !== false) {
+            if ($filename != "." && $filename != "..") {      //文件夹文件名字为'.'和‘..’，不要对他们进行操作
+                if (is_dir($path . DIRECTORY_SEPARATOR . $filename)) {// 如果读取的某个对象是文件夹，则递归
+                    addFileToZip($path . DIRECTORY_SEPARATOR . $filename, $zip);
+                } else { //将文件加入zip对象
+                    $zip->addFile($path . DIRECTORY_SEPARATOR . $filename);
+                }
+            }
+        }
+        @closedir($path);
     }
 
 
