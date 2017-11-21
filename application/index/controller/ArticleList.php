@@ -26,7 +26,6 @@ class ArticleList extends Common
     public function index($id, $currentpage = 1)
     {
         print_r($id);
-        exit;
         $templatepath = 'template/articlelist.html';
         //判断模板是否存在
         if (!$this->fileExists($templatepath)) {
