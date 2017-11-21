@@ -66,12 +66,12 @@ trait Osstrait
         );
         try {
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
+            //把 oss 的https://***/ 替换掉
+            $object = str_replace(sprintf("https://%s.%s/", $bucket, $endpoint), '', $object);
             if (!$this->checkObjectExist($ossClient, $bucket, $object)) {
                 //表示文件不存在的情况
                 return true;
             }
-            //把 oss 的https://***/ 替换掉
-            $object = str_replace(sprintf("https://%s.%s/", $bucket, $endpoint), '', $object);
             $ossClient->getObject($bucket, $object, $options);
             $msg = '获取成功';
         } catch (OssException $e) {
