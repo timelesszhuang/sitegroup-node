@@ -25,7 +25,7 @@ class ArticleList extends Common
      */
     public function index($id, $currentpage = 1)
     {
-        print_r($id);
+//        print_r($id);
         $templatepath = 'template/articlelist.html';
         //判断模板是否存在
         if (!$this->fileExists($templatepath)) {
@@ -73,7 +73,7 @@ class ArticleList extends Common
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field("id,title,thumbnails,thumbnails_name,summary,create_time")->where($where)
                 ->paginate(10, false, [
-                    'path' => url('/articlelist', '', '') . "-{$id}-[PAGE].html",
+                    'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
                     'page' => $currentpage
                 ]);
             foreach ($article as $v) {
