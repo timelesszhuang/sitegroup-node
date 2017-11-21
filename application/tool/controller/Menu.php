@@ -154,7 +154,6 @@ class Menu extends Common
             //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
             return $type_id_arr;
         });
-
     }
 
 

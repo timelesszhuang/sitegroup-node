@@ -190,7 +190,12 @@ trait Osstrait
      */
     public function analyseUrlFileType($fileurl)
     {
-        return pathinfo(parse_url($fileurl)['path'])['extension'];
+        $type = '';
+        $imgpathinfo = pathinfo(parse_url($fileurl)['path']);
+        if (array_key_exists('extension', $imgpathinfo)) {
+            $type = $imgpathinfo['extension'];
+        }
+        return $type;
     }
 
 }

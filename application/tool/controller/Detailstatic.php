@@ -456,7 +456,11 @@ class Detailstatic extends Common
                         continue;
                     }
                     $imgname = $this->formUniqueString();
+                    //有时候有图片没有后缀
                     $filetype = $this->analyseUrlFileType($v);
+                    if (!$filetype) {
+                        return '';
+                    }
                     //阿里云图片生成
                     $filepath = $imgname . '.' . $filetype;
                     if ($this->get_osswater_img($v, $filepath, $water)) {

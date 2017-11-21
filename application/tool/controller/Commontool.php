@@ -223,8 +223,8 @@ class Commontool extends Common
     {
         //需要知道 栏目的关键词等
         //$keyword_info, $site_id, $node_id, $articletitle, $articlecontent
-        // 栏目页面的 TDK 获取 A类关键词随机选择
-        //栏目页的 title：C类关键词多个_A类关键词1-文章标题
+        // 详情页页面的 TDK 获取 A类关键词随机选择
+        // 详情页的 title：C类关键词多个_A类关键词1-文章标题
         //        keyword：C类关键词多个,A类关键词
         //        description:拼接一段就可以栏目名
         $a_child_info = [];
@@ -540,7 +540,7 @@ class Commontool extends Common
                     $sync_article_data[$type] = [
                     ];
                 }
-                array_push($sync_article_data[$type], ['type_id' => $menu['id'], 'menu_id' => $menu['menu_id'], 'menu_name' => $menu['menu_name'], 'max_id' => $max_id]);
+                array_push($sync_article_data[$type], ['type_id' => $menu['id'], 'type_name' => $menu['name'], 'menu_id' => $menu['menu_id'], 'menu_name' => $menu['menu_name'], 'max_id' => $max_id]);
             }
         }
         return $sync_article_data;
@@ -823,7 +823,8 @@ CODE;
         //首页获取文章列表改为二十篇
         $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
         $limit = $tag == 'index' ? 15 : 10;
-        //这个地方其实可以返回更多的信息
+
+        //获取全部的文章的列表
         //正常的文章类型
         list($article_list, $article_more) = self::getArticleList($artiletype_sync_info, $site_id, $limit);
         //问答类型
@@ -832,6 +833,8 @@ CODE;
         list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $site_id);
         //产品类型 列表获取
         list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
+        //列出所有文章分类的id
+        list($article_all_list, $question_all_list, $product_all_list) = self::getAllTypeList($artiletype_sync_info);
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码
@@ -930,6 +933,20 @@ code;
         $keywords_template = "<meta name='keywords' content='%s'>";
         $description_template = "<meta name='description' content='%s'>";
         return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
+    }
+
+    /**
+     * 获取全部分类类型的列表
+     * @access private
+     */
+    private static function getAllTypeList($artiletype_sync_info)
+    {
+        echo '<pre>';
+        foreach ($artiletype_sync_info as $k => $v) {
+            print_r($k);
+            print_r($v);
+        }
+        exit;
     }
 
 
