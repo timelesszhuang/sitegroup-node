@@ -103,14 +103,14 @@ class Filemanage extends Common
         }
         //首先把之前的文件备份             //首先把 之前的备份一下
         $zip = new \ZipArchive();
-        $filename = self::$templateBk . DIRECTORY_SEPARATOR . 'template' . date('Y-m-d-H-m-s', time()) . '.zip';
+        $filename = self::$templateBk . DIRECTORY_SEPARATOR . 'template' . date('Y-m-d-H-M-s', time()) . '.zip';
         fopen($filename, 'w');
         if ($zip->open($filename, \ZipArchive::OVERWRITE) === TRUE) {
             $this->addFileToZip(self::$templateHtmlPath, $zip); //调用方法，对要打包的根目录进行操作，并将ZipArchive的对象传递给方法
             $this->addFileToZip(self::$templateStaticPath, $zip);
             $zip->close(); //关闭处理的zip文件
         }//然后删除目录
-        //删除之前的模板文件
+        //删除之前的模板文件 重新建立文件夹
         self::deldirs(self::$templateHtmlPath);
         self::deldirs(self::$templateStaticPath);
         mkdir(self::$templateHtmlPath);
