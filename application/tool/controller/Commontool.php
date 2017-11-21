@@ -695,7 +695,7 @@ CODE;
      */
     public static function getContactInfo($siteinfo)
     {
-        if(!empty($siteinfo["site_contact"])){
+        if (!empty($siteinfo["site_contact"])) {
             return $siteinfo["site_contact"];
         }
         $contact_way_id = $siteinfo['support_hotline'];
@@ -834,7 +834,8 @@ CODE;
         //产品类型 列表获取
         list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
         //列出所有文章分类的id
-        list($article_all_list, $question_all_list, $product_all_list) = self::getAllTypeList($artiletype_sync_info);
+        //list($article_all_list, $question_all_list, $product_all_list) = self::getAllTypeList($artiletype_sync_info);
+
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码
@@ -939,15 +940,33 @@ code;
      * 获取全部分类类型的列表
      * @access private
      */
-    private static function getAllTypeList($artiletype_sync_info)
+/*    private static function getAllTypeList($artiletype_sync_info)
     {
         echo '<pre>';
         foreach ($artiletype_sync_info as $k => $v) {
-            print_r($k);
-            print_r($v);
+            //print_r($k);
+            //print_r($v);
+            foreach ($v as $key => $val) {
+                switch ($k) {
+                    case 'article':
+                        //获取下每个分类下的文章
+
+                        break;
+                    case 'product':
+                        //获取每个分类下的产品
+
+                        break;
+                    case 'question':
+                        //获取每个分类下的问答
+
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         exit;
-    }
+    }*/
 
 
     /**
