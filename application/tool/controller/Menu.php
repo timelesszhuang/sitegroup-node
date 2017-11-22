@@ -113,6 +113,7 @@ class Menu extends Common
     {
         return Cache::remember('menutypeid', function () use ($menu_ids) {
             $menu_id_arr = array_filter(explode(',', $menu_ids));
+            //一个菜单的栏目支持选择多个同类分类
             $field = 'id,name,flag,flag_name,type_id,type_name';
             $where = [
                 'id' => ['in', $menu_id_arr],
@@ -136,6 +137,8 @@ class Menu extends Common
                         $type = 'product';
                         break;
                 }
+                print_r($v);
+                exit;
                 $type_arr = [
                     //文章类型的id
                     'id' => $v['type_id'],

@@ -184,9 +184,10 @@ class Detailstatic extends Common
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的菜单对应的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
-
+        echo '<pre>';
         //菜单 typeid_arr 根据栏目的分类 返回 menu 的信息
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
+
         //验证下 是不是这个时间段内 是不是可以生成
         list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id, $requesttype);
         //区分菜单所属栏目是哪种类型  article question scatteredstatic
@@ -221,22 +222,22 @@ class Detailstatic extends Common
                 switch ($detail_key) {
                     case'article':
                         if ($articlestatic_status) {
-                            $article_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
+                            $article_type_keyword[$type['id']] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case'question':
                         if ($questionstatic_status) {
-                            $question_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
+                            $question_type_keyword[$type['id']] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case'scatteredarticle':
                         if ($scatteredstatic_status) {
-                            $scatteredarticle_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
+                            $scatteredarticle_type_keyword[$type['id']] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         }
                         break;
                     case 'product':
                         //产品类型 不需要限制生成数量一次性添加就可
-                        $product_type_keyword[] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
+                        $product_type_keyword[$type['id']] = ['type_id' => $type['id'], 'menu_id' => $type['menu_id'], 'menu_name' => $type['menu_name'], 'keyword_id' => $a_keyword_id];
                         break;
                 }
             }
@@ -273,29 +274,7 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/article.html')) {
             return;
         }
-        $static_count = 0;
-        foreach ($article_type_keyword as $v) {
-            //计算出该栏目需要静态化的数量
-            $count = $step_limit - $static_count;
-            if ($count > 0) {
-                $step_count = $this->exec_articlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
-                if ($step_count !== false) {
-                    $static_count = $static_count + $step_count;
-                } else {
-                    break;
-                }
-            }
-        }
-    }
 
-
-    /**
-     * 执行页面静态化相关操作
-     * @access private
-     * @return count 返回生成文章的数量
-     */
-    private function exec_articlestatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
-    {
         $siteinfo = Site::getSiteInfo();
         $type_name = "article";
         $where = [
@@ -394,11 +373,23 @@ class Detailstatic extends Common
             $pingBaidu[] = $siteinfo["url"] . "/article/article" . $item["id"] . '.html';
             $static_count++;
         }
-//        $this->pingBaidu($pingBaidu);
-        // 请求当前网站列表页 提前生成列表静态化页面
-//        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
-//        $this->curl_get($curl);
-        return $static_count - 1;
+
+        /*
+        $static_count = 0;
+        foreach ($article_type_keyword as $v) {
+            //
+            // 计算出该栏目需要静态化的数量
+            $count = $step_limit - $static_count;
+            if ($count > 0) {
+                $step_count = $this->exec_articlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
+                if ($step_count !== false) {
+                    $static_count = $static_count + $step_count;
+                } else {
+                    break;
+                }
+            }
+        }
+        */
     }
 
 
