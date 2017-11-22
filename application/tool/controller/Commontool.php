@@ -561,7 +561,19 @@ class Commontool extends Common
             $activity['name'] = $v['title'];
             $activity['summary'] = $v['summary'];
             $activity['imgsrc'] = "/images/{$v['img_name']}";
-            $activity['a_href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
+            $a_href = '/';
+            if ($activity['content']) {
+                //站内的链接
+                $a_href = "/activity/activity{$v['id']}.html";
+            } else {
+                //站外的链接
+                if ($v['url']) {
+                    $a_href = $v['url'];
+                } else {
+                    $a_href = '/';
+                }
+            }
+            $activity['a_href'] = $a_href;
             $activity_list[] = $activity;
         }
         return $activity_list;
@@ -939,33 +951,33 @@ code;
      * 获取全部分类类型的列表
      * @access private
      */
-/*    private static function getAllTypeList($artiletype_sync_info)
-    {
-        echo '<pre>';
-        foreach ($artiletype_sync_info as $k => $v) {
-            //print_r($k);
-            //print_r($v);
-            foreach ($v as $key => $val) {
-                switch ($k) {
-                    case 'article':
-                        //获取下每个分类下的文章
+    /*    private static function getAllTypeList($artiletype_sync_info)
+        {
+            echo '<pre>';
+            foreach ($artiletype_sync_info as $k => $v) {
+                //print_r($k);
+                //print_r($v);
+                foreach ($v as $key => $val) {
+                    switch ($k) {
+                        case 'article':
+                            //获取下每个分类下的文章
 
-                        break;
-                    case 'product':
-                        //获取每个分类下的产品
+                            break;
+                        case 'product':
+                            //获取每个分类下的产品
 
-                        break;
-                    case 'question':
-                        //获取每个分类下的问答
+                            break;
+                        case 'question':
+                            //获取每个分类下的问答
 
-                        break;
-                    default:
-                        break;
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
-        }
-        exit;
-    }*/
+            exit;
+        }*/
 
 
     /**
