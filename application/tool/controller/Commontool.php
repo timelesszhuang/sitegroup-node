@@ -718,7 +718,7 @@ CODE;
                 return Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
             });
         }
-        return $contact_info;
+        return $contact_info['contact'];
     }
 
 
