@@ -172,6 +172,8 @@ class Detailstatic extends Common
      * 静态化 文章 问答 零散段落等相关数据
      * @param string $requesttype 如果 $requestype 为 crontab 的话 会 按照配置的 时间段跟文章数量来生成静态页面
      *                            如果 为空的话 表示 从页面点击操作之后触发的操作
+     * @todo 1、需要支持一个 栏目添加选择多个栏目， 站点已经静态化到的id 按照article来记录就可以，前端支持展现出该栏目下的所有的文章分类。
+     *       2、需要支持网址添加二级栏目，添加栏目的时候支持选择上级栏目 暂时支持二级栏目。
      */
     public function index($requesttype = '')
     {
@@ -184,7 +186,6 @@ class Detailstatic extends Common
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的菜单对应的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
-
         //菜单 typeid_arr 根据栏目的分类 返回 menu 的信息
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
         //验证下 是不是这个时间段内 是不是可以生成

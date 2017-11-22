@@ -835,7 +835,6 @@ CODE;
         list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
         //列出所有文章分类的id
         //list($article_all_list, $question_all_list, $product_all_list) = self::getAllTypeList($artiletype_sync_info);
-
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码

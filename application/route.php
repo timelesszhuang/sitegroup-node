@@ -8,7 +8,6 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-
 use think\Route;
 
 
@@ -22,12 +21,10 @@ Route::get('questionlist/:id/:currentpage', 'index/QuestionList/index', ['ext' =
 //
 Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
 
-
 //当请求列表 的时候 首先隐藏 index.php
 Route::get('articlelist/:id/:currentpage', 'index/ArticleList/index', ['ext' => 'html']);
 //第一页的时候默认没有当前页面的值
 Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
-
 
 //请求产品列表的时候
 Route::get('productlist/:id/:currentpage', 'index/ProductList/index', ['ext' => 'html']);
@@ -47,6 +44,9 @@ Route::get('templateread', 'tool/Template/templateread');
 Route::post('templateupdate', 'tool/Template/templateupdate');
 //添加新模板文件
 Route::post('templateadd', 'tool/Template/templateadd');
+
+Route::get('zipdemo', 'tool/Filemanage/demo');
+
 
 
 //全部页面静态化

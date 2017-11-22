@@ -13,9 +13,6 @@ namespace app\tool\controller;
 
 use app\common\controller\Common;
 use think\Cache;
-use think\Config;
-use think\Db;
-use think\Exception;
 use app\tool\traits\Osstrait;
 
 class Filemanage extends Common
@@ -109,13 +106,13 @@ class Filemanage extends Common
             $this->addFileToZip(self::$templateHtmlPath, $zip); //调用方法，对要打包的根目录进行操作，并将ZipArchive的对象传递给方法
             $this->addFileToZip(self::$templateStaticPath, $zip);
             $zip->close(); //关闭处理的zip文件
-        }//然后删除目录
+        }
+        //然后删除目录
         //删除之前的模板文件 重新建立文件夹
         self::deldirs(self::$templateHtmlPath);
         self::deldirs(self::$templateStaticPath);
         mkdir(self::$templateHtmlPath);
         mkdir(self::$templateStaticPath);
-
         //解压缩主题文件到指定的目录中
         $realTemplateUnzipPath = ROOT_PATH . 'public' . DIRECTORY_SEPARATOR . self::$templateHtmlPath;
         $realStaticPath = ROOT_PATH . 'public' . DIRECTORY_SEPARATOR . self::$templateStaticPath;
