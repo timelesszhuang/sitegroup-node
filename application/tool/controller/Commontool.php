@@ -554,7 +554,7 @@ class Commontool extends Common
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
-        $activity = Activity::where($where)->field('id,title,img_name,url,summary')->select();
+        $activity = Activity::where($where)->field('id,title,img_name,content,url,summary')->select();
         $activity_list = [];
         foreach ($activity as $k => $v) {
             $activity = [];

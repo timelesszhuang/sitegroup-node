@@ -30,6 +30,7 @@ class Template extends Common
      */
     function FileSizeConvert($bytes)
     {
+        $result = [];
         $bytes = floatval($bytes);
         $arBytes = array(
             0 => array(
