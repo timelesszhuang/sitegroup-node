@@ -708,7 +708,7 @@ CODE;
     public static function getContactInfo($siteinfo)
     {
         if (!empty($siteinfo["site_contact"])) {
-            return ["contact"=>$siteinfo["site_contact"]];
+            return $siteinfo["site_contact"];
         }
         $contact_way_id = $siteinfo['support_hotline'];
         $contact_info = [];
@@ -718,7 +718,7 @@ CODE;
                 return Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
             });
         }
-        return $contact_info;
+        return $contact_info['contact'];
     }
 
 
