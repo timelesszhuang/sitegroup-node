@@ -554,15 +554,15 @@ class Commontool extends Common
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
-        $activity = Activity::where($where)->field('id,title,img_name,content,url,summary')->select();
+        $activitydata = Activity::where($where)->field('id,title,img_name,content,url,summary')->select();
         $activity_list = [];
-        foreach ($activity as $k => $v) {
+        foreach ($activitydata as $k => $v) {
             $activity = [];
             $activity['name'] = $v['title'];
             $activity['summary'] = $v['summary'];
             $activity['imgsrc'] = "/images/{$v['img_name']}";
             $a_href = '/';
-            if ($activity['content']) {
+            if ($v['content']) {
                 //站内的链接
                 $a_href = "/activity/activity{$v['id']}.html";
             } else {
