@@ -379,7 +379,7 @@ class Site extends Common
      */
     public function isfileexists()
     {
-        echo 11;
+        echo 11;die;
 //        return true;
 //        if(file_exists()){
 //
