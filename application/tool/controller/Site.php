@@ -374,16 +374,5 @@ class Site extends Common
         return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
     }
 
-    /**
-     * 文件是否存在
-     */
-    public function isfileexists()
-    {
-        echo 11;die;
-//        return true;
-//        if(file_exists()){
-//
-//        }
 
-    }
 }

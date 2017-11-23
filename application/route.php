@@ -79,5 +79,5 @@ Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
 //重新生成单个活动页面
 Route::get('regenerateactivity','tool/Activitystatic/restatic');
 //404
-Route::get('article/:id','tool/Site/isfileexists', ['ext' => 'html']);
+Route::get('article/:id','index/Detailenter/article', ['ext' => 'html']);
 
