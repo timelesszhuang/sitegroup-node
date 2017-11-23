@@ -78,6 +78,10 @@ Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
 Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
 //重新生成单个活动页面
 Route::get('regenerateactivity','tool/Activitystatic/restatic');
-//404
+//文章404
 Route::get('article/:id','index/Detailenter/article', ['ext' => 'html']);
+//问答404
+Route::get('question/:id','index/Detailenter/question', ['ext' => 'html']);
+//产品404
+Route::get('product/:id','index/Detailenter/product', ['ext' => 'html']);
 
