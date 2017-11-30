@@ -10,9 +10,12 @@ namespace app\index\controller;
 
 
 use app\index\model\ArticleSyncCount;
+use app\index\model\Menu;
+use app\index\model\Product;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use app\tool\traits\FileExistsTraits;
+use app\tool\traits\Params;
 use think\Cache;
 use think\View;
 
@@ -20,26 +23,27 @@ class ProductList
 {
     use FileExistsTraits;
     use SpiderComefrom;
+    use Params;
 
     /**
      * 首页列表
      * @access public
      */
-    public function index($id, $currentpage = 1)
+    public function index($id)
     {
-        $templatelist = 'template/productlist.html';
+        $templatepath = 'template/productlist.html';
         //判断模板是否存在
-        if (!$this->fileExists($templatelist)) {
+        if (!$this->fileExists($templatepath)) {
             return;
         }
+        list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $assign_data = Cache::remember("productlist" . "-" . $id . "-" . $currentpage, function () use ($id, $siteinfo, $templatelist, $currentpage) {
-            return $this->generateProductList($id, $siteinfo, $templatelist, $currentpage);
+        $assign_data = Cache::remember("productlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
+            return $this->generateProductList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
-        //file_put_contents('log/productlist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
-        return (new View())->fetch($templatelist,
+        return (new View())->fetch($templatepath,
             [
                 'd' => $assign_data
             ]
@@ -53,37 +57,80 @@ class ProductList
      * @param int $currentpage
      * @return array
      */
-    public function generateProductList($id, $siteinfo, $templatelist, $currentpage = 1)
+    public function generateProductList($menu_enname, $type_id, $siteinfo, $currentpage = 1)
     {
         if (empty($siteinfo["menu"])) {
             exit("当前站点菜单配置异常");
         }
-        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
-            exit("当前网站无此栏目");
+        $node_id = $siteinfo['node_id'];
+        $menu_info = Menu::where('node_id', $node_id)->where('generate_name', $menu_enname)->find();
+        if (!isset($menu_info->id)) {
+            //没有获取到
+            exit('该网站不存在该栏目');
         }
-        $siteinfo = Site::getSiteInfo();
-        $menu_info = \app\index\model\Menu::get($id);
+
+        $menu_id = $menu_info->id;
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'productlist');
-        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "product", 'type_id' => $menu_info['type_id']])->find();
-        $where["type_id"] = $menu_info->type_id;
+
+        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
+        $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
+        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $productlist = [];
-        if ($articleSyncCount) {
-            $where["id"] = ["elt", $articleSyncCount->count];
+        if ($productmax_id) {
+            //该栏目下的所有分类id 包含子menu的分类
+            $typeidarr = Commontool::getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
+            //取出当前栏目下级的文章分类 根据path 中的menu_id
+            $typelist = [];
+            //如果 type_id=0 表示去除该菜单下的全部
+            //    type_id=* 表示只需要取出该type_id 下的值
+            foreach ($typeidarr as $ptype_id) {
+                $current = false;
+                if ($type_id == $ptype_id) {
+                    $current = true;
+                }
+                $type_info = $product_typearr[$ptype_id];
+                $list = Commontool::getTypeProductList($ptype_id, $productmax_id, $product_typearr, 10);
+                $typelist[] = [
+                    'text' => $type_info['type_name'],
+                    'href' => $type_info['href'],
+                    //当前为true
+                    'current' => $current,
+                    'list' => $list
+                ];
+            }
+            $typeid_str = implode(',', $typeidarr);
+            $where = "id <={$productmax_id} and node_id={$siteinfo['node_id']} and type_id in ({$typeid_str})";
             //获取当前type_id的文章
-            $productlist = \app\index\model\Product::order('id', "desc")->field("id,name,image_name,create_time")->where($where)
+            $productlist = Product::order('id', "desc")->field(Commontool::$productListField)->where($where)
                 ->paginate(10, false, [
-                    'path' => url('/productlist', '', '') . "/{$id}/[PAGE].html",
+                    'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
-            //循环展现产品的相关数据
-            foreach ($productlist as $data) {
-                //如果有本地图片则 为本地图片
-                $src = "/images/" . $data['image_name'];
-                $img = "<img src='$src' alt= '{$data['name']}'>";
-                $data["img"] = $img;
+            foreach ($productlist as $k => $v) {
+                $src = "/images/" . $v['image_name'];
+                $img = "<img src='{$src}' alt= '{$v['name']}'>";
+                //列出当前文章分类来
+                $type = [
+                    'name' => '',
+                    'href' => ''
+                ];
+                if (array_key_exists($v['type_id'], $product_typearr)) {
+                    $type = [
+                        'name' => $v['type_name'],
+                        'href' => $product_typearr[$v['type_id']]['href']
+                    ];
+                }
+                $v['a_href'] = sprintf(Commontool::$productPath, $v['id']);
+                $v['thumbnails'] = $img;
+                $v['type'] = $type;
             }
         }
+        $assign_data['type_list'] = $typelist;
         $assign_data['productlist'] = $productlist;
+        echo '<pre>';
+        print_r($assign_data);
+        exit;
         return $assign_data;
     }
 

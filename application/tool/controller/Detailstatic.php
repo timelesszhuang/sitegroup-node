@@ -3,6 +3,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\index\model\Article;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
 use app\index\model\Product;
@@ -184,17 +185,34 @@ class Detailstatic extends Common
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的菜单对应的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
         $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
-        echo '<pre>';
         //菜单 typeid_arr 根据栏目的分类 返回 menu 的信息
+        //获取
+        /**
+         * article=>[
+         *     [
+         *       相关分类
+         *     ]
+         * ],
+         * question=>[
+         *
+         * ],
+         * product=>[
+         *
+         * ]
+         *
+         */
         $menu_typeid_arr = Menu::getTypeIdInfo($siteinfo['menu']);
 
+        //获取当前
         //验证下 是不是这个时间段内 是不是可以生成
         list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $scatteredstatic_status, $scatteredstatic_count) = self::check_static_time($site_id, $requesttype);
         //区分菜单所属栏目是哪种类型  article question scatteredstatic
+
         $article_type_keyword = [];
         $question_type_keyword = [];
         $scatteredarticle_type_keyword = [];
         $product_type_keyword = [];
+
         foreach ($menu_typeid_arr as $detail_key => $v) {
             // $detail_key 为 类目的类型
             // $v 为
@@ -254,6 +272,7 @@ class Detailstatic extends Common
         if ($product_type_keyword) {
             $this->productstatic($site_id, $site_name, $node_id, $product_type_keyword);
         }
+
     }
 
     /**
@@ -274,11 +293,9 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/article.html')) {
             return;
         }
-
         $siteinfo = Site::getSiteInfo();
         $type_name = "article";
         $where = [
-            'type_id' => $type_id,
             'type_name' => $type_name,
             "node_id" => $node_id,
             "site_id" => $site_id
@@ -286,63 +303,74 @@ class Detailstatic extends Common
         $pre_stop = 0;
         //获取 站点 某个栏目同步到的文章id
         $articleCount = ArticleSyncCount::where($where)->find();
+        $sync_count_id = $articleCount->id;
         //判断下是否有数据 没有就创建模型
-        if (isset($articleCount->count) && $articleCount->count > 0) {
+        if (isset($articleCount->count) && $articleCount->count >= 0) {
             $pre_stop = $articleCount->count;
         } else {
-            // 没有获取到 某个栏目静态化到的网址 后续需要添加一个
-            $article_sync = new ArticleSyncCount();
+            //article 暂时没有静态化到的位置数据
+            ArticleSyncCount::create([
+                'node_id' => $node_id,
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'type_name' => $type_name,
+                'count' => 0
+            ]);
         }
+
+        $articletype_idstr = implode(',', array_keys($article_type_keyword));
         //删除掉是否同步功能
         //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
-        //        $commonsql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id and";
-        //        $article_list_sql = "($commonsql is_sync=20 ) or  ($commonsql site_id = $site_id)";
-        $article_list_sql = "id >= $pre_stop and node_id=$node_id and articletype_id=$type_id";
-
-        // 要 step_limit+1 因为要 获取上次的最后一条
+        $article_list_sql = "id >= $pre_stop and node_id=$node_id and articletype_id in ($articletype_idstr)";
+        // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
         $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
-        // 如果有数据的话清除掉列表的缓存
-        if (isset($article_data)) {
-            Cache::clear();
-        }
-        $static_count = 0;
+
+        //获取本次最大的id，用于比对是不是有下一页
+        $max_index = max(array_flip(array_keys($article_data)));
+        $max_id = $article_data[$max_index]['id'];
+
+        //首先修改缩略图
+        $water = $siteinfo['walterString'];
+        // 生成页面之后需要把链接存储下 生成最后执行ping百度的操作
         $pingBaidu = [];
         foreach ($article_data as $key => $item) {
             //首先修改缩略图
             // 把 站点的相关的数据写入数据库中
             //获取上一篇和下一篇
             //获取上一篇
-            // $pre_articlecommon_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id and ";
-            // $pre_article_sql = "($pre_articlecommon_sql is_sync=20 ) or  ( $pre_articlecommon_sql site_id = $site_id)";
-            //
             //判断目录是否存在
             if (!file_exists('article')) {
                 $this->make_error("article");
                 return false;
             }
-            $pre_article_sql = "id <{$item['id']} and node_id=$node_id and articletype_id=$type_id";
-            $pre_article = \app\index\model\Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
+            $type_id = $item['articletype_id'];
+            //取出相同分类的上一篇文章
+            $pre_article_sql = "id <{$item['id']} and node_id=$node_id and articletype_id={$type_id}";
+            $pre_article = Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
             //上一页链接
             if ($pre_article) {
                 $pre_article = $pre_article->toArray();
                 $pre_article['href'] = "/article/article{$pre_article['id']}.html";
             }
-            //获取下一篇
+            //获取相同分类的下一篇文章用于生成
             $next_article = [];
             //获取下一篇 的网址
             if ($key < $step_limit) {
-                //最后一条 不需要有 下一页
-                $next_article_sql = "id >{$item['id']} and node_id=$node_id and articletype_id=$type_id";
-                $next_article = \app\index\model\Article::where($next_article_sql)->field("id,title")->find();
+                //最后一条 不需要有 下一页 需要判断下 是不是下一篇包含最大id
+                $next_article_sql = "id >{$item['id']} and id<={$max_id} and node_id={$node_id} and articletype_id={$type_id}";
+                $next_article = Article::where($next_article_sql)->field("id,title")->find();
             }
             //下一页链接
             if ($next_article) {
                 $next_article = $next_article->toArray();
                 $next_article['href'] = "/article/article{$next_article['id']}.html";
             }
-            //首先修改缩略图
-            $water = $siteinfo['walterString'];
             //静态化图片等
+            //需要传递下
+            $keyword_id = $article_type_keyword[$type_id]['keyword_id'];
+            $menu_id = $article_type_keyword[$type_id]['menu_id'];
+            $menu_name = $article_type_keyword[$type_id]['menu_name'];
+
             $assign_data = $this->form_perarticle_content($item, $node_id, $site_id, $water, $keyword_id, $menu_id, $menu_name);
             $content = (new View())->fetch('template/article.html',
                 [
@@ -352,44 +380,11 @@ class Detailstatic extends Common
                     'next_article' => $next_article,
                 ]
             );
-            $make_web = file_put_contents('article/article' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
-            //开始同步数据库
-            if ($make_web) {
-                $articleCountModel = ArticleSyncCount::where($where)->find();
-                if (is_null($articleCountModel)) {
-                    $article_sync->count = $item["id"];
-                    $article_sync->type_id = $type_id;
-                    $article_sync->type_name = $type_name;
-                    $article_sync->node_id = $node_id;
-                    $article_sync->site_id = $site_id;
-                    $article_sync->site_name = $site_name;
-                    $article_sync->save();
-                } else {
-                    $articleCountModel->count = $item["id"];
-                    $articleCountModel->save();
-                }
-            }
-            // ping baidu 数组存放
-            $pingBaidu[] = $siteinfo["url"] . "/article/article" . $item["id"] . '.html';
-            $static_count++;
-        }
-
-        /*
-        $static_count = 0;
-        foreach ($article_type_keyword as $v) {
-            //
-            // 计算出该栏目需要静态化的数量
-            $count = $step_limit - $static_count;
-            if ($count > 0) {
-                $step_count = $this->exec_articlestatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
-                if ($step_count !== false) {
-                    $static_count = $static_count + $step_count;
-                } else {
-                    break;
-                }
+            if (file_put_contents('article/article' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+                //需要把 每一次的都修改下
+                ArticleSyncCount::where($where)->update(['count' => $item['id']]);
             }
         }
-        */
     }
 
 
@@ -608,57 +603,41 @@ class Detailstatic extends Common
         if (!$this->fileExists('template/question.html')) {
             return;
         }
-        $static_count = 0;
-        foreach ($question_type_keyword as $v) {
-            //计算出该栏目需要静态化的数量
-            $count = $step_limit - $static_count;
-            if ($count > 0) {
-                $step_count = $this->exec_questionstatic($site_id, $site_name, $node_id, $v['type_id'], $v['keyword_id'], $v['menu_id'], $v['menu_name'], $count);
-                if ($step_count !== false) {
-                    $static_count = $static_count + $step_count;
-                } else {
-                    break;
-                }
-            }
-        }
-    }
-
-
-    /**
-     * 问答
-     * @param $site_id
-     * @param $site_name
-     * @param $node_id
-     * @param $type_id
-     * @param $a_keyword_id
-     */
-    public function exec_questionstatic($site_id, $site_name, $node_id, $type_id, $keyword_id, $menu_id, $menu_name, $step_limit)
-    {
         $siteinfo = Site::getSiteInfo();
-        //  获取详情 页生成需要的资源  首先需要比对下当前页面是不是已经静态化了
-        //  关键词
-        //当前分类名称
         $type_name = "question";
         $where = [
-            'type_id' => $type_id,
             'type_name' => $type_name,
             "node_id" => $node_id,
             "site_id" => $site_id
         ];
         $pre_stop = 0;
-        $questionCount = ArticleSyncCount::where($where)->find();
-        //判断下是否有数据 没有就创建模型  需要减去1 因为要将以前最后一页重新生成
-        if (isset($questionCount->count) && $questionCount->count > 0) {
-            $pre_stop = $questionCount->count;
+        //获取 站点 某个栏目同步到的文章id
+        $articleCount = ArticleSyncCount::where($where)->find();
+        //判断下是否有数据 没有就创建模型
+        if (isset($articleCount->count) && $articleCount->count >= 0) {
+            $pre_stop = $articleCount->count;
         } else {
-            $question_sync = new ArticleSyncCount();
+            //article 暂时没有静态化到的位置数据
+            ArticleSyncCount::create([
+                'node_id' => $node_id,
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'type_name' => $type_name,
+                'count' => 0
+            ]);
         }
-        $question_data = \app\index\model\Question::where(["id" => ["egt", $pre_stop], "type_id" => $type_id, "node_id" => $node_id])->order("id", "asc")->limit($step_limit + 1)->select();
-        if (isset($question_data)) {
-            Cache::clear();
-        }
-        $static_count = 0;
-        //首先修改缩略图
+
+        $questiontype_idstr = implode(',', array_keys($question_type_keyword));
+        //删除掉是否同步功能
+        //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
+        $question_list_sql = "id >= $pre_stop and node_id=$node_id and type_id in ($questiontype_idstr)";
+        // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
+        $question_data = \app\index\model\Question::where($question_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
+
+        //获取本次最大的id，用于比对是不是有下一篇
+        $max_index = max(array_flip(array_keys($question_data)));
+        $max_id = $question_data[$max_index]['id'];
+        //页面图片水印
         $water = $siteinfo['walterString'];
         foreach ($question_data as $key => $item) {
             //判断目录是否存在
@@ -666,6 +645,7 @@ class Detailstatic extends Common
                 $this->make_error("question");
                 return false;
             }
+            $type_id = $item['type_id'];
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
             $pre_question = \app\index\model\Question::where(["id" => ["lt", $item['id']], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
@@ -673,14 +653,18 @@ class Detailstatic extends Common
                 $pre_question = $pre_question->toArray();
                 $pre_question['href'] = "/question/question{$pre_question['id']}.html";
             }
+
             $next_question = [];
             if ($key < $step_limit) {
-                $next_question = \app\index\model\Question::where(["id" => ["gt", $item['id']], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
+                $next_question = \app\index\model\Question::where(["id" => ["between", [$item['id'], $max_id]], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
             }
             if ($next_question) {
                 $next_question = $next_question->toArray();
                 $next_question['href'] = "/question/question{$next_question['id']}.html";
             }
+            $keyword_id = $question_type_keyword[$type_id]['keyword_id'];
+            $menu_id = $question_type_keyword[$type_id]['menu_id'];
+            $menu_name = $question_type_keyword[$type_id]['menu_name'];
             $assign_data = $this->form_perquestion($item, $water, $keyword_id, $menu_id, $menu_name);
             $content = (new View())->fetch('template/question.html',
                 [
@@ -693,29 +677,11 @@ class Detailstatic extends Common
                     'next_question' => $next_question,
                 ]
             );
-            $make_web = file_put_contents('question/question' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
-            if ($make_web) {
-                $articleCountModel = ArticleSyncCount::where($where)->find();
-                if (is_null($articleCountModel)) {
-                    $question_sync->count = $item["id"];
-                    $question_sync->type_id = $type_id;
-                    $question_sync->type_name = $type_name;
-                    $question_sync->node_id = $node_id;
-                    $question_sync->site_id = $site_id;
-                    $question_sync->site_name = $site_name;
-                    $question_sync->save();
-                } else {
-                    $articleCountModel->count = $item["id"];
-                    $articleCountModel->save();
-                }
+            if (file_put_contents('question/question' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+                ArticleSyncCount::where($where)->update(['count' => $item['id']]);
             }
-            $static_count++;
         }
-        // 请求当前网站列表页 提前生成列表静态化页面
-//        $curl=$siteinfo["url"]."/".$type_name.'/'.$type_id."html";
-//        $this->curl_get($curl);
-        return $static_count - 1;
     }
 
 
@@ -744,29 +710,15 @@ class Detailstatic extends Common
      * @param $node_id 节点的id
      * @param $article_type_keyword 文章分类id 所对应的A类关键词
      */
-    private function productstatic($site_id, $site_name, $node_id, $article_type_keyword)
+    private function productstatic($site_id, $site_name, $node_id, $product_type_keyword)
     {
         //判断模板是否存在
         if (!$this->fileExists('template/product.html')) {
             return;
         }
-        foreach ($article_type_keyword as $v) {
-            $this->exec_productstatic($site_id, $site_name, $node_id, $v['type_id'], $v['menu_id'], $v['menu_name'], $v['keyword_id']);
-        }
-    }
-
-
-    /**
-     * 执行页面静态化相关操作
-     * @access private
-     * @return count 返回生成文章的数量
-     */
-    private function exec_productstatic($site_id, $site_name, $node_id, $type_id, $menu_id, $menu_name, $keyword_id)
-    {
         $siteinfo = Site::getSiteInfo();
         $type_name = "product";
         $where = [
-            'type_id' => $type_id,
             'type_name' => $type_name,
             "node_id" => $node_id,
             "site_id" => $site_id
@@ -774,44 +726,40 @@ class Detailstatic extends Common
         $pre_stop = 0;
         //获取 站点 某个栏目同步到的文章id
         $productCount = ArticleSyncCount::where($where)->find();
+
         //判断下是否有数据 没有就创建模型
-        if (isset($productCount->count) && $productCount->count > 0) {
+        if (isset($productCount->count) && $productCount->count >= 0) {
             $pre_stop = $productCount->count;
         } else {
-            // 没有获取到 某个栏目静态化到的网址 后续需要添加一个
-            $article_sync = new ArticleSyncCount();
+            //article 暂时没有静态化到的位置数据
+            ArticleSyncCount::create([
+                'node_id' => $node_id,
+                'site_id' => $site_id,
+                'site_name' => $site_name,
+                'type_name' => $type_name,
+                'count' => 0
+            ]);
         }
-        $productsql = "id >= $pre_stop and node_id=$node_id and type_id=$type_id";
+        $producttype_idstr = implode(',', array_keys($product_type_keyword));
+        $productsql = "id >= $pre_stop and node_id=$node_id and type_id in ($producttype_idstr)";
         // 要 step_limit+1 因为要 获取上次的最后一条
         $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
         // 如果有数据的话清除掉列表的缓存
-        if (isset($product_data)) {
-            Cache::clear();
-        }
         $water = $siteinfo['walterString'];
         foreach ($product_data as $key => $item) {
             if (!file_exists('product')) {
                 $this->make_error("product");
                 return false;
             }
+            $type_id = $item['type_id'];
+            $keyword_id = $product_type_keyword[$type_id]['keyword_id'];
+            $menu_id = $product_type_keyword[$type_id]['menu_id'];
+            $menu_name = $product_type_keyword[$type_id]['menu_name'];
             $content = $this->form_perproduct($item, $node_id, $type_id, $water, $keyword_id, $menu_id, $menu_name);
             //判断目录是否存在
-            $make_web = file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
-            if ($make_web) {
-                $articleCountModel = ArticleSyncCount::where($where)->find();
-                if (is_null($articleCountModel)) {
-                    $article_sync->count = $item["id"];
-                    $article_sync->type_id = $type_id;
-                    $article_sync->type_name = $type_name;
-                    $article_sync->node_id = $node_id;
-                    $article_sync->site_id = $site_id;
-                    $article_sync->site_name = $site_name;
-                    $article_sync->save();
-                } else {
-                    $articleCountModel->count = $item["id"];
-                    $articleCountModel->save();
-                }
+            if (file_put_contents('product/product' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+                ArticleSyncCount::where($where)->update(['count' => $item['id']]);
             }
         }
     }
@@ -830,7 +778,6 @@ class Detailstatic extends Common
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
         $assign_data = Commontool::getEssentialElement('detail', $item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
-
         // 把 站点的相关的数据写入数据库中
         // file_put_contents('log/article.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //获取上一篇和下一篇
@@ -844,7 +791,7 @@ class Detailstatic extends Common
         }
         //获取下一篇
         $next_productcommon_sql = "id >{$item['id']} and node_id=$node_id and type_id=$type_id ";
-        $next_product = \app\index\model\Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
+        $next_product = Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
         //下一页链接
         if ($next_product) {
             $next_product = $next_product->toArray();

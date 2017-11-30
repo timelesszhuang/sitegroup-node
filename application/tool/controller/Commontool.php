@@ -3,6 +3,10 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\index\controller\QuestionList;
+use app\index\model\Articletype;
+use app\index\model\Producttype;
+use app\index\model\QuestionType;
 use app\tool\model\Activity;
 use think\Cache;
 use think\Config;
@@ -14,6 +18,18 @@ use think\Db;
  */
 class Commontool extends Common
 {
+
+    //各个列表的路径规则
+    private static $articleListPath = '/articlelist/%s.html';
+    public static $articlePath = '/article/article%s.html';
+    private static $productListPath = '/productlist/%s.html';
+    public static $productPath = '/product/product%s.html';
+    private static $questionListPath = '/questionlist/%s.html';
+    public static $questionPath = '/question/question%s.html';
+
+    public static $articleListField = 'id,title,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,create_time';
+    public static $questionListField = 'id,question,type_id,type_name,create_time';
+    public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,create_time';
 
     /**
      * 清除缓存 信息
@@ -304,53 +320,126 @@ class Commontool extends Common
      * @access public
      * @param $sync_info 该站点所有文章分类的 静态化状况
      * @param $site_id
-     *              如果是 detail 的话 应该给
+     *              如果是 detail 的话 应该给sg_articletype
      * @param int $limit
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getArticleList($sync_info, $site_id, $limit = 10)
+    public static function getArticleList($sync_info, $typeid_arr, $limit = 10)
     {
-        $article_sync_info = array_key_exists('article', $sync_info) ? $sync_info['article'] : [];
+        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
+        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
+
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-        if ($article_sync_info) {
-            $where = '';
-            //还需要　只获取　允许同步的文章
-            foreach ($article_sync_info as $k => $v) {
-                if ($k == 0) {
-                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                } else {
-                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                }
-                //比如一般的列表中都会有更多操作 随机从文章列表中选出一个菜单的id来组织数据
-                if ($more['href'] == '/') {
-                    $more = ['title' => $v['menu_name'], 'href' => "/articlelist/{$v['menu_id']}.html", 'text' => '更多'];
-                }
-            }
-            $where = "({$where}) and ((`is_sync`= '20') or (`is_sync`='10' and `site_id`='{$site_id}'))";
-            $article = Db::name('Article')->where($where)->field('id,title,thumbnails,thumbnails_name,summary,create_time')->order('id desc')->limit($limit)->select();
-            $articlelist = [];
-            foreach ($article as $k => $v) {
-                $art = [];
-                $art['title'] = $v['title'];
-                $art['a_href'] = '/article/article' . $v['id'] . '.html';
-                $art['summary'] = $v['summary'];
-                $v['title'] = str_replace('%', '', $v['title']);
-                $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
-                $img = sprintf($img_template, '/templatestatic/default.jpg');
-                if (!empty($v["thumbnails_name"])) {
-                    //如果有本地图片则 为本地图片
-                    $src = "/images/" . $v['thumbnails_name'];
-                    $img = sprintf($img_template, $src);
-                } else if (!empty($v["thumbnails"])) {
-                    $img = sprintf($img_template, $v['thumbnails']);
-                }
-                $art['thumbnails'] = $img;
-                $art['create_time'] = date('Y-m-d', $v['create_time']);
-                $articlelist[] = $art;
-            }
-            return [$articlelist, $more];
+        //随机取值
+        //测试
+        if (!($max_id && $article_typearr)) {
+            return [[], $more];
         }
-        return [[], $more];
+        $articlelist = self::getTypesArticleList($max_id, $article_typearr, $limit);
+        //随机取值来生成静态页
+        $rand_key = array_rand($article_typearr);
+        $rand_type = $article_typearr[$rand_key];
+        if ($more['href'] == '/') {
+            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf(self::$articleListPath, $rand_type['menu_enname']), 'text' => '更多', 'menu_name' => $rand_type['menu_name'], 'type_name' => $rand_type['type_name']];
+        }
+        return [$articlelist, $more];
+
+    }
+
+    /**
+     * 获取多个分类下的文章列表
+     * @access public
+     */
+    public static function getTypesArticleList($max_id, $article_typearr, $limit)
+    {
+        $typeid_str = implode(',', array_keys($article_typearr));
+        $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
+
+        $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
+
+        return self::formatArticleList($article, $article_typearr);
+    }
+
+
+    /**
+     * 获取文章分类下的文章列表 比如 行业新闻直接调取分类下的id 调取的时候建议使用 array_key_exists
+     * @access public
+     */
+    public static function getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
+        $article_type_aliasarr = array_key_exists('article', $type_aliasarr) ? $type_aliasarr['article'] : [];
+        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
+        if (!($max_id && $article_type_aliasarr)) {
+            //表示还没有数据 直接跳出来
+        }
+        $articlealias_list = [];
+        foreach ($article_type_aliasarr as $type_alias => $v) {
+            $type_id = $v['type_id'];
+            $articlelist = self::getTypeArticleList($type_id, $max_id, $article_typearr, $limit);
+            $more = ['title' => $v['menu_name'], 'href' => sprintf(self::$articleListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
+            //组织数据
+            $articlealias_list[$type_alias] = [
+                'list' => $articlelist,
+                'more' => $more,
+                'menu_name' => $v['menu_name'],
+                'type_name' => $v['type_name']
+            ];
+        }
+        return $articlealias_list;
+    }
+
+
+    /**
+     * 获取单个分类下的文章列表
+     * @access public
+     */
+    public static function getTypeArticleList($type_id, $max_id, $article_typearr, $limit)
+    {
+        $where = " `id`<= {$max_id} and articletype_id = {$type_id}";
+        //后期可以考虑置顶之类操作
+        $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
+        return self::formatArticleList($article, $article_typearr);
+    }
+
+
+    /**
+     * 根据取出来的文章list 格式化为指定的格式
+     * @access public
+     */
+    public static function formatArticleList($article, $article_typearr)
+    {
+        $articlelist = [];
+        foreach ($article as $k => $v) {
+            //防止标题中带着% 好的引起程序问题
+            $v['title'] = str_replace('%', '', $v['title']);
+            $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
+            //默认缩略图的
+            $img = sprintf($img_template, '/templatestatic/default.jpg');
+            if (!empty($v["thumbnails_name"])) {
+                //如果有本地图片则 为本地图片
+                $src = "/images/" . $v['thumbnails_name'];
+                $img = sprintf($img_template, $src);
+            } else if (!empty($v["thumbnails"])) {
+                $img = sprintf($img_template, $v['thumbnails']);
+            }
+            //列出当前文章分类来
+            if (array_key_exists($v['articletype_id'], $article_typearr)) {
+                $type = [
+                    'name' => $v['articletype_name'],
+                    'href' => $article_typearr[$v['articletype_id']]['href']
+                ];
+            }
+            $articlelist[] = [
+                'title' => $v['title'],
+                'a_href' => sprintf(self::$articlePath, $v['id']),
+                'summary' => $v['summary'],
+                'thumbnails' => $img,
+                'create_time' => date('Y-m-d', $v['create_time']),
+                'type' => $type
+            ];
+        }
+        return $articlelist;
     }
 
 
@@ -362,38 +451,111 @@ class Commontool extends Common
      * @param int $limit
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getProductList($sync_info, $site_id, $limit = 10)
+    public static function getProductList($sync_info, $typeid_arr, $limit = 10)
     {
-        $product_sync_info = array_key_exists('product', $sync_info) ? $sync_info['product'] : [];
+        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
+        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-        if ($product_sync_info) {
-            $where = '';
-            foreach ($product_sync_info as $k => $v) {
-                if ($k == 0) {
-                    $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                } else {
-                    $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                }
-                if ($more['href'] == '/') {
-                    $more = ['title' => $v['menu_name'], 'href' => "/productlist/{$v['menu_id']}.html", 'text' => '更多'];
-                }
-            }
-            $product = Db::name('Product')->where($where)->field('id,name,image_name,sn,payway,type_name,summary,create_time')->order('id desc')->limit($limit)->select();
-            $productlist = [];
-            foreach ($product as $k => $v) {
-                $art = [];
-                $art['name'] = $v['name'];
-                $art['a_href'] = '/product/product' . $v['id'] . '.html';
-                $art['summary'] = $v['summary'];
-                $src = "/images/" . $v['image_name'];
-                $img = "<img src='{$src}' alt= '{$v['name']}'>";
-                $art['thumbnails'] = $img;
-                $art['create_time'] = date('Y-m-d', $v['create_time']);
-                $productlist[] = $art;
-            }
-            return [$productlist, $more];
+        if (!($max_id && $product_typearr)) {
+            return [[], $more];
         }
-        return [[], $more];
+        $productlist = self::getTypesProductList($max_id, $product_typearr, $limit);
+        //随机取值来生成静态页
+        $rand_key = array_rand($product_typearr);
+        $rand_type = $product_typearr[$rand_key];
+        if ($more['href'] == '/') {
+            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf(self::$productListPath, $rand_type['menu_enname']), 'text' => '更多'];
+        }
+        return [$productlist, $more];
+    }
+
+    /**
+     * 获取多个类型types 产品列表
+     * @access public
+     */
+    public static function getTypesProductList($max_id, $product_typearr, $limit)
+    {
+        $typeid_str = implode(',', array_keys($product_typearr));
+        $where = " `type_id` in ($typeid_str) and `id`<= {$max_id}";
+        $product = Db::name('Product')->where($where)->field(self::$productListField)->order('id desc')->limit($limit)->select();
+        return self::formatProductList($product, $product_typearr);
+    }
+
+
+    /**
+     * 获取产品分类下的文章列表 比如 行业新闻直接调取分类下的id 调取的时候建议使用 array_key_exists
+     * @access public
+     */
+    private static function getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
+        $product_type_aliasarr = array_key_exists('product', $type_aliasarr) ? $type_aliasarr['product'] : [];
+        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
+        if (!($max_id && $product_type_aliasarr)) {
+            //表示还没有数据 直接跳出来
+            return [];
+        }
+        $productalias_list = [];
+
+        foreach ($product_type_aliasarr as $type_alias => $v) {
+            $type_id = $v['type_id'];
+            $productlist = self::getTypeProductList($type_id, $max_id, $product_typearr, $limit);
+            $more = ['title' => $v['menu_name'], 'href' => sprintf(self::$productListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
+            //组织数据
+            $productalias_list[$type_alias] = [
+                'list' => $productlist,
+                'more' => $more,
+                'menu_name' => $v['menu_name'],
+                'type_name' => $v['type_name']
+            ];
+        }
+        return $productalias_list;
+    }
+
+    /**
+     * 获取单个类型type 产品列表
+     * @access public
+     */
+    public static function getTypeProductList($type_id, $max_id, $product_typearr, $limit)
+    {
+        $where = " `id`<= {$max_id} and type_id = {$type_id}";
+        //后期可以考虑置顶之类操作
+        $product = Db::name('Product')->where($where)->field(self::$productListField)->order('id desc')->limit($limit)->select();
+        return self::formatProductList($product, $product_typearr);
+    }
+
+
+    /**
+     * 格式化产品信息数据
+     * @access private
+     */
+    private static function formatProductList($product, $product_typearr)
+    {
+        $productlist = [];
+        foreach ($product as $k => $v) {
+            $src = "/images/" . $v['image_name'];
+            $img = "<img src='{$src}' alt= '{$v['name']}'>";
+            //列出当前文章分类来
+            $type = [
+                'name' => '',
+                'href' => ''
+            ];
+            if (array_key_exists($v['type_id'], $product_typearr)) {
+                $type = [
+                    'name' => $v['type_name'],
+                    'href' => $product_typearr[$v['type_id']]['href']
+                ];
+            }
+            $productlist[] = [
+                'name' => $v['name'],
+                'a_href' => sprintf(self::$productPath, $v['id']),
+                'summary' => $v['summary'],
+                'thumbnails' => $img,
+                'create_time' => date('Y-m-d', $v['create_time']),
+                'type' => $type
+            ];
+        }
+        return $productlist;
     }
 
 
@@ -405,36 +567,111 @@ class Commontool extends Common
      * @param int $limit
      * @return array
      */
-    public static function getQuestionList($sync_info, $site_id, $limit = 10)
+    public static function getQuestionList($sync_info, $typeid_arr, $limit = 10)
     {
-        $question_sync_info = array_key_exists('question', $sync_info) ? $sync_info['question'] : [];
+        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
+        $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-        if ($question_sync_info) {
-            $where = '';
-            foreach ($question_sync_info as $k => $v) {
-                if ($k == 0) {
-                    $where .= "(`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                } else {
-                    $where .= ' or' . " (`type_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                }
-                if ($more['href'] == '/') {
-                    $more = ['title' => $v['menu_name'], "/questionlist/{$v['menu_id']}.html", 'text' => '更多'];
-                }
-            }
-            $question = Db::name('Question')->where($where)->field('id,question,create_time')->order('id desc')->limit($limit)->select();
-            $questionlist = [];
-            foreach ($question as $k => $v) {
-                $questionlist[] = [
-                    'question' => $v['question'],
-                    'a_href' => '/question/question' . $v['id'] . '.html',
-                    'create_time' => date('Y-m-d', $v['create_time']),
-                ];
-            }
-            return [$questionlist, $more];
+        if (!($max_id && $question_typearr)) {
+            return [[], $more];
         }
-        return [[], $more];
+        $questionlist = self::getTypesQuestionList($max_id, $question_typearr, $limit);
+        $rand_key = array_rand($question_typearr);
+        $rand_type = $question_typearr[$rand_key];
+        if ($more['href'] == '/') {
+            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf(self::$questionListPath, $rand_type['menu_enname']), 'text' => '更多'];
+        }
+        return [$questionlist, $more];
     }
 
+
+    /**
+     * 获取多个类型types 问答列表
+     * @access public
+     */
+    public static function getTypesQuestionList($max_id, $question_typearr, $limit)
+    {
+        $typeid_str = implode(',', array_keys($question_typearr));
+        $where = "`type_id` in ($typeid_str)  and `id`<= {$max_id}";
+        $question = Db::name('Question')->where($where)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
+        return self::formatQuestionList($question, $question_typearr);
+    }
+
+
+    /**
+     * 获取问答分类的相关列表数据
+     * @access public
+     */
+    public static function getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
+        $question_type_aliasarr = array_key_exists('question', $type_aliasarr) ? $type_aliasarr['question'] : [];
+        $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
+        if (!($max_id && $question_type_aliasarr)) {
+            //表示还没有数据 直接跳出来
+            return [];
+        }
+        $questionalias_list = [];
+        foreach ($question_type_aliasarr as $type_alias => $v) {
+            $type_id = $v['type_id'];
+            $questionlist = self::getTypeQuestionList($type_id, $max_id, $question_typearr, $limit);
+            $more = ['title' => $v['menu_name'], 'href' => sprintf(self::$questionListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
+            //组织数据
+            $questionalias_list[$type_alias] = [
+                'list' => $questionlist,
+                'more' => $more,
+                'menu_name' => $v['menu_name'],
+                'type_name' => $v['type_name']
+            ];
+        }
+        return $questionalias_list;
+    }
+
+    /**
+     * 获取单个类型type 问答列表
+     * @access public
+     */
+    public static function getTypeQuestionList($type_id, $max_id, $question_typearr, $limit)
+    {
+        $where = " `id`<= {$max_id} and type_id = {$type_id}";
+        //后期可以考虑置顶之类操作
+        $question = Db::name('Question')->where($where)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
+        return self::formatQuestionList($question, $question_typearr);
+    }
+
+    /**
+     * 根据问答分类格式化列表数据
+     * @access private
+     */
+    private static function formatQuestionList($question, $question_typearr)
+    {
+        $questionlist = [];
+        foreach ($question as $k => $v) {
+            $type = [
+                'name' => '',
+                'href' => ''
+            ];
+            if (array_key_exists($v['type_id'], $question_typearr)) {
+                $type = [
+                    'name' => $v['type_name'],
+                    'href' => $question_typearr[$v['type_id']]['href']
+                ];
+            }
+            $questionlist[] = [
+                'question' => $v['question'],
+                'a_href' => sprintf(self::$questionPath, $v['id']),
+                'create_time' => date('Y-m-d', $v['create_time']),
+                'type' => $type
+            ];
+        }
+        return $questionlist;
+    }
+
+
+
+    /**
+     * 零散段落这块暂时有问题 功能模块需要重构
+     */
 
     /**
      * 获取 零散段落 分类  文件名如 article1 　article2
@@ -446,32 +683,32 @@ class Commontool extends Common
      */
     public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
     {
-        $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
-        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-        if ($scattered_sync_info) {
-            $where = '';
-            foreach ($scattered_sync_info as $k => $v) {
-                if ($k == 0) {
-                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                } else {
-                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-                }
-                if ($more['href'] == '/') {
-                    $more = ['title' => $v['menu_name'], 'href' => "/news/{$v['menu_id']}.html", 'text' => '更多'];
-                }
-            }
-            $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title,create_time')->order('id desc')->limit($limit)->select();
-            $articlelist = [];
-            foreach ($scattered_article as $k => $v) {
-                $articlelist[] = [
-                    'a_href' => '/news/news' . $v['id'] . '.html',
-                    'title' => $v['title'],
-                    'create_time' => date('Y-m-d', $v['create_time'])
-                ];
-            }
-            return [$articlelist, $more];
-        }
-        return [[], $more];
+//        $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
+//        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
+//        if ($scattered_sync_info) {
+//            $where = '';
+//            foreach ($scattered_sync_info as $k => $v) {
+//                if ($k == 0) {
+//                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+//                } else {
+//                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
+//                }
+//                if ($more['href'] == '/') {
+//                    $more = ['title' => $v['menu_name'], 'href' => "/news/{$v['menu_id']}.html", 'text' => '更多'];
+//                }
+//            }
+//            $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title,create_time')->order('id desc')->limit($limit)->select();
+//            $articlelist = [];
+//            foreach ($scattered_article as $k => $v) {
+//                $articlelist[] = [
+//                    'a_href' => '/news/news' . $v['id'] . '.html',
+//                    'title' => $v['title'],
+//                    'create_time' => date('Y-m-d', $v['create_time'])
+//                ];
+//            }
+//            return [$articlelist, $more];
+//        }
+//        return [[], $more];
     }
 
 
@@ -496,54 +733,26 @@ class Commontool extends Common
 
 
     /**
-     * 获取页面中 需要的文章列表  内容列表 问答列表
-     * 获取页面中文章列表 需要的  分类的id列表 跟 已经静态化的最大的id值
-     * 1、比如 文章 获取该站点所有的 选择的分类的id  跟 文章最大的id
-     *    取列表的时候 sql 用 type_id in (id,id) and id < 已经静态化的最大的id值
+     * 获取分类中已经静态化到的地方 需要的文章列表  内容列表 问答列表
      * @access public
-     * @param $menu_ids 站点选择的菜单的id
      * @param $site_id 站点的id 信息
      * @return array
      */
-    public static function getDbArticleListId($menu_ids, $site_id)
+    public static function getDbArticleListId($site_id)
     {
-        //获取页面中  会用到的 文章列表 问题列表 零散段落列表
-        //配置的菜单信息
-        //类型：  id 为文章分类  name 为文章分类名
-        // question:{
-        //           ['id'=>,'name'=>,'menu_id'=>,'menu_name'=>''],
-        //           ['id'=>,'name'=>'','menu_id'=>,'menu_name'=>],
-        //          }
-        // article:{
-        //          ['id'=>,'name'=>,'menu_id'=>,'menu_name'=>],
-        //         }
-        $type_id_arr = Menu::getTypeIdInfo($menu_ids);
-        //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
-        $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_id,type_name,count')->select();
-        $article_sync_list = [];
-        if ($article_sync_info) {
-            foreach ($article_sync_info as $v) {
-                if (!array_key_exists($v['type_name'], $article_sync_list)) {
-                    $article_sync_list[$v['type_name']] = [];
+        return Cache::remember('sync_info', function () use ($site_id) {
+            //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+            $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
+            $article_sync_list = [];
+            if ($article_sync_info) {
+                foreach ($article_sync_info as $v) {
+                    if (!array_key_exists($v['type_name'], $article_sync_list)) {
+                        $article_sync_list[$v['type_name']] = $v['count'];
+                    }
                 }
-                $article_sync_list[$v['type_name']][$v['type_id']] = $v;
             }
-        }
-        $sync_article_data = [];
-        foreach ($type_id_arr as $type => $v) {
-            foreach ($v as $menu) {
-                $max_id = 0;
-                if (array_key_exists($type, $article_sync_list)) {
-                    $max_id = array_key_exists($menu['id'], $article_sync_list[$type]) ? $article_sync_list[$type][$menu['id']]['count'] : 0;
-                }
-                if (!array_key_exists($type, $sync_article_data)) {
-                    $sync_article_data[$type] = [
-                    ];
-                }
-                array_push($sync_article_data[$type], ['type_id' => $menu['id'], 'type_name' => $menu['name'], 'menu_id' => $menu['menu_id'], 'menu_name' => $menu['menu_name'], 'max_id' => $max_id]);
-            }
-        }
-        return $sync_article_data;
+            return $article_sync_list;//文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+        });
     }
 
     /**
@@ -751,9 +960,8 @@ CODE;
      * 获取 页面中必须的元素
      *
      * @param string $tag index 或者 menu detail
-     * @param string $param 如果是  index  第二第三个参数没用
-     *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id   $param4 表示菜单类型 articlelist newslist  questionlist  productlist
-     *                              envmenu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name
+     * @param string $param 如果是   index  第二第三个参数没用
+     *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id  $param4 为type_id菜单下的id  $param5 表示菜单类型 articlelist newslist  questionlist  productlist
      *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容 $param3 表示文章设置的keywords  $param4 是 a_keyword_id  $para5  表示 menu_id  $param6 表示 menu_name $param7 用于生成面包屑的时候 获取 栏目菜单的url
      * @param string $param2
      * @return array
@@ -770,34 +978,85 @@ CODE;
         //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
         //该站点的网址
         $url = $siteinfo['url'];
+
+        //菜单的返回也需要修改
         $menu = self::getMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id, $url, $tag, $param2, $param3);
+
+        //获取网站中每个分类的 $type_aliasarr
+        /*
+          [
+               'article'=>[
+                    //支持多个
+                   '栏目英文名alias'=>[
+                        栏目信息
+                    ]
+                ],
+               'question'=>[],
+               'product'=>[],
+          ]
+        */
+
+        //获取每个菜单的menu_idarr
+        /*
+         [
+               'menu_id'=>[
+                    //支持多个
+                   '栏目英文名alias'=>[
+                        栏目信息
+                    ],
+                    ''=>[],
+                ],
+               'menu_id2'=>[],
+               'menu_id3'=>[],
+          ]
+        */
+        // 获取每种分类的 typeid_arr
+        /*
+         [
+               'article'=>[
+                    //支持多个
+                   '栏目id'=>[
+                        栏目信息
+                    ],
+                    ''=>[],
+                ],
+               'product'=>[],
+               'question'=>[],
+          ]
+        */
+
+        list($type_aliasarr, $typeid_arr) = self::getTypeIdInfo($siteinfo['menu']);
         //活动创意相关操作
         $activity = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
+        $sync_info = self::getDbArticleListId($site_id);
         $breadcrumb = [];
+        //每个页面特殊的变量存在
         switch ($tag) {
             case 'index':
-                /**
-                 * 关于关键词 改变之后 需要手动到搜索引擎优化部分主动修改关键词
-                 */
                 $page_id = 'index';
                 //然后获取 TDK 等数据  首先到数据库
                 list($title, $keyword, $description) = self::getIndexPageTDK($keyword_info, $site_id, $site_name, $node_id, $siteinfo['com_name']);
                 //获取首页面包屑
                 //Breadcrumb 面包屑
                 $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url']);
+
                 break;
             case 'menu':
-                //菜单 页面的TDK
+                //菜单 页面的TDK 分为两种 一种是已经存在的 另外一种为详情形式的列表
                 $page_id = $param;
                 $menu_name = $param2;
                 $menu_id = $param3;
-                $type = $param4;
+                //文章分类的id
+                $type_id = $param4;
+                //type 为 productlist articlelist questionlist
+                $type = $param5;
                 list($title, $keyword, $description) = self::getMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_id, $menu_name);
                 //获取菜单的 面包屑 导航
                 //需要注意下 详情型的菜单 没有type
                 $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
+
                 break;
             case 'detail':
                 //详情页面
@@ -816,25 +1075,24 @@ CODE;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
                 $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
+
                 break;
         }
-        //获取页面中  会用到的 文章列表 问题列表 零散段落列表
-        //配置的菜单信息  用于获取 文章的列表
-        //首页获取文章列表改为二十篇
-        $artiletype_sync_info = self::getDbArticleListId($siteinfo['menu'], $site_id);
-        $limit = $tag == 'index' ? 15 : 10;
+        //获取不分类的文章 全部分类的都都获取到
+        list($article_list, $article_more) = self::getArticleList($sync_info, $typeid_arr);
+        //获取不分类的文章 全部分类都获取到
+        list($question_list, $question_more) = self::getQuestionList($sync_info, $typeid_arr);
+        //获取零散段落类型  全部分类都获取到
+        //list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $typeid_arr);
+        //产品类型 列表获取 全部分类都获取到
+        list($product_list, $product_more) = self::getProductList($sync_info, $typeid_arr);
 
-        //获取全部的文章的列表
-        //正常的文章类型
-        list($article_list, $article_more) = self::getArticleList($artiletype_sync_info, $site_id, $limit);
-        //问答类型
-        list($question_list, $question_more) = self::getQuestionList($artiletype_sync_info, $site_id);
-        //零散段落类型
-        list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $site_id);
-        //产品类型 列表获取
-        list($product_list, $product_more) = self::getProductList($artiletype_sync_info, $site_id);
-        //列出所有文章分类的id
-        //list($article_all_list, $question_all_list, $product_all_list) = self::getAllTypeList($artiletype_sync_info);
+        //根据文章分类展现列表以及more
+        $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr);
+        //根据文章分类展现列表以及more
+        $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr);
+        //根据文章分类展现列表以及more
+        $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr);
 
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
@@ -852,7 +1110,7 @@ CODE;
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
@@ -900,6 +1158,121 @@ CODE;
         return compact('data', 'com_name', 'site_name', 'contact_info', 'beian', 'copyright', 'logo', 'tdk', 'title', 'keyword', 'description', 'share', 'menu', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js');
     }
 
+    /**
+     * 获取每个menu下的所有分类id数组
+     * @access public
+     */
+    public static function getMenuChildrenMenuTypeid($menu_id, $ptypeidarr)
+    {
+        // 因为会选择三级栏目所以需要选出子栏目的type_id 来
+        return Cache::remember('menu_children' . $menu_id, function () use ($menu_id, $ptypeidarr) {
+            $menulist = \app\tool\model\Menu::Where('path', 'like', "%,$menu_id,%")->select();
+            foreach ($menulist as $menu) {
+                //子孙栏目选择type_id
+                $ptype_idstr = $menu['type_id'];
+                $typeidarr = array_filter(explode(',', $ptype_idstr));
+                $ptypeidarr = array_merge($ptypeidarr, $typeidarr);
+            }
+            return $ptypeidarr;
+        });
+    }
+
+
+    /**
+     * 获取类型 id
+     * @access private
+     */
+    public static function getTypeIdInfo($menu_idstr)
+    {
+        return Cache::remember('TypeId', function () use ($menu_idstr) {
+            //站点所选择的菜单
+            $menu_idarr = array_filter(explode(',', $menu_idstr));
+            //获取每个菜单下的type_id
+            $menulist = \app\tool\model\Menu::Where('id', 'in', $menu_idarr)->field('id,generate_name,name,flag,type_id')->select();
+            //组织两套数据 菜单对应的id 数据
+            $type_aliasarr = [];
+            $typeid_arr = [];
+            self::getTypeInfo($menulist, $type_aliasarr, $typeid_arr);
+            //第一个是菜单对应的 type  第二个是 article question product等类型对应的别名type 第三个是 类型对应的type_id type
+            return [$type_aliasarr, $typeid_arr];
+        });
+    }
+
+    /**
+     * 递归获取网站type_aliasarr typeid_arr
+     */
+    public static function getTypeInfo($menulist, &$type_aliasarr, &$typeid_arr)
+    {
+        foreach ($menulist as $k => $v) {
+            //栏目类型
+            $flag = $v['flag'];
+            if ($flag == 1) {
+                //详情型号的直接跳过
+                continue;
+            }
+            if ($flag == 4) {
+                //零散段落暂时跳过 后期需要重写
+                continue;
+            }
+            $menu_id = $v['id'];
+            $menu_name = $v['name'];
+            $menu_enname = $v['generate_name'];
+            $type_idstr = $v['type_id'];
+            //网站typeidarr
+            $typeidarr = array_filter(explode(',', $type_idstr));
+            //获取每个类型信息
+            $typelist = [];
+            $listpath = '';
+            switch ($flag) {
+                case '2':
+                    $type = 'question';
+                    $listpath = self::$questionListPath;
+                    //问答形式
+                    $typelist = Questiontype::where('id', 'in', $typeidarr)->select();
+                    break;
+                case '3':
+                    //文章形式
+                    $type = 'article';
+                    $listpath = self::$articleListPath;
+                    $typelist = Articletype::where('id', 'in', $typeidarr)->select();
+                    break;
+                case '4':
+                    //段落形式直接跳过就行暂时不考虑
+                    break;
+                case '5':
+                    $type = 'product';
+                    $listpath = self::$productListPath;
+                    $typelist = Producttype::where('id', 'in', $typeidarr)->select();
+                    break;
+            }
+            foreach ($typelist as $val) {
+                $key = $val['alias'] ?: $val['id'];
+                $value = [
+                    'menu_id' => $menu_id,
+                    'menu_name' => $menu_name,
+                    'menu_enname' => $menu_enname,
+                    'type_id' => $val['id'],
+                    'type_name' => $val['name'],
+                    'href' => sprintf($listpath, "{$menu_enname}_t{$val['id']}")
+                ];
+
+                if (!array_key_exists($type, $type_aliasarr)) {
+                    $type_aliasarr[$type] = [];
+                }
+                //如果存在 alias 英文名 则用alias 不存在的话用type_id
+                //要求同类下不能有重名alias 的
+                $type_aliasarr[$type][$key] = $value;
+
+                if (!array_key_exists($type, $typeid_arr)) {
+                    $typeid_arr[$type] = [];
+                }
+                $typeid_arr[$type][$val['id']] = $value;
+            }
+            //查询当前的menu_id
+            self::getTypeInfo(\app\tool\model\Menu::Where('p_id', $menu_id)->field('id,generate_name,name,flag,type_id')->select(), $type_aliasarr, $typeid_arr);
+        }
+    }
+
 
     /**
      * 获取页面的分享代码
@@ -935,38 +1308,6 @@ code;
         $description_template = "<meta name='description' content='%s'>";
         return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
     }
-
-    /**
-     * 获取全部分类类型的列表
-     * @access private
-     */
-/*    private static function getAllTypeList($artiletype_sync_info)
-    {
-        echo '<pre>';
-        foreach ($artiletype_sync_info as $k => $v) {
-            //print_r($k);
-            //print_r($v);
-            foreach ($v as $key => $val) {
-                switch ($k) {
-                    case 'article':
-                        //获取下每个分类下的文章
-
-                        break;
-                    case 'product':
-                        //获取每个分类下的产品
-
-                        break;
-                    case 'question':
-                        //获取每个分类下的问答
-
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-        exit;
-    }*/
 
 
     /**

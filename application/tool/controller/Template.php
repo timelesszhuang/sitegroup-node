@@ -137,7 +137,7 @@ class Template extends Common
         }
         if ($content) {
             file_put_contents($file_path, $content);
-            return json_encode(['status' => '', 'msg' => '修改模板内容成功。']);
+            return json_encode(['status' => 'success', 'msg' => '修改模板内容成功。']);
         } else {
             return json_encode(['status' => 'failed', 'msg' => '修改模板内容失败，请填写模板内容。']);
         }

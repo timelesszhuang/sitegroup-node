@@ -88,6 +88,7 @@ class Pagestaticentry extends Common
         (new Detailmenupagestatic())->index();
         (new Indexstatic())->index();
         (new SiteMap)->index();
+        Cache::clear();
         exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
     }
 
@@ -100,12 +101,13 @@ class Pagestaticentry extends Common
     {
         //全部的页面的静态化
         // 详情页面生成
-        (new Activitystatic())->index();
+//        (new Activitystatic())->index();
         (new Detailstatic())->index();
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
         (new Indexstatic())->index();
         (new SiteMap)->index();
+        Cache::clear();
         exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
     }
 
@@ -120,6 +122,7 @@ class Pagestaticentry extends Common
         if ((new Indexstatic())->index()) {
             exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
         }
+        Cache::clear();
         exit(['status' => 'failed', 'msg' => '首页静态化生成失败。']);
     }
 
@@ -132,6 +135,7 @@ class Pagestaticentry extends Common
     {
         //文章页面的静态化
         (new Detailstatic())->index();
+        Cache::clear();
         exit(['status' => 'success', 'msg' => '文章页面生成完成。']);
     }
 
@@ -146,6 +150,7 @@ class Pagestaticentry extends Common
         if ((new Detailmenupagestatic())->index()) {
             exit(['status' => 'success', 'msg' => '栏目页静态化生成完成。']);
         }
+        Cache::clear();
         exit(['status' => 'failed', 'msg' => '栏目页静态化生成完成。']);
     }
 

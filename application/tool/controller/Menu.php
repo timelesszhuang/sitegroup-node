@@ -137,22 +137,22 @@ class Menu extends Common
                         $type = 'product';
                         break;
                 }
-                print_r($v);
-                exit;
-                $type_arr = [
-                    //文章类型的id
-                    'id' => $v['type_id'],
-                    //文章类型的name
-                    'name' => $v['type_name'],
-                    //菜单的id
-                    'menu_id' => $v['id'],
-                    //菜单的name
-                    'menu_name' => $v['name']
-                ];
-                if (!array_key_exists($type, $type_id_arr)) {
-                    $type_id_arr[$type] = [];
+                $type_idstr = $v['type_id'];
+                $type_idarr = array_filter(explode(',', $type_idstr));
+                foreach ($type_idarr as $type_id) {
+                    $type_arr = [
+                        //文章类型的id
+                        'id' => $type_id,
+                        //菜单的id
+                        'menu_id' => $v['id'],
+                        //菜单的name
+                        'menu_name' => $v['name']
+                    ];
+                    if (!array_key_exists($type, $type_id_arr)) {
+                        $type_id_arr[$type] = [];
+                    }
+                    $type_id_arr[$type][] = $type_arr;
                 }
-                $type_id_arr[$type][] = $type_arr;
             }
             //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
             return $type_id_arr;

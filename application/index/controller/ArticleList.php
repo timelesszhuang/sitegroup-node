@@ -2,10 +2,13 @@
 
 namespace app\index\controller;
 
+use app\index\model\ArticleSyncCount;
+use app\index\model\Menu;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use app\common\controller\Common;
 use app\tool\traits\FileExistsTraits;
+use app\tool\traits\Params;
 use think\Cache;
 use think\View;
 
@@ -17,26 +20,30 @@ class ArticleList extends Common
 {
     use FileExistsTraits;
     use SpiderComefrom;
+    use Params;
 
     /**
      * 首页列表
      * @access public
      * @todo 需要考虑一下  文章列表 中列出来的文章需要从  sync_count 表中获取
      */
-    public function index($id, $currentpage = 1)
+    public function index($id)
     {
-//        print_r($id);
+        //每一个node下的菜单的英文名不能包含重复的值
+        //根据_ 来分割 第一个参数表示 菜单的id_t文章分类的typeid_p页码id.html
         $templatepath = 'template/articlelist.html';
         //判断模板是否存在
         if (!$this->fileExists($templatepath)) {
             return;
         }
+        list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
+
         $siteinfo = Site::getSiteInfo();
         //爬虫来源 统计
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $assign_data = Cache::remember("articlelist" . "-" . $id . "-" . $currentpage, function () use ($id, $siteinfo, $templatepath, $currentpage) {
-            return $this->generateArticleList($id, $siteinfo, $templatepath, $currentpage);
+        $assign_data = Cache::remember("articlelist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
+            return $this->generateArticleList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
         return (new View())->fetch($templatepath,
             [
@@ -52,28 +59,55 @@ class ArticleList extends Common
      * @param int $currentpage
      * @return array
      */
-    public function generateArticleList($id, $siteinfo, $templatepath, $currentpage = 1)
+    public function generateArticleList($menu_enname, $type_id, $siteinfo, $currentpage = 1)
     {
         if (empty($siteinfo["menu"])) {
-            exit("当前栏目为空");
+            exit("当前网站没有选择栏目");
         }
-        if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
-            exit("当前网站无此栏目");
+        $node_id = $siteinfo['node_id'];
+        $menu_info = Menu::where('node_id', $node_id)->where('generate_name', $menu_enname)->find();
+        if (!isset($menu_info->id)) {
+            //没有获取到
+            exit('该网站不存在该栏目');
         }
-        $menu_info = \app\index\model\Menu::get($id);
-        if (is_null($menu_info)) {
-            exit("unkown article");
-        }
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'articlelist');
-        //取出同步的总数
-        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo["id"], "node_id" => $siteinfo["node_id"], "type_name" => "article", 'type_id' => $menu_info['type_id']])->find();
+        $menu_id = $menu_info->id;
+        //当前栏目的分类
+        //获取列表页面必须的元素
+        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, $type_id, 'articlelist');
+        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
+        $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
+        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $article = [];
-        if ($articleSyncCount) {
-            $where = "id <={$articleSyncCount->count} and node_id={$siteinfo['node_id']} and articletype_id={$menu_info->type_id}";
+        //需要获取到当前分类下的所有二级目录
+        if ($articlemax_id) {
+            //该栏目下的所有分类id 包含子menu的分类
+            $typeidarr = Commontool::getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
+            //取出当前栏目下级的文章分类 根据path 中的menu_id
+            $typelist = [];
+            //如果 type_id=0 表示去除该菜单下的全部
+            //    type_id=* 表示只需要取出该type_id 下的值
+            foreach ($typeidarr as $ptype_id) {
+                $current = false;
+                if ($type_id == $ptype_id) {
+                    $current = true;
+                }
+                $type_info = $article_typearr[$ptype_id];
+                $list = Commontool::getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 10);
+                $typelist[] = [
+                    'text' => $type_info['type_name'],
+                    'href' => $type_info['href'],
+                    //当前为true
+                    'current' => $current,
+                    'list' => $list
+                ];
+            }
+            $typeid_str = implode(',', $typeidarr);
+            $where = "id <=$articlemax_id and node_id={$siteinfo['node_id']} and articletype_id in ({$typeid_str})";
             //获取当前type_id的文章
-            $article = \app\index\model\Article::order('id', "desc")->field("id,title,thumbnails,thumbnails_name,summary,create_time")->where($where)
+            $article = \app\index\model\Article::order('id', "desc")->field(Commontool::$articleListField)->where($where)
                 ->paginate(10, false, [
-                    'path' => url('/articlelist', '', '') . "/{$id}/[PAGE].html",
+                    'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
             foreach ($article as $v) {
@@ -88,9 +122,19 @@ class ArticleList extends Common
                     //如果没有本地图片则 直接显示 base64的
                     $img = sprintf($img_template, $v['thumbnails']);
                 }
-                $v["img"] = $img;
+                //列出当前文章分类来
+                if (array_key_exists($v['articletype_id'], $article_typearr)) {
+                    $type = [
+                        'name' => $v['articletype_name'],
+                        'href' => $article_typearr[$v['articletype_id']]['href']
+                    ];
+                }
+                $v['a_href'] = sprintf(Commontool::$articlePath, $v['id']);
+                $v['type'] = $type;
+                $v["thumbnails"] = $img;
             }
         }
+        $assign_data['type_list'] = $typelist;
         $assign_data['article'] = $article;
         return $assign_data;
     }
