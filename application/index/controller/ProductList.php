@@ -28,10 +28,7 @@ class ProductList extends Common
      */
     public function index($id)
     {
-        //判断模板是否存在
-        if (!$this->fileExists($this->productlisttemplate)) {
-            return;
-        }
+
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
@@ -40,7 +37,13 @@ class ProductList extends Common
         $assign_data = Cache::remember("productlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateProductList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
-        return (new View())->fetch($this->productlisttemplate,
+        $template = $this->getTemplate('list', $assign_data['menu_id'], 'product');
+        unset($assign_data['menu_id']);
+        //判断模板是否存在
+        if (!$this->fileExists($template)) {
+            return;
+        }
+        return (new View())->fetch($template,
             [
                 'd' => $assign_data
             ]
@@ -123,6 +126,7 @@ class ProductList extends Common
         }
         $assign_data['type_list'] = $typelist;
         $assign_data['list'] = $productlist;
+        $assign_data['menu_id'] = $menu_id;
         return $assign_data;
     }
 

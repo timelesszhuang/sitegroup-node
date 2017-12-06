@@ -13,6 +13,7 @@ use app\tool\traits\FileExistsTraits;
 use app\tool\traits\Osstrait;
 use app\tool\traits\Params;
 use app\tool\traits\Pingbaidu;
+use app\tool\traits\Template;
 use think\Controller;
 use think\Db;
 
@@ -22,6 +23,7 @@ class Common extends Controller
     use Osstrait;
     use Pingbaidu;
     use Params;
+    use Template;
     public $urlskey = 'pingUrls';
 
     public $separator = '||||||||||||||||||||||||';
@@ -32,6 +34,7 @@ class Common extends Controller
     public $node_id = '';
     public $site_name = '';
     public $waterString = '';
+    public $menu_ids = '';
 
 
     //文章相关链接
@@ -54,7 +57,7 @@ class Common extends Controller
 
     public $articlelisttemplate = 'template/articlelist.html';
     public $questionlisttemplate = 'template/questionlist.html';
-    public $productlisttemplate = 'template/questionlist.html';
+    public $productlisttemplate = 'template/productlist.html';
 
 
     /**
@@ -73,6 +76,7 @@ class Common extends Controller
         $this->site_name = $siteinfo['site_name'];
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
+        $this->menu_ids = $siteinfo['menu'];
         //上一页下一页链接
         $this->prearticlepath = '/' . $this->articlepath;
         $this->prequestionpath = '/' . $this->questionpath;
@@ -245,4 +249,5 @@ ENF;
 
         file_put_contents($directory, $html);
     }
+
 }

@@ -25,7 +25,7 @@ class Menu extends Common
         return Cache::remember('menu', function () use ($menu_ids, $site_id, $site_name, $node_id) {
             $menu_idarr = array_filter(explode(',', $menu_ids));
             $where['id'] = ['in', $menu_idarr];
-            $field = 'id,name,path,p_id,title,generate_name,flag,type_id,content';
+            $field = 'id,name,path,p_id,title,generate_name,flag,type_id,content,detailtemplate,listtemplate,covertemplate';
             $menu = Db::name('menu')->where($where)->order("sort", "desc")->field($field)->select();
             //获取下边的子孙菜单
             foreach ($menu_idarr as $v) {
@@ -74,7 +74,7 @@ class Menu extends Common
     public static function getMergedMenu($menu_ids, $site_id, $site_name, $node_id)
     {
         $menulist = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
-        $menu=[];
+        $menu = [];
         foreach ($menulist as $k => $v) {
             //数据库中配置的菜单
             if ($v['flag'] == 1) {

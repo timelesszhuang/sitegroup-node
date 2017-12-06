@@ -24,6 +24,11 @@ class Detailrestatic extends Common
      * @access private
      * @param $id  article的id
      * @param $type_id  类型的id
+     * @return bool
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     private function articlestatic($id, $type_id)
     {
@@ -41,13 +46,10 @@ class Detailrestatic extends Common
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-//
-//        $siteinfo = Site::getSiteInfo();
-
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
             "node_id" => $this->node_id,
-            "type_id" => $type_id
+            "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
@@ -75,7 +77,8 @@ class Detailrestatic extends Common
             $next_article['href'] = sprintf($this->prearticlepath, $id);
         }
         $assign_data = (new Detailstatic())->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        $content = (new View())->fetch('template/article.html',
+        $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
+        $content = (new View())->fetch($template,
             [
                 'd' => $assign_data,
                 'article' => $article,
@@ -156,7 +159,7 @@ class Detailrestatic extends Common
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
             "node_id" => $this->node_id,
-            "type_id" => $type_id
+            "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
@@ -178,7 +181,8 @@ class Detailrestatic extends Common
         $questionsql = "id = $id and node_id=$this->node_id and type_id=$type_id";
         $question = Question::where($questionsql)->find()->toArray();
         $assign_data = (new Detailstatic())->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        $content = (new View())->fetch('template/question.html',
+        $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
+        $content = (new View())->fetch($template,
             [
                 'd' => $assign_data,
                 'question' => $question,

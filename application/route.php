@@ -31,7 +31,6 @@ Route::get('preview/:type/:id', 'tool/Preview/preview', ['ext' => 'html']);
 //查询
 Route::post('search', 'index/Query/index');
 
-
 //模板的其他操作
 //模板文件 活动文件管理
 Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');

@@ -323,7 +323,6 @@ class Detailstatic extends Common
         //获取本次最大的id，用于比对是不是有下一页
         $max_index = max(array_flip(array_keys($article_data)));
         $max_id = $article_data[$max_index]['id'];
-
         // 生成页面之后需要把链接存储下 生成最后执行ping百度的操作
         $pingurls = [];
         foreach ($article_data as $key => $item) {
@@ -366,7 +365,9 @@ class Detailstatic extends Common
             $menu_id = $article_type_keyword[$type_id]['menu_id'];
             $menu_name = $article_type_keyword[$type_id]['menu_name'];
             $assign_data = $this->form_perarticle_content($item, $keyword_id, $menu_id, $menu_name);
-            $content = (new View())->fetch($this->articletemplatepath,
+            //如果没有设置模板 则使用默认模板
+            $template = $this->getTemplate('detail', $menu_id, 'article');
+            $content = (new View())->fetch($template,
                 [
                     'd' => $assign_data,
                     'article' => $item,
@@ -659,7 +660,8 @@ class Detailstatic extends Common
             $menu_id = $question_type_keyword[$type_id]['menu_id'];
             $menu_name = $question_type_keyword[$type_id]['menu_name'];
             $assign_data = $this->form_perquestion($item, $keyword_id, $menu_id, $menu_name);
-            $content = (new View())->fetch($this->questiontemplatepath,
+            $template = $this->getTemplate('detail', $menu_id, 'question');
+            $content = (new View())->fetch($template,
                 [
                     'd' => $assign_data,
                     'question' => $item,
@@ -811,7 +813,8 @@ class Detailstatic extends Common
             $local_img = $this->form_imgser_img($imglist);
         }
         //其他相关信息
-        $content = (new View())->fetch($this->producttemplatepath,
+        $template = $this->getTemplate('detail', $menu_id, 'product');
+        $content = (new View())->fetch($template,
             [
                 'd' => $assign_data,
                 'product' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],

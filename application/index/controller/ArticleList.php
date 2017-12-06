@@ -27,9 +27,6 @@ class ArticleList extends Common
     {
         //每一个node下的菜单的英文名不能包含重复的值
         //根据_ 来分割 第一个参数表示 菜单的id_t文章分类的typeid_p页码id.html
-        if (!$this->fileExists($this->articlelisttemplate)) {
-            return;
-        }
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
         //爬虫来源 统计
@@ -39,7 +36,12 @@ class ArticleList extends Common
         $assign_data = Cache::remember("articlelist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateArticleList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
-        return (new View())->fetch($this->articlelisttemplate,
+        $template = $this->getTemplate('list', $assign_data['menu_id'], 'article');
+        unset($assign_data['menu_id']);
+        if (!$this->fileExists($template)) {
+            return;
+        }
+        return (new View())->fetch($template,
             [
                 'd' => $assign_data
             ]
@@ -72,7 +74,6 @@ class ArticleList extends Common
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
-
         $article = [];
         //需要获取到当前分类下的所有二级目录
         if ($articlemax_id) {
@@ -131,6 +132,7 @@ class ArticleList extends Common
         }
         $assign_data['type_list'] = $typelist;
         $assign_data['list'] = $article;
+        $assign_data['menu_id'] = $menu_id;
         return $assign_data;
     }
 
