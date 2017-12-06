@@ -659,7 +659,7 @@ CODE;
     public static function getBeianInfo($siteinfo)
     {
         //公司备案
-        $beian_link = 'www.miitbeian.gov.cn';
+        $beian_link = 'http://www.miitbeian.gov.cn';
         $beian = ['beian_num' => '', 'link' => $beian_link];
         $domain_id = $siteinfo['domain_id'];
         if ($domain_id) {
