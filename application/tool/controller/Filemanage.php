@@ -13,15 +13,9 @@ namespace app\tool\controller;
 
 use app\common\controller\Common;
 use think\Cache;
-use think\Config;
-use think\Db;
-use think\Exception;
-use app\tool\traits\Osstrait;
 
 class Filemanage extends Common
 {
-    use Osstrait;
-
     //目录是相对于 public  使用 ROOT_PATH 需 手动追加 public/ 目录
     //亚索模板文件的路径
     static $zipTemplatePath = 'upload/ziptemplate';

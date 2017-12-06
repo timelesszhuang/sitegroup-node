@@ -17,8 +17,6 @@ use think\View;
  */
 class NewsList extends Common
 {
-    use FileExistsTraits;
-
     use SpiderComefrom;
 
     /**

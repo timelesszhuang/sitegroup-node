@@ -328,7 +328,6 @@ class Commontool extends Common
     {
         $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
-
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         //随机取值
         //测试
@@ -354,9 +353,7 @@ class Commontool extends Common
     {
         $typeid_str = implode(',', array_keys($article_typearr));
         $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
-
         $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
-
         return self::formatArticleList($article, $article_typearr);
     }
 
@@ -740,19 +737,17 @@ class Commontool extends Common
      */
     public static function getDbArticleListId($site_id)
     {
-        return Cache::remember('sync_info', function () use ($site_id) {
-            //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
-            $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
-            $article_sync_list = [];
-            if ($article_sync_info) {
-                foreach ($article_sync_info as $v) {
-                    if (!array_key_exists($v['type_name'], $article_sync_list)) {
-                        $article_sync_list[$v['type_name']] = $v['count'];
-                    }
+        //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+        $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
+        $article_sync_list = [];
+        if ($article_sync_info) {
+            foreach ($article_sync_info as $v) {
+                if (!array_key_exists($v['type_name'], $article_sync_list)) {
+                    $article_sync_list[$v['type_name']] = $v['count'];
                 }
             }
-            return $article_sync_list;//文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
-        });
+        }
+        return $article_sync_list;//文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
     }
 
     /**
@@ -856,7 +851,7 @@ CODE;
     public static function getBeianInfo($siteinfo)
     {
         //公司备案
-        $beian_link = 'www.miitbeian.gov.cn';
+        $beian_link = 'http://www.miitbeian.gov.cn';
         $beian = ['beian_num' => '', 'link' => $beian_link];
         $domain_id = $siteinfo['domain_id'];
         if ($domain_id) {
@@ -963,6 +958,7 @@ CODE;
      * @param string $param 如果是   index  第二第三个参数没用
      *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id  $param4 为type_id菜单下的id  $param5 表示菜单类型 articlelist newslist  questionlist  productlist
      *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容 $param3 表示文章设置的keywords  $param4 是 a_keyword_id  $para5  表示 menu_id  $param6 表示 menu_name $param7 用于生成面包屑的时候 获取 栏目菜单的url
+     *                              activity
      * @param string $param2
      * @return array
      */
@@ -980,8 +976,8 @@ CODE;
         $url = $siteinfo['url'];
 
         //菜单的返回也需要修改
-        $menu = self::getMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id, $url, $tag, $param2, $param3);
-
+        $menu = self::getTreeMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id, $url, $tag, $param2, $param3);
+        $allmenu = Menu::getMergedMenu($siteinfo['menu'], $site_id, $site_name, $node_id);
         //获取网站中每个分类的 $type_aliasarr
         /*
           [
@@ -1024,12 +1020,12 @@ CODE;
                'question'=>[],
           ]
         */
-
         list($type_aliasarr, $typeid_arr) = self::getTypeIdInfo($siteinfo['menu']);
         //活动创意相关操作
         $activity = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
+        //这个不需要存到缓存中
         $sync_info = self::getDbArticleListId($site_id);
         $breadcrumb = [];
         //每个页面特殊的变量存在
@@ -1040,13 +1036,14 @@ CODE;
                 list($title, $keyword, $description) = self::getIndexPageTDK($keyword_info, $site_id, $site_name, $node_id, $siteinfo['com_name']);
                 //获取首页面包屑
                 //Breadcrumb 面包屑
-                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url']);
-
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
                 break;
             case 'menu':
-                //菜单 页面的TDK 分为两种 一种是已经存在的 另外一种为详情形式的列表
+                //菜单 页面的TDK 分为两种 一种是已经存在的 另外一种为详情形式的列表 栏目的英文名
                 $page_id = $param;
+                //栏目名
                 $menu_name = $param2;
+                //栏目的id
                 $menu_id = $param3;
                 //文章分类的id
                 $type_id = $param4;
@@ -1055,8 +1052,7 @@ CODE;
                 list($title, $keyword, $description) = self::getMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_id, $menu_name);
                 //获取菜单的 面包屑 导航
                 //需要注意下 详情型的菜单 没有type
-                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
-
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
                 break;
             case 'detail':
                 //详情页面
@@ -1069,13 +1065,21 @@ CODE;
                 $keywords = $param3;
                 //该文章所属的父类的a类关键词
                 $a_keyword_id = $param4;
+                //当前栏目的id
                 $menu_id = $param5;
+                //当前栏目的name
                 $menu_name = $param6;
                 $type = $param7;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
-                $breadcrumb = self::getBreadCrumb($tag, $siteinfo['url'], $page_id, $menu_name, $menu_id, $type);
-
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
+                break;
+            case 'activity':
+                $title = $param;
+                $keyword = $param2;
+                $description = $param3;
+                //面包屑是空的
+                $breadcrumb = [];
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
@@ -1086,14 +1090,12 @@ CODE;
         //list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $typeid_arr);
         //产品类型 列表获取 全部分类都获取到
         list($product_list, $product_more) = self::getProductList($sync_info, $typeid_arr);
-
         //根据文章分类展现列表以及more
         $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr);
         //根据文章分类展现列表以及more
         $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr);
         //根据文章分类展现列表以及more
         $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr);
-
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码
@@ -1113,50 +1115,6 @@ CODE;
         return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
-
-    /**
-     * 获取活动页面需要的信息
-     * @access public
-     */
-    public static function getActivityEssentialElement($siteinfo, $id)
-    {
-        $logo = self::getSiteLogo($siteinfo);
-        //title keywords description
-        $data = Activity::Where('id', '=', $id)->find();
-        if (!$data) {
-            return;
-        }
-        //没有找到的情况
-        if ($data['status'] != '10') {
-            return false;
-        }
-        if (!$data) {
-            return false;
-        }
-        if ($data['url']) {
-            return ['data' => $data];
-        }
-        $data = $data->toArray();
-        $title = $data['title'];
-        $keyword = $data['keywords'];
-        $description = $data['summary'];
-        //获取单独的tdk数据
-        $tdk = self::form_tdk_html($title, $keyword, $description);
-        //获取公司联系方式等 会在右上角或者其他位置添加  这个应该支持小后台能自己修改才对
-        $contact_info = self::getContactInfo($siteinfo);
-        //公司名称
-        $com_name = $siteinfo['com_name'];
-        //版本　copyright
-        $copyright = self::getSiteCopyright($com_name);
-        $site_name = $siteinfo['site_name'];
-        //获取公共代码
-        list($pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
-        //分享链接
-        $share = self::get_share_code();
-        //公司备案
-        $beian = self::getBeianInfo($siteinfo);
-        return compact('data', 'com_name', 'site_name', 'contact_info', 'beian', 'copyright', 'logo', 'tdk', 'title', 'keyword', 'description', 'share', 'menu', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js');
-    }
 
     /**
      * 获取每个menu下的所有分类id数组
@@ -1324,36 +1282,55 @@ code;
      * $param $menu_id 菜单的id
      * @return array|false|\PDOStatement|string|\think\Collection
      */
-    private static function getMenuInfo($menu_ids, $site_id, $site_name, $node_id, $url, $tag, $generate_name, $menu_id)
+    private static function getTreeMenuInfo($menu_ids, $site_id, $site_name, $node_id, $url, $tag, $generate_name, $menu_id)
     {
         //需要把首页链接追加进来 而且需要在首位
         $menu = Menu::getMergedMenu($menu_ids, $site_id, $site_name, $node_id);
-        array_unshift($menu, ['id' => 0, 'name' => '首页', 'title' => $site_name, 'generate_name' => $url]);
-        //这个地方还需要当前menu 给出提示
-        switch ($tag) {
-            case'index':
-                foreach ($menu as $k => $v) {
-                    if ($v['name'] == '首页') {
-                        $v['actived'] = true;
-                    } else {
-                        $v['actived'] = false;
-                    }
-                    $menu[$k] = $v;
-                }
-                break;
-            case'menu':
-                foreach ($menu as $k => $v) {
-                    if ($v['id'] == $menu_id) {
-                        $v['actived'] = true;
-                    } else {
-                        $v['actived'] = false;
-                    }
-                    $menu[$k] = $v;
-                }
-                break;
+        //循环为树状结构
+        $tree = array();
+        //创建基于主键的数组引用
+        $refer = array();
+        foreach ($menu as $key => $data) {
+            $refer[$data['id']] = &$menu[$key];
         }
-        return $menu;
+        //循环中还需要设置下当前menu相关信息
+        foreach ($menu as $key => $data) {
+            // 判断是否存在parent
+            $is_current = false;
+            if ($menu_id == $data['id']) {
+                //表示当前选中该菜单
+                $is_current = true;
+            }
+            $parentId = $data['p_id'];
+            $menu[$key]['current'] = $is_current;
+            if ($parentId == 0) {
+                //根节点元素
+                $tree[] = &$menu[$key];
+            } else {
+                //需要把上级的文件也设置为相关选中操作；
+                if ($is_current) {
+                    $path = $menu[$key]['path'];
+                    $menu_idarr = array_filter(explode(',', $path));
+                    foreach ($menu_idarr as $menu_id) {
+                        $menu[$menu_id]['current'] = $is_current;
+                    }
+                }
+                if (isset($refer[$parentId])) {
+                    //当前正在遍历的父亲节点的数据
+                    $parent = &$refer[$parentId];
+                    //把当前正在遍历的数据赋值给父亲类的  children
+                    $parent['child'][] = &$menu[$key];
+                }
+            }
+        }
+        if ($tag == 'index') {
+            //首页默认选中的
+            $is_current = true;
+        }
+        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => $url, 'current' => $is_current]);
+        return $tree;
     }
+
 
     /**
      * 截取中文字符串  utf-8
@@ -1385,30 +1362,26 @@ code;
      * 获取面包屑 相关信息
      * @access
      */
-    public static function getBreadCrumb($tag, $url, $page_id = '', $menu_name = '', $menu_id = 0, $type = '')
+    public static function getBreadCrumb($tag, $url, $allmenu, $page_id = '', $menu_name = '', $menu_id = 0, $type = '')
     {
         $breadcrumb = [
-            ['text' => '首页', 'href' => $url],
+            ['text' => '首页', 'href' => $url, 'title' => '首页'],
         ];
-        switch ($tag) {
-            case 'index':
-                break;
-            case 'menu':
-                //菜单 页面的TDK
-                if ($type) {
-                    array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $type . '/' . $menu_id . '.html']);
-                } else {
-                    array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $page_id . '.html']);
-                }
-                break;
-            case 'envmenu':
-                //.env 文件中的配置菜单信息
-                array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $page_id . '.html']);
-                break;
-            case 'detail':
-                //详情页面
-                array_push($breadcrumb, ['text' => $menu_name, 'href' => $url . '/' . $type . '/' . $menu_id . '.html']);
-                break;
+        if ($tag != 'index') {
+            //详情 或者 列表页面
+            $menu_path = \app\tool\model\Menu::Where('id', $menu_id)->field('path')->find();
+            $path = $menu_path['path'];
+            $p_idarr = array_filter(explode(',', $path));
+            array_push($p_idarr, $menu_id);
+            foreach ($p_idarr as $v) {
+                $pmenu = $allmenu[$v];
+                $perbreadcrumb = [
+                    'text' => $pmenu['name'],
+                    'href' => $pmenu['href'],
+                    'title' => $pmenu['title']
+                ];
+                array_push($breadcrumb, $perbreadcrumb);
+            }
         }
         return $breadcrumb;
     }

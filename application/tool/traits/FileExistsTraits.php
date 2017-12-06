@@ -5,6 +5,7 @@
  * Date: 17-6-8
  * Time: 下午3:18
  */
+
 namespace app\tool\traits;
 
 use app\index\model\Question;
@@ -296,8 +297,6 @@ trait FileExistsTraits
     }
 
 
-
-
     /**
      * 关键词替换
      * @param $content
@@ -345,66 +344,6 @@ trait FileExistsTraits
 
 
     /**
-     * 获取静态文件列表
-     * @param $type
-     * @param $page
-     * @return array|string
-     */
-    public function staticOne($type, $name)
-    {
-        // 检查文件夹
-        if (!is_dir($type)) {
-            return json_encode([
-                "msg" => "文件未生成",
-                "status" => "failed",
-            ]);
-        }
-        $resource = opendir($type);
-        $content = '';
-        $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
-        if (file_exists($filename)) {
-            $content = base64_encode(file_get_contents($filename));
-            return json_encode([
-                "msg" => "",
-                "status" => "success",
-                "data" => $content
-            ]);
-        }
-        return json_encode([
-            "msg" => "文件未生成",
-            "status" => "failed",
-        ]);
-    }
-
-    /**
-     * 修改静态文件列表
-     * @param $type
-     * @param $page
-     * @return array|string
-     */
-    public function generateStaticOne($type, $name, $content)
-    {
-        // 检查文件夹
-        if (!is_dir($type)) {
-            return $this->resultArray("文件夹不存在");
-        }
-        $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
-        if (file_exists($filename)) {
-            $content = file_put_contents($filename, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
-            return json_encode([
-                "msg" => "修改成功",
-                "status" => "success",
-                "data" => ""
-            ]);
-        }
-        return json_encode([
-            "msg" => "文件未生成",
-            "status" => "failed",
-            "data" => ''
-        ]);
-    }
-
-    /**
      * curl get请求
      * @param $url
      * @return mixed
@@ -420,10 +359,8 @@ trait FileExistsTraits
         //设置获取的信息以文件流的形式返回，而不是直接输出。
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 5);
-
         //执行命令
         $data = curl_exec($curl);
-
         //关闭URL请求
         curl_close($curl);
         //显示获得的数据
@@ -458,35 +395,5 @@ trait FileExistsTraits
         return $data;
     }
 
-
-    /**
-     * ping百度程序
-     * @param $data
-     */
-    public function pingBaidu($data)
-    {
-        $siteinfo = Site::getSiteInfo();
-        $html = <<<ENF
-<?xml version="1.0" encoding="UTF-8"?>
-<methodCall>
-    <methodName>weblogUpdates.extendedPing</methodName>
-    <params>
-        <param>
-            <value><string>{$siteinfo['site_name']}</string></value>
-        </param>
-        <param>
-            <value><string>{$siteinfo['url']}</string></value>
-        </param>
-ENF;
-        foreach ($data as $item) {
-            $html .= <<<ONE
-        <param>
-            <value><string>{$item}</string></value>
-        </param>
-ONE;
-            $html .= "</params></methodCall>";
-            $this->curl_post("http://ping.baidu.com/ping/RPC2", $html);
-        }
-    }
 
 }

@@ -8,12 +8,54 @@
 namespace app\common\controller;
 
 
+use app\tool\controller\Site;
+use app\tool\traits\FileExistsTraits;
+use app\tool\traits\Osstrait;
+use app\tool\traits\Params;
+use app\tool\traits\Pingbaidu;
 use think\Controller;
 use think\Db;
 
 class Common extends Controller
 {
+    use FileExistsTraits;
+    use Osstrait;
+    use Pingbaidu;
+    use Params;
+    public $urlskey = 'pingUrls';
+
     public $separator = '||||||||||||||||||||||||';
+
+    //该网站的url
+    public $siteurl = '';
+    public $site_id = '';
+    public $node_id = '';
+    public $site_name = '';
+    public $waterString = '';
+
+
+    //文章相关链接
+    public $articlepath = 'article/article%s.html';
+    public $prearticlepath = '';
+    public $articletemplatepath = 'template/article.html';
+    //问答相关链接
+    public $questionpath = 'question/question%s.html';
+    public $prequestionpath = '';
+    public $questiontemplatepath = 'template/question.html';
+    //产品相关链接
+    public $productpath = 'product/product%s.html';
+    public $preproductpath = '';
+    public $producttemplatepath = 'template/product.html';
+    //活动相关链接
+    public $activitypath = 'activity/activity%s.html';
+    public $preactivitypath = '';
+    public $activitytemplatepath = 'template/activity.html';
+
+
+    public $articlelisttemplate = 'template/articlelist.html';
+    public $questionlisttemplate = 'template/questionlist.html';
+    public $productlisttemplate = 'template/questionlist.html';
+
 
     /**
      * 获取公共的数据
@@ -22,7 +64,19 @@ class Common extends Controller
     public function __construct()
     {
         session_write_close();
+        set_time_limit(0);
         $this->getSiteId();
+        //绝对网址
+        $siteinfo = Site::getSiteInfo();
+        $this->siteurl = $siteinfo['url'];
+        $this->site_id = $siteinfo['id'];
+        $this->site_name = $siteinfo['site_name'];
+        $this->node_id = $siteinfo['node_id'];
+        $this->waterString = $siteinfo['walterString'];
+        //上一页下一页链接
+        $this->prearticlepath = '/' . $this->articlepath;
+        $this->prequestionpath = '/' . $this->questionpath;
+        $this->preproducpath = '/' . $this->productpath;
         parent::__construct();
     }
 
@@ -151,12 +205,12 @@ class Common extends Controller
      */
     public function getSiteId()
     {
-        $directory=dirname(THINK_PATH)."/application/extra/site.php";
-        if(file_exists($directory)){
+        $directory = dirname(THINK_PATH) . "/application/extra/site.php";
+        if (file_exists($directory)) {
             return;
         }
-        $site=$_SERVER['SERVER_NAME'];
-        if(empty($site)){
+        $site = $_SERVER['SERVER_NAME'];
+        if (empty($site)) {
             (new \app\tool\model\SiteErrorInfo)->addError([
                 'msg' => "站点获取域名失败!!",
                 'operator' => '获取当前站点域名',
@@ -166,11 +220,11 @@ class Common extends Controller
             ]);
             exit(0);
         }
-        $domain="http://$site";
-        $https_domain="https://$site";
-        $map['url'] =  array(['=',$domain],['=',$https_domain],'or');
-        $resoure=\app\tool\model\Site::where($map)->find();
-        if(is_null($resoure)){
+        $domain = "http://$site";
+        $https_domain = "https://$site";
+        $map['url'] = array(['=', $domain], ['=', $https_domain], 'or');
+        $resoure = \app\tool\model\Site::where($map)->find();
+        if (is_null($resoure)) {
             (new \app\tool\model\SiteErrorInfo)->addError([
                 'msg' => "站点获取site_id失败!!",
                 'operator' => '获取当前站点site_id',
@@ -180,7 +234,7 @@ class Common extends Controller
             ]);
             exit(0);
         }
-        $html=<<<ENF
+        $html = <<<ENF
 <?php
 
 return [
@@ -189,7 +243,6 @@ return [
 ];
 ENF;
 
-        file_put_contents($directory,$html);
+        file_put_contents($directory, $html);
     }
-
 }

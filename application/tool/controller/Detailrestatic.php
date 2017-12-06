@@ -9,16 +9,15 @@
 namespace app\tool\controller;
 
 
+use app\common\controller\Common;
 use app\index\model\Product;
 use app\index\model\Question;
 use app\tool\model\SitePageinfo;
-use app\tool\traits\FileExistsTraits;
 use app\index\model\Article;
 use think\View;
 
-class Detailrestatic
+class Detailrestatic extends Common
 {
-    use FileExistsTraits;
 
     /**
      * 文章静态化
@@ -34,55 +33,48 @@ class Detailrestatic
             return false;
         }
         //判断模板是否存在
-        if (!$this->fileExists('template/article.html')) {
-            $this->make_error("template/article.html");
+        if (!$this->fileExists($this->articletemplatepath)) {
+            $this->make_error($this->articletemplatepath);
             return false;
         }
-
-        $generate_html = "article/article";
-        $file_name = $generate_html . $id . ".html";
+        $file_name = sprintf($this->articlepath, $id);
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-
-        $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $site_name = $siteinfo['site_name'];
-        $node_id = $siteinfo['node_id'];
+//
+//        $siteinfo = Site::getSiteInfo();
 
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
-            "node_id" => $node_id,
+            "node_id" => $this->node_id,
             "type_id" => $type_id
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
-            "node_id" => $node_id,
-            "site_id" => $site_id,
+            "node_id" => $this->node_id,
+            "site_id" => $this->site_id,
             "menu_id" => $menuInfo["id"]
         ])->find();
         // 取出指定id的文章
-        $articlesql = "id = $id and node_id=$node_id and articletype_id=$type_id";
+        $articlesql = "id = $id and node_id=$this->node_id and articletype_id=$type_id";
         $article = Article::where($articlesql)->find()->toArray();
-
-        $pre_article_sql = "id <{$id} and node_id=$node_id and articletype_id=$type_id";
+        $pre_article_sql = "id <{$id} and node_id=$this->node_id and articletype_id=$type_id";
         $pre_article = Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
         //上一页链接
         if ($pre_article) {
             $pre_article = $pre_article->toArray();
-            $pre_article = ['href' => "/article/article{$pre_article['id']}.html", 'title' => $pre_article['title']];
+            $pre_article = ['href' => sprintf($this->prearticlepath, $pre_article['id']), 'title' => $pre_article['title']];
         }
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
-        $next_article_sql = "id >{$id} and node_id=$node_id and articletype_id=$type_id";
+        $next_article_sql = "id >{$id} and node_id=$this->node_id and articletype_id=$type_id";
         $next_article = Article::where($next_article_sql)->field("id,title")->find();
         //下一页链接
         if ($next_article) {
             $next_article = $next_article->toArray();
-            $next_article['href'] = "/article/article{$next_article['id']}.html";
+            $next_article['href'] = sprintf($this->prearticlepath, $id);
         }
-        $water = $siteinfo['walterString'];
-        $assign_data = (new Detailstatic())->form_perarticle_content($article, $node_id, $site_id, $water, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $assign_data = (new Detailstatic())->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
         $content = (new View())->fetch('template/article.html',
             [
                 'd' => $assign_data,
@@ -91,8 +83,10 @@ class Detailrestatic
                 'next_article' => $next_article,
             ]
         );
-        $make_web = file_put_contents('article/article' . $id . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
-        return $make_web;
+        $article_path = sprintf($this->articlepath, $id);
+        if (file_put_contents($article_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            $this->urlsCache([$this->siteurl . '/' . $article_path]);
+        }
     }
 
 
@@ -111,38 +105,33 @@ class Detailrestatic
             return false;
         }
         //判断模板是否存在
-        if (!$this->fileExists('template/product.html')) {
-            $this->make_error("template/product.html");
+        if (!$this->fileExists($this->producttemplatepath)) {
+            $this->make_error($this->producttemplatepath);
             return false;
         }
-        $generate_html = "product/product";
-        $file_name = $generate_html . $id . ".html";
+        $file_name = sprintf($this->productpath, $id);
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $site_name = $siteinfo['site_name'];
-        $node_id = $siteinfo['node_id'];
-
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
-            "node_id" => $node_id,
-            "type_id" => $type_id
+            "node_id" => $this->node_id,
+            "type_id" => $this->type_id
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
-            "node_id" => $node_id,
-            "site_id" => $site_id,
+            "node_id" => $this->node_id,
+            "site_id" => $this->site_id,
             "menu_id" => $menuInfo["id"]
         ])->find();
         // 取出指定id的文章
-        $productsql = "id = $id and node_id=$node_id and type_id=$type_id";
+        $productsql = "id = $id and node_id=$this->node_id and type_id=$type_id";
         $product = Product::where($productsql)->find()->toArray();
-        $water = $siteinfo['walterString'];
-        $content = (new Detailstatic())->form_perproduct($product, $node_id, $type_id, $water, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        $make_web = file_put_contents('product/product' . $id . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
-        return $make_web;
+        $content = (new Detailstatic())->form_perproduct($product, $type_id, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $product_path = sprintf($this->productpath, $id);
+        if (file_put_contents($product_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            $this->urlsCache([$this->siteurl . '/' . $product_path]);
+        }
     }
 
     /**
@@ -156,57 +145,51 @@ class Detailrestatic
             return false;
         }
         //判断模板是否存在
-        if (!$this->fileExists('template/question.html')) {
-            $this->make_error("template/question.html");
+        if (!$this->fileExists($this->questiontemplatepath)) {
+            $this->make_error($this->questiontemplatepath);
             return false;
         }
-        $generate_html = "question/question";
-        $file_name = $generate_html . $id . ".html";
+        $file_name = sprintf($this->questionpath, $id);
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $site_name = $siteinfo['site_name'];
-        $node_id = $siteinfo['node_id'];
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
-            "node_id" => $node_id,
+            "node_id" => $this->node_id,
             "type_id" => $type_id
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
-            "node_id" => $node_id,
-            "site_id" => $site_id,
+            "node_id" => $this->node_id,
+            "site_id" => $this->site_id,
             "menu_id" => $menuInfo["id"]
         ])->find();
         //获取上一篇和下一篇
-        $pre_question = Question::where(["id" => ["lt", $id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+        $pre_question = Question::where(["id" => ["lt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
         if ($pre_question) {
-            $pre_question['href'] = "/question/question{$pre_question['id']}.html";
+            $pre_question['href'] = sprintf($this->prequestionpath, $pre_question['id']);
+            //"/question/question{$pre_question['id']}.html"
         }
         //下一篇可能会导致其他问题
-        $next_question = Question::where(["id" => ["gt", $id], "node_id" => $node_id, "type_id" => $type_id])->field("id,question as title")->find();
+        $next_question = Question::where(["id" => ["gt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
         }
-        $questionsql = "id = $id and node_id=$node_id and type_id=$type_id";
+        $questionsql = "id = $id and node_id=$this->node_id and type_id=$type_id";
         $question = Question::where($questionsql)->find()->toArray();
-        $water = $siteinfo['walterString'];
-        $assign_data = (new Detailstatic())->form_perquestion($question, $water, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $assign_data = (new Detailstatic())->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
         $content = (new View())->fetch('template/question.html',
             [
                 'd' => $assign_data,
                 'question' => $question,
-                //为了兼容之前的错误
-                'pre_article' => $pre_question,
-                'next_article' => $next_question,
-                //////
                 'pre_question' => $pre_question,
                 'next_question' => $next_question,
             ]
         );
-        $make_web = file_put_contents('question/question' . $id . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
+        $questionpath = sprintf($this->questionpath, $id);
+        if (file_put_contents($questionpath, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            $this->urlsCache([$this->siteurl . '/' . $questionpath]);
+        }
     }
 
 
@@ -233,10 +216,6 @@ class Detailrestatic
      */
     public function exec_refilestatic($id, $searachType, $type_id)
     {
-        $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $site_name = $siteinfo['site_name'];
-        $node_id = $siteinfo['node_id'];
         // 根据类型判断
         switch ($searachType) {
             // 文章
@@ -252,6 +231,7 @@ class Detailrestatic
                 $this->productstatic($id, $type_id);
                 break;
         }
+        $this->pingEngine();
     }
 
 }

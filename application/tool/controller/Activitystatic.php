@@ -9,20 +9,15 @@
 
 namespace app\tool\controller;
 
-
+use app\common\controller\Common;
 use app\tool\model\Activity;
-use app\tool\traits\FileExistsTraits;
-use app\tool\traits\Osstrait;
 use think\Config;
 use think\View;
 
 
-class Activitystatic
+class Activitystatic extends Common
 {
-    use FileExistsTraits;
-    use Osstrait;
 
-    private $activity_path = 'activity/%s.html';
 
     /**
      * 活动页面静态化
@@ -38,7 +33,7 @@ class Activitystatic
         }
         $activity_status = true;
         // 如果活动模板不存在则找些优化的地方  如果模板不存在的话怎么处理
-        if (!file_exists('template/activity.html')) {
+        if (!file_exists($this->activitytemplatepath)) {
             //只需要静态化下图片就可以
             $activity_status = false;
         }
@@ -46,10 +41,10 @@ class Activitystatic
         //修改之后怎么处理
         foreach ($ids as $activity_id) {
             if (!$activity_status) {
-                $this->staticImg($siteinfo, $activity_id);
+                $this->staticImg($activity_id);
                 continue;
             }
-            $this->staticOne($siteinfo, $activity_id);
+            $this->staticOne($activity_id);
         }
     }
 
@@ -59,14 +54,13 @@ class Activitystatic
      */
     public function restatic($id)
     {
-        $siteinfo = Site::getSiteInfo();
         // 判断模板是否存在  如果模板不存在的话怎么处理
-        if (!file_exists('template/activity.html')) {
+        if (!file_exists($this->activitytemplatepath)) {
             //如果没有模板的情况
-            $this->staticImg($siteinfo, $id);
+            $this->staticImg($id);
             return;
         }
-        $this->staticOne($siteinfo, $id);
+        $this->staticOne($id);
     }
 
     /**
@@ -74,14 +68,14 @@ class Activitystatic
      * @param $id id数据
      * @access public
      */
-    public function staticImg($siteinfo, $id)
+    public function staticImg($id)
     {
         $data = Activity::Where('id', '=', $id)->field('oss_img_src,img_name')->find();
         if ($data) {
             $data = $data->toArray();
             $img_name = $data['img_name'];
             $oss_img_src = $data['oss_img_src'];
-            $this->get_osswater_img($oss_img_src, $img_name, $siteinfo['walterString']);
+            $this->get_osswater_img($oss_img_src, $img_name, $this->waterString);
         }
     }
 
@@ -90,22 +84,27 @@ class Activitystatic
      * 静态化一个文件
      * @access public
      */
-    public function staticOne($siteinfo, $id)
+    public function staticOne($id)
     {
-        //获取活动 ativity
-        $assign_data = Commontool::getActivityEssentialElement($siteinfo, $id);
+        $ac_data = Activity::Where('id', '=', $id)->find();
+        if (!$ac_data) {
+            return;
+        }
         //当前id的活动信息
-        $a_data = $assign_data['data'];
-        unset($assign_data['data']);
-        $water = $siteinfo['walterString'];
-        if ($a_data['url']) {
-            //表示是其他网页的链接不需要静态化 实例页面
-            if ($a_data['img_name']) {
-                $this->get_osswater_img($a_data['oss_img_src'], $a_data['img_name'], $water);
+        $water = $this->waterString;
+        if ($ac_data['url']) {
+            //表示是其他网页的链接不需要静态化页面 只需要静态化oss 相关的图片
+            if ($ac_data['img_name']) {
+                $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water);
             }
             return;
         }
-        $imgser = $a_data['imgser'];
+        $title = $ac_data['title'];
+        $keyword = $ac_data['keywords'];
+        $description = $ac_data['summary'];
+        //获取相关活动的 ativity
+        $assign_data = Commontool::getEssentialElement('activity', $title, $keyword, $description);
+        $imgser = $ac_data['imgser'];
         //多张图片
         $local_img = [];
         if ($imgser) {
@@ -114,15 +113,19 @@ class Activitystatic
             $local_img = $this->form_imgser_img($imglist, $water);
         }
         //单张大图
-        if ($a_data['img_name']) {
-            $this->get_osswater_img($a_data['oss_img_src'], $a_data['img_name'], $water);
+        if ($ac_data['img_name']) {
+            $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water);
         }
-        $a＿data['imglist'] = $local_img;
+        $ac_data['imglist'] = $local_img;
         //还需要 存储在数据库中 相关数据
         //页面中还需要填写隐藏的 表单 node_id site_id
-        $content = (new View())->fetch('template/activity.html', ['d' => $assign_data, 'activity' => $a_data]);
+        $content = (new View())->fetch($this->activitytemplatepath, ['d' => $assign_data, 'activity' => $ac_data]);
         //判断目录是否存在
-        file_put_contents('activity/activity' . $id . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
+        $ac_path = sprintf($this->activitypath, $id);
+        if (file_put_contents($ac_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            //添加到缓存中
+            $this->urlsCache([$this->siteurl . '/' . $ac_path]);
+        }
     }
 
 

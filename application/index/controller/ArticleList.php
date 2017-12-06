@@ -2,13 +2,10 @@
 
 namespace app\index\controller;
 
-use app\index\model\ArticleSyncCount;
 use app\index\model\Menu;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use app\common\controller\Common;
-use app\tool\traits\FileExistsTraits;
-use app\tool\traits\Params;
 use think\Cache;
 use think\View;
 
@@ -18,9 +15,8 @@ use think\View;
  */
 class ArticleList extends Common
 {
-    use FileExistsTraits;
+
     use SpiderComefrom;
-    use Params;
 
     /**
      * 首页列表
@@ -31,21 +27,19 @@ class ArticleList extends Common
     {
         //每一个node下的菜单的英文名不能包含重复的值
         //根据_ 来分割 第一个参数表示 菜单的id_t文章分类的typeid_p页码id.html
-        $templatepath = 'template/articlelist.html';
-        //判断模板是否存在
-        if (!$this->fileExists($templatepath)) {
+        if (!$this->fileExists($this->articlelisttemplate)) {
             return;
         }
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
-
         $siteinfo = Site::getSiteInfo();
         //爬虫来源 统计
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
+        $templatepath = $this->articletemplatepath;
         $assign_data = Cache::remember("articlelist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateArticleList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
-        return (new View())->fetch($templatepath,
+        return (new View())->fetch($this->articlelisttemplate,
             [
                 'd' => $assign_data
             ]
@@ -78,6 +72,7 @@ class ArticleList extends Common
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
+
         $article = [];
         //需要获取到当前分类下的所有二级目录
         if ($articlemax_id) {
@@ -135,7 +130,7 @@ class ArticleList extends Common
             }
         }
         $assign_data['type_list'] = $typelist;
-        $assign_data['article'] = $article;
+        $assign_data['list'] = $article;
         return $assign_data;
     }
 

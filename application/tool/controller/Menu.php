@@ -4,7 +4,6 @@ namespace app\tool\controller;
 
 use app\common\controller\Common;
 use app\tool\model\SiteErrorInfo;
-use think\Config;
 use think\Cache;
 use think\Db;
 
@@ -24,9 +23,16 @@ class Menu extends Common
     public static function getMenuInfo($menu_ids, $site_id, $site_name, $node_id)
     {
         return Cache::remember('menu', function () use ($menu_ids, $site_id, $site_name, $node_id) {
-            $where['id'] = ['in', array_filter(explode(',', $menu_ids))];
-            $field = 'id,name,title,generate_name,flag,type_id,content';
+            $menu_idarr = array_filter(explode(',', $menu_ids));
+            $where['id'] = ['in', $menu_idarr];
+            $field = 'id,name,path,p_id,title,generate_name,flag,type_id,content';
             $menu = Db::name('menu')->where($where)->order("sort", "desc")->field($field)->select();
+            //获取下边的子孙菜单
+            foreach ($menu_idarr as $v) {
+                $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->order("sort", "desc")->field($field)->select();
+                $menu = array_merge($menu, $pmenulist);
+            }
+            //还需要获取
             if (empty($menu)) {
                 //如果 bc 类关键词没有的话 应该提示 bc 类关键词不足等
                 $site_info = new SiteErrorInfo();
@@ -67,97 +73,36 @@ class Menu extends Common
      */
     public static function getMergedMenu($menu_ids, $site_id, $site_name, $node_id)
     {
-        $menu = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
-        foreach ($menu as $k => $v) {
-            if (array_key_exists('flag', $v)) {
-                //数据库中配置的菜单
-                if ($v['flag'] == 1) {
-                    $v['generate_name'] = '/' . $v['generate_name'] . '.html';
-                } else {
-                    $type = '';
-                    switch ($v['flag']) {
-                        case '2':
-                            //问答分类
-                            $type = 'questionlist';
-                            break;
-                        case '3':
-                            //文章分类
-                            $type = 'articlelist';
-                            break;
-                        case '4':
-                            //零散段落分类
-                            $type = 'newslist';
-                            break;
-                        case '5':
-                            //产品分类
-                            $type = 'productlist';
-                    }
-                    $v['generate_name'] = '/' . $type . '/' . $v['id'] . '.html';
-                }
+        $menulist = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
+        $menu=[];
+        foreach ($menulist as $k => $v) {
+            //数据库中配置的菜单
+            if ($v['flag'] == 1) {
+                $v['href'] = '/' . $v['generate_name'] . '.html';
             } else {
-                //env 中配置的菜单
-                $v['generate_name'] = '/' . $v['generate_name'] . '.html';
+                $type = '';
+                switch ($v['flag']) {
+                    case '2':
+                        //问答分类
+                        $type = 'questionlist';
+                        break;
+                    case '3':
+                        //文章分类
+                        $type = 'articlelist';
+                        break;
+                    case '4':
+                        //零散段落分类
+                        $type = 'newslist';
+                        break;
+                    case '5':
+                        //产品分类
+                        $type = 'productlist';
+                }
+                $v['href'] = "/{$type}/{$v['generate_name']}.html";
             }
-            $menu[$k] = $v;
+            $menu[$v['id']] = $v;
         }
         return $menu;
     }
-
-
-    /**
-     * 根据站点的menuids 获取文章所属的 type_id、type_name、
-     * 不需要详情型的文章信息
-     * @access public
-     */
-    public static function getTypeIdInfo($menu_ids)
-    {
-        return Cache::remember('menutypeid', function () use ($menu_ids) {
-            $menu_id_arr = array_filter(explode(',', $menu_ids));
-            //一个菜单的栏目支持选择多个同类分类
-            $field = 'id,name,flag,flag_name,type_id,type_name';
-            $where = [
-                'id' => ['in', $menu_id_arr],
-                'flag' => ['neq', 1],
-            ];
-            //获取站点所有的菜单
-            $menu = Db::name('menu')->where($where)->field($field)->select();
-            $type_id_arr = [];
-            foreach ($menu as $k => $v) {
-                switch ($v['flag']) {
-                    case 2:
-                        $type = 'question';
-                        break;
-                    case 3:
-                        $type = 'article';
-                        break;
-                    case 4:
-                        $type = 'scatteredarticle';
-                        break;
-                    case 5:
-                        $type = 'product';
-                        break;
-                }
-                $type_idstr = $v['type_id'];
-                $type_idarr = array_filter(explode(',', $type_idstr));
-                foreach ($type_idarr as $type_id) {
-                    $type_arr = [
-                        //文章类型的id
-                        'id' => $type_id,
-                        //菜单的id
-                        'menu_id' => $v['id'],
-                        //菜单的name
-                        'menu_name' => $v['name']
-                    ];
-                    if (!array_key_exists($type, $type_id_arr)) {
-                        $type_id_arr[$type] = [];
-                    }
-                    $type_id_arr[$type][] = $type_arr;
-                }
-            }
-            //首先从缓存中获取数据 缓存中没有的话 再到数据库中获取
-            return $type_id_arr;
-        });
-    }
-
 
 }

@@ -3,7 +3,6 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use app\tool\traits\FileExistsTraits;
 use think\View;
 
 
@@ -12,7 +11,6 @@ use think\View;
  */
 class Detailmenupagestatic extends Common
 {
-    use FileExistsTraits;
 
     /**
      * 首页静态化
@@ -21,13 +19,11 @@ class Detailmenupagestatic extends Common
     public function index()
     {
         $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $site_name = $siteinfo['site_name'];
-        $node_id = $siteinfo['node_id'];
-        $info = Menu::getDetailMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id);
+        $info = Menu::getDetailMenuInfo($siteinfo['menu'], $this->site_id, $this->site_name, $this->node_id);
+        $pingUrls = [];
         foreach ($info as $v) {
             $assign_data = Commontool::getEssentialElement('menu', $v['generate_name'], $v['name'], $v['id']);
-//            file_put_contents('log/detailmenu.txt', $this->separator . date('Y-m-d H:i:s') . 'env中菜单名' . $v['name'] . print_r($assign_data, true) . $this->separator, FILE_APPEND);
+            //还需要获取下级栏目的相关信息
             //还需要 存储在数据库中 相关数据
             //页面中还需要填写隐藏的 表单 node_id site_id
             //判断下是不是有 模板文件
@@ -41,10 +37,13 @@ class Detailmenupagestatic extends Common
                 ]
             );
             if (file_put_contents("{$v['generate_name']}.html", $content) === 'false') {
-                file_put_contents('log/detailmenu.txt', $this->separator . date('Y-m-d H:i:s') . '详情类型页面静态化写入失败。' . $this->separator, FILE_APPEND);
                 continue;
+            } else {
+                array_push($pingUrls, $this->siteurl . "/{$v['generate_name']}.html");
             }
         }
+        //推送搜索引擎更新数据
+        $this->urlsCache($pingUrls);
         return true;
     }
 

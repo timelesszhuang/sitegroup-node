@@ -19,9 +19,7 @@ use think\View;
  */
 class QuestionList extends Common
 {
-    use FileExistsTraits;
     use SpiderComefrom;
-    use Params;
 
     /**
      * 首页列表
@@ -29,25 +27,24 @@ class QuestionList extends Common
      */
     public function index($id)
     {
-        $templatepath = 'template/questionlist.html';
         //判断模板是否存在
-        if (!$this->fileExists($templatepath)) {
+        if (!$this->fileExists($this->questionlisttemplate)) {
             return;
         }
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
+        $templatepath=$this->questionlisttemplate;
         $assign_data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateQuestionList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
         //页面中还需要填写隐藏的 表单 node_id site_id
-        return (new View())->fetch($templatepath,
+        return (new View())->fetch($this->questionlisttemplate,
             [
                 'd' => $assign_data
             ]
         );
-
     }
 
     /**
@@ -70,13 +67,10 @@ class QuestionList extends Common
         }
         $menu_id = $menu_info->id;
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
-
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
-
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
-
         $quiestionlist = [];
         if ($questionmax_id) {
             //获取当前栏目下的二级栏目的typeid 列表
@@ -124,7 +118,7 @@ class QuestionList extends Common
         }
         //获取当前type_id的文章
         $assign_data['type_list'] = $typelist;
-        $assign_data['question'] = $question;
+        $assign_data['list'] = $question;
         return $assign_data;
     }
 

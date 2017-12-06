@@ -28,6 +28,8 @@ Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 //新支持的页面预览功能
 Route::get('preview/:type/:id', 'tool/Preview/preview', ['ext' => 'html']);
 
+//查询
+Route::post('search', 'index/Query/index');
 
 
 //模板的其他操作
@@ -48,14 +50,21 @@ Route::post('templateadd', 'tool/Template/templateadd');
 
 //全部页面静态化
 Route::get('crontabstatic', 'tool/Pagestaticentry/crontabstatic');
-//全部页面静态化
+//整站生成 每一次只会生成指定数量的文章
 Route::get('allstatic', 'tool/Pagestaticentry/allstatic');
+//整站重置 网站恢复到第一次的时候 然后生成指定数量的文章
+Route::get('resetall', 'tool/Pagestaticentry/resetall');
+//从头全部重新生成
+Route::get('allsitestatic', 'tool/Pagestaticentry/allsitestatic');
 //首页静态化
 Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
 //菜单静态化  包含 详情型 菜单  env类型菜单
 Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
 //文章页面静态化
 Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
+//
+Route::get('sitemap', 'tool/SiteMap/index');
+
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
 //页面 pv 操作 每个页面获取下
@@ -66,13 +75,15 @@ Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //统计
 Route::resource('externalAccess', 'index/ExternalAccess');
 
-Route::get('sitemap', 'tool/SiteMap/index');
+
 //重新生成文章 根据id等信息 重新生成其他各类数据
+//前端修改某篇文章之后修改
 Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
-// 获取静态文件 单条
+// 获取某个已经静态化的文章产品 问答之后的html 路由定义有问题
 Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
-// 修改单个静态文件
+// 修改已经生成的html 文章产品问答 代码 单页 路由定义有问题
 Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
+
 //重新生成单个活动页面
 Route::get('regenerateactivity', 'tool/Activitystatic/restatic');
 

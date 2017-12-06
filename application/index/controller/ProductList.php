@@ -9,21 +9,18 @@
 namespace app\index\controller;
 
 
-use app\index\model\ArticleSyncCount;
+use app\common\controller\Common;
 use app\index\model\Menu;
 use app\index\model\Product;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
-use app\tool\traits\FileExistsTraits;
-use app\tool\traits\Params;
 use think\Cache;
 use think\View;
 
-class ProductList
+class ProductList extends Common
 {
-    use FileExistsTraits;
+
     use SpiderComefrom;
-    use Params;
 
     /**
      * 首页列表
@@ -31,19 +28,19 @@ class ProductList
      */
     public function index($id)
     {
-        $templatepath = 'template/productlist.html';
         //判断模板是否存在
-        if (!$this->fileExists($templatepath)) {
+        if (!$this->fileExists($this->productlisttemplate)) {
             return;
         }
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
+        $templatepath = $this->productlisttemplate;
         $assign_data = Cache::remember("productlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateProductList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
-        return (new View())->fetch($templatepath,
+        return (new View())->fetch($this->productlisttemplate,
             [
                 'd' => $assign_data
             ]
@@ -68,10 +65,8 @@ class ProductList
             //没有获取到
             exit('该网站不存在该栏目');
         }
-
         $menu_id = $menu_info->id;
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'productlist');
-
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
@@ -127,10 +122,7 @@ class ProductList
             }
         }
         $assign_data['type_list'] = $typelist;
-        $assign_data['productlist'] = $productlist;
-        echo '<pre>';
-        print_r($assign_data);
-        exit;
+        $assign_data['list'] = $productlist;
         return $assign_data;
     }
 

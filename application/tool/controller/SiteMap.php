@@ -9,142 +9,75 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use app\index\model\Question;
-use app\index\model\ScatteredTitle;
-use app\tool\traits\FileExistsTraits;
-use think\View;
 
 class SiteMap extends Common
 {
-    use FileExistsTraits;
-
     /**
-     * 生成sitemap
+     * 用于生成站点的sitemap
+     * @access public
      */
     public function index()
     {
         $siteinfo = Site::getSiteInfo();
-        //去掉逗号
-        $trimSite = trim($siteinfo["menu"], ",");
-        if (empty($trimSite)) {
-            exit("no menu");
+        $host = $this->siteurl;
+        //首先获取全部链接的路径 从menu 中
+        $menu = Menu::getMergedMenu($siteinfo['menu'], $this->site_id, $this->site_name, $this->node_id);
+        //然后获取相关的文章链接 产品链接 问答链接
+        $sync_info = Commontool::getDbArticleListId($this->site_id);
+        //获取最新的200篇文章 各个分类 生成sitemap
+        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        list($article_list, $article_more) = Commontool::getArticleList($sync_info, $typeid_arr, 200);
+        list($question_list, $question_more) = Commontool::getQuestionList($sync_info, $typeid_arr, 200);
+        list($product_list, $product_more) = Commontool::getProductList($sync_info, $typeid_arr, 200);
+        $sitemap = [];
+        foreach ($menu as $v) {
+            $sitemap[] = [
+                'loc' => $host . $v['href'],
+                'lastmod' => date('Y-m-d', time()),
+                'changefreq' => 'daily',
+                'priority' => '0.9',
+            ];
         }
-        $menu_arr = Menu::getMergedMenu($siteinfo["menu"], $siteinfo["id"], $siteinfo["site_name"], $siteinfo["node_id"]);
-        //所有栏目
-        $menus = Commontool::getDbArticleListId($trimSite, $siteinfo['id']);
-        $arr = [];
-        //遍历栏目
-        foreach ($this->foreachMenus($menus) as $key => $item) {
-            list($title, $data) = $item();
-            $arr[$title] = $data;
+        foreach ($article_list as $v) {
+            $sitemap[] = [
+                'loc' => $host . $v['a_href'],
+                'lastmod' => date('Y-m-d', time()),
+                'changefreq' => 'daily',
+                'priority' => '0.7',
+            ];
         }
-        $d = $arr;
-        $nav = $menu_arr;
-        $url = $siteinfo["url"];
-        $now = date('Y-m-d');
-        $one = '';
-        $two='';
-        $three='';
-        $four='';
-        //---------------------------
-        if (isset($nav)) {
-            foreach ($nav as $item) {
-                $one .= <<<ONE
-    <url>
-        <loc>{$url}{$item["generate_name"]}</loc>
-        <lastmod>{$now}</lastmod>
-        <changefreq>Always</changefreq>
-        <priority>1</priority>
-    </url>
-ONE;
-            }
+        foreach ($product_list as $v) {
+            $sitemap[] = [
+                'loc' => $host . $v['a_href'],
+                'lastmod' => date('Y-m-d', time()),
+                'changefreq' => 'daily',
+                'priority' => '0.9',
+            ];
         }
-        //------------------------------------
-        if(isset($d['question'])){
-            foreach($d['question'] as $item){
-            $two.=<<<TWO
-        <url>
-            <loc>{$url}"/question/question"{$item["id"]}".html"</loc>
-            <lastmod>{$item["create_time"]}</lastmod>
-            <changefreq>Always</changefreq>
-            <priority>0.9</priority>
-        </url>
-TWO;
-            }
+        foreach ($question_list as $v) {
+            $sitemap[] = [
+                'loc' => $host . $v['a_href'],
+                'lastmod' => date('Y-m-d', time()),
+                'changefreq' => 'daily',
+                'priority' => '0.6',
+            ];
         }
-        //------------------------------------
-        if(isset($d['article'])){
-            foreach($d['article'] as $item){
-        $three=<<<THREE
-        <url>
-            <loc>{$url}"/article/article"{$item["id"]}".html"</loc>
-            <lastmod>{$item["create_time"]}</lastmod>
-            <changefreq>Always</changefreq>
-            <priority>0.9</priority>
-        </url>
-THREE;
-            }}
-
-        //----------------------------------------
-        if(isset($d['scatteredarticle'])){
-             foreach($d['scatteredarticle'] as $item){
-        $four=<<<FOUR
-                <url>
-            <loc>{$url}"/news/news"{$item["id"]}".html"</loc>
-            <lastmod>{$item["create_time"]}</lastmod>
-            <changefreq>Always</changefreq>
-            <priority>0.9</priority>
-        </url>
-FOUR;
-             }}
-
-        $hereDoc='<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-        $hereDoc=$hereDoc.$one.$two.$three.$four."</urlset>";
-        $make_web = file_put_contents('sitemap.xml', $hereDoc);
-    }
-
-    /**
-     * 遍历每一个栏目的内容
-     * @param $menus
-     * @return \Generator
-     */
-    public function foreachMenus($menus)
-    {
-        foreach ($menus as $key => list($item)) {
-            yield function () use ($key, $item) {
-                $data = '';
-                $where = [
-                    "id" => ["lt", $item["max_id"]]
-                ];
-                switch ($key) {
-//                    问答
-                    case "question":
-                        $where["type_id"] = $item["type_id"];
-                        $data = Question::where($where)->field("id,create_time")->select();
-                        if ($data) {
-                            $data = collection($data)->toArray();
-                        }
-                        break;
-//                        文章
-                    case "article":
-                        $where["articletype_id"] = $item["type_id"];
-                        $data = \app\index\model\Article::where($where)->field("id,create_time")->select();
-                        if ($data) {
-                            $data = collection($data)->toArray();
-                        }
-                        break;
-//                        零散段落
-                    case "scatteredarticle":
-                        $where["articletype_id"] = $item["type_id"];
-                        $data = ScatteredTitle::where($where)->field("id,create_time")->select();
-                        if ($data) {
-                            $data = collection($data)->toArray();
-                        }
-                        break;
+        $xml_wrapper = <<<XML
+<?xml version='1.0' encoding='utf-8'?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+</urlset>
+XML;
+        $xml = new \SimpleXMLElement($xml_wrapper);
+        foreach ($sitemap as $data) {
+            $item = $xml->addChild('url'); //使用addChild添加节点
+            if (is_array($data)) {
+                foreach ($data as $key => $row) {
+                    $item->addChild($key, $row);
                 }
-                return [$key, $data];
-            };
+            }
         }
+        $xmldata = $xml->asXML(); //用asXML方法输出xml，默认只构造不输出。
+        file_put_contents('sitemap.xml', $xmldata);
     }
 
 }

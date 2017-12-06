@@ -3,10 +3,6 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-
-use app\tool\traits\FileExistsTraits;
-use app\tool\traits\Osstrait;
-use OSS\OssClient;
 use think\Cache;
 use think\Db;
 use think\Request;
@@ -17,17 +13,13 @@ use think\Request;
  */
 class Pagestaticentry extends Common
 {
-
-    use FileExistsTraits;
-    use Osstrait;
-
     /**
      * 本地测试开启下 允许跨域ajax 获取数据
      */
     public function __construct()
     {
-        parent::__construct();
         Cache::clear();
+        parent::__construct();
         $this->siteInit();
     }
 
@@ -88,8 +80,11 @@ class Pagestaticentry extends Common
         (new Detailmenupagestatic())->index();
         (new Indexstatic())->index();
         (new SiteMap)->index();
+        //需要执行下ping百度的操作
+        //ping 搜索引擎
+        $this->pingEngine();
         Cache::clear();
-        exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
+        exit(['status' => 'success', 'msg' => '静态化生成完成。']);
     }
 
 
@@ -101,14 +96,51 @@ class Pagestaticentry extends Common
     {
         //全部的页面的静态化
         // 详情页面生成
-//        (new Activitystatic())->index();
+        (new Activitystatic())->index();
         (new Detailstatic())->index();
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
         (new Indexstatic())->index();
         (new SiteMap)->index();
+        $this->pingEngine();
         Cache::clear();
-        exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
+        exit(['status' => 'success', 'msg' => '静态化生成完成。']);
+    }
+
+    /**
+     * 重新从第一条开始重新生成
+     * 全部的页面静态化操作
+     * @access public
+     */
+    public function resetall()
+    {
+        //全部的页面的静态化
+        //重置下站点的已经同步到的地方
+        Db::name('ArticleSyncCount')->where(['site_id' => $this->site_id, 'node_id' => $this->node_id])->update(['count' => 0]);
+        (new Activitystatic())->index();
+        (new Detailstatic())->index();
+        // 详情类性的页面的静态化
+        (new Detailmenupagestatic())->index();
+        (new Indexstatic())->index();
+        (new SiteMap)->index();
+        $this->pingEngine();
+        Cache::clear();
+        exit(['status' => 'success', 'msg' => '静态化生成完成。']);
+    }
+
+    /**
+     * 整站重新生成
+     * @access public
+     */
+    public function allsitestatic()
+    {
+        Db::name('ArticleSyncCount')->where(['site_id' => $this->site_id, 'node_id' => $this->node_id])->update(['count' => 0]);
+        //每次活动都会重新生成 整站全部重新生成
+        (new Activitystatic())->index();
+        (new Detailstatic())->index('allsitestatic');
+        (new Detailmenupagestatic())->index();
+        (new Indexstatic())->index();
+        (new SiteMap)->index();
     }
 
 
@@ -122,6 +154,7 @@ class Pagestaticentry extends Common
         if ((new Indexstatic())->index()) {
             exit(['status' => 'success', 'msg' => '首页静态化生成完成。']);
         }
+        $this->pingEngine();
         Cache::clear();
         exit(['status' => 'failed', 'msg' => '首页静态化生成失败。']);
     }
@@ -179,7 +212,28 @@ class Pagestaticentry extends Common
      */
     public function staticOneHtml($type, $name)
     {
-        return $this->staticOne($type, $name);
+        // 检查文件夹
+        if (!is_dir($type)) {
+            return json_encode([
+                "msg" => "文件未生成",
+                "status" => "failed",
+            ]);
+        }
+        $resource = opendir($type);
+        $content = '';
+        $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
+        if (file_exists($filename)) {
+            $content = base64_encode(file_get_contents($filename));
+            return json_encode([
+                "msg" => "",
+                "status" => "success",
+                "data" => $content
+            ]);
+        }
+        return json_encode([
+            "msg" => "文件未生成",
+            "status" => "failed",
+        ]);
     }
 
     /**
@@ -194,19 +248,24 @@ class Pagestaticentry extends Common
         if (empty($content)) {
             return $this->resultArray("数据为空");
         }
-        $this->generateStaticOne($type, $name, $content);
-    }
-
-
-    /**
-     * url 安全的base64 编码
-     * @access private
-     */
-    private function urlsafe_b64encode($string)
-    {
-        $data = base64_encode($string);
-        $data = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
-        return $data;
+        // 检查文件夹
+        if (!is_dir($type)) {
+            return $this->resultArray("文件夹不存在");
+        }
+        $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
+        if (file_exists($filename)) {
+            $content = file_put_contents($filename, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
+            return json_encode([
+                "msg" => "修改成功",
+                "status" => "success",
+                "data" => ""
+            ]);
+        }
+        return json_encode([
+            "msg" => "文件未生成",
+            "status" => "failed",
+            "data" => ''
+        ]);
     }
 
 
