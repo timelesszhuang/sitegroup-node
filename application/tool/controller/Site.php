@@ -325,9 +325,9 @@ class Site extends Common
         } else {
             $data["field4"] = '';
         }
-        $rejectionfinish =  (new Rejection())->order('id desc')->find();
-        if($rejectionfinish){
-            if($rejectionfinish['field2'] ==  $data["field2"]){
+        $rejectionfinish = (new Rejection())->order('id desc')->find();
+        if ($rejectionfinish) {
+            if ($rejectionfinish['field2'] == $data["field2"]) {
                 return $this->resultArray("请不要重复申请", "failed");
             }
         }
@@ -373,5 +373,6 @@ class Site extends Common
         }
         return $this->resultArray("尊敬的用户，我们已经收到您的请求，稍后会有专属客服为您服务。");
     }
+
 
 }
