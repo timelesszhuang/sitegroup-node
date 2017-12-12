@@ -737,17 +737,21 @@ class Commontool extends Common
      */
     public static function getDbArticleListId($site_id)
     {
-        //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
-        $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
-        $article_sync_list = [];
-        if ($article_sync_info) {
-            foreach ($article_sync_info as $v) {
-                if (!array_key_exists($v['type_name'], $article_sync_list)) {
-                    $article_sync_list[$v['type_name']] = $v['count'];
+        //
+        return Cache::remember('sync_info', function () use ($site_id) {
+
+            //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+            $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
+            $article_sync_list = [];
+            if ($article_sync_info) {
+                foreach ($article_sync_info as $v) {
+                    if (!array_key_exists($v['type_name'], $article_sync_list)) {
+                        $article_sync_list[$v['type_name']] = $v['count'];
+                    }
                 }
             }
-        }
-        return $article_sync_list;//文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+            return $article_sync_list;//文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
+        });
     }
 
     /**

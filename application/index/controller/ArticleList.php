@@ -71,6 +71,7 @@ class ArticleList extends EntryCommon
         //当前栏目的分类
         //获取列表页面必须的元素
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, $type_id, 'articlelist');
+
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;

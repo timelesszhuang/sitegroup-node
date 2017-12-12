@@ -33,7 +33,7 @@ Route::get('question/:id', 'index/Detailenter/question', ['ext' => 'html']);
 //产品页面入口
 Route::get('product/:id', 'index/Detailenter/product', ['ext' => 'html']);
 //查询
-Route::post('search', 'index/Query/index');
+Route::get('search', 'index/Query/index');
 //模板的其他操作
 //模板文件 活动文件管理
 Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
