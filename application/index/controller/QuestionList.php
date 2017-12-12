@@ -2,14 +2,12 @@
 
 namespace app\index\controller;
 
-use app\common\controller\Common;
-use app\index\model\ArticleSyncCount;
+use app\common\controller\EntryCommon;
 use app\index\model\Menu;
 use app\index\model\Question;
+use app\index\traits\SpiderComefrom;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
-use app\tool\traits\FileExistsTraits;
-use app\tool\traits\Params;
 use think\Cache;
 use think\View;
 
@@ -17,7 +15,7 @@ use think\View;
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
  */
-class QuestionList extends Common
+class QuestionList extends EntryCommon
 {
     use SpiderComefrom;
 
@@ -30,7 +28,7 @@ class QuestionList extends Common
 
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
-        $this->spidercomefrom($siteinfo);
+        $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->questionlisttemplate;
         $assign_data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
@@ -69,6 +67,8 @@ class QuestionList extends Common
             exit('该网站不存在该栏目');
         }
         $menu_id = $menu_info->id;
+        //列表页多少条分页
+        $listsize = $menu_info->listsize ?: 10;
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
@@ -88,7 +88,7 @@ class QuestionList extends Common
                     $current = true;
                 }
                 $type_info = $question_typearr[$ptype_id];
-                $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 10);
+                $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
                 $typelist[] = [
                     'text' => $type_info['type_name'],
                     'href' => $type_info['href'],
@@ -100,7 +100,7 @@ class QuestionList extends Common
             $typeid_str = implode(',', $typeidarr);
             $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in ({$typeid_str})";
             $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where($where)
-                ->paginate(10, false, [
+                ->paginate($listsize, false, [
                     'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);

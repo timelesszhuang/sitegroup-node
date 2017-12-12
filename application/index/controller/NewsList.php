@@ -2,12 +2,10 @@
 
 namespace app\index\controller;
 
-use app\common\controller\Common;
-use app\index\model\ArticleSyncCount;
+use app\common\controller\EntryCommon;
 use app\index\model\ScatteredTitle;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
-use app\tool\traits\FileExistsTraits;
 use think\Cache;
 use think\View;
 
@@ -15,10 +13,8 @@ use think\View;
  * 文章列表零散段落相关操作 列表伪静态
  * 栏目下的文章 相关操作
  */
-class NewsList extends Common
+class NewsList extends EntryCommon
 {
-    use SpiderComefrom;
-
     /**
      * 首页列表
      * @access public
@@ -31,7 +27,7 @@ class NewsList extends Common
             return;
         }
         $siteinfo = Site::getSiteInfo();
-        $this->spidercomefrom($siteinfo);
+        $this->spidercomefrom($siteinfo, "/newslist/{$id}.html");
         if (empty($siteinfo["menu"])) {
             exit("当前栏目为空");
         }

@@ -1,13 +1,13 @@
 <?php
 /**
- * 主要是 爬虫的相关数据
+ * 主要是 页面的pv 统计
  * Created by PhpStorm.
  * User: timeless
  * Date: 17-8-28
  * Time: 下午2:05
  */
 
-namespace app\index\controller;
+namespace app\index\traits;
 
 use app\index\model\Useragent;
 

@@ -119,7 +119,7 @@ class Detailrestatic extends Common
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
             "node_id" => $this->node_id,
-            "type_id" => $this->type_id
+            "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([

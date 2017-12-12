@@ -219,8 +219,8 @@ class Pagestaticentry extends Common
                 "status" => "failed",
             ]);
         }
-        $resource = opendir($type);
-        $content = '';
+//        $resource = opendir($type);
+//        $content = '';
         $filename = ROOT_PATH . "public/" . $type . "/" . $name . ".html";
         if (file_exists($filename)) {
             $content = base64_encode(file_get_contents($filename));

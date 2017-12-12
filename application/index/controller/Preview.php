@@ -6,18 +6,19 @@
  * Time: 上午10:34
  */
 
-namespace app\tool\controller;
+namespace app\index\controller;
 
 
-use app\common\controller\Common;
+use app\common\controller\EntryCommon;
 use app\index\model\Product;
+use app\tool\controller\Detailstatic;
 use app\tool\model\SitePageinfo;
 use app\index\model\Article;
 use app\index\model\Question;
 use app\tool\model\Menu;
 use think\View;
 
-class Preview extends Common
+class Preview extends EntryCommon
 {
     /**
      * 文章静态化
@@ -26,16 +27,9 @@ class Preview extends Common
      */
     private function articlepreview($id)
     {
-        //判断某个文件是不是已经存在了存在的话直接重定向到制定的文件
-
         //判断目录是否存在
         if (!file_exists('article')) {
             $this->make_error("article");
-            return false;
-        }
-        //判断模板是否存在
-        if (!$this->fileExists($this->articletemplatepath)) {
-            $this->make_error($this->articletemplatepath);
             return false;
         }
         $file_name = sprintf($this->articlepath, $id);
@@ -43,9 +37,17 @@ class Preview extends Common
             //文件存在直接展现出来不需要重新请求生成
             return;
         }
+        //判断模板是否存在
+        if (!$this->fileExists($this->articletemplatepath)) {
+            $this->make_error($this->articletemplatepath);
+            return false;
+        }
         // 取出指定id的文章
         $articlesql = "id = $id and node_id=$this->node_id";
-        $article = Article::where($articlesql)->find()->toArray();
+        $article = Article::where($articlesql)->find();
+        if (!$article) {
+            exit('文章不存在');
+        }
         if (empty($article)) {
             exit('您请求的文章不存在');
         }
@@ -53,7 +55,7 @@ class Preview extends Common
         // 获取menu信息
         $menuInfo = Menu::where([
             "node_id" => $this->node_id,
-            "type_id" => $type_id
+            "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
@@ -69,7 +71,6 @@ class Preview extends Common
         if ($pre_article) {
             $pre_article = $pre_article->toArray();
             $pre_article['href'] = sprintf($this->prearticlepath, $pre_article['id']);
-            //"/article/article{$pre_article['id']}.html";
         }
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
@@ -79,10 +80,14 @@ class Preview extends Common
         if ($next_article) {
             $next_article = $next_article->toArray();
             $next_article['href'] = sprintf($this->prearticlepath, $next_article['id']);
-            //"/article/article{$next_article['id']}.html";
         }
         $assign_data = (new Detailstatic())->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        $content = (new View())->fetch($this->articletemplatepath,
+        //根据配置来选择模板
+        $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
+        if (!$this->fileExists($template)) {
+            exit('该栏目设置的模板页不存在');
+        }
+        $content = (new View())->fetch($template,
             [
                 'd' => $assign_data,
                 'article' => $article,
@@ -119,13 +124,18 @@ class Preview extends Common
         }
         // 取出指定id的产品
         $productsql = "id = $id and node_id=$this->node_id";
-        $product = Product::where($productsql)->find()->toArray();
+        $product = Product::where($productsql)->find();
+        if (!$product) {
+            exit('该产品不存在');
+        }
         $type_id = $product['type_id'];
         // 获取menu信息
         $menuInfo = \app\tool\model\Menu::where([
             "node_id" => $this->node_id,
-            "type_id" => $type_id
+            "type_id" => ['like', "%,$type_id,%"]
         ])->find();
+        print_r($menuInfo);
+        exit;
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
             "node_id" => $this->node_id,
@@ -159,12 +169,15 @@ class Preview extends Common
             return;
         }
         $questionsql = "id = $id and node_id=$this->node_id";
-        $question = Question::where($questionsql)->find()->toArray();
+        $question = Question::where($questionsql)->find();
+        if (!$question) {
+            exit('该问答不存在');
+        }
         $type_id = $question['type_id'];
         // 获取menu信息
         $menuInfo = Menu::where([
             "node_id" => $this->node_id,
-            "type_id" => $type_id
+            "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
@@ -187,7 +200,12 @@ class Preview extends Common
             //"/question/question{$next_question['id']}.html";
         }
         $assign_data = (new Detailstatic())->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        $content = (new View())->fetch('template/question.html',
+        //根据配置来选择模板
+        $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
+        if (!$this->fileExists($template)) {
+            exit('该栏目设置的模板页不存在');
+        }
+        $content = (new View())->fetch($template,
             [
                 'd' => $assign_data,
                 'question' => $question,

@@ -818,8 +818,6 @@ CODE;
     {
         //获取公共代码
         list($pre_head_jscode, $after_head_jscode) = self::getCommonCode($siteinfo['public_code']);
-        //获取页面pv 操作页面
-        $after_head_jscode[] = "<script src='/index.php/pv'></script>";
         //head前后的代码
         $before_head = $siteinfo['before_header_jscode'];
         $after_head = $siteinfo['other_jscode'];
@@ -1083,19 +1081,19 @@ CODE;
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
-        list($article_list, $article_more) = self::getArticleList($sync_info, $typeid_arr);
+        list($article_list, $article_more) = self::getArticleList($sync_info, $typeid_arr, 25);
         //获取不分类的文章 全部分类都获取到
-        list($question_list, $question_more) = self::getQuestionList($sync_info, $typeid_arr);
+        list($question_list, $question_more) = self::getQuestionList($sync_info, $typeid_arr, 25);
         //获取零散段落类型  全部分类都获取到
         //list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $typeid_arr);
         //产品类型 列表获取 全部分类都获取到
-        list($product_list, $product_more) = self::getProductList($sync_info, $typeid_arr);
+        list($product_list, $product_more) = self::getProductList($sync_info, $typeid_arr, 25);
         //根据文章分类展现列表以及more
-        $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr);
+        $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
         //根据文章分类展现列表以及more
-        $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr);
+        $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
         //根据文章分类展现列表以及more
-        $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr);
+        $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码

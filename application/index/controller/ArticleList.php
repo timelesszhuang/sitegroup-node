@@ -2,10 +2,10 @@
 
 namespace app\index\controller;
 
+use app\common\controller\EntryCommon;
 use app\index\model\Menu;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
-use app\common\controller\Common;
 use think\Cache;
 use think\View;
 
@@ -13,10 +13,9 @@ use think\View;
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
  */
-class ArticleList extends Common
+class ArticleList extends EntryCommon
 {
 
-    use SpiderComefrom;
 
     /**
      * 首页列表
@@ -28,9 +27,9 @@ class ArticleList extends Common
         //每一个node下的菜单的英文名不能包含重复的值
         //根据_ 来分割 第一个参数表示 菜单的id_t文章分类的typeid_p页码id.html
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
-        $siteinfo = Site::getSiteInfo();
         //爬虫来源 统计
-        $this->spidercomefrom($siteinfo);
+        $siteinfo = Site::getSiteInfo();
+        $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->articletemplatepath;
         $assign_data = Cache::remember("articlelist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
@@ -67,6 +66,8 @@ class ArticleList extends Common
             exit('该网站不存在该栏目');
         }
         $menu_id = $menu_info->id;
+        //列表页多少条分页
+        $listsize = $menu_info->listsize ?: 10;
         //当前栏目的分类
         //获取列表页面必须的元素
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, $type_id, 'articlelist');
@@ -89,7 +90,7 @@ class ArticleList extends Common
                     $current = true;
                 }
                 $type_info = $article_typearr[$ptype_id];
-                $list = Commontool::getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 10);
+                $list = Commontool::getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 20);
                 $typelist[] = [
                     'text' => $type_info['type_name'],
                     'href' => $type_info['href'],
@@ -102,7 +103,7 @@ class ArticleList extends Common
             $where = "id <=$articlemax_id and node_id={$siteinfo['node_id']} and articletype_id in ({$typeid_str})";
             //获取当前type_id的文章
             $article = \app\index\model\Article::order('id', "desc")->field(Commontool::$articleListField)->where($where)
-                ->paginate(10, false, [
+                ->paginate($listsize, false, [
                     'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);

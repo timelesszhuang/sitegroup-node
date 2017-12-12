@@ -8,19 +8,17 @@
 
 namespace app\index\controller;
 
-
-use app\common\controller\Common;
+use app\common\controller\EntryCommon;
 use app\index\model\Menu;
 use app\index\model\Product;
+use app\index\traits\SpiderComefrom;
 use app\tool\controller\Commontool;
 use app\tool\controller\Site;
 use think\Cache;
 use think\View;
 
-class ProductList extends Common
+class ProductList extends EntryCommon
 {
-
-    use SpiderComefrom;
 
     /**
      * 首页列表
@@ -28,10 +26,9 @@ class ProductList extends Common
      */
     public function index($id)
     {
-
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
-        $this->spidercomefrom($siteinfo);
+        $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->productlisttemplate;
         $assign_data = Cache::remember("productlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
@@ -69,6 +66,8 @@ class ProductList extends Common
             exit('该网站不存在该栏目');
         }
         $menu_id = $menu_info->id;
+        //列表页多少条分页
+        $listsize = $menu_info->listsize ?: 10;
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'productlist');
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
@@ -88,7 +87,7 @@ class ProductList extends Common
                     $current = true;
                 }
                 $type_info = $product_typearr[$ptype_id];
-                $list = Commontool::getTypeProductList($ptype_id, $productmax_id, $product_typearr, 10);
+                $list = Commontool::getTypeProductList($ptype_id, $productmax_id, $product_typearr, 20);
                 $typelist[] = [
                     'text' => $type_info['type_name'],
                     'href' => $type_info['href'],
@@ -101,7 +100,7 @@ class ProductList extends Common
             $where = "id <={$productmax_id} and node_id={$siteinfo['node_id']} and type_id in ({$typeid_str})";
             //获取当前type_id的文章
             $productlist = Product::order('id', "desc")->field(Commontool::$productListField)->where($where)
-                ->paginate(10, false, [
+                ->paginate($listsize, false, [
                     'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
