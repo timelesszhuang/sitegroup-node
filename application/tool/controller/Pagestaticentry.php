@@ -35,8 +35,18 @@ class Pagestaticentry extends Common
         $this->checkSiteLogo($siteinfo);
         //验证 图片集的静态化相关功能
         $this->checkImgList($siteinfo);
+        //用于验证内容中图片加载状态
+        $this->checkGetContent($siteinfo);
     }
 
+    /**
+     * 用于验证是不是调用内容中的图片是不是已经静态化了
+     * @access public
+     */
+    public function checkGetContent($siteinfo)
+    {
+        //oss图片可以根据已经有的来更新 暂时不考虑 建议根据content 的相关name 还有 正则匹配到的索引来匹配数据
+    }
 
     /**
      * 判断站点logo是不是有更新 有更新的话直接重新生成

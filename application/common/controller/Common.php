@@ -41,6 +41,7 @@ class Common extends Controller
     public $prearticlepath = '';
     public $articletemplatepath = 'template/article.html';
     public $articlelisttemplate = 'template/articlelist.html';
+
     public $articlesearchlist = 'template/articlesearch.html';//查询的列表落地页
 
     //问答相关链接
@@ -48,6 +49,7 @@ class Common extends Controller
     public $prequestionpath = '';
     public $questiontemplatepath = 'template/question.html';
     public $questionlisttemplate = 'template/questionlist.html';
+
     public $questionsearchlist = 'template/questionsearch.html';//查询的列表落地页
 
     //产品相关链接
@@ -55,6 +57,7 @@ class Common extends Controller
     public $preproductpath = '';
     public $producttemplatepath = 'template/product.html';
     public $productlisttemplate = 'template/productlist.html';
+
     public $productsearchlist = 'template/productsearch.html';//查询的列表落地页
 
     //活动相关链接

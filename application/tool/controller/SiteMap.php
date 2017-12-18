@@ -26,9 +26,9 @@ class SiteMap extends Common
         $sync_info = Commontool::getDbArticleListId($this->site_id);
         //获取最新的200篇文章 各个分类 生成sitemap
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
-        list($article_list, $article_more) = Commontool::getArticleList($sync_info, $typeid_arr, 200);
-        list($question_list, $question_more) = Commontool::getQuestionList($sync_info, $typeid_arr, 200);
-        list($product_list, $product_more) = Commontool::getProductList($sync_info, $typeid_arr, 200);
+        $article_list = Commontool::getArticleList($sync_info, $typeid_arr, 200);
+        $question_list = Commontool::getQuestionList($sync_info, $typeid_arr, 200);
+        $product_list = Commontool::getProductList($sync_info, $typeid_arr, 200);
         $sitemap = [];
         foreach ($menu as $v) {
             $sitemap[] = [
@@ -38,7 +38,7 @@ class SiteMap extends Common
                 'priority' => '0.9',
             ];
         }
-        foreach ($article_list as $v) {
+        foreach ($article_list['list'] as $v) {
             $sitemap[] = [
                 'loc' => $host . $v['href'],
                 'lastmod' => date('Y-m-d', time()),
@@ -46,7 +46,7 @@ class SiteMap extends Common
                 'priority' => '0.7',
             ];
         }
-        foreach ($product_list as $v) {
+        foreach ($product_list['list'] as $v) {
             $sitemap[] = [
                 'loc' => $host . $v['href'],
                 'lastmod' => date('Y-m-d', time()),
@@ -54,7 +54,7 @@ class SiteMap extends Common
                 'priority' => '0.9',
             ];
         }
-        foreach ($question_list as $v) {
+        foreach ($question_list['list'] as $v) {
             $sitemap[] = [
                 'loc' => $host . $v['href'],
                 'lastmod' => date('Y-m-d', time()),

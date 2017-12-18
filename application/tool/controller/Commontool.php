@@ -319,9 +319,6 @@ class Commontool extends Common
      * 获取 文章列表 获取十条　文件名如 article1 　article2
      * @access public
      * @param $sync_info 该站点所有文章分类的 静态化状况
-     * @param $site_id
-     *              如果是 detail 的话 应该给sg_articletype
-     * @param int $limit
      * @return false|\PDOStatement|string|\think\Collection
      */
     public static function getArticleList($sync_info, $typeid_arr, $limit = 10)
@@ -341,8 +338,8 @@ class Commontool extends Common
         if ($more['href'] == '/') {
             $more = ['title' => $rand_type['menu_name'], 'href' => sprintf(self::$articleListPath, $rand_type['menu_enname']), 'text' => '更多', 'menu_name' => $rand_type['menu_name'], 'type_name' => $rand_type['type_name']];
         }
-        return [$articlelist, $more];
-
+        // 这个地方有问题
+        return ['list' => $articlelist, 'more' => $more];
     }
 
     /**
@@ -467,7 +464,7 @@ class Commontool extends Common
         if ($more['href'] == '/') {
             $more = ['title' => $rand_type['menu_name'], 'href' => sprintf(self::$productListPath, $rand_type['menu_enname']), 'text' => '更多'];
         }
-        return [$productlist, $more];
+        return ['list' => $productlist, 'more' => $more];
     }
 
     /**
@@ -583,7 +580,7 @@ class Commontool extends Common
         if ($more['href'] == '/') {
             $more = ['title' => $rand_type['menu_name'], 'href' => sprintf(self::$questionListPath, $rand_type['menu_enname']), 'text' => '更多'];
         }
-        return [$questionlist, $more];
+        return ['list' => $questionlist, 'more' => $more];
     }
 
 
@@ -775,7 +772,7 @@ class Commontool extends Common
             $activity = [];
             $activity['name'] = $v['title'];
             $activity['summary'] = $v['summary'];
-            $activity['imgsrc'] = "/images/{$v['img_name']}";
+            $activity['src'] = "/images/{$v['img_name']}";
             $activity['href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
             $activity_list[] = $activity;
         }
@@ -819,6 +816,16 @@ CODE;
     {
         //返回copyright
         return '© 2015-' . date('Y') . '  ' . $com_name . ' All Rights Reserved.';
+    }
+
+
+    /**
+     * 获取网站powerby相关 信息
+     * @access private
+     */
+    private static function getSitePowerBy()
+    {
+        return ['text' => '技术支持：北京易至信科技有限公司', 'href' => 'http://www.salesman.cc'];
     }
 
     /**
@@ -870,7 +877,7 @@ CODE;
             });
             if ($domain_info) {
                 $beian_num = $domain_info['filing_num'];
-                $beian = ['beian_num' => $beian_num, 'link' => $beian_link];
+                $beian = ['text' => $beian_num, 'href' => $beian_link];
             }
         }
         return $beian;
@@ -959,6 +966,30 @@ CODE;
         return $partnersite;
     }
 
+    /**
+     * 获取站点内容调取列表 比如相关站点
+     * @access private
+     * @param $siteinfo 站点相关数据
+     * @return mixed
+     */
+    private static function getSiteGetContent($siteinfo)
+    {
+        $node_id = $siteinfo['node_id'];
+        return Cache::remember('contentlist', function () use ($node_id) {
+            $contentlist = Db::name('content_get')->where('node_id', $node_id)->field('en_name,name,content,href')->select();
+            $list = [];
+            foreach ($contentlist as $v) {
+                $list[$v['en_name']] = [
+                    'name' => $v['name'],
+                    'content' => $v['content'],
+                    'href' => $v['href']
+                ];
+            }
+            return $list;
+        });
+
+    }
+
 
     /**
      * 获取 页面中必须的元素
@@ -1002,7 +1033,6 @@ CODE;
                'product'=>[],
           ]
         */
-
         //获取每个菜单的menu_idarr
         /*
          [
@@ -1102,13 +1132,13 @@ CODE;
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
-        list($article_list, $article_more) = self::getArticleList($sync_info, $typeid_arr, 25);
+        $article_list = self::getArticleList($sync_info, $typeid_arr, 25);
         //获取不分类的文章 全部分类都获取到
-        list($question_list, $question_more) = self::getQuestionList($sync_info, $typeid_arr, 25);
+        $question_list = self::getQuestionList($sync_info, $typeid_arr, 25);
         //获取零散段落类型  全部分类都获取到
         //list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $typeid_arr);
         //产品类型 列表获取 全部分类都获取到
-        list($product_list, $product_more) = self::getProductList($sync_info, $typeid_arr, 25);
+        $product_list = self::getProductList($sync_info, $typeid_arr, 25);
         //根据文章分类展现列表以及more
         $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
         //根据文章分类展现列表以及more
@@ -1129,9 +1159,13 @@ CODE;
         $com_name = $siteinfo['com_name'];
         //版本　copyright
         $copyright = self::getSiteCopyright($com_name);
+        //技术支持
+        $powerby = self::getSitePowerby();
+        //调取页面中的相关组件
+        $contentlist = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'powerby', 'contentlist', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
@@ -1308,7 +1342,7 @@ code;
                             'title' => $val['title'],
                             'alt' => $val['title'],
                             //默认没有链接的话跳转到首页
-                            'link' => $val['link'] ?: '/',
+                            'href' => $val['link'] ?: '/',
                         ];
                     }
                 }
