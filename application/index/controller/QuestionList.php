@@ -25,7 +25,6 @@ class QuestionList extends EntryCommon
      */
     public function index($id)
     {
-
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
         $siteinfo = Site::getSiteInfo();
         $this->entryCommon();
@@ -115,7 +114,7 @@ class QuestionList extends EntryCommon
                         'href' => $question_typearr[$v['type_id']]['href']
                     ];
                 }
-                $v['a_href'] = sprintf(Commontool::$questionPath, $v['id']);
+                $v['href'] = sprintf(Commontool::$questionPath, $v['id']);
                 $v['type'] = $type;
             }
         }

@@ -27,7 +27,7 @@ class Commontool extends Common
     private static $questionListPath = '/questionlist/%s.html';
     public static $questionPath = '/question/question%s.html';
 
-    public static $articleListField = 'id,title,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,create_time';
+    public static $articleListField = 'id,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,create_time';
     public static $questionListField = 'id,question,type_id,type_name,create_time';
     public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,create_time';
 
@@ -354,7 +354,8 @@ class Commontool extends Common
         $typeid_str = implode(',', array_keys($article_typearr));
         $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
         $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
-        return self::formatArticleList($article, $article_typearr);
+        self::formatArticleList($article, $article_typearr);
+        return $article;
     }
 
 
@@ -396,7 +397,8 @@ class Commontool extends Common
         $where = " `id`<= {$max_id} and articletype_id = {$type_id}";
         //后期可以考虑置顶之类操作
         $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
-        return self::formatArticleList($article, $article_typearr);
+        self::formatArticleList($article, $article_typearr);
+        return $article;
     }
 
 
@@ -404,13 +406,15 @@ class Commontool extends Common
      * 根据取出来的文章list 格式化为指定的格式
      * @access public
      */
-    public static function formatArticleList($article, $article_typearr)
+    public static function formatArticleList(&$article, $article_typearr)
     {
-        $articlelist = [];
         foreach ($article as $k => $v) {
             //防止标题中带着% 好的引起程序问题
             $v['title'] = str_replace('%', '', $v['title']);
             $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
+            //格式化标题的颜色
+            $v['color_title'] = $v['title_color'] ? sprintf('<span style="color:%s">%s</span>', $v['title_color'], $v['title']) : $v['title'];
+            unset($v['title_color']);
             //默认缩略图的
             $img = sprintf($img_template, '/templatestatic/default.jpg');
             if (!empty($v["thumbnails_name"])) {
@@ -427,16 +431,16 @@ class Commontool extends Common
                     'href' => $article_typearr[$v['articletype_id']]['href']
                 ];
             }
-            $articlelist[] = [
-                'title' => $v['title'],
-                'a_href' => sprintf(self::$articlePath, $v['id']),
-                'summary' => $v['summary'],
-                'thumbnails' => $img,
-                'create_time' => date('Y-m-d', $v['create_time']),
-                'type' => $type
-            ];
+            unset($v['articletype_id']);
+            unset($v['articletype_name']);
+            $v['href'] = sprintf(self::$articlePath, $v['id']);
+            if (is_array($v)) {
+                $v['create_time'] = date('Y-m-d', $v['create_time']);
+            }
+            $v['thumbnails'] = $img;
+            $v['type'] = $type;
+            $article[$k] = $v;
         }
-        return $articlelist;
     }
 
 
@@ -475,7 +479,8 @@ class Commontool extends Common
         $typeid_str = implode(',', array_keys($product_typearr));
         $where = " `type_id` in ($typeid_str) and `id`<= {$max_id}";
         $product = Db::name('Product')->where($where)->field(self::$productListField)->order('id desc')->limit($limit)->select();
-        return self::formatProductList($product, $product_typearr);
+        self::formatProductList($product, $product_typearr);
+        return $product;
     }
 
 
@@ -493,7 +498,6 @@ class Commontool extends Common
             return [];
         }
         $productalias_list = [];
-
         foreach ($product_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];
             $productlist = self::getTypeProductList($type_id, $max_id, $product_typearr, $limit);
@@ -518,7 +522,8 @@ class Commontool extends Common
         $where = " `id`<= {$max_id} and type_id = {$type_id}";
         //后期可以考虑置顶之类操作
         $product = Db::name('Product')->where($where)->field(self::$productListField)->order('id desc')->limit($limit)->select();
-        return self::formatProductList($product, $product_typearr);
+        self::formatProductList($product, $product_typearr);
+        return $product;
     }
 
 
@@ -526,9 +531,8 @@ class Commontool extends Common
      * 格式化产品信息数据
      * @access private
      */
-    private static function formatProductList($product, $product_typearr)
+    public static function formatProductList(&$product, $product_typearr)
     {
-        $productlist = [];
         foreach ($product as $k => $v) {
             $src = "/images/" . $v['image_name'];
             $img = "<img src='{$src}' alt= '{$v['name']}'>";
@@ -543,16 +547,17 @@ class Commontool extends Common
                     'href' => $product_typearr[$v['type_id']]['href']
                 ];
             }
-            $productlist[] = [
-                'name' => $v['name'],
-                'a_href' => sprintf(self::$productPath, $v['id']),
-                'summary' => $v['summary'],
-                'thumbnails' => $img,
-                'create_time' => date('Y-m-d', $v['create_time']),
-                'type' => $type
-            ];
+            if (is_array($v)) {
+                $v['create_time'] = date('Y-m-d', $v['create_time']);
+            }
+            unset($v['type_id']);
+            unset($v['type_name']);
+            unset($v['image_name']);
+            $v['href'] = sprintf(self::$productPath, $v['id']);
+            $v['thumbnails'] = $img;
+            $v['type'] = $type;
+            $product[$k] = $v;
         }
-        return $productlist;
     }
 
 
@@ -591,7 +596,8 @@ class Commontool extends Common
         $typeid_str = implode(',', array_keys($question_typearr));
         $where = "`type_id` in ($typeid_str)  and `id`<= {$max_id}";
         $question = Db::name('Question')->where($where)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
-        return self::formatQuestionList($question, $question_typearr);
+        self::formatQuestionList($question, $question_typearr);
+        return $question;
     }
 
 
@@ -633,16 +639,16 @@ class Commontool extends Common
         $where = " `id`<= {$max_id} and type_id = {$type_id}";
         //后期可以考虑置顶之类操作
         $question = Db::name('Question')->where($where)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
-        return self::formatQuestionList($question, $question_typearr);
+        self::formatQuestionList($question, $question_typearr);
+        return $question;
     }
 
     /**
      * 根据问答分类格式化列表数据
      * @access private
      */
-    private static function formatQuestionList($question, $question_typearr)
+    public static function formatQuestionList(&$question, $question_typearr)
     {
-        $questionlist = [];
         foreach ($question as $k => $v) {
             $type = [
                 'name' => '',
@@ -654,14 +660,15 @@ class Commontool extends Common
                     'href' => $question_typearr[$v['type_id']]['href']
                 ];
             }
-            $questionlist[] = [
-                'question' => $v['question'],
-                'a_href' => sprintf(self::$questionPath, $v['id']),
-                'create_time' => date('Y-m-d', $v['create_time']),
-                'type' => $type
-            ];
+            $v['question'] = $v['question'];
+            $v['href'] = sprintf(self::$questionPath, $v['id']);
+            if (is_array($v)) {
+                // model对象调用的时候会自动格式化
+                $v['create_time'] = date('Y-m-d', $v['create_time']);
+            }
+            $v['type'] = $type;
+            $question[$k] = $v;
         }
-        return $questionlist;
     }
 
 
@@ -698,7 +705,7 @@ class Commontool extends Common
 //            $articlelist = [];
 //            foreach ($scattered_article as $k => $v) {
 //                $articlelist[] = [
-//                    'a_href' => '/news/news' . $v['id'] . '.html',
+//                    'href' => '/news/news' . $v['id'] . '.html',
 //                    'title' => $v['title'],
 //                    'create_time' => date('Y-m-d', $v['create_time'])
 //                ];
@@ -769,7 +776,7 @@ class Commontool extends Common
             $activity['name'] = $v['title'];
             $activity['summary'] = $v['summary'];
             $activity['imgsrc'] = "/images/{$v['img_name']}";
-            $activity['a_href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
+            $activity['href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
             $activity_list[] = $activity;
         }
         return $activity_list;
@@ -889,7 +896,7 @@ CODE;
         if ($site_logoinfo) {
             $oss_file_path = $site_logoinfo['oss_logo_path'];
             $ext = pathinfo(parse_url($oss_file_path)['path'])['extension'];
-            return "<img src='/images/logo{$site_id}.{$ext}' title='$site_name'>";
+            return "<img src='/images/logo{$site_id}.{$ext}' title='$site_name' alt='$site_name'>";
         }
         return $site_name;
     }
@@ -961,6 +968,7 @@ CODE;
      *                              menu 第二个参数$param表示   $page_id 也就是菜单的英文名 第三个参数 $param2 表示 菜单名 menu_name   $param3 是 menu_id  $param4 为type_id菜单下的id  $param5 表示菜单类型 articlelist newslist  questionlist  productlist
      *                              detail   第二个参数$param表示  $articletitle 用来获取文章标题 第三个参数 $param2 表示 文章的内容 $param3 表示文章设置的keywords  $param4 是 a_keyword_id  $para5  表示 menu_id  $param6 表示 menu_name $param7 用于生成面包屑的时候 获取 栏目菜单的url
      *                              activity
+     *                              query  查询相关tdk获取
      * @param string $param2
      * @return array
      */
@@ -976,9 +984,10 @@ CODE;
         //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
         //该站点的网址
         $url = $siteinfo['url'];
-
+        $imgset = self::getImgList($node_id);
         //菜单的返回也需要修改
         $menu = self::getTreeMenuInfo($siteinfo['menu'], $site_id, $site_name, $node_id, $url, $tag, $param2, $param3);
+        //用于生成面包屑
         $allmenu = Menu::getMergedMenu($siteinfo['menu'], $site_id, $site_name, $node_id);
         //获取网站中每个分类的 $type_aliasarr
         /*
@@ -1077,11 +1086,19 @@ CODE;
                 $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
                 break;
             case 'activity':
+                //活动相关获取
                 $title = $param;
                 $keyword = $param2;
                 $description = $param3;
                 //面包屑是空的
-                $breadcrumb = [];
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
+                break;
+            case 'query':
+                //查询操作
+                $title = $param;
+                $keyword = $param2;
+                $description = $param3;
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
@@ -1114,7 +1131,7 @@ CODE;
         $copyright = self::getSiteCopyright($com_name);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'question_more', 'news_more', 'product_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
@@ -1269,6 +1286,38 @@ code;
         return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
     }
 
+    /**
+     * 获取图片集调用链接
+     * @access public
+     * @param $node_id
+     * @return mixed
+     */
+    private static function getImgList($node_id)
+    {
+        return Cache::remember('imglist', function () use ($node_id) {
+            $imglist = Db::name('imglist')->where('node_id', $node_id)->where('status', '10')->select();
+            $imgset = [];
+            foreach ($imglist as $imgs) {
+                $en_name = $imgs['en_name'];
+                $imgser = $imgs['imgser'];
+                $perimgset = [];
+                if ($imgser) {
+                    foreach (unserialize($imgser) as $val) {
+                        $perimgset[] = [
+                            'src' => '/images/' . $val['imgname'],
+                            'title' => $val['title'],
+                            'alt' => $val['title'],
+                            //默认没有链接的话跳转到首页
+                            'link' => $val['link'] ?: '/',
+                        ];
+                    }
+                }
+                $imgset[$en_name] = $perimgset;
+            }
+            return $imgset;
+        });
+    }
+
 
     /**
      * 获取当前栏目的菜单信息
@@ -1293,6 +1342,13 @@ code;
         //创建基于主键的数组引用
         $refer = array();
         foreach ($menu as $key => $data) {
+            unset($data['generate_name']);
+            unset($data['flag']);
+            unset($data['type_id']);
+            unset($data['detailtemplate']);
+            unset($data['listtemplate']);
+            unset($data['covertemplate']);
+            $menu[$key] = $data;
             $refer[$data['id']] = &$menu[$key];
         }
         //循环中还需要设置下当前menu相关信息
@@ -1369,21 +1425,34 @@ code;
         $breadcrumb = [
             ['text' => '首页', 'href' => $url, 'title' => '首页'],
         ];
-        if ($tag != 'index') {
-            //详情 或者 列表页面
-            $menu_path = \app\tool\model\Menu::Where('id', $menu_id)->field('path')->find();
-            $path = $menu_path['path'];
-            $p_idarr = array_filter(explode(',', $path));
-            array_push($p_idarr, $menu_id);
-            foreach ($p_idarr as $v) {
-                $pmenu = $allmenu[$v];
-                $perbreadcrumb = [
-                    'text' => $pmenu['name'],
-                    'href' => $pmenu['href'],
-                    'title' => $pmenu['title']
-                ];
-                array_push($breadcrumb, $perbreadcrumb);
-            }
+        switch ($tag) {
+            case 'index':
+            case 'menu':
+            case 'detail':
+                //详情 或者 列表页面
+                $menu_path = \app\tool\model\Menu::Where('id', $menu_id)->field('path')->find();
+                $path = $menu_path['path'];
+                $p_idarr = array_filter(explode(',', $path));
+                array_push($p_idarr, $menu_id);
+                foreach ($p_idarr as $v) {
+                    $pmenu = $allmenu[$v];
+                    $perbreadcrumb = [
+                        'text' => $pmenu['name'],
+                        'href' => $pmenu['href'],
+                        'title' => $pmenu['title']
+                    ];
+                    array_push($breadcrumb, $perbreadcrumb);
+                }
+                break;
+            case 'query':
+                array_push($breadcrumb, [
+                    'text' => '查询结果',
+                    'href' => '/',
+                    'title' => '查询'
+                ]);
+                break;
+            case 'activity':
+                break;
         }
         return $breadcrumb;
     }

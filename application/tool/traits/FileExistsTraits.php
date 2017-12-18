@@ -29,7 +29,7 @@ trait FileExistsTraits
      * @param $filename
      * @return bool
      */
-    public function fileExists($filename)
+    public function fileExists($filename, $operator = '页面静态化')
     {
         $siteinfo = Site::getSiteInfo();
         $site_id = $siteinfo['id'];
@@ -38,7 +38,7 @@ trait FileExistsTraits
         if (!file_exists($filename)) {
             (new SiteErrorInfo)->addError([
                 'msg' => "{$site_name}站点" . $filename . "模板不存在!",
-                'operator' => '页面静态化',
+                'operator' => $operator,
                 'site_id' => $site_id,
                 'site_name' => $site_name,
                 'node_id' => $node_id,

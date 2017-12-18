@@ -118,7 +118,7 @@ class ProductList extends EntryCommon
                         'href' => $product_typearr[$v['type_id']]['href']
                     ];
                 }
-                $v['a_href'] = sprintf(Commontool::$productPath, $v['id']);
+                $v['href'] = sprintf(Commontool::$productPath, $v['id']);
                 $v['thumbnails'] = $img;
                 $v['type'] = $type;
             }

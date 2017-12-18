@@ -16,7 +16,6 @@ use think\View;
 class ArticleList extends EntryCommon
 {
 
-
     /**
      * 首页列表
      * @access public
@@ -71,7 +70,6 @@ class ArticleList extends EntryCommon
         //当前栏目的分类
         //获取列表页面必须的元素
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, $type_id, 'articlelist');
-
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
@@ -108,29 +106,7 @@ class ArticleList extends EntryCommon
                     'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
-            foreach ($article as $v) {
-                $v['title'] = str_replace('%', '', $v['title']);
-                $img_template = "<img src='%s' alt='{$v['title']}' title='{$v['title']}'>";
-                $img = sprintf($img_template, '/templatestatic/default.jpg');
-                if (!empty($v["thumbnails_name"])) {
-                    //如果有本地图片则 为本地图片
-                    $src = "/images/" . $v['thumbnails_name'];
-                    $img = sprintf($img_template, $src);
-                } else if (!empty($v["thumbnails"])) {
-                    //如果没有本地图片则 直接显示 base64的
-                    $img = sprintf($img_template, $v['thumbnails']);
-                }
-                //列出当前文章分类来
-                if (array_key_exists($v['articletype_id'], $article_typearr)) {
-                    $type = [
-                        'name' => $v['articletype_name'],
-                        'href' => $article_typearr[$v['articletype_id']]['href']
-                    ];
-                }
-                $v['a_href'] = sprintf(Commontool::$articlePath, $v['id']);
-                $v['type'] = $type;
-                $v["thumbnails"] = $img;
-            }
+            Commontool::formatArticleList($article, $article_typearr);
         }
         $assign_data['type_list'] = $typelist;
         $assign_data['list'] = $article;

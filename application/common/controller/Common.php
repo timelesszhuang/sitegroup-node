@@ -36,28 +36,31 @@ class Common extends Controller
     public $waterString = '';
     public $menu_ids = '';
 
-
     //文章相关链接
     public $articlepath = 'article/article%s.html';
     public $prearticlepath = '';
     public $articletemplatepath = 'template/article.html';
+    public $articlelisttemplate = 'template/articlelist.html';
+    public $articlesearchlist = 'template/articlesearch.html';//查询的列表落地页
+
     //问答相关链接
     public $questionpath = 'question/question%s.html';
     public $prequestionpath = '';
     public $questiontemplatepath = 'template/question.html';
+    public $questionlisttemplate = 'template/questionlist.html';
+    public $questionsearchlist = 'template/questionsearch.html';//查询的列表落地页
+
     //产品相关链接
     public $productpath = 'product/product%s.html';
     public $preproductpath = '';
     public $producttemplatepath = 'template/product.html';
+    public $productlisttemplate = 'template/productlist.html';
+    public $productsearchlist = 'template/productsearch.html';//查询的列表落地页
+
     //活动相关链接
     public $activitypath = 'activity/activity%s.html';
     public $preactivitypath = '';
     public $activitytemplatepath = 'template/activity.html';
-
-
-    public $articlelisttemplate = 'template/articlelist.html';
-    public $questionlisttemplate = 'template/questionlist.html';
-    public $productlisttemplate = 'template/productlist.html';
 
 
     /**

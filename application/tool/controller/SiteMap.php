@@ -40,7 +40,7 @@ class SiteMap extends Common
         }
         foreach ($article_list as $v) {
             $sitemap[] = [
-                'loc' => $host . $v['a_href'],
+                'loc' => $host . $v['href'],
                 'lastmod' => date('Y-m-d', time()),
                 'changefreq' => 'daily',
                 'priority' => '0.7',
@@ -48,7 +48,7 @@ class SiteMap extends Common
         }
         foreach ($product_list as $v) {
             $sitemap[] = [
-                'loc' => $host . $v['a_href'],
+                'loc' => $host . $v['href'],
                 'lastmod' => date('Y-m-d', time()),
                 'changefreq' => 'daily',
                 'priority' => '0.9',
@@ -56,7 +56,7 @@ class SiteMap extends Common
         }
         foreach ($question_list as $v) {
             $sitemap[] = [
-                'loc' => $host . $v['a_href'],
+                'loc' => $host . $v['href'],
                 'lastmod' => date('Y-m-d', time()),
                 'changefreq' => 'daily',
                 'priority' => '0.6',

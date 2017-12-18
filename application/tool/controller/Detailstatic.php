@@ -267,9 +267,9 @@ class Detailstatic extends Common
         if ($question_type_keyword && $questionstatic_count) {
             $this->questionstatic($question_type_keyword, $questionstatic_count);
         }
-        if ($scatteredarticle_type_keyword && $scatteredstatic_count) {
-            $this->scatteredarticlestatic($scatteredarticle_type_keyword, $scatteredstatic_count);
-        }
+//        if ($scatteredarticle_type_keyword && $scatteredstatic_count) {
+//            $this->scatteredarticlestatic($scatteredarticle_type_keyword, $scatteredstatic_count);
+//        }
         if ($product_type_keyword) {
             $this->productstatic($product_type_keyword);
         }

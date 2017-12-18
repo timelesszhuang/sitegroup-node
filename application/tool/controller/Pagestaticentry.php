@@ -4,6 +4,7 @@ namespace app\tool\controller;
 
 use app\common\controller\Common;
 use think\Cache;
+use think\Config;
 use think\Db;
 use think\Request;
 
@@ -30,8 +31,12 @@ class Pagestaticentry extends Common
     private function siteInit()
     {
         $siteinfo = Site::getSiteInfo();
+        //查看站点logo 是不是有修改
         $this->checkSiteLogo($siteinfo);
+        //验证 图片集的静态化相关功能
+        $this->checkImgList($siteinfo);
     }
+
 
     /**
      * 判断站点logo是不是有更新 有更新的话直接重新生成
@@ -63,6 +68,38 @@ class Pagestaticentry extends Common
         } else if (!file_exists($logo_path)) {
             //logo 存在需要更新
             $this->ossGetObject($oss_logo_path, $logo_path);
+        }
+    }
+
+
+    /**
+     * 检测图片集的图片是不是都已经静态化了  某个节点下的所有图片都会替换掉
+     * @access private
+     */
+    private function checkImgList($siteinfo)
+    {
+        $endpoint = Config::get('oss.endpoint');
+        $bucket = Config::get('oss.bucket');
+        $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
+        $node_id = $siteinfo['node_id'];
+        $imglist = Db::name('imglist')->where('node_id', $node_id)->where('status', '10')->select();
+        foreach ($imglist as $v) {
+            $imgser = $v['imgser'];
+            if ($imgser) {
+                $imglist_arr = unserialize($imgser);
+                foreach ($imglist_arr as $perimg) {
+                    $imgname = $perimg['imgname'];
+                    $osssrc = $perimg['osssrc'];
+                    if (strpos($osssrc, $endpointurl) === false) {
+                        //如果路径有问题的话
+                        continue;
+                    }
+                    if ($this->get_osswater_img($osssrc, $imgname, $this->waterString)) {
+                        //获取网站水印图片
+                        continue;
+                    }
+                }
+            }
         }
     }
 
