@@ -1461,7 +1461,9 @@ code;
         ];
         switch ($tag) {
             case 'index':
+                break;
             case 'menu':
+                break;
             case 'detail':
                 //详情 或者 列表页面
                 $menu_path = \app\tool\model\Menu::Where('id', $menu_id)->field('path')->find();
