@@ -857,7 +857,7 @@ CODE;
         foreach ($after_head_jscode as $v) {
             $after_head_js = $after_head_js . $v;
         }
-        return [$pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js];
+        return [$pre_head_js, $after_head_js];
     }
 
     /**
@@ -1148,7 +1148,7 @@ CODE;
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码
-        list($pre_head_jscode, $after_head_jscode, $pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
+        list($pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
         //获取公司联系方式等 会在右上角或者其他位置添加  这个应该支持小后台能自己修改才对
         $contact_info = self::getContactInfo($siteinfo);
         //获取备案信息
@@ -1165,7 +1165,7 @@ CODE;
         $getcontent = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_jscode', 'after_head_jscode', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
