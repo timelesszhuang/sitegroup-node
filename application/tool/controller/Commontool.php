@@ -1184,6 +1184,7 @@ CODE;
                 $typeidarr = array_filter(explode(',', $ptype_idstr));
                 $ptypeidarr = array_merge($ptypeidarr, $typeidarr);
             }
+            $ptypeidarr = array_unique($ptypeidarr);
             return $ptypeidarr;
         });
     }
