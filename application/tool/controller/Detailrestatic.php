@@ -82,8 +82,8 @@ class Detailrestatic extends Common
             [
                 'd' => $assign_data,
                 'article' => $article,
-                'pre_article' => $pre_article,
-                'next_article' => $next_article,
+                'pre_page' => $pre_article,
+                'next_page' => $next_article,
             ]
         );
         $article_path = sprintf($this->articlepath, $id);
@@ -186,8 +186,8 @@ class Detailrestatic extends Common
             [
                 'd' => $assign_data,
                 'question' => $question,
-                'pre_question' => $pre_question,
-                'next_question' => $next_question,
+                'pre_page' => $pre_question,
+                'next_page' => $next_question,
             ]
         );
         $questionpath = sprintf($this->questionpath, $id);

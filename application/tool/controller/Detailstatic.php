@@ -371,8 +371,8 @@ class Detailstatic extends Common
                 [
                     'd' => $assign_data,
                     'article' => $item,
-                    'pre_article' => $pre_article,
-                    'next_article' => $next_article,
+                    'pre_page' => $pre_article,
+                    'next_page' => $next_article,
                 ]
             );
             $article_path = sprintf($this->articlepath, $item['id']);
@@ -552,8 +552,8 @@ class Detailstatic extends Common
                 [
                     'd' => $assign_data,
                     'scatteredarticle' => $temp_arr,
-                    'pre_article' => $pre_article,
-                    'next_article' => $next_article
+                    'pre_page' => $pre_article,
+                    'next_page' => $next_article
                 ]
             );
             $make_web = file_put_contents('news/news' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
@@ -665,8 +665,8 @@ class Detailstatic extends Common
                 [
                     'd' => $assign_data,
                     'question' => $item,
-                    'pre_question' => $pre_question,
-                    'next_question' => $next_question,
+                    'pre_page' => $pre_question,
+                    'next_page' => $next_question,
                 ]
             );
             //开始同步数据库
@@ -818,8 +818,8 @@ class Detailstatic extends Common
             [
                 'd' => $assign_data,
                 'product' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
-                'pre_product' => $pre_product,
-                'next_product' => $next_product,
+                'pre_page' => $pre_product,
+                'next_page' => $next_product,
             ]
         );
         return $content;

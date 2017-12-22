@@ -91,8 +91,8 @@ class Preview extends EntryCommon
             [
                 'd' => $assign_data,
                 'article' => $article,
-                'pre_article' => $pre_article,
-                'next_article' => $next_article,
+                'pre_page' => $pre_article,
+                'next_page' => $next_article,
             ]
         );
         exit($content);
@@ -209,8 +209,8 @@ class Preview extends EntryCommon
             [
                 'd' => $assign_data,
                 'question' => $question,
-                'pre_question' => $pre_question,
-                'next_question' => $next_question,
+                'pre_page' => $pre_question,
+                'next_page' => $next_question,
             ]
         );
         exit($content);
