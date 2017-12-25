@@ -949,7 +949,10 @@ CODE;
         });
         $partnersite = [];
         foreach ($link_info as $k => $v) {
-            $partnersite[$v['domain']] = $v['name'];
+            $partnersite[] = [
+                'href' => $v['domain'],
+                'text' => $v['name']
+            ];
         }
         //链轮的类型
         $chain_type = '';
@@ -965,10 +968,16 @@ CODE;
             list($chain_type, $next_site, $main_site) = Site::getLinkInfo($site_type_id, $siteinfo['id'], $siteinfo['site_name'], $siteinfo['node_id']);
         }
         if ($next_site) {
-            $partnersite[$next_site['url']] = $next_site['site_name'];
+            $partnersite[] = [
+                'href' => $next_site['url'],
+                'text' => $next_site['site_name']
+            ];
         }
         if ($main_site) {
-            $partnersite[$main_site['url']] = $main_site['site_name'];
+            $partnersite[] = [
+                'href' => $main_site['url'],
+                'text' => $main_site['site_name']
+            ];
         }
         return $partnersite;
     }
