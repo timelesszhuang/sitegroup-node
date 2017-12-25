@@ -1078,6 +1078,7 @@ CODE;
                 //获取首页面包屑
                 //Breadcrumb 面包屑
                 $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
+                $menu_name = '首页';
                 break;
             case 'menu':
                 //菜单 页面的TDK 分为两种 一种是已经存在的 另外一种为详情形式的列表 栏目的英文名
@@ -1114,8 +1115,6 @@ CODE;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
                 $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $menu_id);
-                //统计的菜单
-                $siblingmenu = self::getsiblingMenu($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
                 break;
             case 'activity':
                 //活动相关获取
@@ -1124,6 +1123,7 @@ CODE;
                 $description = $param3;
                 //面包屑是空的
                 $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
+                $menu_name = '活动创意';
                 break;
             case 'query':
                 //查询操作
@@ -1131,6 +1131,7 @@ CODE;
                 $keyword = $param2;
                 $description = $param3;
                 $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
+                $menu_name = '查询结果';
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
@@ -1167,7 +1168,7 @@ CODE;
         $getcontent = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'logo', 'contact_info', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact_info', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
