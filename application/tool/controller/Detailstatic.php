@@ -287,10 +287,6 @@ class Detailstatic extends Common
      */
     private function articlestatic($article_type_keyword, $step_limit)
     {
-        //判断模板是否存在
-        if (!$this->fileExists($this->articletemplatepath)) {
-            return;
-        }
         $type_name = "article";
         $where = [
             'type_name' => $type_name,
@@ -373,6 +369,10 @@ class Detailstatic extends Common
                 'next_page' => $next_article,
             ];
             $template = $this->getTemplate('detail', $menu_id, 'article');
+            //判断模板是否存在
+            if (!$this->fileExists($template)) {
+                continue;
+            }
             $content = Common::Debug((new View())->fetch($template,
                 $data
             ), $data);
@@ -596,10 +596,6 @@ class Detailstatic extends Common
      */
     private function questionstatic($question_type_keyword, $step_limit)
     {
-        //判断模板是否存在
-        if (!$this->fileExists($this->questiontemplatepath)) {
-            return;
-        }
         $siteinfo = Site::getSiteInfo();
         $type_name = "question";
         $where = [
@@ -663,6 +659,10 @@ class Detailstatic extends Common
             $menu_name = $question_type_keyword[$type_id]['menu_name'];
             $assign_data = $this->form_perquestion($item, $keyword_id, $menu_id, $menu_name);
             $template = $this->getTemplate('detail', $menu_id, 'question');
+            //判断模板是否存在
+            if (!$this->fileExists($template)) {
+                continue;
+            }
             $data = [
                 'd' => $assign_data,
                 'page' => $item,
@@ -710,10 +710,6 @@ class Detailstatic extends Common
      */
     private function productstatic($product_type_keyword)
     {
-        //判断模板是否存在
-        if (!$this->fileExists($this->producttemplatepath)) {
-            return;
-        }
         $siteinfo = Site::getSiteInfo();
         $type_name = "product";
         $where = [
@@ -816,6 +812,10 @@ class Detailstatic extends Common
         }
         //其他相关信息
         $template = $this->getTemplate('detail', $menu_id, 'product');
+        //判断模板是否存在
+        if (!$this->fileExists($this->producttemplatepath)) {
+            return;
+        }
         $data = [
             'd' => $assign_data,
             'page' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
