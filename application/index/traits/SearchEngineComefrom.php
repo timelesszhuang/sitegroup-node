@@ -119,8 +119,13 @@ trait SearchEngineComefrom
                 $access->save();
                 return;
             }
+            unset($data['referrer']);
+            unset($data['origin_web']);
+            unset($data['eqid']);
+            unset($data['engine']);
             $access_model = new AccessKeyword($data);
             $access_model->allowField(true)->save();
         }
+
     }
 }
