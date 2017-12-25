@@ -193,11 +193,11 @@ class Common extends Controller
      * 网站正在建设中
      * @access public
      */
-    public static function Debug($content, $d)
+    public static function Debug($content, $data)
     {
         $debug = Config::get('app_debug');
         if ($debug) {
-            $str = json_encode($d);
+            $str = json_encode($data);
             $script = "<script>console.log($str)</script>";
             $content .= $script;
         }

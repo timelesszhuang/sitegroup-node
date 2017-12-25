@@ -35,7 +35,7 @@ class Indexstatic extends Common
         ];
         $content = Common::Debug((new View())->fetch('template/index.html',
             $data
-        ));
+        ), $data);
         if (file_put_contents('index.html', $content) === 'false') {
             return false;
         }
