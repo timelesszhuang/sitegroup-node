@@ -31,30 +31,30 @@ class Detailmenupagestatic extends Common
             }
             $assign_data = Commontool::getEssentialElement('menu', $v['generate_name'], $v['name'], $v['id']);
             //获取该详情形式下级的菜单相关内容
-            $childmenu = \app\tool\model\Menu::Where('p_id', $menu_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+            $childmenu = \app\tool\model\Menu::Where('p_id', $menu_id)->Where('flag', '1')->Where('node_id', $this->node_id)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
             //同级的菜单列表
             $sibilingmenulist = [];
             $childmenulist = [];
-            foreach ($childmenu as $v) {
-                $childmenulist = [
-                    'text' => $v['name'],
-                    'href' => '/' . $v['generate_name'] . '.html',
+            foreach ($childmenu as $val) {
+                $childmenulist[] = [
+                    'text' => $val['name'],
+                    'href' => '/' . $val['generate_name'] . '.html',
                     //下级的没有当前选中
                     'current' => false,
-                    'content' => $v['content']
+                    'content' => $val['content']
                 ];
             }
             //有可能上级就是空的所以同级的只需要取出
-            $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+            $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
             //获取同级的菜单
-            foreach ($siblingmenu as $v) {
-                $current = $v['id'] == $menu_id ? true : false;
-                $sibilingmenulist = [
-                    'text' => $v['name'],
-                    'href' => '/' . $v['generate_name'] . '.html',
+            foreach ($siblingmenu as $val) {
+                $current = $val['id'] == $menu_id ? true : false;
+                $sibilingmenulist[] = [
+                    'text' => $val['name'],
+                    'href' => '/' . $val['generate_name'] . '.html',
                     //下级的没有当前选中
                     'current' => $current,
-                    'list' => $v['content']
+                    'content' => $val['content']
                 ];
             }
             //还需要获取下级栏目的相关信息

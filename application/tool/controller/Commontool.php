@@ -897,15 +897,16 @@ CODE;
             return $site_name;
         }
         $site_id = $site_info['id'];
-        $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($id) {
-            return Db::name('site_logo')->where('id', $id)->find();
+        return Cache::remember('sitelogoinfo', function () use ($id, $site_id, $site_name) {
+            $site_logoinfo = Db::name('site_logo')->where('id', $id)->find();
+            if ($site_logoinfo) {
+                $oss_file_path = $site_logoinfo['oss_logo_path'];
+                $ext = pathinfo(parse_url($oss_file_path)['path'])['extension'];
+                return "<img src='/images/logo{$site_id}.{$ext}' title='$site_name' alt='$site_name'>";
+            }
+            return $site_name;
         });
-        if ($site_logoinfo) {
-            $oss_file_path = $site_logoinfo['oss_logo_path'];
-            $ext = pathinfo(parse_url($oss_file_path)['path'])['extension'];
-            return "<img src='/images/logo{$site_id}.{$ext}' title='$site_name' alt='$site_name'>";
-        }
-        return $site_name;
+
     }
 
 
