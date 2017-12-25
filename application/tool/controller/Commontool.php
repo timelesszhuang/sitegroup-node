@@ -329,7 +329,7 @@ class Commontool extends Common
         //随机取值
         //测试
         if (!($max_id && $article_typearr)) {
-            return [[], $more];
+            return ['list' => [], 'more' => $more];
         }
         $articlelist = self::getTypesArticleList($max_id, $article_typearr, $limit);
         //随机取值来生成静态页
@@ -455,7 +455,7 @@ class Commontool extends Common
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         if (!($max_id && $product_typearr)) {
-            return [[], $more];
+            return ['list' => [], 'more' => $more];
         }
         $productlist = self::getTypesProductList($max_id, $product_typearr, $limit);
         //随机取值来生成静态页
