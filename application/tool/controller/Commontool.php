@@ -900,12 +900,19 @@ CODE;
         $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($id) {
             return Db::name('site_logo')->where('id', $id)->find();
         });
-        if ($site_logoinfo) {
-            $oss_file_path = $site_logoinfo['oss_logo_path'];
-            $ext = pathinfo(parse_url($oss_file_path)['path'])['extension'];
-            return "<img src='/images/logo{$site_id}.{$ext}' title='$site_name' alt='$site_name'>";
-        }
-        return $site_name;
+        return Cache::remember('sitelogo', function () use ($site_logoinfo, $site_id, $site_name) {
+            if ($site_logoinfo) {
+                $oss_file_path = $site_logoinfo['oss_logo_path'];
+                $pathinfo = pathinfo(parse_url($oss_file_path)['path']);
+                $ext = '';
+                if (array_key_exists('extension', $pathinfo)) {
+                    $ext = '.' . $pathinfo['extension'];
+                }
+                return "<img src='/images/logo{$site_id}{$ext}' title='$site_name' alt='$site_name'>";
+            }
+            return $site_name;
+        });
+
     }
 
 

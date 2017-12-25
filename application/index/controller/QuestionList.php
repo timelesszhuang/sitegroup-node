@@ -31,18 +31,16 @@ class QuestionList extends EntryCommon
         $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->questionlisttemplate;
-        $assign_data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
+        $data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateQuestionList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
+        $assign_data = $data['d'];
         $template = $this->getTemplate('list', $assign_data['menu_id'], 'product');
-        unset($assign_data['menu_id']);
+        unset($data['d']['menu_id']);
         //判断模板是否存在
         if (!$this->fileExists($template)) {
             return;
         }
-        $data = [
-            'd' => $assign_data
-        ];
         //页面中还需要填写隐藏的 表单 node_id site_id
         return Common::Debug((new View())->fetch($template,
             $data
@@ -138,12 +136,14 @@ class QuestionList extends EntryCommon
             }
         }
         //获取当前type_id的文章
-        $assign_data['childlist'] = $typelist;
-        $assign_data['siblingslist'] = $siblingstypelist;
-        $assign_data['list'] = $question;
-        $assign_data['currentlist'] = $currentquestion;
         $assign_data['menu_id'] = $menu_id;
-        return $assign_data;
+        return [
+            'd' => $assign_data,
+            'childlist' => $typelist,
+            'siblingslist' => $siblingstypelist,
+            'list' => $question,
+            'currentlist' => $currentquestion
+        ];
     }
 
 }

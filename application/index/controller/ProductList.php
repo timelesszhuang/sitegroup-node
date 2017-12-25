@@ -32,18 +32,16 @@ class ProductList extends EntryCommon
         $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->productlisttemplate;
-        $assign_data = Cache::remember("productlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
+        $data = Cache::remember("productlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateProductList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
+        $assign_data = $data['d'];
         $template = $this->getTemplate('list', $assign_data['menu_id'], 'product');
-        unset($assign_data['menu_id']);
+        unset($data['d']['menu_id']);
         //判断模板是否存在
         if (!$this->fileExists($template)) {
             return;
         }
-        $data = [
-            'd' => $assign_data
-        ];
         return Common::Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -138,14 +136,16 @@ class ProductList extends EntryCommon
                 ];
             }
         }
-        //子集 跟当前的 list
-        $assign_data['childlist'] = $typelist;
-        $assign_data['siblingslist'] = $siblingstypelist;
-        //同一级别的 list也需要调取出来
-        $assign_data['list'] = $productlist;
-        $assign_data['currentlist'] = $currentproductlist;
         $assign_data['menu_id'] = $menu_id;
-        return $assign_data;
+        return [
+            'd' => $assign_data,
+            'childlist' => $typelist,
+            'siblingslist' => $siblingstypelist,
+            //当前以及下级的所有list
+            'list' => $productlist,
+            //当前的list
+            'currentlist' => $currentproductlist
+        ];
     }
 
 }

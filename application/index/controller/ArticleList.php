@@ -32,17 +32,15 @@ class ArticleList extends EntryCommon
         $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->articletemplatepath;
-        $assign_data = Cache::remember("articlelist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
+        $data = Cache::remember("articlelist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateArticleList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
+        $assign_data = $data['d'];
         $template = $this->getTemplate('list', $assign_data['menu_id'], 'article');
-        unset($assign_data['menu_id']);
+        unset($data['d']['menu_id']);
         if (!$this->fileExists($template)) {
             return;
         }
-        $data = [
-            'd' => $assign_data
-        ];
         return Common::Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -139,15 +137,17 @@ class ArticleList extends EntryCommon
                 ];
             }
         }
-        //当前子集的分类
-        $assign_data['childlist'] = $typelist;
-        //还有同级的菜单
-        $assign_data['siblingslist'] = $siblingstypelist;
-        //子集的数据也需要展现出来
-        $assign_data['list'] = $article;
-        $assign_data['currentlist'] = $currentarticle;
         $assign_data['menu_id'] = $menu_id;
-        return $assign_data;
+        return [
+            'd' => $assign_data,
+            //当前子集的分类
+            'childlist' => $typelist,
+            //还有同级的菜单
+            'siblingslist' => $siblingstypelist,
+            //子集的数据也需要展现出来
+            'list'=>$article,
+            'currentlist'=>$currentarticle,
+        ];
     }
 
 }
