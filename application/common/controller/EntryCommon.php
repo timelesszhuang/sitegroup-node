@@ -12,6 +12,7 @@ use app\index\traits\Pv;
 use app\index\traits\SearchEngineComefrom;
 use app\index\traits\SpiderComefrom;
 use app\tool\controller\Site;
+use think\Config;
 
 class EntryCommon extends Common
 {

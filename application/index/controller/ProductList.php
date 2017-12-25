@@ -8,6 +8,7 @@
 
 namespace app\index\controller;
 
+use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\index\model\Menu;
 use app\index\model\Product;
@@ -40,11 +41,12 @@ class ProductList extends EntryCommon
         if (!$this->fileExists($template)) {
             return;
         }
-        return (new View())->fetch($template,
-            [
-                'd' => $assign_data
-            ]
-        );
+        $data = [
+            'd' => $assign_data
+        ];
+        return Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
     }
 
     /**
@@ -73,12 +75,35 @@ class ProductList extends EntryCommon
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
+        $typelist = [];
+        $siblingstypelist = [];
         $productlist = [];
+        $currentproductlist = [];
         if ($productmax_id) {
             //该栏目下的所有分类id 包含子menu的分类
             $typeidarr = Commontool::getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
             //取出当前栏目下级的文章分类 根据path 中的menu_id
-            $typelist = [];
+            $typeid_str = implode(',', $typeidarr);
+            if ($typeid_str) {
+                $wheretemplate = "id <={$productmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
+                //获取当前type_id的文章
+                $productlist = Product::order('id', "desc")->field(Commontool::$productListField)->where(sprintf($wheretemplate, $typeid_str))
+                    ->paginate($listsize, false, [
+                        'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
+                        'page' => $currentpage
+                    ]);
+                Commontool::formatProductList($productlist, $product_typearr);
+            }
+            //取出当前菜单的列表 不包含子菜单的
+            $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            if ($typeid_str) {
+                $currentproductlist = Product::order('id', "desc")->field(Commontool::$productListField)->where(sprintf($wheretemplate, $typeid_str))
+                    ->paginate($listsize, false, [
+                        'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
+                        'page' => $currentpage
+                    ]);
+                Commontool::formatProductList($currentproductlist, $product_typearr);
+            }
             //如果 type_id=0 表示去除该菜单下的全部
             //    type_id=* 表示只需要取出该type_id 下的值
             foreach ($typeidarr as $ptype_id) {
@@ -96,35 +121,29 @@ class ProductList extends EntryCommon
                     'list' => $list
                 ];
             }
-            $typeid_str = implode(',', $typeidarr);
-            $where = "id <={$productmax_id} and node_id={$siteinfo['node_id']} and type_id in ({$typeid_str})";
-            //获取当前type_id的文章
-            $productlist = Product::order('id', "desc")->field(Commontool::$productListField)->where($where)
-                ->paginate($listsize, false, [
-                    'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
-                    'page' => $currentpage
-                ]);
-            foreach ($productlist as $k => $v) {
-                $src = "/images/" . $v['image_name'];
-                $img = "<img src='{$src}' alt= '{$v['name']}'>";
-                //列出当前文章分类来
-                $type = [
-                    'name' => '',
-                    'href' => ''
-                ];
-                if (array_key_exists($v['type_id'], $product_typearr)) {
-                    $type = [
-                        'name' => $v['type_name'],
-                        'href' => $product_typearr[$v['type_id']]['href']
-                    ];
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id);
+            foreach ($sibilingtypeidarr as $ptype_id) {
+                $current = false;
+                if ($type_id == $ptype_id) {
+                    $current = true;
                 }
-                $v['href'] = sprintf(Commontool::$productPath, $v['id']);
-                $v['thumbnails'] = $img;
-                $v['type'] = $type;
+                $type_info = $product_typearr[$ptype_id];
+                $list = Commontool::getTypeProductList($ptype_id, $productmax_id, $product_typearr, 20);
+                $siblingstypelist[] = [
+                    'text' => $type_info['type_name'],
+                    'href' => $type_info['href'],
+                    //当前为true
+                    'current' => $current,
+                    'list' => $list
+                ];
             }
         }
-        $assign_data['type_list'] = $typelist;
+        //子集 跟当前的 list
+        $assign_data['childlist'] = $typelist;
+        $assign_data['siblingslist'] = $siblingstypelist;
+        //同一级别的 list也需要调取出来
         $assign_data['list'] = $productlist;
+        $assign_data['currentlist'] = $currentproductlist;
         $assign_data['menu_id'] = $menu_id;
         return $assign_data;
     }

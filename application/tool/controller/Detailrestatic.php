@@ -78,14 +78,15 @@ class Detailrestatic extends Common
         }
         $assign_data = (new Detailstatic())->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
-        $content = (new View())->fetch($template,
-            [
-                'd' => $assign_data,
-                'article' => $article,
-                'pre_page' => $pre_article,
-                'next_page' => $next_article,
-            ]
-        );
+        $data = [
+            'd' => $assign_data,
+            'page' => $article,
+            'pre_page' => $pre_article,
+            'next_page' => $next_article,
+        ];
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
         $article_path = sprintf($this->articlepath, $id);
         if (file_put_contents($article_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
             $this->urlsCache([$this->siteurl . '/' . $article_path]);
@@ -182,14 +183,15 @@ class Detailrestatic extends Common
         $question = Question::where($questionsql)->find()->toArray();
         $assign_data = (new Detailstatic())->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
-        $content = (new View())->fetch($template,
-            [
-                'd' => $assign_data,
-                'question' => $question,
-                'pre_page' => $pre_question,
-                'next_page' => $next_question,
-            ]
-        );
+        $data = [
+            'd' => $assign_data,
+            'page' => $question,
+            'pre_page' => $pre_question,
+            'next_page' => $next_question,
+        ];
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
         $questionpath = sprintf($this->questionpath, $id);
         if (file_put_contents($questionpath, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
             $this->urlsCache([$this->siteurl . '/' . $questionpath]);

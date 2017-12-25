@@ -14,6 +14,7 @@ use app\tool\traits\Osstrait;
 use app\tool\traits\Params;
 use app\tool\traits\Pingbaidu;
 use app\tool\traits\Template;
+use think\Config;
 use think\Controller;
 use think\Db;
 
@@ -185,6 +186,22 @@ class Common extends Controller
             }
         }
         return $tree;
+    }
+
+
+    /**
+     * 网站正在建设中
+     * @access public
+     */
+    public static function Debug($content, $d)
+    {
+        $debug = Config::get('app_debug');
+        if ($debug) {
+            $str = json_encode($d);
+            $script = "<script>console.log($str)</script>";
+            $content .= $script;
+        }
+        return $content;
     }
 
 

@@ -366,15 +366,16 @@ class Detailstatic extends Common
             $menu_name = $article_type_keyword[$type_id]['menu_name'];
             $assign_data = $this->form_perarticle_content($item, $keyword_id, $menu_id, $menu_name);
             //如果没有设置模板 则使用默认模板
+            $data = [
+                'd' => $assign_data,
+                'page' => $item,
+                'pre_page' => $pre_article,
+                'next_page' => $next_article,
+            ];
             $template = $this->getTemplate('detail', $menu_id, 'article');
-            $content = (new View())->fetch($template,
-                [
-                    'd' => $assign_data,
-                    'article' => $item,
-                    'pre_page' => $pre_article,
-                    'next_page' => $next_article,
-                ]
-            );
+            $content = Common::Debug((new View())->fetch($template,
+                $data
+            ), $data);
             $article_path = sprintf($this->articlepath, $item['id']);
             if (file_put_contents($article_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
                 //需要把 每一次的都修改下
@@ -548,14 +549,15 @@ class Detailstatic extends Common
                 $next_article = $next_article->toArray();
                 $next_article['href'] = "/news/news{$next_article['id']}.html";
             }
-            $content = (new View())->fetch('template/news.html',
-                [
-                    'd' => $assign_data,
-                    'scatteredarticle' => $temp_arr,
-                    'pre_page' => $pre_article,
-                    'next_page' => $next_article
-                ]
-            );
+            $data = [
+                'd' => $assign_data,
+                'page' => $temp_arr,
+                'pre_page' => $pre_article,
+                'next_page' => $next_article
+            ];
+            $content = Common::Debug((new View())->fetch('template/news.html',
+                $data
+            ), $data);
             $make_web = file_put_contents('news/news' . $item["id"] . '.html', chr(0xEF) . chr(0xBB) . chr(0xBF) . $content);
             //开始同步数据库
             if ($make_web) {
@@ -661,14 +663,15 @@ class Detailstatic extends Common
             $menu_name = $question_type_keyword[$type_id]['menu_name'];
             $assign_data = $this->form_perquestion($item, $keyword_id, $menu_id, $menu_name);
             $template = $this->getTemplate('detail', $menu_id, 'question');
-            $content = (new View())->fetch($template,
-                [
-                    'd' => $assign_data,
-                    'question' => $item,
-                    'pre_page' => $pre_question,
-                    'next_page' => $next_question,
-                ]
-            );
+            $data = [
+                'd' => $assign_data,
+                'page' => $item,
+                'pre_page' => $pre_question,
+                'next_page' => $next_question,
+            ];
+            $content = Common::Debug((new View())->fetch($template,
+                $data
+            ), $data);
             //开始同步数据库
             $question_path = sprintf($this->questionpath, $item['id']);
             if (file_put_contents($question_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
@@ -798,7 +801,6 @@ class Detailstatic extends Common
             $next_product = ['href' => sprintf($this->preproducpath, $next_product['id']), 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
             //"/product/product{$next_product['id']}.html"
         }
-
         if ($item['image_name']) {
             $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString);
         }
@@ -814,14 +816,15 @@ class Detailstatic extends Common
         }
         //其他相关信息
         $template = $this->getTemplate('detail', $menu_id, 'product');
-        $content = (new View())->fetch($template,
-            [
-                'd' => $assign_data,
-                'product' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
-                'pre_page' => $pre_product,
-                'next_page' => $next_product,
-            ]
-        );
+        $data = [
+            'd' => $assign_data,
+            'page' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
+            'pre_page' => $pre_product,
+            'next_page' => $next_product,
+        ];
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
         return $content;
     }
 

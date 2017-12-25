@@ -2,6 +2,7 @@
 
 namespace app\index\controller;
 
+use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\index\model\Menu;
 use app\index\model\Question;
@@ -39,12 +40,13 @@ class QuestionList extends EntryCommon
         if (!$this->fileExists($template)) {
             return;
         }
+        $data = [
+            'd' => $assign_data
+        ];
         //页面中还需要填写隐藏的 表单 node_id site_id
-        return (new View())->fetch($template,
-            [
-                'd' => $assign_data
-            ]
-        );
+        return Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
     }
 
     /**
@@ -74,13 +76,34 @@ class QuestionList extends EntryCommon
         $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $question = [];
+        $currentquestion = [];
+        $typelist = [];
+        $siblingstypelist = [];
         if ($questionmax_id) {
             //获取当前栏目下的二级栏目的typeid 列表
             $typeidarr = Commontool::getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
             //取出当前栏目下级的文章分类 根据path 中的menu_id
-            $typelist = [];
-            //如果 type_id=0 表示去除该菜单下的全部
-            //    type_id=* 表示只需要取出该type_id 下的值
+            $typeid_str = implode(',', $typeidarr);
+            if ($typeid_str) {
+                $wheretemplate = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
+                $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($wheretemplate, $typeid_str))
+                    ->paginate($listsize, false, [
+                        'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
+                        'page' => $currentpage
+                    ]);
+                Commontool::formatQuestionList($question, $question_typearr);
+            }
+            //取出当前菜单的列表 不包含子菜单的
+            $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            if ($typeid_str) {
+                $currentquestion = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($wheretemplate, $typeid_str))
+                    ->paginate($listsize, false, [
+                        'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
+                        'page' => $currentpage
+                    ]);
+                Commontool::formatQuestionList($currentquestion, $question_typearr);
+            }
+            //获取当前栏目的以及下级菜单的分类列表
             foreach ($typeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {
@@ -96,31 +119,29 @@ class QuestionList extends EntryCommon
                     'list' => $list
                 ];
             }
-            $typeid_str = implode(',', $typeidarr);
-            $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in ({$typeid_str})";
-            $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where($where)
-                ->paginate($listsize, false, [
-                    'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
-                    'page' => $currentpage
-                ]);
-            foreach ($question as $v) {
-                $type = [
-                    'name' => '',
-                    'href' => ''
-                ];
-                if (array_key_exists($v['type_id'], $question_typearr)) {
-                    $type = [
-                        'name' => $v['type_name'],
-                        'href' => $question_typearr[$v['type_id']]['href']
-                    ];
+            //获取当前菜单的同级别菜单下的type
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id);
+            foreach ($sibilingtypeidarr as $ptype_id) {
+                $current = false;
+                if ($type_id == $ptype_id) {
+                    $current = true;
                 }
-                $v['href'] = sprintf(Commontool::$questionPath, $v['id']);
-                $v['type'] = $type;
+                $type_info = $question_typearr[$ptype_id];
+                $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
+                $siblingstypelist[] = [
+                    'text' => $type_info['type_name'],
+                    'href' => $type_info['href'],
+                    //当前为true
+                    'current' => $current,
+                    'list' => $list
+                ];
             }
         }
         //获取当前type_id的文章
-        $assign_data['type_list'] = $typelist;
+        $assign_data['childlist'] = $typelist;
+        $assign_data['siblingslist'] = $siblingstypelist;
         $assign_data['list'] = $question;
+        $assign_data['currentlist'] = $currentquestion;
         $assign_data['menu_id'] = $menu_id;
         return $assign_data;
     }

@@ -119,7 +119,13 @@ class Activitystatic extends Common
         $ac_data['imglist'] = $local_img;
         //还需要 存储在数据库中 相关数据
         //页面中还需要填写隐藏的 表单 node_id site_id
-        $content = (new View())->fetch($this->activitytemplatepath, ['d' => $assign_data, 'activity' => $ac_data]);
+        $data = [
+            'd' => $assign_data,
+            'activity' => $ac_data
+        ];
+        $content = Common::Debug((new View())->fetch($this->activitytemplatepath,
+            $data
+        ), $data);
         //判断目录是否存在
         $ac_path = sprintf($this->activitypath, $id);
         if (file_put_contents($ac_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {

@@ -9,6 +9,7 @@
 namespace app\index\controller;
 
 
+use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\index\model\Product;
 use app\tool\controller\Detailstatic;
@@ -87,14 +88,15 @@ class Preview extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('该栏目设置的模板页不存在');
         }
-        $content = (new View())->fetch($template,
-            [
-                'd' => $assign_data,
-                'article' => $article,
-                'pre_page' => $pre_article,
-                'next_page' => $next_article,
-            ]
-        );
+        $data = [
+            'd' => $assign_data,
+            'page' => $article,
+            'pre_page' => $pre_article,
+            'next_page' => $next_article,
+        ];
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
         exit($content);
     }
 
@@ -134,8 +136,6 @@ class Preview extends EntryCommon
             "node_id" => $this->node_id,
             "type_id" => ['like', "%,$type_id,%"]
         ])->find();
-        print_r($menuInfo);
-        exit;
         // 获取pageInfo信息
         $sitePageInfo = SitePageinfo::where([
             "node_id" => $this->node_id,
@@ -205,14 +205,15 @@ class Preview extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('该栏目设置的模板页不存在');
         }
-        $content = (new View())->fetch($template,
-            [
-                'd' => $assign_data,
-                'question' => $question,
-                'pre_page' => $pre_question,
-                'next_page' => $next_question,
-            ]
-        );
+        $data = [
+            'd' => $assign_data,
+            'page' => $question,
+            'pre_page' => $pre_question,
+            'next_page' => $next_question,
+        ];
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
         exit($content);
     }
 

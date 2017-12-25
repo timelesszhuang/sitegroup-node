@@ -1093,7 +1093,7 @@ CODE;
                 list($title, $keyword, $description) = self::getMenuPageTDK($keyword_info, $page_id, $menu_name, $site_id, $site_name, $node_id, $menu_id, $menu_name);
                 //获取菜单的 面包屑 导航
                 //需要注意下 详情型的菜单 没有type
-                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $menu_id);
                 break;
             case 'detail':
                 //详情页面
@@ -1113,7 +1113,9 @@ CODE;
                 $type = $param7;
                 list($title, $keyword, $description) = self::getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
-                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu, $menu_id);
+                //统计的菜单
+                $siblingmenu = self::getsiblingMenu($tag, $url, $allmenu, $page_id, $menu_name, $menu_id, $type);
                 break;
             case 'activity':
                 //活动相关获取
@@ -1187,6 +1189,30 @@ CODE;
             $ptypeidarr = array_unique($ptypeidarr);
             return $ptypeidarr;
         });
+    }
+
+
+    /**
+     * 获取同一级别的菜单
+     * @access public
+     */
+    public static function getMenuSiblingMenuTypeid($menu_id)
+    {
+        //当前菜单的父亲菜单
+        $pidinfo = \app\tool\model\Menu::Where('id', $menu_id)->field('p_id')->find();
+        $pid = $pidinfo['p_id'];
+        if (!$pid) {
+            return [];
+        }
+        $menulist = \app\tool\model\Menu::Where('p_id', $pid)->select();
+        $typeidlist = [];
+        foreach ($menulist as $menu) {
+            //子孙栏目选择type_id
+            $ptype_idstr = $menu['type_id'];
+            $typeidarr = array_filter(explode(',', $ptype_idstr));
+            $typeidlist = array_merge($typeidlist, $typeidarr);
+        }
+        return $typeidlist;
     }
 
 
@@ -1455,7 +1481,7 @@ code;
      * 获取面包屑 相关信息
      * @access
      */
-    public static function getBreadCrumb($tag, $url, $allmenu, $page_id = '', $menu_name = '', $menu_id = 0, $type = '')
+    public static function getBreadCrumb($tag, $url, $allmenu, $menu_id = 0)
     {
         $breadcrumb = [
             ['text' => '首页', 'href' => $url, 'title' => '首页'],
@@ -1491,6 +1517,14 @@ code;
                 break;
         }
         return $breadcrumb;
+    }
+
+    /**
+     *
+     */
+    public static function getsiblingMenu($url, $allmenu, $menu_id = 0)
+    {
+
     }
 
 

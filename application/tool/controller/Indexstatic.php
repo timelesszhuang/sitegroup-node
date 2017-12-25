@@ -30,11 +30,12 @@ class Indexstatic extends Common
         //file_put_contents('log/index.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //还需要 存储在数据库中 相关数据
         //页面中还需要填写隐藏的 表单 node_id site_id
-        $content = (new View())->fetch('template/index.html',
-            [
-                'd' => $assign_data
-            ]
-        );
+        $data = [
+            'd' => $assign_data
+        ];
+        $content = Common::Debug((new View())->fetch('template/index.html',
+            $data
+        ));
         if (file_put_contents('index.html', $content) === 'false') {
             return false;
         }
