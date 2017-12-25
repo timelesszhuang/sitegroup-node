@@ -572,7 +572,7 @@ class Commontool extends Common
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         if (!($max_id && $question_typearr)) {
-            return [[], $more];
+            return ['list' => '', 'more' => $more];
         }
         $questionlist = self::getTypesQuestionList($max_id, $question_typearr, $limit);
         $rand_key = array_rand($question_typearr);
