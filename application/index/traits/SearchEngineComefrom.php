@@ -126,6 +126,5 @@ trait SearchEngineComefrom
             $access_model = new AccessKeyword($data);
             $access_model->allowField(true)->save();
         }
-
     }
 }

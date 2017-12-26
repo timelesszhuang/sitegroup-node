@@ -917,23 +917,33 @@ CODE;
 
 
     /**
-     * 获取联系人信息
+     * 获取联系方式等相关数据
      * @access public
      */
     public static function getContactInfo($siteinfo)
     {
-        if (!empty($siteinfo["site_contact"])) {
-            return $siteinfo["site_contact"];
-        }
-        $contact_way_id = $siteinfo['support_hotline'];
-        $contact_info = [];
-        if ($contact_way_id) {
-            //缓存中有 则用缓存中的
-            $contact_info = Cache::remember('contactway', function () use ($contact_way_id) {
-                return Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
-            });
-        }
-        return $contact_info;
+        return Cache::remember('contactway', function () use ($siteinfo) {
+            //支持的字段
+            $contact_field = [
+                'address', 'telephone', 'mobile', 'email', 'zipcode', 'four00', 'qq', 'weixin', 'fax'
+            ];
+            $contact_way_id = $siteinfo['support_hotline'];
+            $contact_info = [];
+            if ($contact_way_id) {
+                //缓存中有 则用缓存中的
+                $contact_info = Db::name('contactway')->where('id', $contact_way_id)->field('html as contact,detail as title')->find();
+            }
+            $commoncontact = [];
+            if ($contact_info) {
+                $commoncontact = unserialize($contact_info['contact']);
+            }
+            $contact = [];
+            foreach ($contact_field as $field) {
+                //以站点中设置为主
+                $contact[$field] = $siteinfo[$field] ?: $commoncontact[$field];
+            }
+            return $contact;
+        });
     }
 
 
@@ -1169,7 +1179,7 @@ CODE;
         //获取公共代码
         list($pre_head_js, $after_head_js) = self::getSiteJsCode($siteinfo);
         //获取公司联系方式等 会在右上角或者其他位置添加  这个应该支持小后台能自己修改才对
-        $contact_info = self::getContactInfo($siteinfo);
+        $contact = self::getContactInfo($siteinfo);
         //获取备案信息
         $beian = self::getBeianInfo($siteinfo);
         $tdk = self::form_tdk_html($title, $keyword, $description);
@@ -1184,7 +1194,7 @@ CODE;
         $getcontent = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact_info', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
