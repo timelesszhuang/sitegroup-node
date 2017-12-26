@@ -935,7 +935,10 @@ CODE;
             }
             $commoncontact = [];
             if ($contact_info) {
-                $commoncontact = unserialize($contact_info['contact']);
+                $commoncontact = @unserialize($contact_info['contact']);
+                if ($contact_info === false) {
+                    $contact_info = [];
+                }
             }
             $contact = [];
             foreach ($contact_field as $field) {
