@@ -937,7 +937,7 @@ CODE;
             if ($contact_info) {
                 $commoncontact = @unserialize($contact_info['contact']);
                 if ($contact_info === false) {
-                    $contact_info = [];
+                    $commoncontact = [];
                 }
             }
             $contact = [];
