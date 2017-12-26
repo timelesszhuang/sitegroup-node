@@ -25,6 +25,7 @@ class Preview extends EntryCommon
      * 文章静态化
      * @access private
      * @param $id  article的id
+     * @return bool|void
      */
     private function articlepreview($id)
     {
@@ -37,11 +38,6 @@ class Preview extends EntryCommon
         if ($this->checkhtmlexists($file_name)) {
             //文件存在直接展现出来不需要重新请求生成
             return;
-        }
-        //判断模板是否存在
-        if (!$this->fileExists($this->articletemplatepath)) {
-            $this->make_error($this->articletemplatepath);
-            return false;
         }
         // 取出指定id的文章
         $articlesql = "id = $id and node_id=$this->node_id";
@@ -114,11 +110,6 @@ class Preview extends EntryCommon
             $this->make_error("product");
             return false;
         }
-        //判断模板是否存在
-        if (!$this->fileExists($this->producttemplatepath)) {
-            $this->make_error($this->producttemplatepath);
-            return false;
-        }
         $file_name = sprintf($this->productpath, $id);
         if ($this->checkhtmlexists($file_name)) {
             //文件存在直接展现出来不需要重新请求生成
@@ -156,11 +147,6 @@ class Preview extends EntryCommon
     {
         if (!file_exists('question')) {
             $this->make_error("question");
-            return false;
-        }
-        //判断模板是否存在
-        if (!$this->fileExists($this->questiontemplatepath)) {
-            $this->make_error($this->questiontemplatepath);
             return false;
         }
         $file_name = sprintf($this->questionpath, $id);
