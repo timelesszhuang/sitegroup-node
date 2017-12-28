@@ -137,9 +137,16 @@ class ProductList extends EntryCommon
             }
         }
         $assign_data['menu_id'] = $menu_id;
+        //说明每个列表作用
+        $productlist['detail'] = '当前以及子菜单的所有产品列表，包含分页。';
+        $typelist['detail'] = '当前菜单以及子菜单的所有产品列表。';
+        $siblingstypelist['detail'] = '同级别菜单的所有产品列表。';
+        $currentproductlist['detail'] = '当前菜单的产品列表，包含分页';
         return [
             'd' => $assign_data,
+            //
             'childlist' => $typelist,
+            //
             'siblingslist' => $siblingstypelist,
             //当前以及下级的所有list
             'list' => $productlist,
