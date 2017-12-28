@@ -1259,7 +1259,12 @@ CODE;
             //站点所选择的菜单
             $menu_idarr = array_filter(explode(',', $menu_idstr));
             //获取每个菜单下的type_id
-            $menulist = \app\tool\model\Menu::Where('id', 'in', $menu_idarr)->field('id,generate_name,name,flag,type_id')->select();
+            $field = 'id,generate_name,name,flag,type_id';
+            $menulist = Db::name('menu')->Where('id', 'in', $menu_idarr)->field($field)->select();
+            foreach ($menu_idarr as $v) {
+                $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->order("sort", "desc")->field($field)->select();
+                $menulist = array_merge($menulist, $pmenulist);
+            }
             //组织两套数据 菜单对应的id 数据
             $type_aliasarr = [];
             $typeid_arr = [];
