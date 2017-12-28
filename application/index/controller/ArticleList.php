@@ -139,10 +139,10 @@ class ArticleList extends EntryCommon
         }
         $assign_data['menu_id'] = $menu_id;
         //说明每个列表作用
-        $article['detail'] = '当前以及子菜单的所有文章列表，包含分页。';
-        $typelist['detail'] = '当前菜单以及子菜单的所有文章列表。';
-        $siblingstypelist['detail'] = '同级别菜单的所有文章列表。';
-        $currentarticle['detail'] = '当前菜单的文章列表，包含分页';
+//        $article['detail'] = '当前以及子菜单的所有文章列表，包含分页。';
+//        $typelist['detail'] = '当前菜单以及子菜单的所有文章列表。';
+//        $siblingstypelist['detail'] = '同级别菜单的所有文章列表。';
+//        $currentarticle['detail'] = '当前菜单的文章列表，包含分页';
         return [
             'd' => $assign_data,
             //当前子集的分类

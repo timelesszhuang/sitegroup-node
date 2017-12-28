@@ -137,10 +137,10 @@ class QuestionList extends EntryCommon
         }
         //获取当前type_id的文章
         $assign_data['menu_id'] = $menu_id;
-        $question['detail'] = '当前以及子菜单的所有问答列表，包含分页。';
-        $typelist['detail'] = '当前菜单以及子菜单的所有问答列表。';
-        $siblingstypelist['detail'] = '同级别菜单的所有问答列表。';
-        $currentquestion['detail'] = '当前菜单的问答列表，包含分页';
+//        $question['detail'] = '当前以及子菜单的所有问答列表，包含分页。';
+//        $typelist['detail'] = '当前菜单以及子菜单的所有问答列表。';
+//        $siblingstypelist['detail'] = '同级别菜单的所有问答列表。';
+//        $currentquestion['detail'] = '当前菜单的问答列表，包含分页';
         return [
             'd' => $assign_data,
             'childlist' => $typelist,
