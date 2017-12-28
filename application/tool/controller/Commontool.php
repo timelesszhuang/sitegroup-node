@@ -1226,15 +1226,18 @@ CODE;
      * 获取同一级别的菜单
      * @access public
      */
-    public static function getMenuSiblingMenuTypeid($menu_id)
+    public static function getMenuSiblingMenuTypeid($menu_id, $flag)
     {
         //当前菜单的父亲菜单
         $pidinfo = \app\tool\model\Menu::Where('id', $menu_id)->field('p_id')->find();
         $pid = $pidinfo['p_id'];
+        $menulist = [];
         if (!$pid) {
-            return [];
+            //表示一级菜单 取出当前flag 一致的 一级menu
+            $menulist = \app\tool\model\Menu::Where('p_id', 0)->where('flag', $flag)->select();
+        } else {
+            $menulist = \app\tool\model\Menu::Where('p_id', $pid)->select();
         }
-        $menulist = \app\tool\model\Menu::Where('p_id', $pid)->select();
         $typeidlist = [];
         foreach ($menulist as $menu) {
             //子孙栏目选择type_id

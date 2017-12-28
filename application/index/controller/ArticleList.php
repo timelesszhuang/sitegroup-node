@@ -120,7 +120,8 @@ class ArticleList extends EntryCommon
                 ];
             }
             //获取当前菜单的同级别菜单
-            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id);
+            $flag = 3;
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $flag);
             foreach ($sibilingtypeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {
@@ -150,8 +151,8 @@ class ArticleList extends EntryCommon
             //还有同级的菜单
             'siblingslist' => $siblingstypelist,
             //子集的数据也需要展现出来
-            'list'=>$article,
-            'currentlist'=>$currentarticle,
+            'list' => $article,
+            'currentlist' => $currentarticle,
         ];
     }
 

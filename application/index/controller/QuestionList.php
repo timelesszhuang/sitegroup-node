@@ -118,7 +118,8 @@ class QuestionList extends EntryCommon
                 ];
             }
             //获取当前菜单的同级别菜单下的type
-            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id);
+            $flag = 2;
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $flag);
             foreach ($sibilingtypeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {
