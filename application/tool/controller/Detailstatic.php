@@ -751,6 +751,9 @@ class Detailstatic extends Common
             $menu_id = $product_type_keyword[$type_id]['menu_id'];
             $menu_name = $product_type_keyword[$type_id]['menu_name'];
             $content = $this->form_perproduct($item, $type_id, $keyword_id, $menu_id, $menu_name);
+            if (!$content) {
+                continue;
+            }
             //判断目录是否存在
             //开始同步数据库
             $productpath = sprintf($this->productpath, $item['id']);
@@ -813,12 +816,12 @@ class Detailstatic extends Common
         //其他相关信息
         $template = $this->getTemplate('detail', $menu_id, 'product');
         //判断模板是否存在
-        if (!$this->fileExists($this->producttemplatepath)) {
-            return;
+        if (!$this->fileExists($template)) {
+            return false;
         }
         $data = [
             'd' => $assign_data,
-            'page' => ["name" => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
+            'page' => ["name" => $item['name'], 'title' => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
             'pre_page' => $pre_product,
             'next_page' => $next_product,
         ];
