@@ -50,6 +50,7 @@ class Detailstatic extends Common
         }
         if ($requesttype == 'allsitestatic') {
             //如果全站重新生成的话
+
         }
         //这种情况是 crontab配置的 定时请求
         $config_sync_info = self::get_staticconfig_info($site_id);

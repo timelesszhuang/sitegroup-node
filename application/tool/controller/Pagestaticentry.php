@@ -125,12 +125,12 @@ class Pagestaticentry extends Common
         (new Detailstatic())->index('crontab');
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
+        Cache::clear();
         (new Indexstatic())->index();
         (new SiteMap)->index();
         //需要执行下ping百度的操作
         //ping 搜索引擎
         $this->pingEngine();
-        Cache::clear();
         exit(['status' => 'success', 'msg' => '静态化生成完成。']);
     }
 
@@ -147,10 +147,10 @@ class Pagestaticentry extends Common
         (new Detailstatic())->index();
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
+        Cache::clear();
         (new Indexstatic())->index();
         (new SiteMap)->index();
         $this->pingEngine();
-        Cache::clear();
         exit(['status' => 'success', 'msg' => '静态化生成完成。']);
     }
 
@@ -168,10 +168,9 @@ class Pagestaticentry extends Common
         (new Detailstatic())->index();
         // 详情类性的页面的静态化
         (new Detailmenupagestatic())->index();
+        Cache::clear();
         (new Indexstatic())->index();
         (new SiteMap)->index();
-        $this->pingEngine();
-        Cache::clear();
         exit(['status' => 'success', 'msg' => '静态化生成完成。']);
     }
 

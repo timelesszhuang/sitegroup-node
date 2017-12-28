@@ -29,7 +29,7 @@ class Commontool extends Common
 
     public static $articleListField = 'id,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,create_time';
     public static $questionListField = 'id,question,type_id,type_name,create_time';
-    public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,create_time';
+    public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,field1,field2,field3,field4,create_time';
 
     /**
      * 清除缓存 信息
