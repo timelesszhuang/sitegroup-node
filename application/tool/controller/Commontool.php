@@ -764,9 +764,10 @@ class Commontool extends Common
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
-        $activity = Activity::where($where)->field('id,title,img_name,small_img_name,url,summary')->select();
+        $activity = Activity::where($where)->field('id,en_name,title,img_name,small_img_name,url,summary')->select();
         $activity_list = [];
         $activity_small_list = [];
+        $activity_en_list = [];
         foreach ($activity as $k => $v) {
             $has_small = false;
             $activity = [];
@@ -784,8 +785,9 @@ class Commontool extends Common
             if ($has_small) {
                 $activity_small_list[] = $activity;
             }
+            $activity_en_list[$v['en_name']] = $activity;
         }
-        return [$activity_list, $activity_small_list];
+        return [$activity_list, $activity_small_list, $activity_en_list];
     }
 
     /**
@@ -1100,7 +1102,7 @@ CODE;
         */
         list($type_aliasarr, $typeid_arr) = self::getTypeIdInfo($siteinfo['menu']);
         //活动创意相关操作
-        list($activity, $activity_small) = self::getActivity($siteinfo['sync_id']);
+        list($activity, $activity_small,$activity_en) = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
         //这个不需要存到缓存中
@@ -1205,7 +1207,7 @@ CODE;
         $getcontent = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small','activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
