@@ -49,7 +49,7 @@ class Commontool extends Common
      */
     public static function getMobileSiteInfo()
     {
-        $mobileinfo = Cache::remember('mobileinfo', function () {
+        return Cache::remember('mobileinfo', function () {
             //获取手机相关信息
             $siteinfo = Site::getSiteInfo();
             $m_site_url = '';
@@ -65,10 +65,8 @@ class Commontool extends Common
                     $m_redirect_code = self::getRedirectCode($m_site_url);
                 }
             }
-            $mobileinfo = [$m_site_url, $m_redirect_code];
-            return $mobileinfo;
+            return [$m_site_url, $m_redirect_code];
         });
-        return $mobileinfo;
     }
 
 
@@ -1275,6 +1273,8 @@ CODE;
                 $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->order("sort", "desc")->field($field)->select();
                 $menulist = array_merge($menulist, $pmenulist);
             }
+            print_r($menulist);
+            exit;
             //组织两套数据 菜单对应的id 数据
             $type_aliasarr = [];
             $typeid_arr = [];
@@ -1392,6 +1392,7 @@ code;
         $title_template = "<title>%s</title>";
         $keywords_template = "<meta name='keywords' content='%s'>";
         $description_template = "<meta name='description' content='%s'>";
+        $author = '';
         return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
     }
 
