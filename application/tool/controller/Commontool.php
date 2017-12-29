@@ -1273,8 +1273,6 @@ CODE;
                 $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->order("sort", "desc")->field($field)->select();
                 $menulist = array_merge($menulist, $pmenulist);
             }
-            print_r($menulist);
-            exit;
             //组织两套数据 菜单对应的id 数据
             $type_aliasarr = [];
             $typeid_arr = [];
