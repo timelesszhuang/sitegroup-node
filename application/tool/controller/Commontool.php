@@ -764,7 +764,7 @@ class Commontool extends Common
     {
         $where["id"] = ['in', explode(',', $sync_id)];
         $where["status"] = 10;
-        $activity = Activity::where($where)->field('id,title,img_name,url,summary')->select();
+        $activity = Activity::where($where)->field('id,title,img_name,small_img_name,url,summary')->select();
         $activity_list = [];
         $activity_small_list = [];
         foreach ($activity as $k => $v) {
@@ -1273,6 +1273,9 @@ CODE;
                 $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->order("sort", "desc")->field($field)->select();
                 $menulist = array_merge($menulist, $pmenulist);
             }
+//            echo '<pre>';
+//            print_r($menulist);
+//            exit;
             //组织两套数据 菜单对应的id 数据
             $type_aliasarr = [];
             $typeid_arr = [];
