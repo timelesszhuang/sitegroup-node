@@ -70,7 +70,8 @@ class Activitystatic extends Common
      */
     public function staticImg($id)
     {
-        $data = Activity::Where('id', '=', $id)->field('oss_img_src,img_name')->find();
+        //取出启用的活动
+        $data = Activity::Where('id', '=', $id)->where('status', '10')->field('oss_img_src,img_name')->find();
         if ($data) {
             $data = $data->toArray();
             $img_name = $data['img_name'];
