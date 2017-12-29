@@ -100,17 +100,18 @@ demo;
         //获取查询页面必须的元素
         $assign_data = Commontool::getEssentialElement('query', $keyword . '查询', $keyword . '查询', $keyword . '查询');
         Commontool::formatArticleList($article, $article_typearr);
-        $assign_data['list'] = $article;
         $template = $this->articlesearchlist;
         //判断模板是否存在
         if (!$this->fileExists($template, '查询模板页不存在')) {
             exit('查询模板页不存在' . $this->goback);
         }
-        exit((new View())->fetch($template,
-            [
-                'd' => $assign_data
-            ]
-        ));
+        $data = [
+            'd' => $assign_data,
+            'list' => $article
+        ];
+        exit(Common::Debug((new View())->fetch($template,
+            $data
+        ), $data));
     }
 
     /**
@@ -155,11 +156,13 @@ demo;
         if (!$this->fileExists($template, '查询模板页不存在')) {
             exit('查询模板页不存在 ' . $this->goback);
         }
-        exit((new View())->fetch($template,
-            [
-                'd' => $assign_data
-            ]
-        ));
+        $data = [
+            'd' => $assign_data,
+            'list' => $product
+        ];
+        exit(Common::Debug((new View())->fetch($template,
+            $data
+        ), $data));
     }
 
     /**
@@ -203,11 +206,13 @@ demo;
         if (!$this->fileExists($template, '查询模板页不存在')) {
             exit('查询模板页不存在' . $this->goback);
         }
-        exit((new View())->fetch($template,
-            [
-                'd' => $assign_data
-            ]
-        ));
+        $data = [
+            'd' => $assign_data,
+            'list' => $question
+        ];
+        exit(Common::Debug((new View())->fetch($template,
+            $data
+        ), $data));
     }
 
     /**
