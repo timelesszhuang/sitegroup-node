@@ -315,10 +315,11 @@ class Detailstatic extends Common
 
         // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
         $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
-
         //获取本次最大的id，用于比对是不是有下一页
-        $max_index = max(array_flip(array_keys($article_data)));
-        $max_id = $article_data[$max_index]['id'];
+        if ($article_data) {
+            $max_index = max(array_flip(array_keys($article_data)));
+            $max_id = $article_data[$max_index]['id'];
+        }
         // 生成页面之后需要把链接存储下 生成最后执行ping百度的操作
         $pingurls = [];
         foreach ($article_data as $key => $item) {
