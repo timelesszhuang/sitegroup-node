@@ -1234,7 +1234,7 @@ CODE;
      * 获取同一级别的菜单
      * @access public
      */
-    public static function getMenuSiblingMenuTypeid($menu_id, $node_id, $flag)
+    public static function getMenuSiblingMenuTypeid($menu_id, $node_id, $sitemenuinfo, $flag)
     {
         //当前菜单的父亲菜单
         $pidinfo = Db::name('menu')->where('id', $menu_id)->where('node_id', $node_id)->field('p_id')->find();
@@ -1242,8 +1242,7 @@ CODE;
         $menulist = [];
         if (!$pid) {
             //表示一级菜单 取出当前flag 一致的 一级menu
-            $menulist = Db::name('menu')->where('p_id', 0)->where('node_id', $node_id)->where('flag', $flag)->select();
-
+            $menulist = Db::name('menu')->where('p_id', 0)->where('node_id', $node_id)->where('id', 'in', array_filter(explode(',', $sitemenuinfo)))->where('flag', $flag)->select();
         } else {
             $menulist = Db::name('menu')->where('p_id', $pid)->where('node_id', $node_id)->select();
         }

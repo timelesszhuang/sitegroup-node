@@ -120,7 +120,7 @@ class ProductList extends EntryCommon
                 ];
             }
             $flag = 5;
-            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id, $flag);
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id,$siteinfo['menu'] ,$flag);
             foreach ($sibilingtypeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {
