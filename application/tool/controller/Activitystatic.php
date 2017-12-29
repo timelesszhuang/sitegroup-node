@@ -80,7 +80,7 @@ class Activitystatic extends Common
             $smallimg_name = $data['small_img_name'];
             $smalloss_img_src = $data['smalloss_img_src'];
             if ($smallimg_name) {
-                $this->get_osswater_img($smalloss_img_src, $smalloss_img_src, $this->waterString);
+                $this->get_osswater_img($smalloss_img_src, $smallimg_name, $this->waterString);
             }
         }
     }
