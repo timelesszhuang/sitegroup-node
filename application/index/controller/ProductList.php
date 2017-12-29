@@ -70,8 +70,6 @@ class ProductList extends EntryCommon
         $listsize = $menu_info->listsize ?: 10;
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'productlist');
         list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
-        echo '<pre>';
-        print_r($typeid_arr);
         $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
         $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
