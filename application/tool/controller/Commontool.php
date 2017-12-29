@@ -1239,13 +1239,17 @@ CODE;
         //当前菜单的父亲菜单
         $pidinfo = \app\tool\model\Menu::Where('id', $menu_id)->field('p_id')->find();
         $pid = $pidinfo['p_id'];
-        $menulist = [];
         if (!$pid) {
-            //表示一级菜单 取出当前flag 一致的 一级menu
-            $menulist = \app\tool\model\Menu::Where('p_id', 0)->where('flag', $flag)->select();
-        } else {
-            $menulist = \app\tool\model\Menu::Where('p_id', $pid)->select();
+            return [];
         }
+        $menulist = \app\tool\model\Menu::Where('p_id', $pid)->select();
+//        $menulist = [];
+//        if (!$pid) {
+//            //表示一级菜单 取出当前flag 一致的 一级menu
+//            $menulist = \app\tool\model\Menu::Where('p_id', 0)->where('flag', $flag)->select();
+//        } else {
+//            $menulist = \app\tool\model\Menu::Where('p_id', $pid)->select();
+//        }
         $typeidlist = [];
         foreach ($menulist as $menu) {
             //子孙栏目选择type_id
@@ -1273,9 +1277,6 @@ CODE;
                 $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->order("sort", "desc")->field($field)->select();
                 $menulist = array_merge($menulist, $pmenulist);
             }
-//            echo '<pre>';
-//            print_r($menulist);
-//            exit;
             //组织两套数据 菜单对应的id 数据
             $type_aliasarr = [];
             $typeid_arr = [];
@@ -1342,7 +1343,6 @@ CODE;
                     'type_name' => $val['name'],
                     'href' => sprintf($listpath, "{$menu_enname}_t{$val['id']}")
                 ];
-
                 if (!array_key_exists($type, $type_aliasarr)) {
                     $type_aliasarr[$type] = [];
                 }
