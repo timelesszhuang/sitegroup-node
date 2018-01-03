@@ -143,13 +143,18 @@ trait Osstrait
                 return true;
             }
             if ($water) {
+                //有水印的情况
                 $code = $this->urlsafe_b64encode($water);
                 $options = array(
                     OssClient::OSS_FILE_DOWNLOAD => $localfilename,
                     OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
                 $ossClient->getObject($bucket, $object, $options);
             } else {
-                $ossClient->getObject($bucket, $object);
+                //没有水印的情况
+                $options = array(
+                    OssClient::OSS_FILE_DOWNLOAD => $localfilename,
+                );
+                $ossClient->getObject($bucket, $object, $options);
             }
         } catch (Exception $ex) {
             $status = false;
