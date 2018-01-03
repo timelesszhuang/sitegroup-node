@@ -142,11 +142,15 @@ trait Osstrait
                 //表示水印图片不存在的情况
                 return true;
             }
-            $code = $this->urlsafe_b64encode($water);
-            $options = array(
-                OssClient::OSS_FILE_DOWNLOAD => $localfilename,
-                OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
-            $ossClient->getObject($bucket, $object, $options);
+            if ($water) {
+                $code = $this->urlsafe_b64encode($water);
+                $options = array(
+                    OssClient::OSS_FILE_DOWNLOAD => $localfilename,
+                    OssClient::OSS_PROCESS => "image/watermark,text_{$code},color_FFFFFF");
+                $ossClient->getObject($bucket, $object, $options);
+            } else {
+                $ossClient->getObject($bucket, $object);
+            }
         } catch (Exception $ex) {
             $status = false;
         }
