@@ -26,6 +26,7 @@ use think\Validate;
  */
 class Site extends Common
 {
+    use \app\index\traits\Pv;
     /**
      * 获取链轮的相关信息
      *  两种链轮类型  1 循环链轮  需要返回  next_site 也就是本网站需要链接到的网站  main_site  表示主节点 从id 小的 链接到比较大的  最大的id 链接到最小的id 上
