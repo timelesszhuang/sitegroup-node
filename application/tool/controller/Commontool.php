@@ -26,10 +26,12 @@ class Commontool extends Common
     public static $productPath = '/product/product%s.html';
     private static $questionListPath = '/questionlist/%s.html';
     public static $questionPath = '/question/question%s.html';
+    //文章问答产品的tag 列表样式 需要有分页
+    public static $taglist = '/tag/%s.html';
 
-    public static $articleListField = 'id,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,create_time';
-    public static $questionListField = 'id,question,type_id,type_name,create_time';
-    public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,field1,field2,field3,field4,create_time';
+    public static $articleListField = 'id,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,tags,create_time';
+    public static $questionListField = 'id,question,type_id,type_name,tags,create_time';
+    public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
 
     /**
      * 清除缓存 信息
@@ -67,6 +69,39 @@ class Commontool extends Common
             }
             return [$m_site_url, $m_redirect_code];
         });
+    }
+
+    /**
+     * 获取网站内容相关tag列表
+     * @access public
+     */
+    public static function getTags($type = '')
+    {
+        $node_id = Site::getSiteInfo()['node_id'];
+        $tags = Cache::remember('tags', function () use ($node_id) {
+            return Db::name('tags')->where('node_id', $node_id)->field('id,name,type')->select();
+        });
+        $type_tags = [];
+        $none_type_tags = [];
+        foreach ($tags as $k => $v) {
+            //需要格式化下tag的相关信息
+            $ptype = $v['type'];
+            $pertag = [
+                'name' => $v['name'],
+                'href' => sprintf(self::$taglist, $v['id']),
+                'type' => $ptype
+            ];
+            $type_tags[$ptype][$v['id']] = $pertag;
+            $none_type_tags[$v['id']] = $pertag;
+        }
+        if (!$type) {
+            //不区分分类的 tags
+            return $none_type_tags;
+        }
+        if (array_key_exists($type, $type_tags)) {
+            return $type_tags[$type];
+        }
+        return [];
     }
 
 
@@ -169,9 +204,9 @@ class Commontool extends Common
             }
             $b_keyword_info = $a_child_info['children'];
             $b_keywordname_arr = array_column($b_keyword_info, 'name');
-            $title = implode('_', $b_keywordname_arr) . '_' . $a_name . '-' . $menu_name;
-            $keyword = implode(',', $b_keywordname_arr) . ',' . $a_name;
-            $description = implode('，', $b_keywordname_arr) . '，' . $a_name . '，' . $menu_name;
+            $title = $menu_name . '-' . implode('_', $b_keywordname_arr) . '_' . $a_name;
+            $keyword = $menu_name . ',' . implode(',', $b_keywordname_arr) . ',' . $a_name;
+            $description = $menu_name . '，' . implode('，', $b_keywordname_arr) . '，' . $a_name;
             //选择好了 之后需要添加到数据库中 一定是新增
             Db::name('SitePageinfo')->insert([
                 'menu_id' => $menu_id,
@@ -292,6 +327,21 @@ class Commontool extends Common
         return [$title, $keyword, $description];
     }
 
+    /**
+     * 获取tag 相关信息
+     * @access public
+     */
+    public static function getTaglistPageTDK($keyword_info, $tag_name)
+    {
+        $a_keywordname_arr = array_column($keyword_info, 'name');
+        //根据站点的关键词来
+        $title = $tag_name . '-' . implode('_', $a_keywordname_arr);
+        $keyword = $tag_name . ',' . implode(',', $a_keywordname_arr);
+        $description = $tag_name . '，' . implode('，', $a_keywordname_arr);
+        //这个需要定死
+        return [$title, $keyword, $description];
+    }
+
 
     /**
      * 从数据库中获取页面的相关信息
@@ -403,6 +453,7 @@ class Commontool extends Common
      */
     public static function formatArticleList(&$article, $article_typearr)
     {
+        $type_tags = self::getTags('article');
         foreach ($article as $k => $v) {
             //防止标题中带着% 好的引起程序问题
             $v['title'] = str_replace('%', '', $v['title']);
@@ -419,6 +470,7 @@ class Commontool extends Common
             } else if (!empty($v["thumbnails"])) {
                 $img = sprintf($img_template, $v['thumbnails']);
             }
+            $type = [];
             //列出当前文章分类来
             if (array_key_exists($v['articletype_id'], $article_typearr)) {
                 $type = [
@@ -434,6 +486,16 @@ class Commontool extends Common
             }
             $v['thumbnails'] = $img;
             $v['type'] = $type;
+            $tags = [];
+            if ($v['tags']) {
+                $tag_arr = explode(',', $v['tags']);
+                foreach ($tag_arr as $val) {
+                    if (array_key_exists($val, $type_tags)) {
+                        $tags[] = $type_tags[$val];
+                    }
+                }
+            }
+            $v['tags'] = $tags;
             $article[$k] = $v;
         }
     }
@@ -839,6 +901,32 @@ CODE;
         return ['text' => '技术支持：北京易至信科技有限公司', 'href' => 'http://www.salesman.cc'];
     }
 
+
+    /**
+     * 执行ping百度操作
+     * @param $siteinfo
+     * @return array
+     */
+    public static function getJsPingBaidu()
+    {
+        return <<<code
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+code;
+    }
+
     /**
      * 获取站点的js 公共代码
      * @access public
@@ -868,6 +956,7 @@ CODE;
         foreach ($after_head_jscode as $v) {
             $after_head_js = $after_head_js . $v;
         }
+        $after_head_js = $after_head_js . self::getJsPingBaidu();
         return [$pre_head_js, $after_head_js];
     }
 
@@ -1102,7 +1191,7 @@ CODE;
         */
         list($type_aliasarr, $typeid_arr) = self::getTypeIdInfo($siteinfo['menu']);
         //活动创意相关操作
-        list($activity, $activity_small,$activity_en) = self::getActivity($siteinfo['sync_id']);
+        list($activity, $activity_small, $activity_en) = self::getActivity($siteinfo['sync_id']);
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = self::getMobileSiteInfo();
         //这个不需要存到缓存中
@@ -1172,21 +1261,30 @@ CODE;
                 $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
                 $menu_name = '查询结果';
                 break;
+            case 'tag':
+                //文章之类的标签
+                $tag_name = $param;
+                //文章标题相关
+                //随机选择一个a类关键词组织页面的list相关信息
+                list($title, $keyword, $description) = self::getTaglistPageTDK($keyword_info, $tag_name);
+                $breadcrumb = self::getBreadCrumb($tag, $url, $allmenu);
+                $menu_name = '查询结果';
+                break;
         }
         //获取不分类的文章 全部分类的都都获取到
-        $article_list = self::getArticleList($sync_info, $typeid_arr, 25);
+        $article_list = self::getArticleList($sync_info, $typeid_arr, 20);
         //获取不分类的文章 全部分类都获取到
-        $question_list = self::getQuestionList($sync_info, $typeid_arr, 25);
+        $question_list = self::getQuestionList($sync_info, $typeid_arr, 20);
         //获取零散段落类型  全部分类都获取到
         //list($scatteredarticle_list, $news_more) = self::getScatteredArticleList($artiletype_sync_info, $typeid_arr);
         //产品类型 列表获取 全部分类都获取到
-        $product_list = self::getProductList($sync_info, $typeid_arr, 25);
+        $product_list = self::getProductList($sync_info, $typeid_arr, 20);
         //根据文章分类展现列表以及more
-        $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
+        $article_typelist = self::getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
         //根据文章分类展现列表以及more
-        $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
+        $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
         //根据文章分类展现列表以及more
-        $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, 25);
+        $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码
@@ -1207,7 +1305,7 @@ CODE;
         $getcontent = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small','activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
     }
 
 
@@ -1563,17 +1661,15 @@ code;
                 break;
             case 'activity':
                 break;
+            case 'tag':
+                array_push($breadcrumb, [
+                    'text' => '站点标签',
+                    'href' => '/',
+                    'title' => '站点标签'
+                ]);
+                break;
         }
         return $breadcrumb;
     }
-
-    /**
-     *
-     */
-    public static function getsiblingMenu($url, $allmenu, $menu_id = 0)
-    {
-
-    }
-
 
 }
