@@ -590,6 +590,7 @@ class Commontool extends Common
      */
     public static function formatProductList(&$product, $product_typearr)
     {
+        $type_tags = self::getTags('product');
         foreach ($product as $k => $v) {
             $src = "/images/" . $v['image_name'];
             $img = "<img src='{$src}' alt= '{$v['name']}'>";
@@ -613,6 +614,16 @@ class Commontool extends Common
             $v['href'] = sprintf(self::$productPath, $v['id']);
             $v['thumbnails'] = $img;
             $v['type'] = $type;
+            $tags = [];
+            if ($v['tags']) {
+                $tag_arr = explode(',', $v['tags']);
+                foreach ($tag_arr as $val) {
+                    if (array_key_exists($val, $type_tags)) {
+                        $tags[] = $type_tags[$val];
+                    }
+                }
+            }
+            $v['tags'] = $tags;
             $product[$k] = $v;
         }
     }
@@ -706,6 +717,7 @@ class Commontool extends Common
      */
     public static function formatQuestionList(&$question, $question_typearr)
     {
+        $type_tags = self::getTags('question');
         foreach ($question as $k => $v) {
             $type = [
                 'name' => '',
@@ -724,6 +736,16 @@ class Commontool extends Common
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
             }
             $v['type'] = $type;
+            $tags = [];
+            if ($v['tags']) {
+                $tag_arr = explode(',', $v['tags']);
+                foreach ($tag_arr as $val) {
+                    if (array_key_exists($val, $type_tags)) {
+                        $tags[] = $type_tags[$val];
+                    }
+                }
+            }
+            $v['tags'] = $tags;
             $question[$k] = $v;
         }
     }
@@ -1445,7 +1467,6 @@ code;
                 //如果存在 alias 英文名 则用alias 不存在的话用type_id
                 //要求同类下不能有重名alias 的
                 $type_aliasarr[$type][$key] = $value;
-
                 if (!array_key_exists($type, $typeid_arr)) {
                     $typeid_arr[$type] = [];
                 }
@@ -1489,8 +1510,9 @@ code;
         $title_template = "<title>%s</title>";
         $keywords_template = "<meta name='keywords' content='%s'>";
         $description_template = "<meta name='description' content='%s'>";
-        $author = '';
-        return sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description);
+        $encode = '<meta charset="utf-8"/>';
+        $author = '<meta name="author" content="北京易至信科技有限公司" />';
+        return $encode . sprintf($title_template, $title) . sprintf($keywords_template, $keyword) . sprintf($description_template, $description) . $author;
     }
 
     /**

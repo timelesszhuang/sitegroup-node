@@ -93,4 +93,26 @@ trait Template
         }
     }
 
+    /**
+     * 获取文章内容标签的相关tag
+     * @access public
+     * @todo 后期建议改为自定义设置taglist
+     */
+    public function getTagTemplate($type)
+    {
+        switch ($type) {
+            case 'article':
+                return $this->articletaglisttemplate;
+                break;
+            case 'question':
+                return $this->articletaglisttemplate;
+                break;
+            case 'product':
+                return $this->articletaglisttemplate;
+                break;
+        }
+
+    }
+
+
 }

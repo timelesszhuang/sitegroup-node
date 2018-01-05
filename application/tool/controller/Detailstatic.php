@@ -322,6 +322,7 @@ class Detailstatic extends Common
         }
         // 生成页面之后需要把链接存储下 生成最后执行ping百度的操作
         $pingurls = [];
+        $tags = Commontool::getTags('article');
         foreach ($article_data as $key => $item) {
             //首先修改缩略图
             // 把 站点的相关的数据写入数据库中
@@ -361,7 +362,7 @@ class Detailstatic extends Common
             $keyword_id = $article_type_keyword[$type_id]['keyword_id'];
             $menu_id = $article_type_keyword[$type_id]['menu_id'];
             $menu_name = $article_type_keyword[$type_id]['menu_name'];
-            $assign_data = $this->form_perarticle_content($item, $keyword_id, $menu_id, $menu_name);
+            $assign_data = $this->form_perarticle_content($item, $keyword_id, $menu_id, $menu_name, $tags);
             //如果没有设置模板 则使用默认模板
             $data = [
                 'd' => $assign_data,
@@ -392,7 +393,7 @@ class Detailstatic extends Common
      * 生成单独的文章内容
      * @access public
      */
-    public function form_perarticle_content(&$item, $keyword_id, $menu_id, $menu_name)
+    public function form_perarticle_content(&$item, $keyword_id, $menu_id, $menu_name, $tags)
     {
         //截取出 页面的 description 信息
         $description = mb_substr(strip_tags($item['content']), 0, 200);
@@ -418,6 +419,16 @@ class Detailstatic extends Common
         if ($contentWIthLink) {
             $item['content'] = $contentWIthLink;
         }
+        $articletags = [];
+        if ($item['tags']) {
+            $tag_arr = explode(',', $item['tags']);
+            foreach ($tag_arr as $val) {
+                if (array_key_exists($val, $tags)) {
+                    $articletags[] = $tags[$val];
+                }
+            }
+        }
+        $item['tags'] = $articletags;
         return $assign_data;
     }
 
@@ -632,6 +643,7 @@ class Detailstatic extends Common
             $max_id = $question_data[$max_index]['id'];
         }
         $pingurls = [];
+        $tags = Commontool::getTags('question');
         foreach ($question_data as $key => $item) {
             //判断目录是否存在
             if (!file_exists('question')) {
@@ -659,7 +671,7 @@ class Detailstatic extends Common
             $keyword_id = $question_type_keyword[$type_id]['keyword_id'];
             $menu_id = $question_type_keyword[$type_id]['menu_id'];
             $menu_name = $question_type_keyword[$type_id]['menu_name'];
-            $assign_data = $this->form_perquestion($item, $keyword_id, $menu_id, $menu_name);
+            $assign_data = $this->form_perquestion($item, $keyword_id, $menu_id, $menu_name, $tags);
             $template = $this->getTemplate('detail', $menu_id, 'question');
             //判断模板是否存在
             if (!$this->fileExists($template)) {
@@ -689,14 +701,24 @@ class Detailstatic extends Common
      * 格式化每个问题页面
      * @access public
      */
-    public function form_perquestion(&$item, $keyword_id, $menu_id, $menu_name)
+    public function form_perquestion(&$item, $keyword_id, $menu_id, $menu_name, $tags)
     {
         $description = $item['description'];
         $description = $description ?: mb_substr(strip_tags($item['content_paragraph']), 0, 200);
         //页面的描述
         $keywords = $item['keywords'];
-        $assign_data = Commontool::getEssentialElement('detail', $item['question'], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
+        $questiontags = [];
+        if ($item['tags']) {
+            $tag_arr = explode(',', $item['tags']);
+            foreach ($tag_arr as $val) {
+                if (array_key_exists($val, $tags)) {
+                    $questiontags[] = $tags[$val];
+                }
+            }
+        }
+        $item['tags'] = $questiontags;
+        $assign_data = Commontool::getEssentialElement('detail', $item['question'], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
         return $assign_data;
     }
 
@@ -743,6 +765,7 @@ class Detailstatic extends Common
         // 如果有数据的话清除掉列表的缓存
         $water = $siteinfo['walterString'];
         $pingurls = [];
+        $tags = Commontool::getTags('product');
         foreach ($product_data as $key => $item) {
             if (!file_exists('product')) {
                 $this->make_error("product");
@@ -752,7 +775,7 @@ class Detailstatic extends Common
             $keyword_id = $product_type_keyword[$type_id]['keyword_id'];
             $menu_id = $product_type_keyword[$type_id]['menu_id'];
             $menu_name = $product_type_keyword[$type_id]['menu_name'];
-            $content = $this->form_perproduct($item, $type_id, $keyword_id, $menu_id, $menu_name);
+            $content = $this->form_perproduct($item, $type_id, $keyword_id, $menu_id, $menu_name, $tags);
             if (!$content) {
                 continue;
             }
@@ -772,7 +795,7 @@ class Detailstatic extends Common
      * 生成单个产品 因为不用考虑定期生成 多少篇
      * @access public
      */
-    public function form_perproduct($item, $type_id, $keyword_id, $menu_id, $menu_name)
+    public function form_perproduct($item, $type_id, $keyword_id, $menu_id, $menu_name, $tags)
     {
         //截取出 页面的 description 信息
         $description = mb_substr(strip_tags($item['summary']), 0, 200);
@@ -821,9 +844,19 @@ class Detailstatic extends Common
         if (!$this->fileExists($template)) {
             return false;
         }
+        $producttags = [];
+        if ($item['tags']) {
+            $tag_arr = explode(',', $item['tags']);
+            foreach ($tag_arr as $val) {
+                if (array_key_exists($val, $tags)) {
+                    $producttags[] = $tags[$val];
+                }
+            }
+        }
+        $item['tags'] = $producttags;
         $data = [
             'd' => $assign_data,
-            'page' => ["name" => $item['name'], 'title' => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
+            'page' => ["name" => $item['name'], 'tags' => $item['tags'], 'title' => $item['name'], 'images' => $local_img, "image" => "<img src='/images/{$item['image_name']}' alt='{$item['name']}'>", 'sn' => $item['sn'], 'type_name' => $item['type_name'], "summary" => $item['summary'], "detail" => $item['detail'], "create_time" => $item['create_time']],
             'pre_page' => $pre_product,
             'next_page' => $next_product,
         ];

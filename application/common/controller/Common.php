@@ -66,6 +66,12 @@ class Common extends Controller
     public $preactivitypath = '';
     public $activitytemplatepath = 'template/activity.html';
 
+    // 文章内容设置的标签列表页面
+    public $articletaglisttemplate = 'template/articletaglist.html';
+    public $questiontaglisttemplate = 'template/questiontaglist.html';
+    public $producttaglisttemplate = 'template/producttaglist.html';
+
+    public $currenturl = '';
 
     /**
      * 获取公共的数据
@@ -88,6 +94,7 @@ class Common extends Controller
         $this->prearticlepath = '/' . $this->articlepath;
         $this->prequestionpath = '/' . $this->questionpath;
         $this->preproducpath = '/' . $this->productpath;
+        $this->currenturl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         parent::__construct();
     }
 

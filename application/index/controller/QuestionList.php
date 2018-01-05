@@ -83,8 +83,8 @@ class QuestionList extends EntryCommon
             //取出当前栏目下级的文章分类 根据path 中的menu_id
             $typeid_str = implode(',', $typeidarr);
             if ($typeid_str) {
-                $wheretemplate = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
-                $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($wheretemplate, $typeid_str))
+                $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
+                $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where($where)
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
@@ -119,7 +119,7 @@ class QuestionList extends EntryCommon
             }
             //获取当前菜单的同级别菜单下的type
             $flag = 2;
-            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id,$siteinfo['menu'],$flag);
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id, $siteinfo['menu'], $flag);
             foreach ($sibilingtypeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {

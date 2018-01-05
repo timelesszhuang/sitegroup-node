@@ -23,6 +23,8 @@ Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
 Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 //新支持的页面预览功能
 Route::get('preview/:type/:id', 'index/Preview/preview', ['ext' => 'html']);
+//相关的标签列表
+Route::get('tag/:id', 'index/TagList/tag', ['ext' => 'html']);
 
 //栏目首页相关
 Route::get('index', 'index/Detailenter/index', ['ext' => 'html']);
