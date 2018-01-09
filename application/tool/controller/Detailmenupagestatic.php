@@ -45,7 +45,16 @@ class Detailmenupagestatic extends Common
                 ];
             }
             //有可能上级就是空的所以同级的只需要取出
-            $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+            //需要区分下是不是p_id 为空
+            if ($p_id) {
+                //$menu_id
+                $menu_idarr = array_filter(explode(',', $siteinfo['menu']));
+                $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->where('id', 'in', $menu_idarr)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+                //$p_id 为 0的情况
+            } else {
+                //$p_id 不为零 的情况
+                $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+            }
             //获取同级的菜单
             foreach ($siblingmenu as $val) {
                 $current = $val['id'] == $menu_id ? true : false;

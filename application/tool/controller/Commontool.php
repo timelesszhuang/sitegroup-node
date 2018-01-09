@@ -1614,7 +1614,7 @@ code;
             //首页默认选中的
             $is_current = true;
         }
-        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => $url, 'current' => $is_current]);
+        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => $url, 'content' => '', 'current' => $is_current]);
         return $tree;
     }
 
