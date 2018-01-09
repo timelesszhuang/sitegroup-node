@@ -82,9 +82,9 @@ class QuestionList extends EntryCommon
             $typeidarr = Commontool::getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
             //取出当前栏目下级的文章分类 根据path 中的menu_id
             $typeid_str = implode(',', $typeidarr);
+            $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
             if ($typeid_str) {
-                $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
-                $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where($where)
+                $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
@@ -94,7 +94,7 @@ class QuestionList extends EntryCommon
             //取出当前菜单的列表 不包含子菜单的
             $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
             if ($typeid_str) {
-                $currentquestion = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($wheretemplate, $typeid_str))
+                $currentquestion = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
@@ -138,10 +138,6 @@ class QuestionList extends EntryCommon
         }
         //获取当前type_id的文章
         $assign_data['menu_id'] = $menu_id;
-//        $question['detail'] = '当前以及子菜单的所有问答列表，包含分页。';
-//        $typelist['detail'] = '当前菜单以及子菜单的所有问答列表。';
-//        $siblingstypelist['detail'] = '同级别菜单的所有问答列表。';
-//        $currentquestion['detail'] = '当前菜单的问答列表，包含分页';
         return [
             'd' => $assign_data,
             'childlist' => $typelist,
