@@ -46,7 +46,7 @@ class Detailmenupagestatic extends Common
             }
             //有可能上级就是空的所以同级的只需要取出
             //需要区分下是不是p_id 为空
-            if ($p_id) {
+            if ($p_id == 0) {
                 //$menu_id
                 $menu_idarr = array_filter(explode(',', $siteinfo['menu']));
                 $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->where('id', 'in', $menu_idarr)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
