@@ -966,10 +966,10 @@ code;
         if ($after_head) {
             array_push($after_head_jscode, $after_head);
         }
-        $refere_code = self::getRefereerDemo();
-        if ($refere_code) {
-            array_push($after_head_jscode, $refere_code);
-        }
+//        $refere_code = self::getRefereerDemo();
+//        if ($refere_code) {
+//            array_push($after_head_jscode, $refere_code);
+//        }
         $pre_head_js = '';
         foreach ($pre_head_jscode as $v) {
             $pre_head_js = $pre_head_js . $v;

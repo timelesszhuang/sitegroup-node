@@ -53,9 +53,9 @@ trait Pingbaidu
      */
     public function pingBaidu($api, $urls)
     {
-        print_r($api);
-        print_r($urls);
-        exit;
+//        print_r($api);
+//        print_r($urls);
+//        exit;
 //        $urls = array(
 //            'http://www.example.com/1.html',
 //            'http://www.example.com/2.html',

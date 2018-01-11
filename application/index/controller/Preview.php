@@ -13,10 +13,6 @@ use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\index\model\Product;
 use app\tool\controller\Detailstatic;
-use app\tool\model\SitePageinfo;
-use app\index\model\Article;
-use app\index\model\Question;
-use app\tool\model\Menu;
 use think\View;
 
 class Preview extends EntryCommon
@@ -39,57 +35,32 @@ class Preview extends EntryCommon
             //文件存在直接展现出来不需要重新请求生成
             return;
         }
-        // 取出指定id的文章
-        $articlesql = "id = $id and node_id=$this->node_id";
-        $article = Article::where($articlesql)->find();
-        if (!$article) {
-            exit('文章不存在');
-        }
-        if (empty($article)) {
-            exit('您请求的文章不存在');
-        }
-        $type_id = $article['articletype_id'];
-        // 获取menu信息
-        $menuInfo = Menu::where([
-            "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
-        ])->find();
-        // 获取pageInfo信息
-        $sitePageInfo = SitePageinfo::where([
-            "node_id" => $this->node_id,
-            "site_id" => $this->site_id,
-            "menu_id" => $menuInfo["id"]
-        ])->find();
+        list($template, $data) = (new Detailstatic())->article_detailinfo($id);
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
+        exit($content);
+    }
 
-        $pre_article_sql = "id <{$id} and node_id=$this->node_id and articletype_id=$type_id";
-        $pre_article = Article::where($pre_article_sql)->field("id,title")->find();
 
-        //上一页链接
-        if ($pre_article) {
-            $pre_article = $pre_article->toArray();
-            $pre_article['href'] = sprintf($this->prearticlepath, $pre_article['id']);
+    /**
+     * 问题重新生成
+     * @access private
+     * @param $id product
+     * @return bool
+     */
+    private function questionpreview($id)
+    {
+        if (!file_exists('question')) {
+            $this->make_error("question");
+            return false;
         }
-        //获取下一篇 的网址
-        //最后一条 不需要有 下一页
-        $next_article_sql = "id >{$id} and node_id=$this->node_id and articletype_id=$type_id";
-        $next_article = Article::where($next_article_sql)->field("id,title")->find();
-        //下一页链接
-        if ($next_article) {
-            $next_article = $next_article->toArray();
-            $next_article['href'] = sprintf($this->prearticlepath, $next_article['id']);
+        $file_name = sprintf($this->questionpath, $id);
+        if ($this->checkhtmlexists($file_name)) {
+            //文件存在直接展现出来不需要重新请求生成
+            return;
         }
-        $assign_data = (new Detailstatic())->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        //根据配置来选择模板
-        $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
-        if (!$this->fileExists($template)) {
-            exit('该栏目设置的模板页不存在');
-        }
-        $data = [
-            'd' => $assign_data,
-            'page' => $article,
-            'pre_page' => $pre_article,
-            'next_page' => $next_article,
-        ];
+        list($template, $data) = (new Detailstatic())->question_detailinfo($id);
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -115,88 +86,7 @@ class Preview extends EntryCommon
             //文件存在直接展现出来不需要重新请求生成
             return;
         }
-        // 取出指定id的产品
-        $productsql = "id = $id and node_id=$this->node_id";
-        $product = Product::where($productsql)->find();
-        if (!$product) {
-            exit('该产品不存在');
-        }
-        $type_id = $product['type_id'];
-        // 获取menu信息
-        $menuInfo = \app\tool\model\Menu::where([
-            "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
-        ])->find();
-        // 获取pageInfo信息
-        $sitePageInfo = SitePageinfo::where([
-            "node_id" => $this->node_id,
-            "site_id" => $this->site_id,
-            "menu_id" => $menuInfo["id"]
-        ])->find();
-        $content = (new Detailstatic())->form_perproduct($product, $type_id, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        exit($content);
-    }
-
-    /**
-     * 问题重新生成
-     * @access private
-     * @param $id product
-     * @return bool
-     */
-    private function questionpreview($id)
-    {
-        if (!file_exists('question')) {
-            $this->make_error("question");
-            return false;
-        }
-        $file_name = sprintf($this->questionpath, $id);
-        if ($this->checkhtmlexists($file_name)) {
-            //文件存在直接展现出来不需要重新请求生成
-            return;
-        }
-        $questionsql = "id = $id and node_id=$this->node_id";
-        $question = Question::where($questionsql)->find();
-        if (!$question) {
-            exit('该问答不存在');
-        }
-        $type_id = $question['type_id'];
-        // 获取menu信息
-        $menuInfo = Menu::where([
-            "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
-        ])->find();
-        // 获取pageInfo信息
-        $sitePageInfo = SitePageinfo::where([
-            "node_id" => $this->node_id,
-            "site_id" => $this->site_id,
-            "menu_id" => $menuInfo["id"]
-        ])->find();
-        //获取上一篇和下一篇
-        $pre_question = Question::where(["id" => ["lt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
-        if ($pre_question) {
-            $pre_question = $pre_question->toArray();
-            $pre_question['href'] = sprintf($this->prequestionpath, $pre_question['id']);
-            //"/question/question{$pre_question['id']}.html";
-        }
-        //下一篇可能会导致其他问题
-        $next_question = Question::where(["id" => ["gt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
-        if ($next_question) {
-            $next_question = $next_question->toArray();
-            $next_question['href'] = sprintf($this->prequestionpath, $next_question['id']);
-            //"/question/question{$next_question['id']}.html";
-        }
-        $assign_data = (new Detailstatic())->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
-        //根据配置来选择模板
-        $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
-        if (!$this->fileExists($template)) {
-            exit('该栏目设置的模板页不存在');
-        }
-        $data = [
-            'd' => $assign_data,
-            'page' => $question,
-            'pre_page' => $pre_question,
-            'next_page' => $next_question,
-        ];
+        list($template, $data) = (new Detailstatic())->product_detailinfo($id);
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);

@@ -242,10 +242,9 @@ class Pagestaticentry extends Common
     {
         $id = $request->post("id");
         $searchType = $request->post("searchType");
-        $type = $request->post("type");
-        if ($id && $searchType && $type) {
+        if ($id && $searchType) {
             //重新生成
-            (new Detailrestatic())->exec_refilestatic($id, $searchType, $type);
+            (new Detailrestatic())->exec_refilestatic($id, $searchType);
         }
     }
 

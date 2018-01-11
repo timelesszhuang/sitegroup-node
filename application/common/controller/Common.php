@@ -93,7 +93,7 @@ class Common extends Controller
         //上一页下一页链接
         $this->prearticlepath = '/' . $this->articlepath;
         $this->prequestionpath = '/' . $this->questionpath;
-        $this->preproducpath = '/' . $this->productpath;
+        $this->preproductpath = '/' . $this->productpath;
         $this->currenturl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         parent::__construct();
     }
