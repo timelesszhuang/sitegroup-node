@@ -75,7 +75,6 @@ Route::post('Rejection', 'tool/Site/Rejection');
 //自定义表单提交
 Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 
-
 //重新生成文章 根据id等信息 重新生成其他各类数据
 //前端修改某篇文章之后修改
 Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');

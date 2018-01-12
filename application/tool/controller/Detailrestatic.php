@@ -41,7 +41,7 @@ class Detailrestatic extends Common
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        list($template, $data) = (new Detailstatic())->article_detailinfo();
+        list($template, $data) = (new Detailstatic())->article_detailinfo($id);
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -65,10 +65,9 @@ class Detailrestatic extends Common
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        list($data, $template) = (new Detailstatic())->question_detailinfo($id);
-        $content = Common::Debug((new View())->fetch($template,
-            $data
-        ), $data);
+        list($template,$data) = (new Detailstatic())->question_detailinfo($id);
+        //需要判断下是不是当前模板存在
+        $content = Common::Debug((new View())->fetch($template,$data), $data);
         $questionpath = sprintf($this->questionpath, $id);
         if (file_put_contents($questionpath, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
             $this->urlsCache([$this->siteurl . '/' . $questionpath]);

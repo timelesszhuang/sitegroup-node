@@ -8,6 +8,7 @@ use app\index\model\ArticleSyncCount;
 use app\index\model\Product;
 use app\index\model\Question;
 use app\index\model\ScatteredTitle;
+use app\tool\model\SitePageinfo;
 use think\Cache;
 use think\Config;
 use think\Db;
@@ -511,7 +512,8 @@ class Detailstatic extends Common
         $article_typearr = array_key_exists('article', $this->typeid_arr) ? $this->typeid_arr['article'] : [];
         $articletype_idstr = implode(',', array_keys($article_typearr));
         $tagsArticleList = $this->getTagArticleList($article['tags'], $articletype_idstr, $article_typearr);
-        $assign_data = $this->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $tags = Commontool::getTags('article');
+        $assign_data = $this->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
         $data = [
             'd' => $assign_data,
@@ -675,7 +677,8 @@ class Detailstatic extends Common
         $question_typearr = array_key_exists('question', $this->typeid_arr) ? $this->typeid_arr['question'] : [];
         $questiontype_idstr = implode(',', array_keys($question_typearr));
         $tagsQuestionList = $this->getTagArticleList($question['tags'], $questiontype_idstr, $question_typearr);
-        $assign_data = $this->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $tags = Commontool::getTags('article');
+        $assign_data = $this->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
         $data = [
             'd' => $assign_data,
@@ -967,8 +970,9 @@ class Detailstatic extends Common
         //需要去除该站点的tag相关列表
         $product_typearr = array_key_exists('product', $this->typeid_arr) ? $this->typeid_arr['product'] : [];
         $producttype_idstr = implode(',', array_keys($product_typearr));
+        $tags = Commontool::getTags('product');
         $tagsArticleList = $this->getTagProductList($product['tags'], $producttype_idstr, $product_typearr);
-        $assign_data = $this->form_perproduct_content($product, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name']);
+        $assign_data = $this->form_perproduct_content($product, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'product');
         $data = [
             'd' => $assign_data,
@@ -990,7 +994,7 @@ class Detailstatic extends Common
         // 把 站点的相关的数据写入数据库中
         //获取上一篇和下一篇
         //获取上一篇
-        $pre_productcommon_sql = "id <{$id} and node_id=$this->node_id and type_id=$type_id ";
+        $pre_productcommon_sql = "id <{$id} and node_id=$this->node_id and type_id={$type_id} ";
         $pre_product = Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
         //上一页链接
         if ($pre_product) {
@@ -1006,7 +1010,6 @@ class Detailstatic extends Common
             $next_product = ['href' => sprintf($this->preproductpath, $next_product['id']), 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
         }
         return [$pre_product, $next_product];
-
     }
 
 
