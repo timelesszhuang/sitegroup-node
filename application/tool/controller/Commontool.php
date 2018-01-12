@@ -749,51 +749,7 @@ class Commontool extends Common
             $question[$k] = $v;
         }
     }
-
-
-
-    /**
-     * 零散段落这块暂时有问题 功能模块需要重构
-     */
-
-    /**
-     * 获取 零散段落 分类  文件名如 article1 　article2
-     * @access public
-     * @param $sync_info
-     * @param $site_id
-     * @param int $limit
-     * @return array
-     */
-    public static function getScatteredArticleList($sync_info, $site_id, $limit = 10)
-    {
-//        $scattered_sync_info = array_key_exists('scatteredarticle', $sync_info) ? $sync_info['scatteredarticle'] : [];
-//        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-//        if ($scattered_sync_info) {
-//            $where = '';
-//            foreach ($scattered_sync_info as $k => $v) {
-//                if ($k == 0) {
-//                    $where .= "(`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-//                } else {
-//                    $where .= ' or' . " (`articletype_id` = {$v['type_id']} and `id`<= {$v['max_id']})";
-//                }
-//                if ($more['href'] == '/') {
-//                    $more = ['title' => $v['menu_name'], 'href' => "/news/{$v['menu_id']}.html", 'text' => '更多'];
-//                }
-//            }
-//            $scattered_article = Db::name('Scattered_title')->where($where)->field('id,title,create_time')->order('id desc')->limit($limit)->select();
-//            $articlelist = [];
-//            foreach ($scattered_article as $k => $v) {
-//                $articlelist[] = [
-//                    'href' => '/news/news' . $v['id'] . '.html',
-//                    'title' => $v['title'],
-//                    'create_time' => date('Y-m-d', $v['create_time'])
-//                ];
-//            }
-//            return [$articlelist, $more];
-//        }
-//        return [[], $more];
-    }
-
+    
 
     /**
      * 获取公共代码
@@ -823,9 +779,7 @@ class Commontool extends Common
      */
     public static function getDbArticleListId($site_id)
     {
-        //
         return Cache::remember('sync_info', function () use ($site_id) {
-
             //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
             $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
             $article_sync_list = [];
@@ -874,33 +828,6 @@ class Commontool extends Common
         return [$activity_list, $activity_small_list, $activity_en_list];
     }
 
-    /**
-     * 获取搜索引擎的 referer 不支持百度 谷歌 现仅支持 搜狗 好搜
-     * @access public
-     * @todo 这个地方有bug 会有安全隐患 太low
-     */
-    public static function getRefereerDemo()
-    {
-        return <<<CODE
-                <script>
-                    var referrer = document.referrer;
-                    var sendInfo = {};
-                    sendInfo.referrer = referrer;
-                    sendInfo.origin_web = window.location.href
-                    $(function () {
-                        var url = "/index.php/externalAccess";
-                        $.ajax({
-                                type: "post",
-                                url: url,
-                                data: sendInfo,
-                                success: function () {
-                                }
-                            }
-                        )
-                    })
-                </script>
-CODE;
-    }
 
 
     /**
@@ -949,6 +876,7 @@ CODE;
 code;
     }
 
+
     /**
      * 获取站点的js 公共代码
      * @access public
@@ -966,10 +894,6 @@ code;
         if ($after_head) {
             array_push($after_head_jscode, $after_head);
         }
-//        $refere_code = self::getRefereerDemo();
-//        if ($refere_code) {
-//            array_push($after_head_jscode, $refere_code);
-//        }
         $pre_head_js = '';
         foreach ($pre_head_jscode as $v) {
             $pre_head_js = $pre_head_js . $v;
