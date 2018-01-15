@@ -33,6 +33,7 @@ class Pagestaticentry extends Common
         $siteinfo = Site::getSiteInfo();
         //查看站点logo 是不是有修改
         $this->checkSiteLogo($siteinfo);
+        $this->checkSiteIco($siteinfo);
         //验证 图片集的静态化相关功能
         $this->checkImgList($siteinfo);
         //用于验证内容中图片加载状态
@@ -78,6 +79,37 @@ class Pagestaticentry extends Common
         } else if (!file_exists($logo_path)) {
             //logo 存在需要更新
             $this->ossGetObject($oss_logo_path, $logo_path);
+        }
+    }
+
+    /**
+     * 判断站点logo是不是有更新 有更新的话直接重新生成
+     * @access private
+     */
+    private function checkSiteIco($siteinfo)
+    {
+        $ico_id = $siteinfo['siteico_id'];
+        if (!$ico_id) {
+            return;
+        }
+        $site_icoinfo = Cache::remember('siteicoinfo', function () use ($ico_id) {
+            return Db::name('site_ico')->where('id', $ico_id)->find();
+        });
+        //如果logo记录被删除的话怎么操作
+        if (!$site_icoinfo) {
+            return;
+        }
+        //如果存在logo 名字就叫 ××.jpg
+        $oss_ico_path = $site_icoinfo['oss_ico_path'];
+        //logo 名称 根据站点id 拼成
+        $update_time = $site_icoinfo['update_time'];
+        $ico_path = "./favicon.ico";
+        if (file_exists($ico_path) && filectime($ico_path) < $update_time) {
+            //logo 存在 且 文件创建时间在更新时间之前
+            $this->ossGetObject($oss_ico_path, $ico_path);
+        } else if (!file_exists($ico_path)) {
+            //logo 存在需要更新
+            $this->ossGetObject($oss_ico_path, $ico_path);
         }
     }
 
