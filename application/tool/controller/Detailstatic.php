@@ -425,7 +425,7 @@ class Detailstatic extends Common
         $assign_data = Commontool::getEssentialElement('detail', $item['title'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
         if ($item['thumbnails_name']) {
             //表示是oss的
-            $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString);
+            $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString,$this->waterImgUrl);
         }
         //替换图片静态化内容中图片文件
         $item['content'] = $this->form_content_img($item['content']);
@@ -476,7 +476,7 @@ class Detailstatic extends Common
                     $filetype = $this->analyseUrlFileType($v);
                     //阿里云图片生成
                     $filepath = $imgname . '.' . $filetype;
-                    if ($this->get_osswater_img($v, $filepath, $this->waterString)) {
+                    if ($this->get_osswater_img($v, $filepath, $this->waterString,$this->waterImgUrl)) {
                         $content = str_replace($v, '/images/' . $filepath, $content);
                     }
                 }
@@ -882,7 +882,7 @@ class Detailstatic extends Common
         //获取网站的 tdk 文章列表等相关 公共元素
         $assign_data = Commontool::getEssentialElement('detail', $item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
         if ($item['image_name']) {
-            $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString);
+            $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString,$this->waterImgUrl);
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
@@ -1031,7 +1031,7 @@ class Detailstatic extends Common
                 array_push($local_imgarr, $osssrc);
                 continue;
             }
-            if ($this->get_osswater_img($osssrc, $imgname, $this->waterString)) {
+            if ($this->get_osswater_img($osssrc, $imgname, $this->waterString,$this->waterImgUrl)) {
                 array_push($local_imgarr, '/images/' . $imgname);
             }
         }

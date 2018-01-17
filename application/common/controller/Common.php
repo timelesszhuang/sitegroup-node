@@ -17,6 +17,7 @@ use app\tool\traits\Template;
 use think\Config;
 use think\Controller;
 use think\Db;
+use think\Cache;
 
 class Common extends Controller
 {
@@ -35,6 +36,7 @@ class Common extends Controller
     public $node_id = '';
     public $site_name = '';
     public $waterString = '';
+    public $waterImgUrl = '';
     public $menu_ids = '';
 
     //文章相关链接
@@ -89,6 +91,13 @@ class Common extends Controller
         $this->site_name = $siteinfo['site_name'];
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
+        $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
+            $SiteWaterImage_info = model('SiteWaterImage')->where(['id'=>$siteinfo['site_water_image_id']])->find();
+            if($SiteWaterImage_info){
+                return $SiteWaterImage_info['oss_water_image_path'];
+            }
+            return '';
+        });
         $this->menu_ids = $siteinfo['menu'];
         //上一页下一页链接
         $this->prearticlepath = '/' . $this->articlepath;

@@ -136,7 +136,7 @@ class Pagestaticentry extends Common
                         //如果路径有问题的话
                         continue;
                     }
-                    if ($this->get_osswater_img($osssrc, $imgname, $this->waterString)) {
+                    if ($this->get_osswater_img($osssrc, $imgname, $this->waterString,$this->waterImgUrl)) {
                         //获取网站水印图片
                         continue;
                     }

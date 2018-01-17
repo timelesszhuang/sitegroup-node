@@ -76,11 +76,11 @@ class Activitystatic extends Common
             $data = $data->toArray();
             $img_name = $data['img_name'];
             $oss_img_src = $data['oss_img_src'];
-            $this->get_osswater_img($oss_img_src, $img_name, $this->waterString);
+            $this->get_osswater_img($oss_img_src, $img_name, $this->waterString ,$this->waterImgUrl);
             $smallimg_name = $data['small_img_name'];
             $smalloss_img_src = $data['smalloss_img_src'];
             if ($smallimg_name) {
-                $this->get_osswater_img($smalloss_img_src, $smallimg_name, $this->waterString);
+                $this->get_osswater_img($smalloss_img_src, $smallimg_name, $this->waterString,$this->waterImgUrl);
             }
         }
     }
@@ -98,10 +98,11 @@ class Activitystatic extends Common
         }
         //当前id的活动信息
         $water = $this->waterString;
+        $img_water = $this->waterString;
         if ($ac_data['url']) {
             //表示是其他网页的链接不需要静态化页面 只需要静态化oss 相关的图片
             if ($ac_data['img_name']) {
-                $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water);
+                $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water ,$img_water);
             }
             return;
         }
@@ -116,11 +117,11 @@ class Activitystatic extends Common
         if ($imgser) {
             $imglist = unserialize($imgser);
             //静态化图片
-            $local_img = $this->form_imgser_img($imglist, $water);
+            $local_img = $this->form_imgser_img($imglist, $water,$img_water);
         }
         //单张大图
         if ($ac_data['img_name']) {
-            $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water);
+            $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water ,$img_water);
         }
         $ac_data['imglist'] = $local_img;
         //还需要 存储在数据库中 相关数据
@@ -145,7 +146,7 @@ class Activitystatic extends Common
      * 生成产品的多张图片
      * @access private
      */
-    private function form_imgser_img($img_arr, $water)
+    private function form_imgser_img($img_arr, $water,$img_water="")
     {
         $endpoint = Config::get('oss.endpoint');
         $bucket = Config::get('oss.bucket');
@@ -159,7 +160,7 @@ class Activitystatic extends Common
                 array_push($local_imgarr, $osssrc);
                 continue;
             }
-            if ($this->get_osswater_img($osssrc, $imgname, $water)) {
+            if ($this->get_osswater_img($osssrc, $imgname, $water,$img_water)) {
                 array_push($local_imgarr, '/images/' . $imgname);
             }
         }

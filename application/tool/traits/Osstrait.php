@@ -11,6 +11,7 @@ namespace app\tool\traits;
 
 use OSS\OssClient;
 use think\Config;
+use think\cache;
 
 trait Osstrait
 {
@@ -119,9 +120,12 @@ trait Osstrait
      * @param $object 带着url的 相关oss路径
      * @param $localfilename  图片名 只需要文件名
      * @param $water 水印
-     * @return array
+     * @param $img_water
+     * @return bool
+     * @throws \Exception
+     * @throws \throwable
      */
-    public function get_osswater_img($object, $localfilename, $water)
+    public function get_osswater_img($object, $localfilename, $water ,$img_water="")
     {
         $localfilename = ROOT_PATH . 'public/images/' . $localfilename;
         if (file_exists($localfilename)) {
@@ -142,7 +146,17 @@ trait Osstrait
                 //表示水印图片不存在的情况
                 return true;
             }
-            if ($water) {
+            if($img_water){
+                $code = Cache::remember('img_water', function () use ($img_water) {
+                    $img_content = file_get_contents($img_water);
+                    return $this->urlsafe_b64encode($img_content);
+                });
+                $options = array(
+                    OssClient::OSS_FILE_DOWNLOAD => $localfilename,
+                    OssClient::OSS_PROCESS => "image/resize,w_300,h_300/auto-orient,1/quality,q_90/format,jpg/watermark,image_cGFuZGEucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfNTA=,t_90,g_se,x_10,y_10"
+                );
+                $ossClient->getObject($bucket, $object, $options);
+            } elseif ($water) {
                 //有水印的情况
                 $code = $this->urlsafe_b64encode($water);
                 $options = array(
