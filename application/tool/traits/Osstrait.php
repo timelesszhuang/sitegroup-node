@@ -148,12 +148,11 @@ trait Osstrait
             }
             if($img_water){
                 $code = Cache::remember('img_water', function () use ($img_water) {
-                    $img_content = file_get_contents($img_water);
-                    return $this->urlsafe_b64encode($img_content);
+                    return $this->urlsafe_b64encode(substr(parse_url($img_water)['path'],1));
                 });
                 $options = array(
                     OssClient::OSS_FILE_DOWNLOAD => $localfilename,
-                    OssClient::OSS_PROCESS => "image/resize,w_300,h_300/auto-orient,1/quality,q_90/format,jpg/watermark,image_cGFuZGEucG5nP3gtb3NzLXByb2Nlc3M9aW1hZ2UvcmVzaXplLHdfNTA=,t_90,g_se,x_10,y_10"
+                    OssClient::OSS_PROCESS => "image/watermark,image_{$code},t_90,g_se,x_10,y_10"
                 );
                 $ossClient->getObject($bucket, $object, $options);
             } elseif ($water) {
