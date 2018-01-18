@@ -97,7 +97,6 @@ trait Osstrait
         $bucket = Config::get('oss.bucket');
         //如果路径里边包含绝对https 之类路径则替换掉 https://***/
         $object = str_replace($url = sprintf("https://%s.%s/", $bucket, $endpoint), '', $object);
-
         $status = true;
         try {
             $ossClient = new OssClient($accessKeyId, $accessKeySecret, $endpoint);
@@ -125,7 +124,7 @@ trait Osstrait
      * @throws \Exception
      * @throws \throwable
      */
-    public function get_osswater_img($object, $localfilename, $water ,$img_water="")
+    public function get_osswater_img($object, $localfilename, $water, $img_water = "")
     {
         $localfilename = ROOT_PATH . 'public/images/' . $localfilename;
         if (file_exists($localfilename)) {
@@ -146,7 +145,7 @@ trait Osstrait
                 //表示水印图片不存在的情况
                 return true;
             }
-            if($img_water){
+            if ($img_water) {
                 $code = Cache::remember('img_water', function () use ($img_water) {
                     return $this->urlsafe_b64encode(substr(parse_url($img_water)['path'],1));
                 });
@@ -187,6 +186,10 @@ trait Osstrait
     {
         $exist = false;
         try {
+            //oss 路径中包含& 跟?的话会有问题
+            if (strpos($object, '&') !== false || strpos('?' !== false)) {
+                return $exist;
+            }
             $exist = $ossClient->doesObjectExist($bucket, $object);
         } catch (OssException $e) {
             //不存在的情况
