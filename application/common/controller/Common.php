@@ -18,6 +18,7 @@ use think\Config;
 use think\Controller;
 use think\Db;
 use think\Cache;
+use app\tool\model\SiteWaterImage;
 
 class Common extends Controller
 {
@@ -92,7 +93,7 @@ class Common extends Controller
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
-            $SiteWaterImage_info = model('SiteWaterImage')->where(['id'=>$siteinfo['site_water_image_id']])->find();
+            $SiteWaterImage_info = (new SiteWaterImage())->where(['id'=>$siteinfo['site_water_image_id']])->find();
             if($SiteWaterImage_info){
                 return $SiteWaterImage_info['oss_water_image_path'];
             }
