@@ -822,7 +822,6 @@ class Detailstatic extends Common
             $pre_product = Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
             //上一页链接
             if ($pre_product) {
-                $pre_product = $pre_product->toArray();
                 $pre_product = ['href' => sprintf($this->preproductpath, $pre_product['id']), 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
             }
             if ($key < $step_limit) {
@@ -832,10 +831,8 @@ class Detailstatic extends Common
             }
             //下一页链接
             if ($next_product) {
-                $next_product = $next_product->toArray();
                 $next_product = ['href' => sprintf($this->preproductpath, $next_product['id']), 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
             }
-
             //获取tags 页面相关数据
             $keyword_id = $product_type_keyword[$type_id]['keyword_id'];
             $menu_id = $product_type_keyword[$type_id]['menu_id'];
