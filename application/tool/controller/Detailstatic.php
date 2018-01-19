@@ -336,7 +336,6 @@ class Detailstatic extends Common
             if ($next_article) {
                 $next_article = $next_article->toArray();
                 $next_article['href'] = sprintf($this->prearticlepath, $next_article['id']);
-//                    "/article/article{$next_article['id']}.html";
             }
             //需要传递下
             $keyword_id = $article_type_keyword[$type_id]['keyword_id'];
@@ -425,7 +424,7 @@ class Detailstatic extends Common
         $assign_data = Commontool::getEssentialElement('detail', $item['title'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
         if ($item['thumbnails_name']) {
             //表示是oss的
-            $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString,$this->waterImgUrl);
+            $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString, $this->waterImgUrl);
         }
         //替换图片静态化内容中图片文件
         $item['content'] = $this->form_content_img($item['content']);
@@ -476,7 +475,7 @@ class Detailstatic extends Common
                     $filetype = $this->analyseUrlFileType($v);
                     //阿里云图片生成
                     $filepath = $imgname . '.' . $filetype;
-                    if ($this->get_osswater_img($v, $filepath, $this->waterString,$this->waterImgUrl)) {
+                    if ($this->get_osswater_img($v, $filepath, $this->waterString, $this->waterImgUrl)) {
                         $content = str_replace($v, '/images/' . $filepath, $content);
                     }
                 }
@@ -824,6 +823,7 @@ class Detailstatic extends Common
             if ($pre_product) {
                 $pre_product = ['href' => sprintf($this->preproductpath, $pre_product['id']), 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
             }
+            $next_product = [];
             if ($key < $step_limit) {
                 //最后一条 不需要有 下一页 需要判断下 是不是下一篇包含最大id
                 $next_productcommon_sql = "id >{$item['id']} and id<={$max_id} and node_id=$this->node_id and type_id={$type_id} ";
@@ -879,7 +879,7 @@ class Detailstatic extends Common
         //获取网站的 tdk 文章列表等相关 公共元素
         $assign_data = Commontool::getEssentialElement('detail', $item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
         if ($item['image_name']) {
-            $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString,$this->waterImgUrl);
+            $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString, $this->waterImgUrl);
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
@@ -1028,7 +1028,7 @@ class Detailstatic extends Common
                 array_push($local_imgarr, $osssrc);
                 continue;
             }
-            if ($this->get_osswater_img($osssrc, $imgname, $this->waterString,$this->waterImgUrl)) {
+            if ($this->get_osswater_img($osssrc, $imgname, $this->waterString, $this->waterImgUrl)) {
                 array_push($local_imgarr, '/images/' . $imgname);
             }
         }
