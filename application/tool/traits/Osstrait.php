@@ -147,7 +147,7 @@ trait Osstrait
             }
             if ($img_water) {
                 $code = Cache::remember('img_water', function () use ($img_water) {
-                    return $this->urlsafe_b64encode(substr(parse_url($img_water)['path'],1));
+                    return $this->urlsafe_b64encode(substr(parse_url($img_water)['path'], 1));
                 });
                 $options = array(
                     OssClient::OSS_FILE_DOWNLOAD => $localfilename,
@@ -187,7 +187,7 @@ trait Osstrait
         $exist = false;
         try {
             //oss 路径中包含& 跟?的话会有问题
-            if (strpos($object, '&') !== false || strpos('?' !== false)) {
+            if (strpos($object, '&') !== false || strpos($object, '?') !== false) {
                 return $exist;
             }
             $exist = $ossClient->doesObjectExist($bucket, $object);
