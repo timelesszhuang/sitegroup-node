@@ -35,7 +35,7 @@ class QuestionList extends EntryCommon
             return $this->generateQuestionList($menu_enname, $type_id, $siteinfo, $currentpage);
         }, 0);
         $assign_data = $data['d'];
-        $template = $this->getTemplate('list', $assign_data['menu_id'], 'product');
+        $template = $this->getTemplate('list', $assign_data['menu_id'], 'question');
         unset($data['d']['menu_id']);
         //判断模板是否存在
         if (!$this->fileExists($template)) {
