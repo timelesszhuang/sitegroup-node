@@ -95,7 +95,11 @@ class ArticleList extends EntryCommon
                 Commontool::formatArticleList($article, $article_typearr);
             }
             //取出当前菜单的列表 不包含子菜单的
-            $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            if ($type_id != 0) {
+                $typeid_str = "$type_id";
+            } else {
+                $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            }
             if ($typeid_str) {
                 $currentarticle = \app\index\model\Article::order('id', "desc")->field(Commontool::$articleListField)->where(sprintf($where_template, $typeid_str))
                     ->paginate($listsize, false, [

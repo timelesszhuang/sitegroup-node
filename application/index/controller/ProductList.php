@@ -93,7 +93,11 @@ class ProductList extends EntryCommon
                 Commontool::formatProductList($productlist, $product_typearr);
             }
             //取出当前菜单的列表 不包含子菜单的
-            $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            if ($type_id != 0) {
+                $typeid_str = "$type_id";
+            } else {
+                $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            }
             if ($typeid_str) {
                 $currentproductlist = Product::order('id', "desc")->field(Commontool::$productListField)->where(sprintf($wheretemplate, $typeid_str))
                     ->paginate($listsize, false, [
@@ -120,7 +124,7 @@ class ProductList extends EntryCommon
                 ];
             }
             $flag = 5;
-            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id,$siteinfo['menu'] ,$flag);
+            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id, $siteinfo['menu'], $flag);
             foreach ($sibilingtypeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {

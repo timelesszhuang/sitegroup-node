@@ -92,7 +92,11 @@ class QuestionList extends EntryCommon
                 Commontool::formatQuestionList($question, $question_typearr);
             }
             //取出当前菜单的列表 不包含子菜单的
-            $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            if ($type_id != 0) {
+                $typeid_str = "$type_id";
+            } else {
+                $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+            }
             if ($typeid_str) {
                 $currentquestion = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
