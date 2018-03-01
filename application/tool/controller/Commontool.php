@@ -593,6 +593,7 @@ class Commontool extends Common
         $type_tags = self::getTags('product');
         foreach ($product as $k => $v) {
             $src = "/images/" . $v['image_name'];
+            $v['thumbnail_src'] = $src;
             $img = "<img src='{$src}' alt= '{$v['name']}'>";
             //列出当前文章分类来
             $type = [
@@ -749,7 +750,7 @@ class Commontool extends Common
             $question[$k] = $v;
         }
     }
-    
+
 
     /**
      * 获取公共代码
@@ -827,7 +828,6 @@ class Commontool extends Common
         }
         return [$activity_list, $activity_small_list, $activity_en_list];
     }
-
 
 
     /**
