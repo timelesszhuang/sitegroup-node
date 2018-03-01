@@ -593,7 +593,7 @@ class Commontool extends Common
         $type_tags = self::getTags('product');
         foreach ($product as $k => $v) {
             $src = "/images/" . $v['image_name'];
-            $v['thumbnail_src'] = $src;
+            $v['thumbnails_src'] = $src;
             $img = "<img src='{$src}' alt= '{$v['name']}'>";
             //列出当前文章分类来
             $type = [
