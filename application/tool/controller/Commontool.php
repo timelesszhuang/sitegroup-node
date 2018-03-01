@@ -462,14 +462,17 @@ class Commontool extends Common
             $v['color_title'] = $v['title_color'] ? sprintf('<span style="color:%s">%s</span>', $v['title_color'], $v['title']) : $v['title'];
             unset($v['title_color']);
             //默认缩略图的
-            $img = sprintf($img_template, '/templatestatic/default.jpg');
+            $src = '/templatestatic/default.jpg';
+            $img = sprintf($img_template, $src);
             if (!empty($v["thumbnails_name"])) {
                 //如果有本地图片则 为本地图片
                 $src = "/images/" . $v['thumbnails_name'];
                 $img = sprintf($img_template, $src);
             } else if (!empty($v["thumbnails"])) {
+                $src = $v['thumbnails'];
                 $img = sprintf($img_template, $v['thumbnails']);
             }
+            $v['thumbnails_src'] = $src;
             $type = [];
             //列出当前文章分类来
             if (array_key_exists($v['articletype_id'], $article_typearr)) {
