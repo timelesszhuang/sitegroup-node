@@ -107,7 +107,8 @@ demo;
         }
         $data = [
             'd' => $assign_data,
-            'list' => $article
+            'list' => $article,
+            'keyword' => $keyword
         ];
         exit(Common::Debug((new View())->fetch($template,
             $data
@@ -158,7 +159,8 @@ demo;
         }
         $data = [
             'd' => $assign_data,
-            'list' => $product
+            'list' => $product,
+            'keyword' => $keyword
         ];
         exit(Common::Debug((new View())->fetch($template,
             $data
@@ -208,7 +210,8 @@ demo;
         }
         $data = [
             'd' => $assign_data,
-            'list' => $question
+            'list' => $question,
+            'keyword' => $keyword
         ];
         exit(Common::Debug((new View())->fetch($template,
             $data
