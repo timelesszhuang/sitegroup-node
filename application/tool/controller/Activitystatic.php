@@ -123,6 +123,9 @@ class Activitystatic extends Common
         if ($ac_data['img_name']) {
             $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water ,$img_water);
         }
+        if ($ac_data['small_img_name']) {
+            $this->get_osswater_img($ac_data['smalloss_img_src'], $ac_data['small_img_name'], $water ,$img_water);
+        }
         $ac_data['imglist'] = $local_img;
         //还需要 存储在数据库中 相关数据
         //页面中还需要填写隐藏的 表单 node_id site_id
