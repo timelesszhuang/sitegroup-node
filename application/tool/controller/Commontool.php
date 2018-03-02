@@ -413,9 +413,6 @@ class Commontool extends Common
         $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_type_aliasarr = array_key_exists('article', $type_aliasarr) ? $type_aliasarr['article'] : [];
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
-        if (!($max_id && $article_type_aliasarr)) {
-            //表示还没有数据 直接跳出来
-        }
         $articlealias_list = [];
         foreach ($article_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];
@@ -553,10 +550,6 @@ class Commontool extends Common
         $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_type_aliasarr = array_key_exists('product', $type_aliasarr) ? $type_aliasarr['product'] : [];
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
-        if (!($max_id && $product_type_aliasarr)) {
-            //表示还没有数据 直接跳出来
-            return [];
-        }
         $productalias_list = [];
         foreach ($product_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];
@@ -682,10 +675,6 @@ class Commontool extends Common
         $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_type_aliasarr = array_key_exists('question', $type_aliasarr) ? $type_aliasarr['question'] : [];
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
-        if (!($max_id && $question_type_aliasarr)) {
-            //表示还没有数据 直接跳出来
-            return [];
-        }
         $questionalias_list = [];
         foreach ($question_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];

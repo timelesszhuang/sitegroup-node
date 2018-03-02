@@ -197,7 +197,6 @@ class Detailstatic extends Common
         //验证下 是不是这个时间段内 是不是可以生成
         list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $productstatic_status, $productstatic_count) = self::check_static_time($this->site_id, $requesttype);
         //区分菜单所属栏目是哪种类型  article question scatteredstatic
-
         $article_type_keyword = [];
         $question_type_keyword = [];
         $product_type_keyword = [];
