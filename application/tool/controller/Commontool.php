@@ -472,8 +472,8 @@ class Commontool extends Common
         $typeid_str = implode(',', array_keys($article_typearr));
         $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
         foreach (self::$flag as $flag => $name) {
-            $where .= " and flag like '%,$flag,%'";
-            $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
+            $whereflag = $where . " and flag like '%,$flag,%'";
+            $article = Db::name('Article')->where($whereflag)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
             self::formatArticleList($article, $article_typearr);
             //组织数据
             $article_flaglist[$flag] = [
@@ -515,9 +515,9 @@ class Commontool extends Common
             //格式化标题的颜色
             $v['color_title'] = $v['title_color'] ? sprintf('<span style="color:%s">%s</span>', $v['title_color'], $v['title']) : $v['title'];
             unset($v['title_color']);
-            if(strpos($v['flag'],'b')){
-                $v['title']='<strong>'.$v['title'].'</strong>';
-                $v['color_title']='<strong>'.$v['color_title'].'</strong>';
+            if (strpos($v['flag'], 'b')) {
+                $v['title'] = '<strong>' . $v['title'] . '</strong>';
+                $v['color_title'] = '<strong>' . $v['color_title'] . '</strong>';
             }
             //默认缩略图的
             $src = '/templatestatic/default.jpg';
@@ -658,8 +658,8 @@ class Commontool extends Common
         $typeid_str = implode(',', array_keys($product_typearr));
         $where = " `id`<= {$max_id} and type_id in ({$typeid_str})";
         foreach (self::$flag as $flag => $name) {
-            $where .= " and flag like '%,$flag,%'";
-            $product = Db::name('Product')->where($where)->field(self::$productListField)->order('id desc')->limit($limit)->select();
+            $whereflag = $where . " and flag like '%,$flag,%'";
+            $product = Db::name('Product')->where($whereflag)->field(self::$productListField)->order('id desc')->limit($limit)->select();
             self::formatProductList($product, $product_typearr);
             //组织数据
             $product_flaglist[$flag] = [
@@ -711,8 +711,8 @@ class Commontool extends Common
             if (is_array($v)) {
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
             }
-            if(strpos($v['flag'],'b')){
-                $v['name']='<strong>'.$v['name'].'</strong>';
+            if (strpos($v['flag'], 'b')) {
+                $v['name'] = '<strong>' . $v['name'] . '</strong>';
             }
             unset($v['type_id']);
             unset($v['type_name']);
@@ -833,8 +833,8 @@ class Commontool extends Common
         $typeid_str = implode(',', array_keys($question_typearr));
         $where = " `id`<= {$max_id} and type_id in ({$typeid_str})";
         foreach (self::$flag as $flag => $name) {
-            $where .= " and flag like '%,$flag,%'";
-            $question = Db::name('Question')->where($where)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
+            $whereflag = $where . " and flag like '%,$flag,%'";
+            $question = Db::name('Question')->where($whereflag)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
             self::formatQuestionList($question, $question_typearr);
             //组织数据
             $question_flaglist[$flag] = [
@@ -878,8 +878,8 @@ class Commontool extends Common
                     'href' => $question_typearr[$v['type_id']]['href']
                 ];
             }
-            if(strpos($v['flag'],'b')){
-                $v['question']='<strong>'.$v['question'].'</strong>';
+            if (strpos($v['flag'], 'b')) {
+                $v['question'] = '<strong>' . $v['question'] . '</strong>';
             }
             $v['href'] = sprintf(self::$questionPath, $v['id']);
             if (is_array($v)) {
