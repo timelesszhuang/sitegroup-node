@@ -32,6 +32,8 @@ class Commontool extends Common
     public static $articleListField = 'id,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,tags,create_time';
     public static $questionListField = 'id,question,type_id,type_name,tags,create_time';
     public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
+    //  h 头条 c 推荐 b 加粗 a 特荐 f 幻灯
+    public static $flag = ['h' => '头条', 'c' => '推荐', 'b' => '加粗', 'a' => '特荐', 'f' => '幻灯'];
 
     /**
      * 清除缓存 信息
@@ -175,10 +177,15 @@ class Commontool extends Common
      * 获取栏目页面的 tdk 相关数据
      * @param $keyword_info 关键词相关
      * @param $page_id 页面的id  比如 contactme
+     * @param $page_name
      * @param $site_id 站点的id
+     * @param $site_name
      * @param $node_id 节点的id
+     * @param $menu_id
      * @param $menu_name 栏目名
      * @return array
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException
      */
     public static function getMenuPageTDK($keyword_info, $page_id, $page_name, $site_id, $site_name, $node_id, $menu_id, $menu_name)
     {
@@ -264,8 +271,11 @@ class Commontool extends Common
      * @param $node_id 节点的id
      * @param $articletitle
      * @param $articlecontent
-     * @param $a_keyword_key
+     * @param $keywords
+     * @param $a_keyword_id
      * @return array
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException
      * @todo 详情页不需要 存储在数据库中 TDK定死就行
      */
     public static function getDetailPageTDK($keyword_info, $site_id, $node_id, $articletitle, $articlecontent, $keywords, $a_keyword_id)
@@ -367,7 +377,9 @@ class Commontool extends Common
      * 获取 文章列表 获取十条　文件名如 article1 　article2
      * @access public
      * @param $sync_info 该站点所有文章分类的 静态化状况
-     * @return false|\PDOStatement|string|\think\Collection
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
      */
     public static function getArticleList($sync_info, $typeid_arr, $limit = 10)
     {
@@ -427,6 +439,51 @@ class Commontool extends Common
             ];
         }
         return $articlealias_list;
+    }
+
+    /**
+     * 获取产品flag相关list
+     * 最多取出10条
+     */
+    public static function getArticleFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
+        $article_type_aliasarr = array_key_exists('article', $type_aliasarr) ? $type_aliasarr['article'] : [];
+        $more = [];
+        foreach ($article_type_aliasarr as $type_alias => $v) {
+            $type_id = $v['type_id'];
+            $more[] = ['title' => $v['menu_name'], 'href' => sprintf(self::$articleListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
+        }
+        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
+        $article_flaglist = [];
+        if (!($max_id && $article_typearr)) {
+            // 表示有空的时候
+            foreach (self::$flag as $flag => $name) {
+                $article = [];
+                //组织数据
+                $article_flaglist[$flag] = [
+                    'list' => $article,
+                    'detail' => $name,
+                    'more' => $more
+                ];
+            }
+            return $article_flaglist;
+        }
+        $typeid_str = implode(',', array_keys($article_typearr));
+        $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
+        foreach (self::$flag as $flag => $name) {
+            $where .= " and flag like '%,$flag,%'";
+            $article = Db::name('Article')->where($where)->field(self::$articleListField)->order('id desc')->limit($limit)->select();
+            self::formatArticleList($article, $article_typearr);
+            //组织数据
+            $article_flaglist[$flag] = [
+                'list' => $article,
+                // 所有相关 more
+                'more' => $more,
+                'name' => $name
+            ];
+        }
+        return $article_flaglist;
     }
 
 
@@ -567,6 +624,51 @@ class Commontool extends Common
     }
 
     /**
+     * 获取产品flag 相关list
+     * @access public
+     */
+    public static function getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
+        $product_type_aliasarr = array_key_exists('product', $type_aliasarr) ? $type_aliasarr['product'] : [];
+        $more = [];
+        foreach ($product_type_aliasarr as $type_alias => $v) {
+            $type_id = $v['type_id'];
+            $more[] = ['title' => $v['menu_name'], 'href' => sprintf(self::$productListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
+        }
+        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
+        $product_flaglist = [];
+        if (!($max_id && $product_typearr)) {
+            // 表示有空的时候
+            foreach (self::$flag as $flag => $name) {
+                $product = [];
+                //组织数据
+                $product_flaglist[$flag] = [
+                    'list' => $product,
+                    'detail' => $name,
+                    'more' => $more
+                ];
+            }
+            return $product_flaglist;
+        }
+        $typeid_str = implode(',', array_keys($product_typearr));
+        $where = " `id`<= {$max_id} and type_id in ({$typeid_str})";
+        foreach (self::$flag as $flag => $name) {
+            $where .= " and flag like '%,$flag,%'";
+            $product = Db::name('Product')->where($where)->field(self::$productListField)->order('id desc')->limit($limit)->select();
+            self::formatProductList($product, $product_typearr);
+            //组织数据
+            $product_flaglist[$flag] = [
+                'list' => $product,
+                'detail' => $name,
+                'more' => $more
+            ];
+        }
+        return $product_flaglist;
+    }
+
+
+    /**
      * 获取单个类型type 产品列表
      * @access public
      */
@@ -690,6 +792,53 @@ class Commontool extends Common
         }
         return $questionalias_list;
     }
+
+
+    /**
+     * 获取产品flag 相关list
+     * @access public
+     */
+    public static function getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
+        $question_type_aliasarr = array_key_exists('question', $type_aliasarr) ? $type_aliasarr['question'] : [];
+        $questionalias_list = [];
+        $more = [];
+        foreach ($question_type_aliasarr as $type_alias => $v) {
+            $type_id = $v['type_id'];
+            $more[] = ['title' => $v['menu_name'], 'href' => sprintf(self::$questionListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
+        }
+        $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
+        $question_flaglist = [];
+        if (!($max_id && $question_typearr)) {
+            // 表示有空的时候
+            foreach (self::$flag as $flag => $name) {
+                $question = [];
+                //组织数据
+                $question_flaglist[$flag] = [
+                    'list' => $question,
+                    'detail' => $name,
+                    'more' => $more
+                ];
+            }
+            return $question_flaglist;
+        }
+        $typeid_str = implode(',', array_keys($question_typearr));
+        $where = " `id`<= {$max_id} and type_id in ({$typeid_str})";
+        foreach (self::$flag as $flag => $name) {
+            $where .= " and flag like '%,$flag,%'";
+            $question = Db::name('Question')->where($where)->field(self::$questionListField)->order('id desc')->limit($limit)->select();
+            self::formatQuestionList($question, $question_typearr);
+            //组织数据
+            $question_flaglist[$flag] = [
+                'list' => $question,
+                'detail' => $name,
+                'more' => $more
+            ];
+        }
+        return $questionalias_list;
+    }
+
 
     /**
      * 获取单个类型type 问答列表
@@ -1223,6 +1372,12 @@ code;
         $question_typelist = self::getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
         //根据文章分类展现列表以及more
         $product_typelist = self::getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        // 根据文章flag 相关
+        $article_flaglist = self::getArticleFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        // 根据问答查询flag
+        $question_flaglist = self::getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        // 产品相关flag
+        $product_flaglist = self::getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
         //获取友链
         $partnersite = self::getPatternLink($siteinfo);
         //获取公共代码
@@ -1243,7 +1398,7 @@ code;
         $getcontent = self::getSiteGetContent($siteinfo);
         $site_name = $siteinfo['site_name'];
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'scatteredarticle_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist');
     }
 
 
