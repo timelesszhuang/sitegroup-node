@@ -29,9 +29,9 @@ class Commontool extends Common
     //文章问答产品的tag 列表样式 需要有分页
     public static $taglist = '/tag/%s.html';
 
-    public static $articleListField = 'id,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,tags,create_time';
-    public static $questionListField = 'id,question,type_id,type_name,tags,create_time';
-    public static $productListField = 'id,name,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
+    public static $articleListField = 'id,flag,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,tags,create_time';
+    public static $questionListField = 'id,flag,question,type_id,type_name,tags,create_time';
+    public static $productListField = 'id,flag,name,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
     //  h 头条 c 推荐 b 加粗 a 特荐 f 幻灯
     public static $flag = ['h' => '头条', 'c' => '推荐', 'b' => '加粗', 'a' => '特荐', 'f' => '幻灯'];
 
@@ -515,6 +515,10 @@ class Commontool extends Common
             //格式化标题的颜色
             $v['color_title'] = $v['title_color'] ? sprintf('<span style="color:%s">%s</span>', $v['title_color'], $v['title']) : $v['title'];
             unset($v['title_color']);
+            if(strpos($v['flag'],'b')){
+                $v['title']='<strong>'.$v['title'].'</strong>';
+                $v['color_title']='<strong>'.$v['color_title'].'</strong>';
+            }
             //默认缩略图的
             $src = '/templatestatic/default.jpg';
             $img = sprintf($img_template, $src);
@@ -707,6 +711,9 @@ class Commontool extends Common
             if (is_array($v)) {
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
             }
+            if(strpos($v['flag'],'b')){
+                $v['name']='<strong>'.$v['name'].'</strong>';
+            }
             unset($v['type_id']);
             unset($v['type_name']);
             unset($v['image_name']);
@@ -871,7 +878,9 @@ class Commontool extends Common
                     'href' => $question_typearr[$v['type_id']]['href']
                 ];
             }
-            $v['question'] = $v['question'];
+            if(strpos($v['flag'],'b')){
+                $v['question']='<strong>'.$v['question'].'</strong>';
+            }
             $v['href'] = sprintf(self::$questionPath, $v['id']);
             if (is_array($v)) {
                 // model对象调用的时候会自动格式化
