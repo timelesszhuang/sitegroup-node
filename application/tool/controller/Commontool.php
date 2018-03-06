@@ -1526,6 +1526,7 @@ code;
                 }
             }
         }
+        $is_current = false;
         if ($tag == 'index') {
             //首页默认选中的
             $is_current = true;
