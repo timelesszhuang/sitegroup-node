@@ -10,10 +10,10 @@ use think\Request;
  * 配置文件中的页面静态化
  * 执行首页静态化相关操作
  */
-class Template extends Common
+class Template extends CommonToken
 {
-    public $templatepath = " ";
 
+    public $templatepath = " ";
 
     public function _initialize()
     {
@@ -91,7 +91,7 @@ class Template extends Common
             closedir($handle);
         }
         if ($fileArray) {
-            $data = ['status' => '', 'msg' => '模板文件列表获取成功。', 'filelist' => $fileArray];
+            $data = ['status' => 'success', 'msg' => '模板文件列表获取成功。', 'filelist' => $fileArray];
         } else {
             $data = ['status' => 'failed', 'msg' => '模板未传递或没有获取到模板文件。', 'filelist' => $fileArray,];
         }
@@ -115,7 +115,7 @@ class Template extends Common
         //读取文件内容
         $content = file_get_contents($file_path);
         if ($content) {
-            return json_encode(['status' => '', 'msg' => '获取模板内容成功。', 'filename' => $filename, 'content' => $content]);
+            return json_encode(['status' => 'success', 'msg' => '获取模板内容成功。', 'filename' => $filename, 'content' => $content]);
         } else {
             return json_encode(['status' => 'failed', 'msg' => '获取模板内容失败，请稍后重试。', 'filename' => $filename, 'content' => '']);
         }
@@ -161,10 +161,11 @@ class Template extends Common
         }
         if ($content) {
             file_put_contents($file_path, $content);
-            return json_encode(['status' => '', 'msg' => '添加模板成功。']);
+            return json_encode(['status' => 'success', 'msg' => '添加模板成功。']);
         } else {
             return json_encode(['status' => 'failed', 'msg' => '添加模板失败，请填写模板内容。']);
         }
     }
+
 
 }

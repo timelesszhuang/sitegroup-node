@@ -92,9 +92,10 @@ class Common extends Controller
         $this->site_name = $siteinfo['site_name'];
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
+        $this->user_id=$siteinfo['user_id'];
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
-            $SiteWaterImage_info = (new SiteWaterImage())->where(['id'=>$siteinfo['site_water_image_id']])->find();
-            if($SiteWaterImage_info){
+            $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
+            if ($SiteWaterImage_info) {
                 return $SiteWaterImage_info['oss_water_image_path'];
             }
             return '';
@@ -106,23 +107,6 @@ class Common extends Controller
         $this->preproductpath = '/' . $this->productpath;
         $this->currenturl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         parent::__construct();
-    }
-
-    /**
-     * 检查请求来源 如果发送请求 不属于 某域名 则请求不通过
-     *　@access public
-     */
-    public function checkOrigin()
-    {
-        return true;
-        //数据库中配置的域名 在当前的
-        $domain = Db::name('sg_system_config')->where('name', 'SYSTEM_DOMAIN')->field('value')->find();
-        if (array_key_exists('HTTP_REFERER', $_SERVER)) {
-            if (strpos($domain['value'], $_SERVER['HTTP_REFERER'])) {
-                return true;
-            }
-        }
-        exit(['status' => '20', 'msg' => '请求异常']);
     }
 
 
@@ -224,8 +208,9 @@ class Common extends Controller
 
     /**
      * 返回对象  默认不填为success 否则是failed
-     * @param $array 响应数据
-     * @return array
+     * @param int $msg
+     * @param string $stat
+     * @param int $data
      * @return array
      * @author guozhen
      */

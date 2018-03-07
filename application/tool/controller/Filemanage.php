@@ -38,7 +38,8 @@ class Filemanage extends Common
 
     /**
      * 文件上传程序
-     * @return array
+     * @param $id
+     * @return void
      */
     public function uploadFile($id)
     {
@@ -46,7 +47,6 @@ class Filemanage extends Common
         ini_set('max_execution_time', '0');
         set_time_limit(0);
         $this->checkOrigin();
-//        file_put_contents('a.txt', $id, FILE_APPEND);
         $this->manageTemplate();
     }
 

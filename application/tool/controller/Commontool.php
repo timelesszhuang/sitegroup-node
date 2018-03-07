@@ -566,9 +566,9 @@ class Commontool extends Common
      * 获取 产品列表 获取十条产品
      * @access public
      * @param $sync_info 该站点所有文章分类的 静态化状况
-     * @param $site_id 如果是 detail 的话 应该给
+     * @param $typeid_arr
      * @param int $limit
-     * @return false|\PDOStatement|string|\think\Collection
+     * @return array
      */
     public static function getProductList($sync_info, $typeid_arr, $limit = 10)
     {
