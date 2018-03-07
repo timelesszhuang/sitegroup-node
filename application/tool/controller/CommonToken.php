@@ -12,6 +12,7 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use think\Cache;
 use think\Db;
+use think\Request;
 
 class CommonToken extends Common
 {
