@@ -30,7 +30,7 @@ class CommonToken extends Common
     private function checkOrigin()
     {
         //数据库中配置的域名 在当前的
-        $domain = Db::name('sg_system_config')->where('name', 'SYSTEM_DOMAIN')->field('value')->find();
+        $domain = Db::name('system_config')->where('name', 'SYSTEM_DOMAIN')->field('value')->find();
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
             if (strpos($domain['value'], $_SERVER['HTTP_REFERER'])) {
                 return true;
@@ -67,14 +67,14 @@ class CommonToken extends Common
      */
     private function formatToken($type)
     {
-        $data = Db::name('sg_system_config')->where(["name" => 'SYSTEM_CRYPT'])->field('value')->find();
+        $data = Db::name('system_config')->where(["name" => 'SYSTEM_CRYPT'])->field('value')->find();
         $crypt = $data['value'];
         // id 为 user 或 site_user 相关
         $user_id = 0;
         if ($type == 'site') {
             $user_id = $this->user_id;
             $saltdata = Cache::remember('site_user_info', function () use ($user_id) {
-                return Db::name('sg_site_user')->where(['id' => $user_id])->find();
+                return Db::name('site_user')->where(['id' => $user_id])->find();
             });
             $salt = $saltdata['salt'];
             // 读取下 salt数据
@@ -83,7 +83,7 @@ class CommonToken extends Common
             $node_id = $this->node_id;
             // 读取下 salt数据
             $saltdata = Cache::remember('node_user_info', function () use ($node_id) {
-                return Db::name('sg_user')->where(['node_id' => $node_id])->find();
+                return Db::name('user')->where(['node_id' => $node_id])->find();
             });
             $salt = $saltdata['salt'];
             $user_id = $saltdata['id'];
