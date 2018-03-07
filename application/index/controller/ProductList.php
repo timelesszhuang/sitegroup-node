@@ -113,6 +113,10 @@ class ProductList extends EntryCommon
                 if ($type_id == $ptype_id) {
                     $current = true;
                 }
+                if (!array_key_exists($ptype_id, $product_typearr)) {
+                    // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
+                    continue;
+                }
                 $type_info = $product_typearr[$ptype_id];
                 $list = Commontool::getTypeProductList($ptype_id, $productmax_id, $product_typearr, 20);
                 $typelist[] = [
@@ -129,6 +133,10 @@ class ProductList extends EntryCommon
                 $current = false;
                 if ($type_id == $ptype_id) {
                     $current = true;
+                }
+                if (!array_key_exists($ptype_id, $product_typearr)) {
+                    // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
+                    continue;
                 }
                 $type_info = $product_typearr[$ptype_id];
                 $list = Commontool::getTypeProductList($ptype_id, $productmax_id, $product_typearr, 20);

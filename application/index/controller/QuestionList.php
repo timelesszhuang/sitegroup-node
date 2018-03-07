@@ -111,6 +111,10 @@ class QuestionList extends EntryCommon
                 if ($type_id == $ptype_id) {
                     $current = true;
                 }
+                if (!array_key_exists($ptype_id, $question_typearr)) {
+                    // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
+                    continue;
+                }
                 $type_info = $question_typearr[$ptype_id];
                 $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
                 $typelist[] = [
@@ -128,6 +132,10 @@ class QuestionList extends EntryCommon
                 $current = false;
                 if ($type_id == $ptype_id) {
                     $current = true;
+                }
+                if (!array_key_exists($ptype_id, $question_typearr)) {
+                    // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
+                    continue;
                 }
                 $type_info = $question_typearr[$ptype_id];
                 $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
