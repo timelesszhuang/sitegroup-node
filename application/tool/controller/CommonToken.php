@@ -48,6 +48,8 @@ class CommonToken extends Common
         $token = Request::instance()->get('token');
         $type = Request::instance()->get('type');
         $nowtoken = $this->formatToken($type);
+        print_r($token);
+        print_r($nowtoken);
         if ($token == $nowtoken) {
             return true;
         }
