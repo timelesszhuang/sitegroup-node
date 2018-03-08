@@ -54,6 +54,10 @@ trait Osstrait
     /**
      * oss 获取对象
      * @access public
+     * @param $object
+     * @param $filepath
+     * @return array|bool
+     * @throws \OSS\Core\OssException
      */
     public function ossGetObject($object, $filepath)
     {
@@ -88,6 +92,7 @@ trait Osstrait
      * @access public
      * @param $object 要删除的对象  支持带着绝对路径
      * @return array
+     * @throws \OSS\Core\OssException
      */
     public function ossDeleteObject($object)
     {

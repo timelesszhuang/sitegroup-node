@@ -868,7 +868,7 @@ class Detailstatic extends Common
      * 生成单个产品 因为不用考虑定期生成 多少篇
      * @access public
      */
-    public function form_perproduct_content($item, $keyword_id, $menu_id, $menu_name, $tags)
+    public function form_perproduct_content(&$item, $keyword_id, $menu_id, $menu_name, $tags)
     {
         //截取出 页面的 description 信息
         $description = mb_substr(strip_tags($item['summary']), 0, 200);

@@ -20,7 +20,6 @@ composer.phar
 将删除 public/log/index.txt
 将删除 public/log/questionlist.txt
 /application/extra/site.php
-!/application/extra/site.php
 /application/extra/
 将删除 application/common/model/
 /thinkphp/

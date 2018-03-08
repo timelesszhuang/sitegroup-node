@@ -210,34 +210,33 @@ class Template extends CommonToken
         if ($list == 'static') {
             $rootpath = $this->templatestaticpath;
             $filepath = $rootpath . $filename;
-            $template = $this->templatesbkpath;
-            $bkpath = $this->templatestaticpath;
+            $bkpath = $this->templatestaticbkpath;
         }
         if ($flag == 'add') {
             // 添加文件 oss 拉取下来
             if (file_exists($filepath)) {
-                return ['status' => 'failed', 'msg' => '服务器已经存在该文件，请选择替换或查证后再试'];
+                return json_encode(['status' => 'failed', 'msg' => '服务器已经存在该文件，请选择替换或查证后再试']);
             }
             $status = $this->ossGetObject($osspath, $filepath);
-            return ['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试'];
+            return json_encode(['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
         } else if ($flag == 'update') {
             if (!file_exists($filepath)) {
-                return ['status' => 'failed', 'msg' => '您修改的文件不存在，请稍后重试。'];
+                return json_encode(['status' => 'failed', 'msg' => '您修改的文件不存在，请稍后重试。']);
             }
             //修改文件 只需要file_get_content
             //  需要备份在templatebk中 文件的内容
-            file_put_contents($bkpath . date('y-m-d-H:i:s') . $filename, file_get_contents($filepath));
+            file_put_contents($bkpath . date('Y-m-d-H:i:s') . $filename, file_get_contents($filepath));
             if (file_put_contents($filepath, file_get_contents($osspath)) === false) {
                 //失败的情况
-                return ['status' => 'failed', 'msg' => '更新失败请稍后重试。'];
+                return json_encode(['status' => 'failed', 'msg' => '更新失败请稍后重试。']);
             }
-            return ['status' => 'success', 'msg' => '修改文件成功。'];
+            return json_encode(['status' => 'success', 'msg' => '修改文件成功。']);
         } else {
             //replace 替换
             //首先备份下文件
-            rename($filepath, $bkpath . date('y-m-d-H:i:s') . $filename);
+            rename($filepath, $bkpath . date('Y-m-d-H:i:s') . $filename);
             $status = $this->ossGetObject($osspath, $filepath);
-            return ['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试'];
+            return json_encode(['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
         }
         //获取 oss 相关数据
     }
