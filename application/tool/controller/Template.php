@@ -191,7 +191,6 @@ class Template extends CommonToken
     {
         //获取 oss 相关数据
 //        $ossObj = $this->ossGetObject($template->path_oss, $zipTemplateFilePath);
-
     }
 
 
