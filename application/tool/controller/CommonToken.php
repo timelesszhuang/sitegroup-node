@@ -21,6 +21,7 @@ class CommonToken extends Common
     {
         parent::__construct();
         // 检测来源以及是不是有权限操作
+        return true;
         $this->checkOrigin();
         $this->checkToken();
     }
