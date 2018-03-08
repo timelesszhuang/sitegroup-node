@@ -34,6 +34,7 @@ class Template extends CommonToken
         '.otf' => 'font',
         '.woff' => 'font',
     ];
+
     public $htmlsuffix = [
         '.html' => 'html',
         '.htm' => 'html',
@@ -129,15 +130,15 @@ class Template extends CommonToken
         if ($list) {
             switch ($list) {
                 case 'static':
-                    return $this->templatefilelist($this->templatestaticpath);
+                    return $this->templatefilelist($this->templatestaticpath, '/templatestatic/');
                     break;
                 case 'html':
-                    return $this->templatefilelist($this->templatepath);
+                    return $this->templatefilelist($this->templatepath, '/template/');
                     break;
             }
         } else {
             //如果类型不存在的话亲你跪求模板文件
-            return $this->templatefilelist($this->templatepath);
+            return $this->templatefilelist($this->templatepath, '/template/');
         }
     }
 
@@ -146,7 +147,7 @@ class Template extends CommonToken
      * 静态文件列表相关
      * @access public
      */
-    public function templatefilelist($path)
+    public function templatefilelist($path, $relativepath)
     {
         //获取文件列表
         $fileArray = [];
@@ -160,6 +161,7 @@ class Template extends CommonToken
                     $formatsize = $filesize ? $this->FileSizeConvert($filesize) : '0';
                     $fileArray[] = [
                         'name' => $file,
+                        'path' => $this->siteurl . $relativepath . $file,
                         //字节数
                         'size' => $formatsize,
                         //文件类型
