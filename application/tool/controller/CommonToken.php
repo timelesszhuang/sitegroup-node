@@ -16,6 +16,7 @@ use think\Request;
 
 class CommonToken extends Common
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -37,7 +38,7 @@ class CommonToken extends Common
                 return true;
             }
         }
-        exit(['status' => 'failed', 'msg' => '请求异常，请求来源异常']);
+        exit(json_encode(['status' => 'failed', 'msg' => '请求异常，请求来源异常']));
     }
 
     /**
@@ -49,13 +50,13 @@ class CommonToken extends Common
         $token = Request::instance()->get('token');
         $type = Request::instance()->get('type');
         if (!$token && !$type) {
-            exit(['status' => 'failed', 'msg' => '请求参数异常']);
+            exit(json_encode(['status' => 'failed', 'msg' => '请求参数异常']));
         }
         $nowtoken = $this->formatToken($type);
         if ($token == $nowtoken) {
             return true;
         }
-        exit(['status' => 'failed', 'msg' => '请求异常，token异常']);
+        exit(json_encode(['status' => 'failed', 'msg' => '请求异常，token异常']));
     }
 
     /**
