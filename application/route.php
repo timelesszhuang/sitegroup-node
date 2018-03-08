@@ -44,12 +44,9 @@ Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
 //模板文件列表相关操作
 Route::get('templatelist', 'tool/Template/templatelist');
 //读取模板文件
-Route::get('templateread', 'tool/Template/templateread');
-//更新模板文件
-Route::post('templateupdate', 'tool/Template/templateupdate');
-//添加新模板文件
-Route::post('templateadd', 'tool/Template/templateadd');
-
+Route::get('templateFileRead', 'tool/Template/templateread');
+//模板文件相关处理
+Route::get('manageTemplateFile', 'tool/Template/manageTemplateFile');
 
 //全部页面静态化
 Route::get('crontabstatic', 'tool/Pagestaticentry/crontabstatic');
