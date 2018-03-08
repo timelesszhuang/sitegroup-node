@@ -20,7 +20,7 @@ class CommonToken extends Common
     {
         parent::__construct();
         // 检测来源以及是不是有权限操作
-//        $this->checkOrigin();
+        $this->checkOrigin();
         $this->checkToken();
     }
 
@@ -48,8 +48,10 @@ class CommonToken extends Common
     {
         $token = Request::instance()->get('token');
         $type = Request::instance()->get('type');
+        if (!$token && !$type) {
+            exit(['status' => 'failed', 'msg' => '请求参数异常']);
+        }
         $nowtoken = $this->formatToken($type);
-        exit($token . $nowtoken);
         if ($token == $nowtoken) {
             return true;
         }
@@ -70,21 +72,18 @@ class CommonToken extends Common
         $data = Db::name('system_config')->where(["name" => 'SYSTEM_CRYPT'])->field('value')->find();
         $crypt = $data['value'];
         // id 为 user 或 site_user 相关
-        $user_id = 0;
+        // $user_id = 0;
         if ($type == 'site') {
             $user_id = $this->user_id;
-            $saltdata = Cache::remember('site_user_info', function () use ($user_id) {
-                return Db::name('site_user')->where(['id' => $user_id])->find();
-            });
+            $saltdata = Db::name('site_user')->where(['id' => $user_id])->find();
             $salt = $saltdata['salt'];
             // 读取下 salt数据
             return md5($user_id . $salt . $crypt);
         } else if ($type == 'node') {
             $node_id = $this->node_id;
             // 读取下 salt数据
-            $saltdata = Cache::remember('node_user_info', function () use ($node_id) {
-                return Db::name('user')->where(['node_id' => $node_id])->find();
-            });
+            $saltdata = Db::name('user')->where(['node_id' => $node_id])->find();
+            //print_r($saltdata);
             $salt = $saltdata['salt'];
             $user_id = $saltdata['id'];
             return md5($user_id . $salt . $crypt);
