@@ -103,6 +103,11 @@ class Template extends CommonToken
                 $suffix = ['type' => $v, 'suffix' => $k];
             }
         }
+        foreach ($this->htmlsuffix as $k => $v) {
+            if (strpos($file, $k) !== false) {
+                $suffix = ['type' => $v, 'suffix' => $k];
+            }
+        }
         if (empty($suffix)) {
             //表示没有匹配到 相关list
             $filesuffix = end(explode('.', $file));
@@ -174,6 +179,7 @@ class Template extends CommonToken
         } else {
             $data = ['status' => 'failed', 'msg' => '模板未传递或没有获取到模板文件。', 'filelist' => $fileArray,];
         }
+        print_r($data);
         return json_encode($data);
     }
 
