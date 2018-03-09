@@ -29,14 +29,12 @@ class DownloadTemplate extends Common
         }
         $filename = Coding::tiriDecode($filetoken);
         $filename = ROOT_PATH . 'public' . $filename;
-        print_r($filename);
-        exit;
         $file = fopen($filename, "r");
         header("Content-Type: application/octet-stream");
         header("Accept-Ranges: bytes");
-        header("Accept-Length: " . filesize($filename));
+        header("Accept-Length: " . filesize($file));
         header("Content-Disposition: attachment; filename=文件名称");
-        echo fread($file, filesize($filename));
+        echo fread($file, filesize($file));
         fclose($file);
     }
 }
