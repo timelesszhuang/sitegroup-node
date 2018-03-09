@@ -33,7 +33,7 @@ class DownloadTemplate extends Common
         header("Content-Type: application/octet-stream");
         header("Accept-Ranges: bytes");
         header("Accept-Length: " . filesize($filename));
-        header("Content-Disposition: attachment; filename=文件名称");
+        header("Content-Disposition: attachment; filename=a.jpg");
         echo fread($file, filesize($filename));
         fclose($file);
     }
