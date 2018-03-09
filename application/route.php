@@ -45,6 +45,8 @@ Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
 Route::get('templatelist', 'tool/Template/templatelist');
 //读取模板文件
 Route::get('templateFileRead', 'tool/Template/templateread');
+//文件重命名
+Route::get('templateFileRename', 'tool/Template/templatefilerename');
 //模板文件相关处理
 Route::get('manageTemplateFile', 'tool/Template/manageTemplateFile');
 //下载相关链接

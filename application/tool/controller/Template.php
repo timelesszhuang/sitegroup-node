@@ -293,4 +293,35 @@ class Template extends CommonToken
     }
 
 
+    /**
+     * 文件重命名
+     * @access public
+     */
+    public function templatefilerename()
+    {
+        $list = Request::instance()->get('list');
+        $path = $this->templatepath;
+        $filename = Request::instance()->get('filename');
+        $newfilename = Request::instance()->get('newfilename');
+        $oldfile_path = $path . $filename;
+        $newfile_path = $path . $newfilename;
+        if ($list == 'static') {
+            $path = $this->templatestaticpath;
+            $oldfile_path = $path . $filename;
+            $newfile_path = $path . $newfilename;
+        }
+        if (!file_exists($oldfile_path)) {
+            // 文件不存在 无法重命名
+            return json_encode(['status' => 'failed', 'msg' => '文件不存在,无法重命名']);
+        }
+        if (file_exists($newfile_path)) {
+            return json_encode(['status' => 'failed', 'msg' => '要替换的文件名已经存在,无法重命名']);
+        }
+        if (rename($oldfile_path, $newfile_path)) {
+            return json_encode(['status' => 'success', 'msg' => '重命名成功。']);
+        }
+        return json_encode(['status' => 'failed', 'msg' => '重命名失败。']);
+    }
+
+
 }
