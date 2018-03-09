@@ -101,7 +101,6 @@ class Template extends CommonToken
      */
     private function getfilesuffix($file)
     {
-        $suffix = [];
         $type = 'other';
         $filesuffix = end(explode('.', $file));
         if (!$filesuffix) {
