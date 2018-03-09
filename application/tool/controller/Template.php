@@ -232,7 +232,7 @@ class Template extends CommonToken
                 return json_encode(['status' => 'failed', 'msg' => '服务器已经存在该文件，请选择替换或查证后再试']);
             }
             $status = $this->ossGetObject($osspath, $filepath);
-            return json_encode(['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
+            return json_encode(['status' => $status['status'] ? 'success' : 'failed', 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
         } else if ($flag == 'update') {
             if (!file_exists($filepath)) {
                 return json_encode(['status' => 'failed', 'msg' => '您修改的文件不存在，请稍后重试。']);
@@ -251,7 +251,7 @@ class Template extends CommonToken
             copy($filepath, $bkpath . date('Y-m-d-H-i-s') . $filename); //拷贝到新目录
             unlink($filepath); //删除旧目录下的文件
             $status = $this->ossGetObject($osspath, $filepath);
-            return json_encode(['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
+            return json_encode(['status' => $status['status'] ? 'success' : 'failed', 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
         }
         //获取 oss 相关数据
     }
