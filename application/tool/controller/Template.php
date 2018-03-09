@@ -308,7 +308,7 @@ class Template extends CommonToken
         $list = Request::instance()->get('list');
         $filename = Request::instance()->get('filename');
         $newfilename = Request::instance()->get('newfilename');
-        if ($newfilename) {
+        if (!$newfilename) {
             return json_encode(['status' => 'failed', 'msg' => '请填写可用的文件名。']);
         }
         if (!$list || !$filename || !$newfilename) {
