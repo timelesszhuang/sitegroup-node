@@ -102,24 +102,20 @@ class Template extends CommonToken
     private function getfilesuffix($file)
     {
         $suffix = [];
-        foreach ($this->staticsuffix as $k => $v) {
-            if (strpos($file, $k) !== false) {
-                $suffix = ['type' => $v, 'suffix' => $k];
-                break;
-            }
+        $type = 'other';
+        $filesuffix = end(explode('.', $file));
+        if (!$filesuffix) {
+            return ['type' => $type, 'suffix' => ''];
         }
-        foreach ($this->htmlsuffix as $k => $v) {
-            if (strpos($file, $k) !== false) {
-                $suffix = ['type' => $v, 'suffix' => $k];
-                break;
-            }
+        if (array_key_exists($filesuffix, $this->staticsuffix)) {
+            $type = $this->staticsuffix[$filesuffix];
+            return ['type' => $type, 'suffix' => $filesuffix];
         }
-        if (empty($suffix)) {
-            //表示没有匹配到 相关list
-            $filesuffix = end(explode('.', $file));
-            $suffix = ['type' => 'other', 'suffix' => ".$filesuffix"];
+        if (array_key_exists($filesuffix, $this->htmlsuffix)) {
+            $type = $this->htmlsuffix[$filesuffix];
+            return ['type' => $type, 'suffix' => $filesuffix];
         }
-        return $suffix;
+        return ['type' => $type, 'suffix' => $filesuffix];
     }
 
 
@@ -253,7 +249,7 @@ class Template extends CommonToken
         } else {
             //replace 替换
             //首先备份下文件
-            copy($filepath, $bkpath . date('Y-m-d-H:i:s') . $filename); //拷贝到新目录
+            copy($filepath, $bkpath . date('Y-m-d-H-i-s') . $filename); //拷贝到新目录
             unlink($filepath); //删除旧目录下的文件
             $status = $this->ossGetObject($osspath, $filepath);
             return json_encode(['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
