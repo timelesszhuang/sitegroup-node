@@ -220,6 +220,9 @@ class Template extends CommonToken
         $osspath = Request::instance()->get('osspath');
         //要操作的文件名
         $filename = Request::instance()->get('filename');
+        if (!$list || !$flag || !$osspath || !$filename) {
+            return json_encode(['status' => 'failed', 'msg' => '参数异常，请稍后重试']);
+        }
         $rootpath = $this->templatepath;
         $filepath = $rootpath . $filename;
         $bkpath = $this->templatehtmlbkpath;
@@ -269,6 +272,9 @@ class Template extends CommonToken
     {
         $list = Request::instance()->get('list');
         $filename = Request::instance()->get('filename');
+        if (!$list || !$filename) {
+            return json_encode(['status' => 'failed', 'msg' => '参数异常，请重试']);
+        }
         $path = $this->templatepath;
         $file_path = $path . $filename;
         if ($list == 'static') {
@@ -300,9 +306,12 @@ class Template extends CommonToken
     public function templatefilerename()
     {
         $list = Request::instance()->get('list');
-        $path = $this->templatepath;
         $filename = Request::instance()->get('filename');
         $newfilename = Request::instance()->get('newfilename');
+        if (!$list || !$filename || !$newfilename) {
+            return json_encode(['status' => 'failed', 'msg' => '参数异常，请重试']);
+        }
+        $path = $this->templatepath;
         $oldfile_path = $path . $filename;
         $newfile_path = $path . $newfilename;
         if ($list == 'static') {
@@ -315,7 +324,7 @@ class Template extends CommonToken
             return json_encode(['status' => 'failed', 'msg' => '文件不存在,无法重命名']);
         }
         if (file_exists($newfile_path)) {
-            return json_encode(['status' => 'failed', 'msg' => '要替换的文件名已经存在,无法重命名']);
+            return json_encode(['status' => 'failed', 'msg' => '要重命名的文件已经存在,无法重命名']);
         }
         if (rename($oldfile_path, $newfile_path)) {
             return json_encode(['status' => 'success', 'msg' => '重命名成功。']);
