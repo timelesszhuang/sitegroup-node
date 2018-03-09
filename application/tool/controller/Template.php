@@ -105,11 +105,13 @@ class Template extends CommonToken
         foreach ($this->staticsuffix as $k => $v) {
             if (strpos($file, $k) !== false) {
                 $suffix = ['type' => $v, 'suffix' => $k];
+                break;
             }
         }
         foreach ($this->htmlsuffix as $k => $v) {
             if (strpos($file, $k) !== false) {
                 $suffix = ['type' => $v, 'suffix' => $k];
+                break;
             }
         }
         if (empty($suffix)) {
