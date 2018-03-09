@@ -107,6 +107,7 @@ class Template extends CommonToken
         if (!$filesuffix) {
             return ['type' => $type, 'suffix' => ''];
         }
+        $filesuffix = '.' . $filesuffix;
         if (array_key_exists($filesuffix, $this->staticsuffix)) {
             $type = $this->staticsuffix[$filesuffix];
             return ['type' => $type, 'suffix' => $filesuffix];

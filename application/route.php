@@ -47,6 +47,9 @@ Route::get('templatelist', 'tool/Template/templatelist');
 Route::get('templateFileRead', 'tool/Template/templateread');
 //模板文件相关处理
 Route::get('manageTemplateFile', 'tool/Template/manageTemplateFile');
+//下载相关链接
+Route::get('downloadtemplatefile', 'tool/DownloadTemplate/downloadtemplatefile');
+
 
 //全部页面静态化
 Route::get('crontabstatic', 'tool/Pagestaticentry/crontabstatic');

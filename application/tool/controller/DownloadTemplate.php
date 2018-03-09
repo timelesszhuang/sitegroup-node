@@ -15,5 +15,12 @@ use app\common\controller\Common;
 class DownloadTemplate extends Common
 {
 
+    /**
+     * 下载模板文件
+     * @access public
+     */
+    public function downloadtemplatefile()
+    {
 
+    }
 }
