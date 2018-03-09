@@ -2,6 +2,7 @@
 
 namespace app\tool\controller;
 
+use app\common\controller\Coding;
 use think\Request;
 
 
@@ -159,9 +160,13 @@ class Template extends CommonToken
                     $filepath = $path . $file;
                     $filesize = filesize($filepath);
                     $formatsize = $filesize ? $this->FileSizeConvert($filesize) : '0';
+                    $relativefilepath = $relativepath . $file;
+                    $downloadpath = $this->getDownLoadpath($relativefilepath);
                     $fileArray[] = [
                         'name' => $file,
-                        'path' => $this->siteurl . $relativepath . $file,
+                        'path' => $this->siteurl . $relativefilepath,
+                        //下载路径
+                        'downloadpath' => '',
                         //字节数
                         'size' => $formatsize,
                         //文件类型
@@ -188,6 +193,16 @@ class Template extends CommonToken
 
 
     /**
+     * 获取下载链接
+     * @access public
+     */
+    public function getDownLoadpath($filepath)
+    {
+        return $this->siteurl . 'downloadtemplate?filetoken=' . Coding::tiriEncode($filepath);
+    }
+
+
+    /**
      * 获取 Oss 相关文件
      * list：static html 等数据
      * 1、 新上传文件 添加 会传递 oss_path 跟 filename 类型 flag  add
@@ -197,7 +212,8 @@ class Template extends CommonToken
      * 3、 替换文件  添加 osspath 跟 file_name 类型 要替换另外一个 flag replace
      * @access public
      */
-    public function manageTemplateFile()
+    public
+    function manageTemplateFile()
     {
         $list = Request::instance()->get('list');
         //表示是add update 还是replace模板文件
@@ -236,7 +252,8 @@ class Template extends CommonToken
         } else {
             //replace 替换
             //首先备份下文件
-            rename($filepath, $bkpath . date('Y-m-d-H:i:s') . $filename);
+            copy($filepath, $bkpath . date('Y-m-d-H:i:s') . $filename); //拷贝到新目录
+            unlink($filepath); //删除旧目录下的文件
             $status = $this->ossGetObject($osspath, $filepath);
             return json_encode(['status' => $status['status'], 'msg' => $status['status'] ? '添加成功' : '添加失败，请稍后重试']);
         }
@@ -248,11 +265,14 @@ class Template extends CommonToken
      * 模板读操作
      * 需要传递 site_id 跟 filename 不带 .html(只需要filename)
      * @access public
+     * @todo 如果是图片之类其他内容不需要读取内容
      */
-    public function templateread()
+    public
+    function templateread()
     {
         $list = Request::instance()->get('list');
         $filename = Request::instance()->get('filename');
+
         $path = $this->templatepath;
         $file_path = $path . $filename;
         if ($list == 'static') {
@@ -271,5 +291,6 @@ class Template extends CommonToken
             return json_encode(['status' => 'failed', 'msg' => '获取内容失败，请稍后重试。', 'filename' => $filename, 'content' => '']);
         }
     }
+
 
 }
