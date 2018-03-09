@@ -30,6 +30,7 @@ class CommonToken extends Common
      */
     private function checkOrigin()
     {
+        return true;
         //数据库中配置的域名 在当前的
         $domain = Db::name('system_config')->where('name', 'SYSTEM_DOMAIN')->field('value')->find();
         if (array_key_exists('HTTP_REFERER', $_SERVER)) {
