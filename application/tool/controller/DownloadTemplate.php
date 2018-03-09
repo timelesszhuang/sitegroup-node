@@ -24,21 +24,21 @@ class DownloadTemplate extends Common
     public function downloadtemplatefile()
     {
         $filetoken = Request::instance()->get('filetoken');
-        if (!$filetoken) {
+        $filerelativename = Coding::tiriDecode($filetoken);
+        if (!$filetoken || !$filerelativename) {
             exit(json_encode(['status' => 'failed', 'msg' => '参数异常']));
         }
-        $filerelativename = Coding::tiriDecode($filetoken);
         $filepath = ROOT_PATH . 'public' . $filerelativename;
         $pathinfo = pathinfo($filepath);
         $file_name = $pathinfo['basename'];
         header("Content-type:text/html;charset=utf-8");
         //用以解决中文不能显示出来的问题
-        $file_name = iconv("utf-8", "gb2312", $file_name);
         //首先要判断给定的文件存在与否
         if (!file_exists($filepath)) {
             exit(json_encode(['status' => 'failed', 'msg' => '参数异常']));
             return;
         }
+        $file_name = iconv("utf-8", "gb2312", $file_name);
         $fp = fopen($filepath, "r");
         $filesize = filesize($filepath);
         //下载文件需要用到的头
