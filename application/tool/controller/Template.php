@@ -102,7 +102,8 @@ class Template extends CommonToken
     private function getfilesuffix($file)
     {
         $type = 'other';
-        $filesuffix = end(explode('.', $file));
+        $pathinfo = pathinfo($file);
+        $filesuffix = array_key_exists('extension', $pathinfo) ? $pathinfo['extension'] : '';
         if (!$filesuffix) {
             return ['type' => $type, 'suffix' => ''];
         }
@@ -195,7 +196,7 @@ class Template extends CommonToken
      */
     public function getDownLoadpath($filepath)
     {
-        return $this->siteurl . 'downloadtemplate?filetoken=' . Coding::tiriEncode($filepath);
+        return $this->siteurl . '/downloadtemplatefile?filetoken=' . Coding::tiriEncode($filepath);
     }
 
 
