@@ -24,7 +24,7 @@ class DownloadTemplate extends Common
     public function downloadtemplatefile()
     {
         $filetoken = Request::instance()->get('filetoken');
-        if ($filetoken) {
+        if (!$filetoken) {
             exit(json_encode(['status' => 'failed', '参数异常']));
         }
         $filename = Coding::tiriDecode($filetoken);
