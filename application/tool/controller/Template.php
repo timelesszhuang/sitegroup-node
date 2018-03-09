@@ -275,6 +275,10 @@ class Template extends CommonToken
             $path = $this->templatestaticpath;
             $file_path = $path . $filename;
         }
+        $suffix = $this->getfilesuffix($filename);
+        if ($suffix['type'] == 'image') {
+            return json_encode(['status' => 'success', 'msg' => '获取内容成功。', 'filename' => $filename, 'content' => '']);
+        }
         //要操作的文件名
         if (!file_exists($file_path)) {
             return json_encode(['status' => 'failed', 'msg' => '文件不存在,请查证后再试。', 'filename' => $filename, 'content' => '']);
