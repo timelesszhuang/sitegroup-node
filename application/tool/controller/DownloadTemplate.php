@@ -29,6 +29,8 @@ class DownloadTemplate extends Common
         }
         $filename = Coding::tiriDecode($filetoken);
         $filename = ROOT_PATH . 'public' . $filename;
+        print_r($filename);
+        exit;
         $file = fopen($filename, "r");
         header("Content-Type: application/octet-stream");
         header("Accept-Ranges: bytes");
