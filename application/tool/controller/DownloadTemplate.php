@@ -25,7 +25,7 @@ class DownloadTemplate extends Common
     {
         $filetoken = Request::instance()->get('filetoken');
         if (!$filetoken) {
-            exit(json_encode(['status' => 'failed', '参数异常']));
+            exit(json_encode(['status' => 'failed', 'msg' => '参数异常']));
         }
         $filerelativename = Coding::tiriDecode($filetoken);
         $filepath = ROOT_PATH . 'public' . $filerelativename;
@@ -36,7 +36,7 @@ class DownloadTemplate extends Common
         $file_name = iconv("utf-8", "gb2312", $file_name);
         //首先要判断给定的文件存在与否
         if (!file_exists($filepath)) {
-            echo "没有该文件文件";
+            exit(json_encode(['status' => 'failed', 'msg' => '参数异常']));
             return;
         }
         $fp = fopen($filepath, "r");
