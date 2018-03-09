@@ -166,7 +166,7 @@ class Template extends CommonToken
                         'name' => $file,
                         'path' => $this->siteurl . $relativefilepath,
                         //下载路径
-                        'downloadpath' => '',
+                        'downloadpath' => $downloadpath,
                         //字节数
                         'size' => $formatsize,
                         //文件类型
@@ -212,8 +212,7 @@ class Template extends CommonToken
      * 3、 替换文件  添加 osspath 跟 file_name 类型 要替换另外一个 flag replace
      * @access public
      */
-    public
-    function manageTemplateFile()
+    public function manageTemplateFile()
     {
         $list = Request::instance()->get('list');
         //表示是add update 还是replace模板文件
@@ -267,12 +266,10 @@ class Template extends CommonToken
      * @access public
      * @todo 如果是图片之类其他内容不需要读取内容
      */
-    public
-    function templateread()
+    public function templateread()
     {
         $list = Request::instance()->get('list');
         $filename = Request::instance()->get('filename');
-
         $path = $this->templatepath;
         $file_path = $path . $filename;
         if ($list == 'static') {
