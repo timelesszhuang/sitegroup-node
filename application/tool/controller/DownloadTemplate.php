@@ -9,7 +9,9 @@
 namespace app\tool\controller;
 
 
+use app\common\controller\Coding;
 use app\common\controller\Common;
+use think\Request;
 
 
 class DownloadTemplate extends Common
@@ -21,6 +23,18 @@ class DownloadTemplate extends Common
      */
     public function downloadtemplatefile()
     {
-
+        $filetoken = Request::instance()->get('filetoken');
+        if ($filetoken) {
+            exit(json_encode(['status' => 'failed', '参数异常']));
+        }
+        $filename = Coding::tiriDecode($filetoken);
+        $filename = ROOT_PATH . 'public' . $filename;
+        $file = fopen($filename, "r");
+        header("Content-Type: application/octet-stream");
+        header("Accept-Ranges: bytes");
+        header("Accept-Length: " . filesize($filename));
+        header("Content-Disposition: attachment; filename=文件名称");
+        echo fread($file, filesize($filename));
+        fclose($file);
     }
 }
