@@ -285,8 +285,7 @@ class Template extends CommonToken
         }
         //读取文件内容
         $content = file_get_contents($file_path);
-
-        if ($content) {
+        if ($content !== false) {
             return json_encode(['status' => 'success', 'msg' => '获取内容成功。', 'filename' => $filename, 'content' => $content]);
         } else {
             return json_encode(['status' => 'failed', 'msg' => '获取内容失败，请稍后重试。', 'filename' => $filename, 'content' => '']);
