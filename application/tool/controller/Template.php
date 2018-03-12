@@ -244,7 +244,7 @@ class Template extends CommonToken
             }
             //修改文件 只需要file_get_content
             //  需要备份在templatebk中 文件的内容
-            file_put_contents($bkpath . date('Y-m-d-H:i:s') . $filename, file_get_contents($filepath));
+            file_put_contents($bkpath . date('Y-m-d-H-i-s') . $filename, file_get_contents($filepath));
             if (file_put_contents($filepath, file_get_contents($osspath)) === false) {
                 //失败的情况
                 return json_encode(['status' => 'failed', 'msg' => '更新失败请稍后重试。']);
