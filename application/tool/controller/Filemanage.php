@@ -10,11 +10,9 @@
 
 namespace app\tool\controller;
 
-
-use app\common\controller\Common;
 use think\Cache;
 
-class Filemanage extends Common
+class Filemanage extends CommonToken
 {
     //目录是相对于 public  使用 ROOT_PATH 需 手动追加 public/ 目录
     //亚索模板文件的路径
@@ -46,7 +44,6 @@ class Filemanage extends Common
         Cache::clear();
         ini_set('max_execution_time', '0');
         set_time_limit(0);
-        $this->checkOrigin();
         $this->manageTemplate();
     }
 

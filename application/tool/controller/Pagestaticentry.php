@@ -12,7 +12,7 @@ use think\Request;
  * 页面静态化 入口文件
  * 该文件接收请求重新生成页面
  */
-class Pagestaticentry extends Common
+class Pagestaticentry extends CommonToken
 {
     /**
      * 本地测试开启下 允许跨域ajax 获取数据
