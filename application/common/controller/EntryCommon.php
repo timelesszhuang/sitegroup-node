@@ -34,6 +34,8 @@ class EntryCommon extends Common
         $host = $_SERVER['HTTP_HOST'];
         print_r($host);
         print_r($domain);
+        $suffix = substr(0, strpos($host, $domain));
+        print_r($suffix);
     }
 
 
