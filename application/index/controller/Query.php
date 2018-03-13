@@ -3,6 +3,7 @@
 namespace app\index\controller;
 
 use app\common\controller\Common;
+use app\common\controller\EntryCommon;
 use app\index\model\Article;
 use app\index\model\Product;
 use app\index\model\Question;
@@ -14,7 +15,7 @@ use think\View;
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
  */
-class Query extends Common
+class Query extends EntryCommon
 {
 
     private $goback = <<<demo

@@ -15,6 +15,7 @@ use think\View;
  */
 class NewsList extends EntryCommon
 {
+
     /**
      * 首页列表
      * @access public
@@ -54,8 +55,12 @@ class NewsList extends EntryCommon
      * NEWS列表静态化
      * @param $id
      * @param $siteinfo
+     * @param $templatepath
      * @param int $currentpage
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function generateNewsList($id, $siteinfo, $templatepath, $currentpage = 1)
     {
@@ -65,7 +70,6 @@ class NewsList extends EntryCommon
         if (empty(strstr($siteinfo["menu"], "," . $id . ","))) {
             exit("当前网站无此栏目");
         }
-
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
         $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'newslist');
@@ -85,4 +89,5 @@ class NewsList extends EntryCommon
         //获取当前type_id的文章
         return $assign_data;
     }
+
 }

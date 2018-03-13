@@ -5,7 +5,6 @@ namespace app\index\controller;
 use app\common\controller\EntryCommon;
 use app\tool\controller\Site;
 
-
 /**
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
@@ -13,14 +12,12 @@ use app\tool\controller\Site;
 class Detailenter extends EntryCommon
 {
 
-
     /**
      * 首页入口
      */
     public function index()
     {
-        $filename = 'index.html';
-        $siteinfo = Site::getSiteInfo();
+        $filename = 'indextmp.html';
         $this->entryCommon();
         exit(file_get_contents($filename));
     }
@@ -33,7 +30,6 @@ class Detailenter extends EntryCommon
     public function article($id)
     {
         $filename = sprintf('article/%s.html', $id);
-        $siteinfo = Site::getSiteInfo();
         $this->entryCommon();
         if (file_exists($filename)) {
             exit(file_get_contents($filename));

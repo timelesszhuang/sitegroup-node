@@ -12,6 +12,7 @@ use think\View;
  */
 class Indexstatic extends Common
 {
+
     /**
      * 首恶静态化
      * @access public
@@ -36,12 +37,11 @@ class Indexstatic extends Common
         $content = Common::Debug((new View())->fetch('template/index.html',
             $data
         ), $data);
-        if (file_put_contents('index.html', $content) === 'false') {
+        if (file_put_contents('indextmp.html', $content) === 'false') {
             return false;
         }
         $this->urlsCache([$this->siteurl . '/index.html']);
         return true;
     }
-
 
 }
