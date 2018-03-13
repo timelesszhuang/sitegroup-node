@@ -14,6 +14,7 @@ use app\index\traits\Pv;
 use app\index\traits\SearchEngineComefrom;
 use app\index\traits\SpiderComefrom;
 use app\tool\controller\Site;
+use think\Db;
 
 class EntryCommon extends Common
 {
@@ -22,6 +23,11 @@ class EntryCommon extends Common
     use SearchEngineComefrom;
 
     public $siteinfo;
+    // 默认当前是主站
+    public $mainsite = true;
+    // 默认当前的区域为0
+    public $district_id = 0;
+    public $district_name = '';
 
     //入口的位置执行相关请求
 
@@ -32,21 +38,38 @@ class EntryCommon extends Common
         parent::__construct();
         //截取下相关的域名
         $host = $_SERVER['HTTP_HOST'];
-        print_r($host);
-        print_r($domain);
-        print_r(strpos($host,$domain));
-        $pos=strpos($host, $domain);
-        $suffix='';
-        if($pos){
-            $suffix = substr($host,0,$pos-1);
+        $pos = strpos($host, $domain);
+        $suffix = '';
+        if ($pos) {
+            $suffix = substr($host, 0, $pos - 1);
         }
-        print_r($suffix);
-        exit;
+        if ($suffix != '' && $suffix != 'www') {
+            $this->mainsite = false;
+        }
+        $this->getDistrictInfo($suffix);
+        print_r($this->district_name);
+        print_r($this->district_id);
+    }
+
+    /**
+     * 获取区域的信息
+     * @access public
+     */
+    public function getDistrictInfo($suffix)
+    {
+        // 相关后缀获取相关bug
+        $info = Db::name('district')->where(['pinyin' => $suffix])->find();
+        if ($info) {
+            $this->district_id = $info['id'];
+            $this->district_name = $info['name'];
+            $this->mainsite = false;
+        }
     }
 
 
     /**
      * 浏览页面之后的公共操作
+     * @access public
      */
     public function entryCommon()
     {
