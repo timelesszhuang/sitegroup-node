@@ -28,10 +28,12 @@ class EntryCommon extends Common
     public function __construct()
     {
         $this->siteinfo = Site::getSiteInfo();
+        $domain = $this->siteinfo['domain'];
         parent::__construct();
         //截取下相关的域名
         $host = $_SERVER['HTTP_HOST'];
         print_r($host);
+        print_r($domain);
     }
 
 
