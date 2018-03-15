@@ -13,7 +13,6 @@ namespace app\common\controller;
 use app\index\traits\Pv;
 use app\index\traits\SearchEngineComefrom;
 use app\index\traits\SpiderComefrom;
-use app\tool\controller\Site;
 use think\Cache;
 use think\Db;
 
@@ -23,28 +22,21 @@ class EntryCommon extends Common
     use Pv;
     use SearchEngineComefrom;
 
-    public $siteinfo;
-    // 默认当前是主站
-    public $mainsite = true;
-    // 默认当前的区域为0
-    public $district_id = 0;
-    public $district_name = '';
 
     //入口的位置执行相关请求
 
     public function __construct()
     {
-        $this->siteinfo = Site::getSiteInfo();
-        $domain = $this->siteinfo['domain'];
         parent::__construct();
         //截取下相关的域名
         $host = $_SERVER['HTTP_HOST'];
-        $pos = strpos($host, $domain);
+        $pos = strpos($host, $this->domain);
         $suffix = '';
         if ($pos) {
             $suffix = substr($host, 0, $pos - 1);
         }
         if ($suffix != '' && $suffix != 'www') {
+            $this->suffix = $suffix;
             $this->mainsite = false;
             $this->getDistrictInfo($suffix);
         }
@@ -54,18 +46,21 @@ class EntryCommon extends Common
      * 获取区域的信息
      * @access public
      */
-    public function getDistrictInfo($suffix)
+    public function getDistrictInfo()
     {
-        $info = Cache::remember("{$suffix}info", function () use ($suffix) {
+        $suffix = $this->suffix;
+        $info = Cache::remember("{$this->suffix}info", function () use ($suffix) {
             return Db::name('district')->where(['pinyin' => $suffix])->find();
         });
         // 相关后缀获取相关bug
         if ($info) {
             // 后缀存储在缓存中
-            Cache::remember('suffix', $suffix);
-            $this->district_id = Cache::remember("{$suffix}_district_id", $info['id']);
-            $this->district_name = Cache::remember("{$suffix}_district_name", $info['name']);
+            $this->district_id = $info['id'];
+            $this->district_name = $info['name'];
             $this->mainsite = false;
+        } else {
+            //表示不存在该子站 展现主站的数据
+            $this->mainsite = true;
         }
     }
 

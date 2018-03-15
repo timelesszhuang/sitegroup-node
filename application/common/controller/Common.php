@@ -26,6 +26,18 @@ class Common extends Controller
     use Pingbaidu;
     use Params;
     use Template;
+
+    //表示是不是主站
+    public $mainsite = true;
+    // 默认当前是主站
+    // 默认当前的区域为0
+    //区域id相关信息
+    public $district_id = 0;
+    //区域name
+    public $district_name = '';
+    //二级域名的后缀
+    public $suffix = '';
+
     public $urlskey = 'pingUrls';
 
     public $separator = '||||||||||||||||||||||||';
@@ -97,6 +109,8 @@ class Common extends Controller
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
         $this->user_id = $siteinfo['user_id'];
+        //主域名相关
+        $this->domain = $siteinfo['domain'];
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
             if ($SiteWaterImage_info) {
