@@ -4,7 +4,6 @@ namespace app\index\controller;
 
 use app\common\controller\EntryCommon;
 use app\tool\controller\Indexstatic;
-use app\tool\controller\Site;
 
 /**
  * 文章列表相关操作 列表伪静态
@@ -20,7 +19,7 @@ class Detailenter extends EntryCommon
     {
         if ($this->mainsite) {
             // 主站相关
-            $filename = 'indexmenu/index.html';
+            $filename = $this->detailmenupath . 'index.html';
             $this->entryCommon();
             exit(file_get_contents($filename));
         }
