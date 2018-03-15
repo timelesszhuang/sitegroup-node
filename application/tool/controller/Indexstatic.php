@@ -38,6 +38,8 @@ class Indexstatic extends Common
      */
     public function indexstaticdata()
     {
+        print_r($this->district_name);
+        exit;
         //  获取首页生成需要的资源
         //  关键词
         //  栏目url  展现以下已经在数据库
