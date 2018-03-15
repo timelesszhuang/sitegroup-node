@@ -49,9 +49,14 @@ class ArticleList extends EntryCommon
 
     /**
      * article列表静态化
-     * @param $id
+     * @param $menu_enname
+     * @param $type_id
+     * @param $siteinfo
      * @param int $currentpage
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function generateArticleList($menu_enname, $type_id, $siteinfo, $currentpage = 1)
     {

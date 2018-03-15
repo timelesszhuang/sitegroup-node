@@ -89,6 +89,9 @@ class Detailenter extends EntryCommon
         }
         $this->entryCommon();
         // 去请求数据 返回详情型菜单
+        print_r($this->suffix);
+        print_r($this->district_id);
+        print_r($this->district_name);
         echo '非主站';
         exit;
     }
