@@ -82,7 +82,7 @@ class Detailmenupagestatic extends Common
             $content = Common::Debug((new View())->fetch($template,
                 $data
             ), $data);
-            if (file_put_contents("{$v['generate_name']}.html", $content) === 'false') {
+            if (file_put_contents($this->detailmenupath . "{$v['generate_name']}.html", $content) === 'false') {
                 continue;
             } else {
                 array_push($pingUrls, $this->siteurl . "/{$v['generate_name']}.html");

@@ -20,7 +20,7 @@ class Detailenter extends EntryCommon
     {
         if ($this->mainsite) {
             // 主站相关
-            $filename = 'indextmp.html';
+            $filename = 'indexmenu/index.html';
             $this->entryCommon();
             exit(file_get_contents($filename));
         }
@@ -73,6 +73,25 @@ class Detailenter extends EntryCommon
         } else {
             exit(file_get_contents('index.html'));
         }
+    }
+
+    /**
+     * 相关详情菜单的信息 该部分实现是利用 thinkphp module not exists: 异常捕获处理实现 因为详情菜单名称定义不一致
+     * @access public
+     */
+    public function detailMenu($filename)
+    {
+        if ($this->mainsite) {
+            $filepath = $this->detailmenupath . $filename;
+            if (file_exists($filepath)) {
+                $this->entryCommon();
+                exit(file_get_contents($filepath));
+            }
+        }
+        $this->entryCommon();
+        // 去请求数据 返回详情型菜单
+        echo '非主站';
+        exit;
     }
 
 }

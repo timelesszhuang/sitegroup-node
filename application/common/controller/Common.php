@@ -16,7 +16,6 @@ use app\tool\traits\Pingbaidu;
 use app\tool\traits\Template;
 use think\Config;
 use think\Controller;
-use think\Db;
 use think\Cache;
 use app\tool\model\SiteWaterImage;
 
@@ -41,6 +40,7 @@ class Common extends Controller
     public $menu_ids = '';
 
 
+    public $detailmenupath = 'indexmenu/';
     // 首页模板位置
     public $indextemplate = 'template/index.html';
 

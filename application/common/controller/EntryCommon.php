@@ -14,6 +14,7 @@ use app\index\traits\Pv;
 use app\index\traits\SearchEngineComefrom;
 use app\index\traits\SpiderComefrom;
 use app\tool\controller\Site;
+use think\Cache;
 use think\Db;
 
 class EntryCommon extends Common
@@ -45,10 +46,8 @@ class EntryCommon extends Common
         }
         if ($suffix != '' && $suffix != 'www') {
             $this->mainsite = false;
+            $this->getDistrictInfo($suffix);
         }
-        $this->getDistrictInfo($suffix);
-        print_r($this->district_name);
-        print_r($this->district_id);
     }
 
     /**
@@ -57,11 +56,15 @@ class EntryCommon extends Common
      */
     public function getDistrictInfo($suffix)
     {
+        $info = Cache::remember("{$suffix}info", function () use ($suffix) {
+            return Db::name('district')->where(['pinyin' => $suffix])->find();
+        });
         // 相关后缀获取相关bug
-        $info = Db::name('district')->where(['pinyin' => $suffix])->find();
         if ($info) {
-            $this->district_id = $info['id'];
-            $this->district_name = $info['name'];
+            // 后缀存储在缓存中
+            Cache::remember('suffix', $suffix);
+            $this->district_id = Cache::remember("{$suffix}_district_id", $info['id']);
+            $this->district_name = Cache::remember("{$suffix}_district_name", $info['name']);
             $this->mainsite = false;
         }
     }
@@ -80,4 +83,5 @@ class EntryCommon extends Common
         //获取请求的useragent
         $this->pagecomefrom($this->siteinfo, $absolutepath);
     }
+
 }
