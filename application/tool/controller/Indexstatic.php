@@ -3,7 +3,6 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use app\tool\traits\FileExistsTraits;
 use think\View;
 
 /**
@@ -20,9 +19,25 @@ class Indexstatic extends Common
     public function index()
     {
         // 判断模板是否存在
-        if (!$this->fileExists('template/index.html')) {
+        if (!$this->fileExists($this->indextemplate)) {
             return;
         }
+        $content = $this->indexstaticdata();
+        // 使用该命名是为了 防止请求不经过 index.php 有些服务器的index 优先级 index.html 大于index.php
+        if (file_put_contents('indextmp.html', $content) === 'false') {
+            return false;
+        }
+        $this->urlsCache([$this->siteurl . '/index.html']);
+        return true;
+    }
+
+
+    /**
+     * 获取渲染之后的页面的字符串 有时需要静态化 有时需要直接返回给浏览器
+     * @access public
+     */
+    public function indexstaticdata()
+    {
         //  获取首页生成需要的资源
         //  关键词
         //  栏目url  展现以下已经在数据库
@@ -34,14 +49,10 @@ class Indexstatic extends Common
         $data = [
             'd' => $assign_data
         ];
-        $content = Common::Debug((new View())->fetch('template/index.html',
+        $content = Common::Debug((new View())->fetch($this->indextemplate,
             $data
         ), $data);
-        if (file_put_contents('indextmp.html', $content) === 'false') {
-            return false;
-        }
-        $this->urlsCache([$this->siteurl . '/index.html']);
-        return true;
+        return $content;
     }
 
 }

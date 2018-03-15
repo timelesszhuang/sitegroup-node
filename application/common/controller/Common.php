@@ -40,6 +40,10 @@ class Common extends Controller
     public $waterImgUrl = '';
     public $menu_ids = '';
 
+
+    // 首页模板位置
+    public $indextemplate = 'template/index.html';
+
     //文章相关链接
     public $articlepath = 'article/article%s.html';
     public $prearticlepath = '';
@@ -92,7 +96,7 @@ class Common extends Controller
         $this->site_name = $siteinfo['site_name'];
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
-        $this->user_id=$siteinfo['user_id'];
+        $this->user_id = $siteinfo['user_id'];
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
             if ($SiteWaterImage_info) {

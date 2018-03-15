@@ -25,7 +25,6 @@ Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
 Route::get('preview/:type/:id', 'index/Preview/preview', ['ext' => 'html']);
 //相关的标签列表
 Route::get('tag/:id', 'index/TagList/tag', ['ext' => 'html']);
-
 //栏目首页相关
 Route::get('index', 'index/Detailenter/index', ['ext' => 'html']);
 //文章页面入口

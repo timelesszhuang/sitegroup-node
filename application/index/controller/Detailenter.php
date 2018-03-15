@@ -3,6 +3,7 @@
 namespace app\index\controller;
 
 use app\common\controller\EntryCommon;
+use app\tool\controller\Indexstatic;
 use app\tool\controller\Site;
 
 /**
@@ -17,9 +18,14 @@ class Detailenter extends EntryCommon
      */
     public function index()
     {
-        $filename = 'indextmp.html';
-        $this->entryCommon();
-        exit(file_get_contents($filename));
+        if ($this->mainsite) {
+            // 主站相关
+            $filename = 'indextmp.html';
+            $this->entryCommon();
+            exit(file_get_contents($filename));
+        }
+        //分站相关
+        (new Indexstatic())->indexstaticdata();
     }
 
 
