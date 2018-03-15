@@ -50,7 +50,7 @@ class Common extends Controller
     public $waterString = '';
     public $waterImgUrl = '';
     public $menu_ids = '';
-
+    public $siteinfo = [];
 
     public $detailmenupath = 'indexmenu/';
     // 首页模板位置
@@ -111,6 +111,7 @@ class Common extends Controller
         $this->user_id = $siteinfo['user_id'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
+        $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
             if ($SiteWaterImage_info) {
