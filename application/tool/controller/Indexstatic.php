@@ -3,6 +3,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use think\Request;
 use think\View;
 
 /**
@@ -38,6 +39,7 @@ class Indexstatic extends Common
      */
     public function indexstaticdata()
     {
+        print_r($_SERVER['HTTP_HOST']);
         print_r($this->district_name);
         exit;
         //  获取首页生成需要的资源
