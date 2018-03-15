@@ -24,7 +24,7 @@ class Indexstatic extends Common
         }
         $content = $this->indexstaticdata();
         // 使用该命名是为了 防止请求不经过 index.php 有些服务器的index 优先级 index.html 大于index.php
-        if (file_put_contents('indexmenu/index.html', $content) === 'false') {
+        if (file_put_contents($this->detailmenupath . 'index.html', $content) === 'false') {
             return false;
         }
         $this->urlsCache([$this->siteurl . '/index.html']);
