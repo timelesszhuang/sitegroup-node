@@ -27,16 +27,21 @@ use think\Validate;
 class Site extends Common
 {
     use \app\index\traits\Pv;
+
     /**
      * 获取链轮的相关信息
      *  两种链轮类型  1 循环链轮  需要返回  next_site 也就是本网站需要链接到的网站  main_site  表示主节点 从id 小的 链接到比较大的  最大的id 链接到最小的id 上
      *              2 金字塔型  需要返回要指向的 主节点  二级节点之间不需要互相链
      * @access public
      * @return mixed  第一个字段是 链轮的类型 10 表示 循环链轮 20 表示 金字塔型链轮
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      * @todo  还要考虑到手机站的情况 手机站的互链情况
      */
-    public static function getLinkInfo($site_type_id, $site_id, $site_name, $node_id)
+    public function getLinkInfo()
     {
+        $site_type_id = $this->siteinfo['site_type'];
         //首先获取当前的节点id
         $site_type = Db::name('site_type')->where('id', $site_type_id)->find();
         $chain_type = $site_type['chain_type'];
@@ -51,14 +56,14 @@ class Site extends Common
             $site_info->addError([
                 'msg' => $site_type['name'] . "站点分类没有设置主站点",
                 'operator' => '页面静态化',
-                'site_id' => $site_id,
-                'site_name' => $site_name,
-                'node_id' => $node_id,
+                'site_id' => $this->site_id,
+                'site_name' => $this->site_name,
+                'node_id' => $this->node_id,
             ]);
             //错误信息
         }
         //判断主节点是不是当前的节点
-        if ($site_id == $main_site['id']) {
+        if ($this->site_id == $main_site['id']) {
             $main_site = [];
         }
         $next_site = [];
@@ -205,7 +210,7 @@ class Site extends Common
         }
         //dump($definedform->form_info);die;
         $form_info = unserialize($definedform->form_info);
-//dump($form_info);die;
+        //dump($form_info);die;
         $rule = [];
         foreach ($form_info as $k => $v) {
             if ($v['require']) {
@@ -272,9 +277,9 @@ class Site extends Common
         } else {
             $data["field4"] = '';
         }
-        $rejectionfinish =  (new Rejection())->order('id desc')->find();
-        if($rejectionfinish){
-            if($rejectionfinish['field2'] ==  $data["field2"]){
+        $rejectionfinish = (new Rejection())->order('id desc')->find();
+        if ($rejectionfinish) {
+            if ($rejectionfinish['field2'] == $data["field2"]) {
                 return $this->resultArray("请不要重复申请", "failed");
             }
         }

@@ -7,9 +7,7 @@ use app\index\model\Article;
 use app\index\model\ArticleSyncCount;
 use app\index\model\Product;
 use app\index\model\Question;
-use app\index\model\ScatteredTitle;
 use app\tool\model\SitePageinfo;
-use think\Cache;
 use think\Config;
 use think\Db;
 use think\View;
@@ -36,8 +34,10 @@ class Detailstatic extends Common
             //如果没有设置该字段 则默认生成五篇
             self::$system_default_count = 5;
         }
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($this->menu_ids);
+        list($type_aliasarr, $typeid_arr) = (new Commontool())->getTypeIdInfo();
         $this->typeid_arr = $typeid_arr;
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'detail';
     }
 
     /**
@@ -180,15 +180,15 @@ class Detailstatic extends Common
      * 静态化 文章 问答 零散段落等相关数据
      * @param string $requesttype 如果 $requestype 为 crontab 的话 会 按照配置的 时间段跟文章数量来生成静态页面
      *                            如果 为空的话 表示 从页面点击操作之后触发的操作
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function index($requesttype = '')
     {
         // 获取站点的相关的相关信息
-        $siteinfo = Site::getSiteInfo();
-//        $site_id = $siteinfo['id'];
-//        $site_name = $siteinfo['site_name'];
-//        $node_id = $siteinfo['node_id'];
-
         //获取  文章分类 还有 对应的pageinfo中的 所选择的A类关键词
         //获取 site页面 中 menu 指向的 a_keyword_id
         //从数据库中 获取的菜单对应的a_keyword_id 信息 可能有些菜单 还没有存储到数据库中 如果是第一次请求的话
@@ -219,9 +219,9 @@ class Detailstatic extends Common
                     //请求一下 该位置 可以把该菜单的 TDK 还有 相关 a_keyword_id  等信息存储到数据库中
                     //第一次访问的时候
                     $menu_info = \app\index\model\Menu::get($type['menu_id']);
-                    $keyword_info = Keyword::getKeywordInfo($siteinfo['keyword_ids'], $this->site_id, $this->site_name, $this->node_id);
+                    $keyword_info = (new Keyword)->getKeywordInfo();
                     //菜单 页面的TDK
-                    Commontool::getMenuPageTDK($keyword_info, $menu_info->generate_name, $menu_info->name, $this->site_id, $this->site_name, $this->node_id, $type['menu_id'], $menu_info->name);
+                    $this->commontool->getMenuPageTDK($keyword_info, $menu_info->generate_name, $menu_info->name, $type['menu_id'], $menu_info->name);
                     $menu_akeyword_id_arr = Db::name('SitePageinfo')->where(['site_id' => $this->site_id, 'menu_id' => ['neq', 0]])->column('menu_id,akeyword_id');
                 }
                 $a_keyword_id = $menu_akeyword_id_arr[$type['menu_id']];
@@ -277,7 +277,7 @@ class Detailstatic extends Common
         ];
         $pre_stop = 0;
         //获取 站点 某个栏目同步到的文章id
-        $articleCount = ArticleSyncCount::where($where)->find();
+        $articleCount = (new \app\index\model\ArticleSyncCount)->where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($articleCount->count) && $articleCount->count >= 0) {
             $pre_stop = $articleCount->count;
@@ -295,7 +295,7 @@ class Detailstatic extends Common
         //删除掉是否同步功能
         $article_list_sql = "id >= $pre_stop and node_id=$this->node_id and articletype_id in ($articletype_idstr)";
         // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
-        $article_data = \app\index\model\Article::where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
+        $article_data = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
         //获取本次最大的id，用于比对是不是有下一页
         if ($article_data) {
             $max_index = max(array_flip(array_keys($article_data)));
@@ -303,7 +303,7 @@ class Detailstatic extends Common
         }
         // 生成页面之后需要把链接存储下 生成最后执行ping百度的操作
         $pingurls = [];
-        $tags = Commontool::getTags('article');
+        $tags = $this->commontool->getTags('article');
         foreach ($article_data as $key => $item) {
             //首先修改缩略图
             // 把 站点的相关的数据写入数据库中
@@ -376,6 +376,7 @@ class Detailstatic extends Common
      * @param $tags 标签
      * @param $articletype_idstr 该站点选择的文章类型列表
      * @param $node_id 节点的node_id
+     * @return array|false|\PDOStatement|string|\think\Collection
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
@@ -397,9 +398,9 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-        $tagsArticleList = Article::Where($where)->limit($limit)->field(Commontool::$articleListField)->select();
+        $tagsArticleList = Article::Where($where)->limit($limit)->field($this->commontool->articleListField)->select();
         if ($tagsArticleList) {
-            Commontool::formatArticleList($tagsArticleList, $article_typearr);
+            $this->commontool->formatArticleList($tagsArticleList, $article_typearr);
             return $tagsArticleList;
         }
         return [];
@@ -420,7 +421,7 @@ class Detailstatic extends Common
         //页面的描述
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
-        $assign_data = Commontool::getEssentialElement('detail', $item['title'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
+        $assign_data = $this->commontool->getEssentialElement($item['title'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
         if ($item['thumbnails_name']) {
             //表示是oss的
             $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString, $this->waterImgUrl);
@@ -492,10 +493,10 @@ class Detailstatic extends Common
     {
         // 取出指定id的文章
         $articlesql = "id = $id and node_id=$this->node_id";
-        $article = Article::where($articlesql)->find()->toArray();
+        $article = (new \app\index\model\Article)->where($articlesql)->find()->toArray();
         $type_id = $article['articletype_id'];
         // 获取menu信息
-        $menuInfo = \app\tool\model\Menu::where([
+        $menuInfo = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
             "type_id" => ['like', "%,$type_id,%"]
         ])->find();
@@ -510,7 +511,7 @@ class Detailstatic extends Common
         $article_typearr = array_key_exists('article', $this->typeid_arr) ? $this->typeid_arr['article'] : [];
         $articletype_idstr = implode(',', array_keys($article_typearr));
         $tagsArticleList = $this->getTagArticleList($article['tags'], $articletype_idstr, $article_typearr);
-        $tags = Commontool::getTags('article');
+        $tags = $this->commontool->getTags('article');
         $assign_data = $this->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
         $data = [
@@ -555,12 +556,13 @@ class Detailstatic extends Common
      * @access public
      * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面
      * @todo 需要指定生成问答数量的数量
-     * @param $site_id 站点的id
-     * @param $site_name 站点名
-     * @param $node_id 节点的id
-     * @param $article_type_keyword 问答分类id 所对应的A类关键词
-     * @param $type_id 问答的分类id
-     * @param $a_keyword_id 栏目所对应的a类 关键词
+     * @param $question_type_keyword
+     * @param $step_limit
+     * @param $question_typearr
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     private function questionstatic($question_type_keyword, $step_limit, $question_typearr)
     {
@@ -572,7 +574,7 @@ class Detailstatic extends Common
         ];
         $pre_stop = 0;
         //获取 站点 某个栏目同步到的文章id
-        $articleCount = ArticleSyncCount::where($where)->find();
+        $articleCount = (new \app\index\model\ArticleSyncCount)->where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($articleCount->count) && $articleCount->count >= 0) {
             $pre_stop = $articleCount->count;
@@ -591,14 +593,14 @@ class Detailstatic extends Common
         //获取 所有允许同步的sync=20的  还有这个 站点添加的数据20  把 上次的最后一条数据取出来
         $question_list_sql = "id >= $pre_stop and node_id=$this->node_id and type_id in ($questiontype_idstr)";
         // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
-        $question_data = \app\index\model\Question::where($question_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
+        $question_data = (new \app\index\model\Question)->where($question_list_sql)->order("id", "asc")->limit($step_limit + 1)->select();
         if ($question_data) {
             //获取本次最大的id，用于比对是不是有下一篇
             $max_index = max(array_flip(array_keys($question_data)));
             $max_id = $question_data[$max_index]['id'];
         }
         $pingurls = [];
-        $tags = Commontool::getTags('question');
+        $tags = $this->commontool->getTags('question');
         foreach ($question_data as $key => $item) {
             //判断目录是否存在
             if (!file_exists('question')) {
@@ -608,14 +610,14 @@ class Detailstatic extends Common
             $type_id = $item['type_id'];
             //页面中还需要填写隐藏的 表单 node_id site_id
             //获取上一篇和下一篇
-            $pre_question = \app\index\model\Question::where(["id" => ["lt", $item['id']], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+            $pre_question = (new \app\index\model\Question)->where(["id" => ["lt", $item['id']], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
             if ($pre_question) {
                 $pre_question = $pre_question->toArray();
                 $pre_question['href'] = sprintf($this->prequestionpath, $pre_question['id']);
             }
             $next_question = [];
             if ($key < $step_limit) {
-                $next_question = \app\index\model\Question::where(["id" => ["between", [$item['id'], $max_id]], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
+                $next_question = (new \app\index\model\Question)->where(["id" => ["between", [$item['id'], $max_id]], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
             }
             if ($next_question) {
                 $next_question = $next_question->toArray();
@@ -645,7 +647,7 @@ class Detailstatic extends Common
             $question_path = sprintf($this->questionpath, $item['id']);
             if (file_put_contents($question_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
                 array_push($pingurls, $this->siteurl . '/' . $question_path);
-                ArticleSyncCount::where($where)->update(['count' => $item['id']]);
+                (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $item['id']]);
             }
         }
         $this->urlsCache($pingurls);
@@ -657,15 +659,15 @@ class Detailstatic extends Common
     public function question_detailinfo($id)
     {
         $questionsql = "id = $id and node_id=$this->node_id";
-        $question = Question::where($questionsql)->find()->toArray();
+        $question = (new \app\index\model\Question)->where($questionsql)->find()->toArray();
         // 获取menu信息
         $type_id = $question['type_id'];
-        $menuInfo = \app\tool\model\Menu::where([
+        $menuInfo = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
             "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
-        $sitePageInfo = SitePageinfo::where([
+        $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
             "site_id" => $this->site_id,
             "menu_id" => $menuInfo["id"]
@@ -675,7 +677,7 @@ class Detailstatic extends Common
         $question_typearr = array_key_exists('question', $this->typeid_arr) ? $this->typeid_arr['question'] : [];
         $questiontype_idstr = implode(',', array_keys($question_typearr));
         $tagsQuestionList = $this->getTagArticleList($question['tags'], $questiontype_idstr, $question_typearr);
-        $tags = Commontool::getTags('article');
+        $tags = $this->commontool->getTags('article');
         $assign_data = $this->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
         $data = [
@@ -696,12 +698,12 @@ class Detailstatic extends Common
     private function get_question_prenextinfo($id, $type_id)
     {
         //获取上一篇和下一篇
-        $pre_question = Question::where(["id" => ["lt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+        $pre_question = (new \app\index\model\Question)->where(["id" => ["lt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
         if ($pre_question) {
             $pre_question['href'] = sprintf($this->prequestionpath, $pre_question['id']);
         }
         //下一篇可能会导致其他问题
-        $next_question = Question::where(["id" => ["gt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
+        $next_question = (new \app\index\model\Question)->where(["id" => ["gt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
         }
@@ -729,9 +731,9 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-        $tagsQuestionList = Question::where($where)->limit($limit)->field(Commontool::$questionListField)->select();
+        $tagsQuestionList = (new \app\index\model\Question)->where($where)->limit($limit)->field($this->commontool->questionListField)->select();
         if ($tagsQuestionList) {
-            Commontool::formatQuestionList($tagsQuestionList, $question_typearr);
+            $this->commontool->formatQuestionList($tagsQuestionList, $question_typearr);
             return $tagsQuestionList;
         }
         return [];
@@ -759,7 +761,7 @@ class Detailstatic extends Common
             }
         }
         $item['tags'] = $questiontags;
-        $assign_data = Commontool::getEssentialElement('detail', $item['question'], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
+        $assign_data = $this->commontool->getEssentialElement($item['question'], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
         return $assign_data;
     }
 
@@ -768,10 +770,13 @@ class Detailstatic extends Common
      * 文章详情页面的静态化
      * @access public
      * @todo 需要比对 哪个已经生成静态页面了  哪个没有生成静态页面 产品呢是一次性生成的
-     * @param $site_id 站点的id
-     * @param $site_name 站点名
-     * @param $node_id 节点的id
-     * @param $article_type_keyword 文章分类id 所对应的A类关键词
+     * @param $product_type_keyword
+     * @param $step_limit
+     * @param $product_typearr
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     private function productstatic($product_type_keyword, $step_limit, $product_typearr)
     {
@@ -783,7 +788,7 @@ class Detailstatic extends Common
         ];
         $pre_stop = 0;
         //获取 站点 某个栏目同步到的文章id
-        $productCount = ArticleSyncCount::where($where)->find();
+        $productCount = (new \app\index\model\ArticleSyncCount)->where($where)->find();
         //判断下是否有数据 没有就创建模型
         if (isset($productCount->count) && $productCount->count >= 0) {
             $pre_stop = $productCount->count;
@@ -800,13 +805,13 @@ class Detailstatic extends Common
         $producttype_idstr = implode(',', array_keys($product_type_keyword));
         $productsql = "id >= $pre_stop and node_id=$this->node_id and type_id in ($producttype_idstr)";
         // 要 step_limit+1 因为要 获取上次的最后一条
-        $product_data = \app\index\model\Product::where($productsql)->order("id", "asc")->select();
+        $product_data = (new \app\index\model\Product)->where($productsql)->order("id", "asc")->select();
         if ($product_data) {
             $max_index = max(array_flip(array_keys($product_data)));
             $max_id = $product_data[$max_index]['id'];
         }
         $pingurls = [];
-        $tags = Commontool::getTags('product');
+        $tags = $this->commontool->getTags('product');
         foreach ($product_data as $key => $item) {
             if (!file_exists('product')) {
                 $this->make_error("product");
@@ -817,7 +822,7 @@ class Detailstatic extends Common
             //获取上一篇和下一篇
             //获取上一篇
             $pre_productcommon_sql = "id <{$item['id']} and node_id=$this->node_id and type_id=$type_id ";
-            $pre_product = Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
+            $pre_product = (new \app\index\model\Product)->where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
             //上一页链接
             if ($pre_product) {
                 $pre_product = ['href' => sprintf($this->preproductpath, $pre_product['id']), 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
@@ -826,7 +831,7 @@ class Detailstatic extends Common
             if ($key < $step_limit) {
                 //最后一条 不需要有 下一页 需要判断下 是不是下一篇包含最大id
                 $next_productcommon_sql = "id >{$item['id']} and id<={$max_id} and node_id=$this->node_id and type_id={$type_id} ";
-                $next_product = Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
+                $next_product = (new \app\index\model\Product)->where($next_productcommon_sql)->field("id,name,image_name")->find();
             }
             //下一页链接
             if ($next_product) {
@@ -876,7 +881,7 @@ class Detailstatic extends Common
         $summary = $item['summary'] ?: $description;
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
-        $assign_data = Commontool::getEssentialElement('detail', $item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
+        $assign_data = $this->commontool->getEssentialElement($item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
         if ($item['image_name']) {
             $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString, $this->waterImgUrl);
         }
@@ -933,9 +938,9 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-        $tagsProductList = Product::where($where)->limit($limit)->field(Commontool::$productListField)->select();
+        $tagsProductList = (new \app\index\model\Product)->where($where)->limit($limit)->field($this->commontool->productListField)->select();
         if ($tagsProductList) {
-            Commontool::formatProductList($tagsProductList, $produt_typearr);
+            $this->commontool->formatProductList($tagsProductList, $produt_typearr);
             return $tagsProductList;
         }
         return [];
@@ -952,12 +957,12 @@ class Detailstatic extends Common
         $product = Product::where($productsql)->find()->toArray();
         $type_id = $product['type_id'];
         // 获取menu信息
-        $menuInfo = \app\tool\model\Menu::where([
+        $menuInfo = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
             "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
-        $sitePageInfo = SitePageinfo::where([
+        $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
             "site_id" => $this->site_id,
             "menu_id" => $menuInfo["id"]
@@ -966,7 +971,7 @@ class Detailstatic extends Common
         //需要去除该站点的tag相关列表
         $product_typearr = array_key_exists('product', $this->typeid_arr) ? $this->typeid_arr['product'] : [];
         $producttype_idstr = implode(',', array_keys($product_typearr));
-        $tags = Commontool::getTags('product');
+        $tags = $this->commontool->getTags('product');
         $tagsArticleList = $this->getTagProductList($product['tags'], $producttype_idstr, $product_typearr);
         $assign_data = $this->form_perproduct_content($product, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'product');
@@ -991,7 +996,7 @@ class Detailstatic extends Common
         //获取上一篇和下一篇
         //获取上一篇
         $pre_productcommon_sql = "id <{$id} and node_id=$this->node_id and type_id={$type_id} ";
-        $pre_product = Product::where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
+        $pre_product = (new \app\index\model\Product)->where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
         //上一页链接
         if ($pre_product) {
             $pre_product = $pre_product->toArray();
@@ -999,7 +1004,7 @@ class Detailstatic extends Common
         }
         //最后一条 不需要有 下一页 需要判断下 是不是下一篇包含最大id
         $next_productcommon_sql = "id >{$id} and node_id=$this->node_id and type_id={$type_id} ";
-        $next_product = Product::where($next_productcommon_sql)->field("id,name,image_name")->find();
+        $next_product = (new \app\index\model\Product)->where($next_productcommon_sql)->field("id,name,image_name")->find();
         //下一页链接
         if ($next_product) {
             $next_product = $next_product->toArray();

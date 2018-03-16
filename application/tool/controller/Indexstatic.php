@@ -3,7 +3,6 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use think\Request;
 use think\View;
 
 /**
@@ -12,6 +11,21 @@ use think\View;
  */
 class Indexstatic extends Common
 {
+
+    //公共操作对象
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'index';
+        $this->commontool->district_name = $this->district_name;
+        $this->commontool->district_id = $this->district_id;
+        $this->commontool->mainsite = $this->mainsite;
+        $this->commontool->suffix = $this->suffix;
+    }
+
 
     /**
      * 首恶静态化
@@ -39,14 +53,12 @@ class Indexstatic extends Common
      */
     public function indexstaticdata()
     {
-        print_r($_SERVER['HTTP_HOST']);
-        print_r($this->district_name);
-        exit;
         //  获取首页生成需要的资源
         //  关键词
         //  栏目url  展现以下已经在数据库
         //  文章 或者 问答
-        $assign_data = Commontool::getEssentialElement('index');
+        //表示要获取的信息是首页 还是 列表页 还是详情菜单页 还是详情型文章
+        $assign_data = $this->commontool->getEssentialElement('', '', '', '', '', '', '');
         //file_put_contents('log/index.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);
         //还需要 存储在数据库中 相关数据
         //页面中还需要填写隐藏的 表单 node_id site_id

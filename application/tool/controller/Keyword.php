@@ -18,11 +18,14 @@ class Keyword extends Common
     /**
      * 获取 关键词
      * @access public
-     * @param string $aKeyword 关键词id
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getKeywordInfo($aKeyword_ids, $site_id, $site_name, $node_id)
+    public function getKeywordInfo()
     {
+        $aKeyword_ids = $this->siteinfo['keyword_ids'];
+        $site_id = $this->site_id;
+        $site_name = $this->site_name;
+        $node_id = $this->node_id;
         return Cache::remember('keyword', function () use ($aKeyword_ids, $site_id, $site_name, $node_id) {
             $field = 'id,name,parent_id,path,tag';
             $keyword = [];

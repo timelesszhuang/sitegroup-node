@@ -26,7 +26,6 @@ class Filemanage extends CommonToken
     //备份的模板目录
     static $templateBk = 'templatebk';
 
-
     //因为需要递归操作文件
     static $arr_files = [];
 
@@ -239,6 +238,5 @@ class Filemanage extends CommonToken
         }
         @closedir($path);
     }
-
 
 }

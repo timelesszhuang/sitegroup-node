@@ -269,6 +269,7 @@ class Pagestaticentry extends Common
      * 根据id和类型 重新生成静态化
      * 比如 修改文章相关信息之后重新生成
      * @param Request $request
+     * @throws \think\Exception
      */
     public function reGenerateHtml(Request $request)
     {

@@ -73,7 +73,8 @@ class Preview extends EntryCommon
      * 文章静态化
      * @access private
      * @param $id  产品的id
-     * @param $type_id  类型的id
+     * @return bool|void
+     * @throws \think\Exception
      */
     private function productpreview($id)
     {
@@ -114,10 +115,10 @@ class Preview extends EntryCommon
 
     /**
      * 根据id重新生成文章  重新生成页面暂时有问题
-     * @param $id
-     * @param $searachType
-     * @param $type_id
-     * @return bool
+     * @param int $id
+     * @param string $type
+     * @return void
+     * @throws \think\Exception
      */
     public function preview($id = 0, $type = '')
     {

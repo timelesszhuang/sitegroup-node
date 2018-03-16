@@ -10,13 +10,22 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
-use app\tool\model\Activity;
 use think\Config;
 use think\View;
 
 
 class Activitystatic extends Common
 {
+
+    //公共操作对象
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'activity';
+    }
 
 
     /**
@@ -26,8 +35,7 @@ class Activitystatic extends Common
     public function index()
     {
         // 首先得获取到没有静态化的活动
-        $siteinfo = Site::getSiteInfo();
-        $activity_ids = $siteinfo['sync_id'];
+        $activity_ids = $this->siteinfo['sync_id'];
         if (!$activity_ids) {
             return;
         }
@@ -66,21 +74,26 @@ class Activitystatic extends Common
     /**
      * 只需要静态化图片
      * @param $id id数据
+     * @throws \Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
      * @access public
      */
     public function staticImg($id)
     {
         //取出启用的活动
-        $data = Activity::Where('id', '=', $id)->field('oss_img_src,img_name,smalloss_img_src,small_img_name')->find();
+        $data = (new \app\tool\model\Activity)->Where('id', '=', $id)->field('oss_img_src,img_name,smalloss_img_src,small_img_name')->find();
         if ($data) {
             $data = $data->toArray();
             $img_name = $data['img_name'];
             $oss_img_src = $data['oss_img_src'];
-            $this->get_osswater_img($oss_img_src, $img_name, $this->waterString ,$this->waterImgUrl);
+            $this->get_osswater_img($oss_img_src, $img_name, $this->waterString, $this->waterImgUrl);
             $smallimg_name = $data['small_img_name'];
             $smalloss_img_src = $data['smalloss_img_src'];
             if ($smallimg_name) {
-                $this->get_osswater_img($smalloss_img_src, $smallimg_name, $this->waterString,$this->waterImgUrl);
+                $this->get_osswater_img($smalloss_img_src, $smallimg_name, $this->waterString, $this->waterImgUrl);
             }
         }
     }
@@ -92,7 +105,7 @@ class Activitystatic extends Common
      */
     public function staticOne($id)
     {
-        $ac_data = Activity::Where('id', '=', $id)->find();
+        $ac_data = (new \app\tool\model\Activity)->Where('id', '=', $id)->find();
         if (!$ac_data) {
             return;
         }
@@ -102,7 +115,7 @@ class Activitystatic extends Common
         if ($ac_data['url']) {
             //表示是其他网页的链接不需要静态化页面 只需要静态化oss 相关的图片
             if ($ac_data['img_name']) {
-                $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water ,$img_water);
+                $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water, $img_water);
             }
             return;
         }
@@ -110,21 +123,21 @@ class Activitystatic extends Common
         $keyword = $ac_data['keywords'];
         $description = $ac_data['summary'];
         //获取相关活动的 ativity
-        $assign_data = Commontool::getEssentialElement('activity', $title, $keyword, $description);
+        $assign_data = $this->commontool->getEssentialElement($title, $keyword, $description);
         $imgser = $ac_data['imgser'];
         //多张图片
         $local_img = [];
         if ($imgser) {
             $imglist = unserialize($imgser);
             //静态化图片
-            $local_img = $this->form_imgser_img($imglist, $water,$img_water);
+            $local_img = $this->form_imgser_img($imglist, $water, $img_water);
         }
         //单张大图
         if ($ac_data['img_name']) {
-            $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water ,$img_water);
+            $this->get_osswater_img($ac_data['oss_img_src'], $ac_data['img_name'], $water, $img_water);
         }
         if ($ac_data['small_img_name']) {
-            $this->get_osswater_img($ac_data['smalloss_img_src'], $ac_data['small_img_name'], $water ,$img_water);
+            $this->get_osswater_img($ac_data['smalloss_img_src'], $ac_data['small_img_name'], $water, $img_water);
         }
         $ac_data['imglist'] = $local_img;
         //还需要 存储在数据库中 相关数据
@@ -149,7 +162,7 @@ class Activitystatic extends Common
      * 生成产品的多张图片
      * @access private
      */
-    private function form_imgser_img($img_arr, $water,$img_water="")
+    private function form_imgser_img($img_arr, $water, $img_water = "")
     {
         $endpoint = Config::get('oss.endpoint');
         $bucket = Config::get('oss.bucket');
@@ -163,7 +176,7 @@ class Activitystatic extends Common
                 array_push($local_imgarr, $osssrc);
                 continue;
             }
-            if ($this->get_osswater_img($osssrc, $imgname, $water,$img_water)) {
+            if ($this->get_osswater_img($osssrc, $imgname, $water, $img_water)) {
                 array_push($local_imgarr, '/images/' . $imgname);
             }
         }

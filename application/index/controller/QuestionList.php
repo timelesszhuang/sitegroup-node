@@ -18,7 +18,18 @@ use think\View;
  */
 class QuestionList extends EntryCommon
 {
-    use SpiderComefrom;
+    //公共操作对象
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'menu';
+        $this->commontool->suffix = $this->suffix;
+        $this->commontool->district_name = $this->district_name;
+        $this->commontool->district_id = $this->district_id;
+    }
 
     /**
      * 首页列表
@@ -27,12 +38,11 @@ class QuestionList extends EntryCommon
     public function index($id)
     {
         list($menu_enname, $type_id, $currentpage) = $this->analyseParams($id);
-        $siteinfo = Site::getSiteInfo();
         $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->questionlisttemplate;
-        $data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $siteinfo, $templatepath, $currentpage) {
-            return $this->generateQuestionList($menu_enname, $type_id, $siteinfo, $currentpage);
+        $data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}", function () use ($menu_enname, $type_id, $templatepath, $currentpage) {
+            return $this->generateQuestionList($menu_enname, $type_id, $currentpage);
         }, 0);
         $assign_data = $data['d'];
         $template = $this->getTemplate('list', $assign_data['menu_id'], 'question');
@@ -49,18 +59,23 @@ class QuestionList extends EntryCommon
 
     /**
      * question列表静态化
-     * @param $id
+     * @param $menu_enname
+     * @param $type_id
      * @param $siteinfo
      * @param int $currentpage
      * @return array
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
-    public function generateQuestionList($menu_enname, $type_id, $siteinfo, $currentpage = 1)
+    public function generateQuestionList($menu_enname, $type_id, $currentpage = 1)
     {
-        if (empty($siteinfo["menu"])) {
+        if (empty($this->menu_ids)) {
             exit("当前站点菜单配置异常");
         }
-        $node_id = $siteinfo['node_id'];
-        $menu_info = Menu::where('node_id', $node_id)->where('generate_name', $menu_enname)->find();
+        $menu_info = (new \app\index\model\Menu)->where('node_id', $this->node_id)->where('generate_name', $menu_enname)->find();
         if (!isset($menu_info->id)) {
             //没有获取到
             exit('该网站不存在该栏目');
@@ -68,9 +83,9 @@ class QuestionList extends EntryCommon
         $menu_id = $menu_info->id;
         //列表页多少条分页
         $listsize = $menu_info->listsize ?: 10;
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
+        $assign_data = $this->commontool->getEssentialElement($menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
+        $sync_info = $this->commontool->getDbArticleListId();
         $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $question = [];
@@ -79,17 +94,17 @@ class QuestionList extends EntryCommon
         $siblingstypelist = [];
         if ($questionmax_id) {
             //获取当前栏目下的二级栏目的typeid 列表
-            $typeidarr = Commontool::getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
+            $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
             //取出当前栏目下级的文章分类 根据path 中的menu_id
             $typeid_str = implode(',', $typeidarr);
-            $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in (%s)";
+            $where = "id <={$questionmax_id} and node_id={$this->node_id} and type_id in (%s)";
             if ($typeid_str) {
-                $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($where, $typeid_str))
+                $question = (new \app\index\model\Question)->order('id', "desc")->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
                     ]);
-                Commontool::formatQuestionList($question, $question_typearr);
+                $this->commontool->formatQuestionList($question, $question_typearr);
             }
             //取出当前菜单的列表 不包含子菜单的
             if ($type_id != 0) {
@@ -98,12 +113,12 @@ class QuestionList extends EntryCommon
                 $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
             }
             if ($typeid_str) {
-                $currentquestion = Question::order('id', "desc")->field(Commontool::$questionListField)->where(sprintf($where, $typeid_str))
+                $currentquestion = (new \app\index\model\Question)->order('id', "desc")->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
                     ]);
-                Commontool::formatQuestionList($currentquestion, $question_typearr);
+                $this->commontool->formatQuestionList($currentquestion, $question_typearr);
             }
             //获取当前栏目的以及下级菜单的分类列表
             foreach ($typeidarr as $ptype_id) {
@@ -116,7 +131,7 @@ class QuestionList extends EntryCommon
                     continue;
                 }
                 $type_info = $question_typearr[$ptype_id];
-                $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
+                $list = $this->commontool->getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
                 $typelist[] = [
                     'text' => $type_info['type_name'],
                     'href' => $type_info['href'],
@@ -127,7 +142,7 @@ class QuestionList extends EntryCommon
             }
             //获取当前菜单的同级别菜单下的type
             $flag = 2;
-            $sibilingtypeidarr = Commontool::getMenuSiblingMenuTypeid($menu_id, $node_id, $siteinfo['menu'], $flag);
+            $sibilingtypeidarr = $this->commontool->getMenuSiblingMenuTypeid($menu_id, $flag);
             foreach ($sibilingtypeidarr as $ptype_id) {
                 $current = false;
                 if ($type_id == $ptype_id) {
@@ -138,7 +153,7 @@ class QuestionList extends EntryCommon
                     continue;
                 }
                 $type_info = $question_typearr[$ptype_id];
-                $list = Commontool::getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
+                $list = $this->commontool->getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
                 $siblingstypelist[] = [
                     'text' => $type_info['type_name'],
                     'href' => $type_info['href'],

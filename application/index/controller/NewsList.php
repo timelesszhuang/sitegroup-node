@@ -72,7 +72,7 @@ class NewsList extends EntryCommon
         }
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
-        $assign_data = Commontool::getEssentialElement('menu', $menu_info->generate_name, $menu_info->name, $menu_info->id, 'newslist');
+        $assign_data = Commontool::getEssentialElement( $menu_info->generate_name, $menu_info->name, $menu_info->id, 'newslist');
         $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "scatteredarticle", 'type_id' => $menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         $newslist = [];

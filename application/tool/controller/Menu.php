@@ -20,8 +20,12 @@ class Menu extends Common
      * @param string $menu 菜单id
      * @return false|\PDOStatement|string|\think\Collection
      */
-    public static function getMenuInfo($menu_ids, $site_id, $site_name, $node_id)
+    public function getMenuInfo()
     {
+        $menu_ids = $this->menu_ids;
+        $site_id = $this->site_id;
+        $site_name = $this->site_name;
+        $node_id = $this->node_id;
         return Cache::remember('menu', function () use ($menu_ids, $site_id, $site_name, $node_id) {
             $menu_idarr = array_filter(explode(',', $menu_ids));
             $where['node_id'] = $node_id;
@@ -30,7 +34,7 @@ class Menu extends Common
             $menu = Db::name('menu')->where($where)->order("sort", "desc")->field($field)->select();
             //获取下边的子孙菜单
             foreach ($menu_idarr as $v) {
-                $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->where('node_id',$node_id)->order("sort", "desc")->field($field)->select();
+                $pmenulist = Db::name('menu')->Where('path', 'like', "%,$v,%")->where('node_id', $node_id)->order("sort", "desc")->field($field)->select();
                 $menu = array_merge($menu, $pmenulist);
             }
             //还需要获取
@@ -53,10 +57,10 @@ class Menu extends Common
      * 获取详情型 的 菜单信息
      * @access public
      */
-    public static function getDetailMenuInfo($menu_ids, $site_id, $site_name, $node_id)
+    public function getDetailMenuInfo()
     {
         //获取菜单信息
-        $menu = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
+        $menu = $this->getMenuInfo();
         $detail_menu = [];
         foreach ($menu as $k => $v) {
             //需要获取详情型的页面
@@ -72,9 +76,9 @@ class Menu extends Common
      * 获取合并之后的菜单信息
      * @access public
      */
-    public static function getMergedMenu($menu_ids, $site_id, $site_name, $node_id)
+    public function getMergedMenu()
     {
-        $menulist = self::getMenuInfo($menu_ids, $site_id, $site_name, $node_id);
+        $menulist = $this->getMenuInfo();
         $menu = [];
         foreach ($menulist as $k => $v) {
             //数据库中配置的菜单

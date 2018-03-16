@@ -12,23 +12,34 @@ use app\common\controller\Common;
 
 class SiteMap extends Common
 {
+
+    //公共操作对象
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = '';
+    }
+
+
     /**
      * 用于生成站点的sitemap
      * @access public
      */
     public function index()
     {
-        $siteinfo = Site::getSiteInfo();
         $host = $this->siteurl;
         //首先获取全部链接的路径 从menu 中
-        $menu = Menu::getMergedMenu($siteinfo['menu'], $this->site_id, $this->site_name, $this->node_id);
+        $menu = (new Menu)->getMergedMenu();
         //然后获取相关的文章链接 产品链接 问答链接
-        $sync_info = Commontool::getDbArticleListId($this->site_id);
+        $sync_info = $this->commontool->getDbArticleListId();
         //获取最新的200篇文章 各个分类 生成sitemap
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
-        $article_list = Commontool::getArticleList($sync_info, $typeid_arr, 200);
-        $question_list = Commontool::getQuestionList($sync_info, $typeid_arr, 200);
-        $product_list = Commontool::getProductList($sync_info, $typeid_arr, 200);
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
+        $article_list = $this->commontool->getArticleList($sync_info, $typeid_arr, 200);
+        $question_list = $this->commontool->getQuestionList($sync_info, $typeid_arr, 200);
+        $product_list = $this->commontool->getProductList($sync_info, $typeid_arr, 200);
         $sitemap = [];
         foreach ($menu as $v) {
             $sitemap[] = [

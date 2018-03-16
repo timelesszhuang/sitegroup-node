@@ -20,6 +20,21 @@ use think\View;
 class TagList extends EntryCommon
 {
 
+
+    //公共操作对象
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'tag';
+        $this->commontool->suffix = $this->suffix;
+        $this->commontool->district_name = $this->district_name;
+        $this->commontool->district_id = $this->district_id;
+    }
+
+
     /**
      * @access public
      */
@@ -36,13 +51,13 @@ class TagList extends EntryCommon
         $this->entryCommon();
         switch ($type) {
             case 'article':
-                return $this->articleList($siteinfo, $tag_id, $tag_name, $currentpage);
+                return $this->articleList($tag_id, $tag_name, $currentpage);
                 break;
             case 'product':
-                return $this->productList($siteinfo, $tag_id, $tag_name, $currentpage);
+                return $this->productList($tag_id, $tag_name, $currentpage);
                 break;
             case 'question':
-                return $this->questionList($siteinfo, $tag_id, $tag_name, $currentpage);
+                return $this->questionList($tag_id, $tag_name, $currentpage);
                 break;
         }
     }
@@ -51,15 +66,15 @@ class TagList extends EntryCommon
      * 获取tag文章列表
      * @access public
      */
-    public function articleList($siteinfo, $tag_id, $tag_name, $currentpage)
+    public function articleList($tag_id, $tag_name, $currentpage)
     {
         // 从缓存中获取数据
         $template = $this->getTagTemplate('article');
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::remember("articletaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
-            return $this->generateArticleList($tag_id, $tag_name, $siteinfo, $currentpage);
+        $data = Cache::remember("articletaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
+            return $this->generateArticleList($tag_id, $tag_name, $currentpage);
         }, 0);
         return Common::Debug((new View())->fetch($template,
             $data
@@ -70,30 +85,38 @@ class TagList extends EntryCommon
     /**
      * 生成tag文章列表
      * @access public
+     * @param $tag_id
+     * @param $tag_name
+     * @param $siteinfo
+     * @param $currentpage
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
-    public function generateArticleList($tag_id, $tag_name, $siteinfo, $currentpage)
+    public function generateArticleList($tag_id, $tag_name, $currentpage)
     {
         $listsize = 10;
         //当前栏目的分类
         //获取列表页面必须的元素
-        $assign_data = Commontool::getEssentialElement('tag', $tag_name, 'taglist');
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $assign_data = $this->commontool->getEssentialElement($tag_name, 'taglist');
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //查询出来已经静态化到的地方
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
+        $sync_info = $this->commontool->getDbArticleListId();
         $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $article = [];
         //需要获取到当前分类下的所有二级目录
         if ($articlemax_id) {
             $typeid_str = implode(',', array_keys($article_typearr));
-            $where = "id <=$articlemax_id and node_id={$siteinfo['node_id']} and tags like '%,$tag_id,%' and articletype_id in ($typeid_str)";
+            $where = "id <=$articlemax_id and node_id={$this->node_id} and tags like '%,$tag_id,%' and articletype_id in ($typeid_str)";
             //获取当前type_id的文章
-            $article = \app\index\model\Article::order('id', "desc")->field(Commontool::$articleListField)->where($where)
+            $article = (new \app\index\model\Article())->order('id', "desc")->field($this->commontool->articleListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
-            Commontool::formatArticleList($article, $article_typearr);
+            $this->commontool->formatArticleList($article, $article_typearr);
         }
         return [
             'd' => $assign_data,
@@ -111,6 +134,7 @@ class TagList extends EntryCommon
     /**
      * 获取tag产品列表
      * @access public
+     * @throws \think\Exception
      */
     public function questionList($siteinfo, $tag_id, $tag_name, $currentpage)
     {
@@ -131,29 +155,36 @@ class TagList extends EntryCommon
     /**
      * 生成tag产品列表
      * @access public
+     * @param $tag_id
+     * @param $tag_name
+     * @param $currentpage
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
-    public function generateQuestionList($tag_id, $tag_name, $siteinfo, $currentpage)
+    public function generateQuestionList($tag_id, $tag_name, $currentpage)
     {
         $listsize = 10;
         //当前栏目的分类
         //获取列表页面必须的元素
-        $assign_data = Commontool::getEssentialElement('tag', $tag_name, $this->currenturl);
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $assign_data = $this->commontool->getEssentialElement($tag_name, $this->currenturl);
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //查询出来已经静态化到的地方
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
+        $sync_info = $this->commontool->getDbArticleListId();
         $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $question = [];
         //需要获取到当前分类下的所有二级目录
         if ($questionmax_id) {
             $typeid_str = implode(',', array_keys($question_typearr));
-            $where = "id <={$questionmax_id} and node_id={$siteinfo['node_id']} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
-            $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where($where)
+            $where = "id <={$questionmax_id} and node_id={$this->node_id} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
+            $question = Question::order('id', "desc")->field($this->commontool->questionListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
-            Commontool::formatQuestionList($question, $question_typearr);
+            $this->commontool->formatQuestionList($question, $question_typearr);
         }
         return [
             'd' => $assign_data,
@@ -172,15 +203,15 @@ class TagList extends EntryCommon
      * 获取tag产品列表
      * @access public
      */
-    public function productList($siteinfo, $tag_id, $tag_name, $currentpage)
+    public function productList($tag_id, $tag_name, $currentpage)
     {
         // 从缓存中获取数据
         $template = $this->getTagTemplate('question');
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::remember("producttaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
-            return $this->generateProductList($tag_id, $tag_name, $siteinfo, $currentpage);
+        $data = Cache::remember("producttaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
+            return $this->generateProductList($tag_id, $tag_name, $currentpage);
         }, 0);
         return Common::Debug((new View())->fetch($template,
             $data
@@ -191,29 +222,36 @@ class TagList extends EntryCommon
     /**
      * 生成tag产品列表
      * @access public
+     * @param $tag_id
+     * @param $tag_name
+     * @param $currentpage
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
-    public function generateProductList($tag_id, $tag_name, $siteinfo, $currentpage)
+    public function generateProductList($tag_id, $tag_name, $currentpage)
     {
         $listsize = 10;
         //当前栏目的分类
         //获取列表页面必须的元素
-        $assign_data = Commontool::getEssentialElement('tag', $tag_name, $this->currenturl);
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $assign_data = $this->commontool->getEssentialElement($tag_name, $this->currenturl);
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //查询出来已经静态化到的地方
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
+        $sync_info = $this->commontool->getDbArticleListId();
         $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $product = [];
         //需要获取到当前分类下的所有二级目录
         if ($productmax_id) {
             $typeid_str = implode(',', array_keys($product_typearr));
-            $where = "id <={$productmax_id} and node_id={$siteinfo['node_id']} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
-            $product = Product::order('id', "desc")->field(Commontool::$productListField)->where($where)
+            $where = "id <={$productmax_id} and node_id={$this->node_id} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
+            $product = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
                     'page' => $currentpage
                 ]);
-            Commontool::formatProductList($product, $product_typearr);
+            $this->commontool->formatProductList($product, $product_typearr);
         }
         return [
             'd' => $assign_data,

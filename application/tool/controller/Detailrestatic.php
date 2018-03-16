@@ -23,12 +23,8 @@ class Detailrestatic extends Common
      * 文章静态化
      * @access private
      * @param $id  article的id
-     * @param $type_id  类型的id
      * @return bool
      * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
      */
     private function articlestatic($id)
     {
@@ -79,8 +75,9 @@ class Detailrestatic extends Common
      * 文章静态化
      * @access private
      * @param $id  article的id
-     * @param $type_id  类型的id
      * @return bool|int
+     * @throws \think\Exception
+     * @throws \think\Exception
      */
     private function productstatic($id)
     {
@@ -122,8 +119,8 @@ class Detailrestatic extends Common
      * 根据id重新生成文章  重新生成页面暂时有问题
      * @param $id
      * @param $searachType
-     * @param $type_id
-     * @return bool
+     * @return void
+     * @throws \think\Exception
      */
     public function exec_refilestatic($id, $searachType)
     {

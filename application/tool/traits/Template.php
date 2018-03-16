@@ -19,7 +19,7 @@ trait Template
      */
     public function getTemplate($type, $menu_id, $flag = '')
     {
-        $menu_info = Menu::getMergedMenu($this->menu_ids, $this->site_id, $this->site_name, $this->node_id);
+        $menu_info =(new Menu())->getMergedMenu($this->menu_ids, $this->site_id, $this->site_name, $this->node_id);
         switch ($type) {
             case 'detail':
                 //详情

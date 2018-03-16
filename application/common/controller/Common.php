@@ -37,10 +37,10 @@ class Common extends Controller
     public $district_name = '';
     //二级域名的后缀
     public $suffix = '';
-
     public $urlskey = 'pingUrls';
-
     public $separator = '||||||||||||||||||||||||';
+
+    public $childsite_tdkplaceholder = '{{site}}';
 
     //该网站的url
     public $siteurl = '';
@@ -50,6 +50,9 @@ class Common extends Controller
     public $waterString = '';
     public $waterImgUrl = '';
     public $menu_ids = '';
+    public $domain = '';
+    public $user_id = 0;
+    public $com_name = '';
     public $siteinfo = [];
 
     public $detailmenupath = 'indexmenu/';
@@ -109,6 +112,7 @@ class Common extends Controller
         $this->node_id = $siteinfo['node_id'];
         $this->waterString = $siteinfo['walterString'];
         $this->user_id = $siteinfo['user_id'];
+        $this->com_name = $siteinfo['com_name'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
         $this->siteinfo = $siteinfo;

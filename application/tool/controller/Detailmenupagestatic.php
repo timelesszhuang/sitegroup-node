@@ -12,14 +12,24 @@ use think\View;
 class Detailmenupagestatic extends Common
 {
 
+
+    //公共操作对象
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'menu';
+    }
+
     /**
      * 首页静态化
      * @access public
      */
     public function index()
     {
-        $siteinfo = Site::getSiteInfo();
-        $info = Menu::getDetailMenuInfo($siteinfo['menu'], $this->site_id, $this->site_name, $this->node_id);
+        $info = Menu::getDetailMenuInfo($this->menu_ids, $this->site_id, $this->site_name, $this->node_id);
         $pingUrls = [];
         foreach ($info as $v) {
             $menu_id = $v['id'];
@@ -29,7 +39,7 @@ class Detailmenupagestatic extends Common
             if (!$this->fileExists($template)) {
                 continue;
             }
-            $assign_data = Commontool::getEssentialElement('menu', $v['generate_name'], $v['name'], $v['id']);
+            $assign_data = $this->commontool->getEssentialElement( $v['generate_name'], $v['name'], $v['id']);
             //获取该详情形式下级的菜单相关内容
             $childmenu = \app\tool\model\Menu::Where('p_id', $menu_id)->Where('flag', '1')->Where('node_id', $this->node_id)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
             //同级的菜单列表
@@ -48,12 +58,12 @@ class Detailmenupagestatic extends Common
             //需要区分下是不是p_id 为空
             if ($p_id == 0) {
                 //$menu_id
-                $menu_idarr = array_filter(explode(',', $siteinfo['menu']));
-                $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->where('id', 'in', $menu_idarr)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+                $menu_idarr = array_filter(explode(',', $this->menu_ids));
+                $siblingmenu = (new \app\tool\model\Menu)->Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->where('id', 'in', $menu_idarr)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
                 //$p_id 为 0的情况
             } else {
                 //$p_id 不为零 的情况
-                $siblingmenu = \app\tool\model\Menu::Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
+                $siblingmenu = (new \app\tool\model\Menu)->Where('p_id', $p_id)->Where('node_id', $this->node_id)->Where('flag', '1')->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
             }
             //获取同级的菜单
             foreach ($siblingmenu as $val) {

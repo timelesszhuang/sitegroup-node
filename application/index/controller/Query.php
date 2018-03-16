@@ -18,6 +18,19 @@ use think\View;
 class Query extends EntryCommon
 {
 
+    public $commontool;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->commontool = new Commontool();
+        $this->commontool->tag = 'query';
+        $this->commontool->suffix = $this->suffix;
+        $this->commontool->district_name = $this->district_name;
+        $this->commontool->district_id = $this->district_id;
+    }
+
+
     private $goback = <<<demo
                     <script language="JavaScript">
                     function goback()
@@ -30,9 +43,7 @@ demo;
 
 
     /**
-     * @param $id 分页等相关信息
-     * @param $type 查询的类型
-     * @param $keyword
+     *
      */
     public function index()
     {
@@ -73,8 +84,8 @@ demo;
     {
         $siteinfo = \app\tool\controller\Site::getSiteInfo();
         //该网站已经同步到的id
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $sync_info = $this->commontool->getDbArticleListId();
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //获取当前的 typeid_arr
         $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
@@ -92,15 +103,15 @@ demo;
                 'title|content' => ['like', "%$keyword%"],
             ];
             //多少条记录
-            $article = Article::order('id', "desc")->field(Commontool::$articleListField)->where($where)
+            $article = (new Article())->order('id', "desc")->field($this->commontool->articleListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
                 ]);
         }
         //获取查询页面必须的元素
-        $assign_data = Commontool::getEssentialElement('query', $keyword . '查询', $keyword . '查询', $keyword . '查询');
-        Commontool::formatArticleList($article, $article_typearr);
+        $assign_data = $this->commontool->getEssentialElement($keyword . '查询', $keyword . '查询', $keyword . '查询');
+        $this->commontool->formatArticleList($article, $article_typearr);
         $template = $this->articlesearchlist;
         //判断模板是否存在
         if (!$this->fileExists($template, '查询模板页不存在')) {
@@ -119,13 +130,15 @@ demo;
     /**
      * 产品列表
      * @access public
+     * @throws \think\exception\DbException
+     * @throws \think\Exception
      */
     public function productIndex($type, $page, $keyword)
     {
         $siteinfo = \app\tool\controller\Site::getSiteInfo();
         //该网站已经同步到的id
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $sync_info = $this->commontool->getDbArticleListId();
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //获取当前的 typeid_arr
         $productmax_id = array_key_exists('article', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['product'] : [];
@@ -143,15 +156,15 @@ demo;
                 'title|summary|detail' => ['like', "%$keyword%"],
             ];
             //多少条记录
-            $product = Product::order('id', "desc")->field(Commontool::$productListField)->where($where)
+            $product = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
                 ]);
         }
         //获取查询页面必须的元素
-        $assign_data = Commontool::getEssentialElement('query', $keyword . '查询', $keyword . '查询', $keyword . '查询');
-        Commontool::formatProductList($product, $product_typearr);
+        $assign_data = $this->commontool->getEssentialElement($keyword . '查询', $keyword . '查询', $keyword . '查询');
+        $this->commontool->formatProductList($product, $product_typearr);
         $assign_data['list'] = $product;
         $template = $this->productsearchlist;
         //判断模板是否存在
@@ -170,13 +183,14 @@ demo;
 
     /**
      * 问答列表
+     * @throws \think\exception\DbException
+     * @throws \think\Exception
      */
     public function questionIndex($type, $page, $keyword)
     {
-        $siteinfo = \app\tool\controller\Site::getSiteInfo();
         //该网站已经同步到的id
-        $sync_info = Commontool::getDbArticleListId($siteinfo['id']);
-        list($type_aliasarr, $typeid_arr) = Commontool::getTypeIdInfo($siteinfo['menu']);
+        $sync_info = $this->commontool->getDbArticleListId();
+        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //获取当前的 typeid_arr
         $questionmax_id = array_key_exists('article', $sync_info) ? $sync_info['product'] : 0;
         $question_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['product'] : [];
@@ -194,15 +208,15 @@ demo;
                 'question|content_paragraph' => ['like', "%$keyword%"],
             ];
             //多少条记录
-            $question = Question::order('id', "desc")->field(Commontool::$questionListField)->where($where)
+            $question = (new Question())->order('id', "desc")->field($this->commontool->questionListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
                 ]);
         }
         //获取查询页面必须的元素
-        $assign_data = Commontool::getEssentialElement('query', $keyword . '查询', $keyword . '查询', $keyword . '查询');
-        Commontool::formatQuestionList($question, $question_typearr);
+        $assign_data = $this->commontool->getEssentialElement($keyword . '查询', $keyword . '查询', $keyword . '查询');
+        $this->commontool->formatQuestionList($question, $question_typearr);
         $assign_data['list'] = $question;
         $template = $this->questionsearchlist;
         //判断模板是否存在
