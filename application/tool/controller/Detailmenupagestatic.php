@@ -29,7 +29,7 @@ class Detailmenupagestatic extends Common
      */
     public function index()
     {
-        $info = Menu::getDetailMenuInfo($this->menu_ids, $this->site_id, $this->site_name, $this->node_id);
+        $info = (new Menu)->getDetailMenuInfo();
         $pingUrls = [];
         foreach ($info as $v) {
             $menu_id = $v['id'];

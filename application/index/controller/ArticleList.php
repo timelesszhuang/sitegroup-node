@@ -76,7 +76,6 @@ class ArticleList extends EntryCommon
      */
     public function generateArticleList($menu_enname, $type_id, $currentpage = 1)
     {
-        print_r($this->menu_ids);
         if (empty($this->menu_ids)) {
             exit("当前网站没有选择栏目");
         }
