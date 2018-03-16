@@ -1526,6 +1526,7 @@ code;
         $getcontent = $this->getSiteGetContent();
         $site_name = $this->site_name;
         $com_name = $this->com_name;
+        $url = $this->siteurl;
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
         return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist');
     }
