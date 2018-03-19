@@ -620,7 +620,7 @@ class Commontool extends Common
                 $v['color_title'] = '<strong>' . $v['color_title'] . '</strong>';
             }
             //默认缩略图的
-            $src = '/template/default.jpg';
+            $src = '/templatestatic/default.jpg';
             $img = sprintf($img_template, $src);
             if (!empty($v["thumbnails_name"])) {
                 //如果有本地图片则 为本地图片
