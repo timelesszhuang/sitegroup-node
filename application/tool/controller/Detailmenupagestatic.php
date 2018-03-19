@@ -12,7 +12,6 @@ use think\View;
 class Detailmenupagestatic extends Common
 {
 
-
     //公共操作对象
     public $commontool;
 

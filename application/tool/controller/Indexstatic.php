@@ -11,19 +11,24 @@ use think\View;
  */
 class Indexstatic extends Common
 {
-
     //公共操作对象
     public $commontool;
 
-    public function __construct()
+
+    public function __construct($mainsite = true, $district_id = 0, $district_name = '', $suffix = '')
     {
         parent::__construct();
+        $this->suffix = $suffix;
+        $this->mainsite = $mainsite;
+        $this->district_name = $district_name;
+        $this->district_id = $district_id;
+        // 公共操作相关代码
         $this->commontool = new Commontool();
         $this->commontool->tag = 'index';
-        $this->commontool->district_name = $this->district_name;
-        $this->commontool->district_id = $this->district_id;
-        $this->commontool->mainsite = $this->mainsite;
-        $this->commontool->suffix = $this->suffix;
+        $this->commontool->suffix = $suffix;
+        $this->commontool->mainsite = $mainsite;
+        $this->commontool->district_name = $district_name;
+        $this->commontool->district_id = $district_id;
     }
 
 
