@@ -174,6 +174,7 @@ class Commontool extends Common
                 'update_time' => time()
             ]);
         }
+
         if (empty($childsite_title) && !empty($title) && !$this->mainsite) {
             //为了向下兼容 添加子站功能之前不支持
             list($childsite_title, $childsite_keyword, $childsite_description) = $this->getIndexPageTool($keyword_info, false);
@@ -184,6 +185,7 @@ class Commontool extends Common
                     'childsite_description' => $childsite_description,
                 ]);
         }
+
         if ($this->mainsite) {
             return [$title, $keyword, $description];
         } else {
@@ -307,6 +309,17 @@ class Commontool extends Common
                 'childsite_description' => $childsite_description,
                 'pre_akeyword_id' => $a_keyword_id
             ]);
+        }
+        //子站的标题为空 且 父站的title 不为空 且当前当文的为子站
+        if (empty($childsite_title) && !empty($title) && !$this->mainsite) {
+            //为了向下兼容 添加子站功能之前不支持
+            list($childsite_title, $childsite_keyword, $childsite_description) = $this->getMenuPageTool($keyword_info, $menu_name, false);
+            Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
+                ->update([
+                    'childsite_title' => $childsite_title,
+                    'childsite_keyword' => $childsite_keyword,
+                    'childsite_description' => $childsite_description,
+                ]);
         }
         if ($this->mainsite) {
             return [$title, $keyword, $description];
