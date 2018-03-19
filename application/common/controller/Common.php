@@ -101,6 +101,7 @@ class Common extends Controller
      */
     public function __construct()
     {
+        parent::__construct();
         session_write_close();
         set_time_limit(0);
         $this->getSiteId();
@@ -129,7 +130,44 @@ class Common extends Controller
         $this->prequestionpath = '/' . $this->questionpath;
         $this->preproductpath = '/' . $this->productpath;
         $this->currenturl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        parent::__construct();
+
+        ///////////////////////////////////////////////
+        //截取下相关域名是 主站 还是子站 以及 获取到的区域的id 跟 name
+        $host = $_SERVER['HTTP_HOST'];
+        $pos = strpos($host, $this->domain);
+        $suffix = '';
+        if ($pos) {
+            $suffix = substr($host, 0, $pos - 1);
+        }
+        if ($suffix != '' && $suffix != 'www') {
+            $this->suffix = $suffix;
+            $this->mainsite = false;
+            $this->getDistrictInfo($suffix);
+        }
+        ///////////////////////////////////////////////
+    }
+
+
+    /**
+     * 获取区域的信息
+     * @access public
+     */
+    public function getDistrictInfo()
+    {
+        $suffix = $this->suffix;
+        $info = Cache::remember("{$this->suffix}info", function () use ($suffix) {
+            return Db::name('district')->where(['pinyin' => $suffix])->find();
+        });
+        // 相关后缀获取相关bug
+        if ($info) {
+            // 后缀存储在缓存中
+            $this->district_id = $info['id'];
+            $this->district_name = $info['name'];
+            $this->mainsite = false;
+        } else {
+            //表示不存在该子站 展现主站的数据
+            $this->mainsite = true;
+        }
     }
 
 

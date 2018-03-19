@@ -17,11 +17,14 @@ use think\View;
 
 class Preview extends EntryCommon
 {
+
+
     /**
      * 文章静态化
      * @access private
      * @param $id  article的id
      * @return bool|void
+     * @throws \think\Exception
      */
     private function articlepreview($id)
     {
@@ -48,6 +51,7 @@ class Preview extends EntryCommon
      * @access private
      * @param $id product
      * @return bool
+     * @throws \think\Exception
      */
     private function questionpreview($id)
     {

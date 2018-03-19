@@ -29,9 +29,6 @@ class TagList extends EntryCommon
         parent::__construct();
         $this->commontool = new Commontool();
         $this->commontool->tag = 'tag';
-        $this->commontool->suffix = $this->suffix;
-        $this->commontool->district_name = $this->district_name;
-        $this->commontool->district_id = $this->district_id;
     }
 
 

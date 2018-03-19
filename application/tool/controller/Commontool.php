@@ -1354,7 +1354,6 @@ code;
      */
     public function getEssentialElement($param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '', $param7 = '', $suffix = '', $mainsite = true, $district_name = '')
     {
-
         //获取站点的logo
         $logo = $this->getSiteLogo();
         $keyword_info = (new Keyword())->getKeywordInfo();

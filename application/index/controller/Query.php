@@ -25,9 +25,6 @@ class Query extends EntryCommon
         parent::__construct();
         $this->commontool = new Commontool();
         $this->commontool->tag = 'query';
-        $this->commontool->suffix = $this->suffix;
-        $this->commontool->district_name = $this->district_name;
-        $this->commontool->district_id = $this->district_id;
     }
 
 

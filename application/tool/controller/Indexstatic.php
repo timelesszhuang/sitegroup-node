@@ -15,20 +15,12 @@ class Indexstatic extends Common
     public $commontool;
 
 
-    public function __construct($mainsite = true, $district_id = 0, $district_name = '', $suffix = '')
+    public function __construct()
     {
         parent::__construct();
-        $this->suffix = $suffix;
-        $this->mainsite = $mainsite;
-        $this->district_name = $district_name;
-        $this->district_id = $district_id;
         // 公共操作相关代码
         $this->commontool = new Commontool();
         $this->commontool->tag = 'index';
-        $this->commontool->suffix = $suffix;
-        $this->commontool->mainsite = $mainsite;
-        $this->commontool->district_name = $district_name;
-        $this->commontool->district_id = $district_id;
     }
 
 

@@ -24,7 +24,7 @@ class Detailenter extends EntryCommon
             exit(file_get_contents($filename));
         }
         //分站相关
-        $index = new Indexstatic($this->mainsite, $this->district_id, $this->district_name, $this->suffix);
+        $index = new Indexstatic();
         return $index->indexstaticdata();
     }
 
