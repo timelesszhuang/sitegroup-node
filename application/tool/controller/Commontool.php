@@ -446,7 +446,7 @@ class Commontool extends Common
     public function getDbPageTDK($menu_id, $page_type)
     {
         $page_info = Cache::remember($menu_id . $page_type, function () use ($menu_id, $page_type) {
-            Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
+            return Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
                 ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description,pre_akeyword_id,akeyword_id')->find();
         });
         $akeyword_changestatus = false;
