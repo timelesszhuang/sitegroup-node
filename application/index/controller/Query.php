@@ -99,6 +99,9 @@ demo;
                 'articletype_id' => ['in', $typeidarr],
                 'title|content' => ['like', "%$keyword%"],
             ];
+            if (!$this->mainsite) {
+                $where['stations'] = '10';
+            }
             //多少条记录
             $article = (new Article())->order('id', "desc")->field($this->commontool->articleListField)->where($where)
                 ->paginate(10, false, [
@@ -152,6 +155,9 @@ demo;
                 'type_id' => ['in', $typeidarr],
                 'title|summary|detail' => ['like', "%$keyword%"],
             ];
+            if (!$this->mainsite) {
+                $where['stations'] = '10';
+            }
             //多少条记录
             $product = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where($where)
                 ->paginate(10, false, [
@@ -204,6 +210,9 @@ demo;
                 'type_id' => ['in', $typeidarr],
                 'question|content_paragraph' => ['like', "%$keyword%"],
             ];
+            if (!$this->mainsite) {
+                $where['stations'] = '10';
+            }
             //多少条记录
             $question = (new Question())->order('id', "desc")->field($this->commontool->questionListField)->where($where)
                 ->paginate(10, false, [

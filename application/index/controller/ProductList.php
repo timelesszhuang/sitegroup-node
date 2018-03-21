@@ -96,6 +96,9 @@ class ProductList extends EntryCommon
             $typeid_str = implode(',', $typeidarr);
             if ($typeid_str) {
                 $wheretemplate = "id <={$productmax_id} and node_id={$this->node_id} and type_id in (%s)";
+                if (!$this->mainsite) {
+                    $wheretemplate .= ' and stations = "10"';
+                }
                 //获取当前type_id的文章
                 $productlist = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
                     ->paginate($listsize, false, [

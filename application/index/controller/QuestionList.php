@@ -95,6 +95,9 @@ class QuestionList extends EntryCommon
             //取出当前栏目下级的文章分类 根据path 中的menu_id
             $typeid_str = implode(',', $typeidarr);
             $where = "id <={$questionmax_id} and node_id={$this->node_id} and type_id in (%s)";
+            if (!$this->mainsite) {
+                $where .= ' and stations = "10"';
+            }
             if ($typeid_str) {
                 $question = (new \app\index\model\Question)->order('id', "desc")->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [

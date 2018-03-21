@@ -108,6 +108,9 @@ class TagList extends EntryCommon
             $typeid_str = implode(',', array_keys($article_typearr));
             $where = "id <=$articlemax_id and node_id={$this->node_id} and tags like '%,$tag_id,%' and articletype_id in ($typeid_str)";
             //获取当前type_id的文章
+            if (!$this->mainsite) {
+                $where .= ' and stations = "10"';
+            }
             $article = (new \app\index\model\Article())->order('id', "desc")->field($this->commontool->articleListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
@@ -176,6 +179,9 @@ class TagList extends EntryCommon
         if ($questionmax_id) {
             $typeid_str = implode(',', array_keys($question_typearr));
             $where = "id <={$questionmax_id} and node_id={$this->node_id} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
+            if (!$this->mainsite) {
+                $where .= ' and stations = "10"';
+            }
             $question = Question::order('id', "desc")->field($this->commontool->questionListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
@@ -243,6 +249,9 @@ class TagList extends EntryCommon
         if ($productmax_id) {
             $typeid_str = implode(',', array_keys($product_typearr));
             $where = "id <={$productmax_id} and node_id={$this->node_id} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
+            if (!$this->mainsite) {
+                $where .= ' and stations = "10"';
+            }
             $product = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",

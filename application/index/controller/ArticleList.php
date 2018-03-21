@@ -6,7 +6,6 @@ use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\index\model\Menu;
 use app\tool\controller\Commontool;
-use app\tool\controller\Site;
 use think\Cache;
 use think\View;
 
@@ -102,6 +101,9 @@ class ArticleList extends EntryCommon
             //取出当前栏目下级的文章分类 根据path 中的menu_id
             $typeid_str = implode(',', $typeidarr);
             $where_template = "id <=$articlemax_id and node_id={$this->node_id} and articletype_id in (%s)";
+            if (!$this->mainsite) {
+                $where_template .= ' and stations = "10"';
+            }
             if ($typeid_str) {
                 //获取当前type_id的文章
                 $article = (new \app\index\model\Article())->order('id', "desc")->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
