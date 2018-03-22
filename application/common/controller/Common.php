@@ -18,6 +18,7 @@ use think\Config;
 use think\Controller;
 use think\Cache;
 use app\tool\model\SiteWaterImage;
+use think\Db;
 
 class Common extends Controller
 {
