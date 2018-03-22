@@ -313,7 +313,7 @@ class Commontool extends Common
         //子站的标题为空 且 父站的title 不为空 且当前当文的为子站
         if (empty($childsite_title) && !empty($title) && !$this->mainsite) {
             //为了向下兼容 添加子站功能之前不支持
-            list($childsite_title, $childsite_keyword, $childsite_description) = $this->getMenuPageTool($keyword_info, $menu_name, false);
+            list($a_keyword_id, $childsite_title, $childsite_keyword, $childsite_description) = $this->getMenuPageTool($keyword_info, $menu_name, false);
             Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
                 ->update([
                     'childsite_title' => $childsite_title,
@@ -332,6 +332,7 @@ class Commontool extends Common
      * 获取首页页面工具
      * @access private
      * @param $keyword_info
+     * @param $menu_name
      * @param bool $mainsite
      * @return array
      */
@@ -367,17 +368,18 @@ class Commontool extends Common
 
     /**
      * 详情页 的TDK 获取   需要有固定的关键词
+     * @param $page_id 文章或者相关页面的id 　　
      * @param $keyword_info 关键词相关
      * @param $articletitle
      * @param $articlecontent
      * @param $keywords
-     * @param $a_keyword_id
+     * @param $a_keyword_id  上级菜单选择的主关键词的id
      * @return array
      * @throws \think\Exception
      * @throws \think\exception\PDOException
      * @todo 详情页不需要 存储在数据库中 TDK定死就行
      */
-    public function getDetailPageTDK($keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id)
+    public function getDetailPageTDK($page_id, $type, $keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id)
     {
         //需要知道 栏目的关键词等
         //$keyword_info, $site_id, $node_id, $articletitle, $articlecontent
@@ -385,6 +387,46 @@ class Commontool extends Common
         // 详情页的 title：C类关键词多个_A类关键词1-文章标题
         //        keyword：C类关键词多个,A类关键词
         //        description:拼接一段就可以栏目名
+        list($id, $title, $keyword, $description, $childsite_title, $childsite_keyword, $childsite_description) = $this->getDbDetailPageTDK($page_id, $type);
+        if (!$id) {
+            //表示为空
+            list($title, $keyword, $description, $childsite_title, $childsite_keyword, $childsite_description) = $this->getDetailPageTool($keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id);
+            //添加到数据库中
+            Db::name('SiteDetailPageinfo')->insert([
+                'page_id' => $page_id,
+                'site_id' => $this->site_id,
+                'site_name' => $this->site_name,
+                'node_id' => $this->node_id,
+                'type' => $type,
+                'title' => $title,
+                'keyword' => $keyword,
+                'description' => $description,
+                'childsite_title' => $childsite_title,
+                'childsite_keyword' => $childsite_keyword,
+                'childsite_description' => $childsite_description,
+                'create_time' => time(),
+                'update_time' => time()
+            ]);
+        }
+        if ($this->mainsite) {
+            return [$title, $keyword, $description];
+        }
+        return str_replace($this->childsite_tdkplaceholder, $this->district_name, [$childsite_title, $childsite_keyword, $childsite_description]);
+    }
+
+    /**
+     * 生成详情型的页面ｔｄｋ
+     * @param $keyword_info
+     * @param $articletitle
+     * @param $articlecontent
+     * @param $keywords
+     * @param $a_keyword_id
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException
+     */
+    private function getDetailPageTool($keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id)
+    {
         $a_child_info = [];
         foreach ($keyword_info as $k => $v) {
             if ($v['id'] == $a_keyword_id) {
@@ -432,13 +474,23 @@ class Commontool extends Common
         $c_keywordname_arr = array_column($c_keyword_arr, 'name');
         $title = $articletitle . '-' . implode('_', $c_keywordname_arr);
         $keyword = $keywords ? $keywords : implode(',', $c_keywordname_arr);
+        $region_ckeyword = [];
+        foreach ($c_keywordname_arr as $v) {
+            array_push($region_ckeyword, $this->childsite_tdkplaceholder . $v);
+        }
+        $childsite_title = $articletitle . '-' . implode('_', $region_ckeyword);
+        $childsite_keyword = $keywords ? $keywords : implode(',', $region_ckeyword);
         $description = $articlecontent;
-        return [$title, $keyword, $description];
+        return [$title, $keyword, $description, $childsite_title, $childsite_keyword, $description];
     }
+
 
     /**
      * 获取tag 相关信息
      * @access public
+     * @param $keyword_info
+     * @param $tag_name
+     * @return array
      */
     public function getTaglistPageTDK($keyword_info, $tag_name)
     {
@@ -455,6 +507,9 @@ class Commontool extends Common
     /**
      * 从数据库中获取页面的tdk相关信息
      * @access public
+     * @param $menu_id
+     * @param $page_type
+     * @return array
      */
     public function getDbPageTDK($menu_id, $page_type)
     {
@@ -475,6 +530,25 @@ class Commontool extends Common
         return [0, $akeyword_id, $akeyword_changestatus, '', '', '', '', '', ''];
     }
 
+    /**
+     * 从数据库中获取页面的tdk相关信息 获取页面中的tdk
+     * @access public
+     * @param $page_id 页面的id
+     * @param $type  product question article
+     * @return array
+     */
+    public function getDbDetailPageTDK($page_id, $type)
+    {
+        $page_info = Cache::remember($page_id . $type, function () use ($page_id, $type) {
+            return Db::name('site_detail_pageinfo')->where(['page_id' => $page_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'type' => $type])
+                ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description')->find();
+        });
+        if ($page_info) {
+            return [$page_info['id'], $page_info['title'], $page_info['keyword'], $page_info['description'], $page_info['childsite_title'], $page_info['childsite_keyword'], $page_info['childsite_description']];
+        }
+        return [0, '', '', '', '', '', ''];
+    }
+
 
     /**
      * 获取 文章列表 获取十条　文件名如 article1 　article2
@@ -483,6 +557,9 @@ class Commontool extends Common
      * @param $typeid_arr
      * @param int $limit
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getArticleList($sync_info, $typeid_arr, $limit = 10)
     {
@@ -508,6 +585,13 @@ class Commontool extends Common
     /**
      * 获取多个分类下的文章列表
      * @access public
+     * @param $max_id
+     * @param $article_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypesArticleList($max_id, $article_typearr, $limit)
     {
@@ -526,6 +610,14 @@ class Commontool extends Common
     /**
      * 获取文章分类下的文章列表 比如 行业新闻直接调取分类下的id 调取的时候建议使用 array_key_exists
      * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -551,6 +643,14 @@ class Commontool extends Common
     /**
      * 获取产品flag相关list
      * 最多取出10条
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getArticleFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -600,6 +700,14 @@ class Commontool extends Common
     /**
      * 获取单个分类下的文章列表
      * @access public
+     * @param $type_id
+     * @param $max_id
+     * @param $article_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypeArticleList($type_id, $max_id, $article_typearr, $limit)
     {
@@ -617,6 +725,8 @@ class Commontool extends Common
     /**
      * 根据取出来的文章list 格式化为指定的格式
      * @access public
+     * @param $article
+     * @param $article_typearr
      */
     public function formatArticleList(&$article, $article_typearr)
     {
@@ -704,6 +814,13 @@ class Commontool extends Common
     /**
      * 获取多个类型types 产品列表
      * @access public
+     * @param $max_id
+     * @param $product_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypesProductList($max_id, $product_typearr, $limit)
     {
@@ -721,6 +838,14 @@ class Commontool extends Common
     /**
      * 获取产品分类下的文章列表 比如 行业新闻直接调取分类下的id 调取的时候建议使用 array_key_exists
      * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     private function getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -746,6 +871,14 @@ class Commontool extends Common
     /**
      * 获取产品flag 相关list
      * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -794,6 +927,14 @@ class Commontool extends Common
     /**
      * 获取单个类型type 产品列表
      * @access public
+     * @param $type_id
+     * @param $max_id
+     * @param $product_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypeProductList($type_id, $max_id, $product_typearr, $limit)
     {
@@ -811,6 +952,8 @@ class Commontool extends Common
     /**
      * 格式化产品信息数据
      * @access private
+     * @param $product
+     * @param $product_typearr
      */
     public function formatProductList(&$product, $product_typearr)
     {
@@ -886,6 +1029,13 @@ class Commontool extends Common
     /**
      * 获取多个类型types 问答列表
      * @access public
+     * @param $max_id
+     * @param $question_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypesQuestionList($max_id, $question_typearr, $limit)
     {
@@ -903,6 +1053,14 @@ class Commontool extends Common
     /**
      * 获取问答分类的相关列表数据
      * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -929,6 +1087,14 @@ class Commontool extends Common
     /**
      * 获取产品flag 相关list
      * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -978,6 +1144,14 @@ class Commontool extends Common
     /**
      * 获取单个类型type 问答列表
      * @access public
+     * @param $type_id
+     * @param $max_id
+     * @param $question_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypeQuestionList($type_id, $max_id, $question_typearr, $limit)
     {
@@ -994,6 +1168,8 @@ class Commontool extends Common
     /**
      * 根据问答分类格式化列表数据
      * @access private
+     * @param $question
+     * @param $question_typearr
      */
     public function formatQuestionList(&$question, $question_typearr)
     {
@@ -1036,6 +1212,11 @@ class Commontool extends Common
     /**
      * 获取公共代码
      * @access public
+     * @param $code_ids
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getCommonCode($code_ids)
     {
@@ -1056,7 +1237,6 @@ class Commontool extends Common
     /**
      * 获取分类中已经静态化到的地方 需要的文章列表  内容列表 问答列表
      * @access public
-     * @param $site_id 站点的id 信息
      * @return array
      */
     public function getDbArticleListId()
@@ -1214,7 +1394,6 @@ code;
     /**
      * 获取站点的logo 相关信息
      * @access private
-     * @param $site_info 站点相关数据
      * @return string
      */
     private function getSiteLogo()
@@ -1361,9 +1540,15 @@ code;
      * @param string $param5
      * @param string $param6
      * @param string $param7
+     * @param string $suffix
+     * @param bool $mainsite
+     * @param string $district_name
      * @return array
-     * @throws \think\exception\PDOException
      * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function getEssentialElement($param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '', $param7 = '', $suffix = '', $mainsite = true, $district_name = '')
     {
@@ -1455,9 +1640,9 @@ code;
                 break;
             case 'detail':
                 //详情页面
-                $page_id = '';
+                $page_id = $param['id'];
                 //文章的标题
-                $articletitle = $param;
+                $articletitle = $param['title'];
                 //文章的summary
                 $articlecontent = $param2;
                 //关键词 文章中的关键词
@@ -1469,7 +1654,7 @@ code;
                 //当前栏目的name
                 $menu_name = $param6;
                 $type = $param7;
-                list($title, $keyword, $description) = $this->getDetailPageTDK($keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id);
+                list($title, $keyword, $description) = $this->getDetailPageTDK($page_id, $type, $keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
                 $breadcrumb = $this->getBreadCrumb($allmenu, $menu_id);
                 break;
@@ -1547,6 +1732,9 @@ code;
     /**
      * 获取每个menu下的所有分类id数组
      * @access public
+     * @param $menu_id
+     * @param $ptypeidarr
+     * @return mixed
      */
     public function getMenuChildrenMenuTypeid($menu_id, $ptypeidarr)
     {
@@ -1568,6 +1756,12 @@ code;
     /**
      * 获取同一级别的菜单
      * @access public
+     * @param $menu_id
+     * @param $flag
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getMenuSiblingMenuTypeid($menu_id, $flag)
     {
@@ -1620,6 +1814,12 @@ code;
 
     /**
      * 递归获取网站type_aliasarr typeid_arr
+     * @param $menulist
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getTypeInfo($menulist, &$type_aliasarr, &$typeid_arr)
     {
@@ -1718,6 +1918,10 @@ code;
     /**
      * 生成tdk 相关html
      * @access private
+     * @param $title
+     * @param $keyword
+     * @param $description
+     * @return string
      */
     private function form_tdk_html($title, $keyword, $description)
     {
@@ -1766,13 +1970,8 @@ code;
      * 获取当前栏目的菜单信息
      * @access private
      * @todo 如果是menu或者是index  需要优化当前栏目比如前段需要表示出来当前页 并且给出有区别的样式
-     * @param $menu_ids 栏目的ids
-     * $param $site_id 站点的id
-     * $param $site_name 站点的name
-     * $param $node_id 节点的id
-     * $param $url 网站的根目录
-     * $param $generate_name 生成菜单的英文名
-     * $param $menu_id 菜单的id
+     * @param $generate_name
+     * @param $menu_id
      * @return array|false|\PDOStatement|string|\think\Collection
      */
     private function getTreeMenuInfo($generate_name, $menu_id)
@@ -1864,6 +2063,12 @@ code;
     /**
      * 获取面包屑 相关信息
      * @access
+     * @param $allmenu
+     * @param int $menu_id
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getBreadCrumb($allmenu, $menu_id = 0)
     {

@@ -32,7 +32,7 @@ class Http extends Handle
                     //需要 判断下是不是 孩子站点的请求
                     $filename = $pathinfo['basename'];
                     // 把请求调取到其他控制器中
-                    (new Detailenter())->detailMenu($filename);
+                    return (new Detailenter())->detailMenu($filename);
                 }
             }
         }

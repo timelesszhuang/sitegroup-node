@@ -22,6 +22,7 @@ class Detailstatic extends Common
     //系统默认每次静态化的数量
     private static $system_default_count;
     public $typeid_arr = '';
+    public $commontool;
 
 
     public function __construct()
@@ -398,6 +399,7 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
+
         $tagsArticleList = Article::Where($where)->limit($limit)->field($this->commontool->articleListField)->select();
         if ($tagsArticleList) {
             $this->commontool->formatArticleList($tagsArticleList, $article_typearr);
@@ -418,10 +420,10 @@ class Detailstatic extends Common
         $description = preg_replace('/^&.+\;$/is', '', $description);
         //页面的描述
         $summary = $description ?: $item['summary'];
-        //页面的描述
+        //页面的关键词
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
-        $assign_data = $this->commontool->getEssentialElement($item['title'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'articlelist');
+        $assign_data = $this->commontool->getEssentialElement($item, $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'article');
         if ($item['thumbnails_name']) {
             //表示是oss的
             $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString, $this->waterImgUrl);
@@ -488,6 +490,7 @@ class Detailstatic extends Common
     /**
      * 获取文章详细信息相关
      * @access public
+     * @throws \think\Exception
      */
     public function article_detailinfo($id)
     {
@@ -655,6 +658,7 @@ class Detailstatic extends Common
 
     /**
      * 问答预览重新生成时候调取数据需要的数据
+     * @throws \think\Exception
      */
     public function question_detailinfo($id)
     {
@@ -743,6 +747,17 @@ class Detailstatic extends Common
     /**
      * 格式化每个问题页面
      * @access public
+     * @param $item
+     * @param $keyword_id
+     * @param $menu_id
+     * @param $menu_name
+     * @param $tags
+     * @return array
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function form_perquestion(&$item, $keyword_id, $menu_id, $menu_name, $tags)
     {
@@ -761,7 +776,7 @@ class Detailstatic extends Common
             }
         }
         $item['tags'] = $questiontags;
-        $assign_data = $this->commontool->getEssentialElement($item['question'], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'questionlist');
+        $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['question']], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'question');
         return $assign_data;
     }
 
@@ -881,7 +896,7 @@ class Detailstatic extends Common
         $summary = $item['summary'] ?: $description;
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
-        $assign_data = $this->commontool->getEssentialElement($item['name'], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'productlist');
+        $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['name']], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'product');
         if ($item['image_name']) {
             $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString, $this->waterImgUrl);
         }
@@ -954,7 +969,7 @@ class Detailstatic extends Common
     {
         // 取出指定id的文章
         $productsql = "id = $id and node_id=$this->node_id";
-        $product = Product::where($productsql)->find()->toArray();
+        $product = (new \app\index\model\Product)->where($productsql)->find()->toArray();
         $type_id = $product['type_id'];
         // 获取menu信息
         $menuInfo = (new \app\tool\model\Menu)->where([

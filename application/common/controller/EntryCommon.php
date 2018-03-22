@@ -13,8 +13,6 @@ namespace app\common\controller;
 use app\index\traits\Pv;
 use app\index\traits\SearchEngineComefrom;
 use app\index\traits\SpiderComefrom;
-use think\Cache;
-use think\Db;
 
 class EntryCommon extends Common
 {
