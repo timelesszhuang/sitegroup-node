@@ -10,11 +10,8 @@ namespace app\index\controller;
 
 use app\common\controller\Common;
 use app\common\controller\EntryCommon;
-use app\index\model\Menu;
 use app\index\model\Product;
-use app\index\traits\SpiderComefrom;
 use app\tool\controller\Commontool;
-use app\tool\controller\Site;
 use think\Cache;
 use think\View;
 
@@ -58,7 +55,6 @@ class ProductList extends EntryCommon
      * product列表静态化
      * @param $menu_enname
      * @param $type_id
-     * @param $siteinfo
      * @param int $currentpage
      * @return array
      * @throws \think\Exception

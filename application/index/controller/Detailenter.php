@@ -124,11 +124,11 @@ class Detailenter extends EntryCommon
         }
         $filename = substr($filename, 0, strpos($filename, '.'));
         // 需要根据$filename 取出 menu 的信息
-        $menu = Cache::remember('detailmenu' . $filename . 'menu', function () use ($filename) {
+        $menu = Cache::remember('detailmenu' . $filename . 'menu' . $this->suffix, function () use ($filename) {
             $menu = (new \app\tool\model\Menu)->Where(['flag' => 1, 'node_id' => $this->node_id, 'generate_name' => $filename])->find();
             return $menu;
         });
-        $content = Cache::remember('detailmenu' . $filename . 'content', function () use ($menu) {
+        $content = Cache::remember('detailmenu' . $filename . 'content'.$this->suffix, function () use ($menu) {
             return (new Detailmenupagestatic)->getContent($menu);
         });
         exit($content);

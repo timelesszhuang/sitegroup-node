@@ -513,10 +513,11 @@ class Commontool extends Common
      */
     public function getDbPageTDK($menu_id, $page_type)
     {
-        $page_info = Cache::remember($menu_id . $page_type, function () use ($menu_id, $page_type) {
+        $page_info = Cache::remember($menu_id . $page_type . $this->suffix, function () use ($menu_id, $page_type) {
             return Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
                 ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description,pre_akeyword_id,akeyword_id')->find();
         });
+
         $akeyword_changestatus = false;
         $akeyword_id = 0;
         if ($page_info) {
@@ -539,7 +540,7 @@ class Commontool extends Common
      */
     public function getDbDetailPageTDK($page_id, $type)
     {
-        $page_info = Cache::remember($page_id . $type, function () use ($page_id, $type) {
+        $page_info = Cache::remember($page_id . $type . $this->suffix, function () use ($page_id, $type) {
             return Db::name('site_detail_pageinfo')->where(['page_id' => $page_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'type' => $type])
                 ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description')->find();
         });
@@ -1007,6 +1008,9 @@ class Commontool extends Common
      * @param $typeid_arr
      * @param int $limit
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getQuestionList($sync_info, $typeid_arr, $limit = 10)
     {

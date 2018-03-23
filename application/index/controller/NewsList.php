@@ -58,9 +58,11 @@ class NewsList extends EntryCommon
      * @param $templatepath
      * @param int $currentpage
      * @return array
+     * @throws \think\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function generateNewsList($id, $siteinfo, $templatepath, $currentpage = 1)
     {
@@ -73,7 +75,7 @@ class NewsList extends EntryCommon
         $siteinfo = Site::getSiteInfo();
         $menu_info = \app\index\model\Menu::get($id);
         $assign_data = Commontool::getEssentialElement( $menu_info->generate_name, $menu_info->name, $menu_info->id, 'newslist');
-        $articleSyncCount = \app\index\model\ArticleSyncCount::where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "scatteredarticle", 'type_id' => $menu_info['type_id']])->find();
+        $articleSyncCount = (new \app\index\model\ArticleSyncCount)->where(["site_id" => $siteinfo['id'], "node_id" => $siteinfo['node_id'], "type_name" => "scatteredarticle", 'type_id' => $menu_info['type_id']])->find();
         $where["articletype_id"] = $menu_info->type_id;
         $newslist = [];
         if ($articleSyncCount) {
