@@ -20,11 +20,16 @@ class Commontool extends Common
 
     //各个列表的路径规则
     private $articleListPath = '/articlelist/%s.html';
+    // 文章列表相关 需要
+    public $listarticleaccesspath = '/article/article%s.html';
     private $productListPath = '/productlist/%s.html';
+    //产品列表相关
+    public $listproductaccesspath = '/product/product%s.html';
     private $questionListPath = '/questionlist/%s.html';
+    //问答列表相关
+    public $listquestionaccesspath = '/question/question%s.html';
     //文章问答产品的tag 列表样式 需要有分页
     public $taglist = '/tag/%s.html';
-
     public $articleListField = 'id,flag,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,tags,create_time';
     public $questionListField = 'id,flag,question,type_id,type_name,tags,create_time';
     public $productListField = 'id,flag,name,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
@@ -762,7 +767,7 @@ class Commontool extends Common
             }
             unset($v['articletype_id']);
             unset($v['articletype_name']);
-            $v['href'] = sprintf($this->articleaccesspath, $v['id']);
+            $v['href'] = sprintf($this->listarticleaccesspath, $v['id']);
             if (is_array($v)) {
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
             }
@@ -980,7 +985,7 @@ class Commontool extends Common
             unset($v['type_id']);
             unset($v['type_name']);
             unset($v['image_name']);
-            $v['href'] = sprintf($this->productaccesspath, $v['id']);
+            $v['href'] = sprintf($this->listproductaccesspath, $v['id']);
             $v['thumbnails'] = $img;
             $v['type'] = $type;
             $tags = [];
@@ -1189,7 +1194,7 @@ class Commontool extends Common
             if (strpos($v['flag'], 'b')) {
                 $v['question'] = '<strong>' . $v['question'] . '</strong>';
             }
-            $v['href'] = sprintf($this->questionaccesspath, $v['id']);
+            $v['href'] = sprintf($this->listquestionaccesspath, $v['id']);
             if (is_array($v)) {
                 // model对象调用的时候会自动格式化
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
