@@ -980,7 +980,7 @@ class Commontool extends Common
             unset($v['type_id']);
             unset($v['type_name']);
             unset($v['image_name']);
-            $v['href'] = sprintf($this->productaccessPath, $v['id']);
+            $v['href'] = sprintf($this->productaccesspath, $v['id']);
             $v['thumbnails'] = $img;
             $v['type'] = $type;
             $tags = [];
@@ -1189,7 +1189,7 @@ class Commontool extends Common
             if (strpos($v['flag'], 'b')) {
                 $v['question'] = '<strong>' . $v['question'] . '</strong>';
             }
-            $v['href'] = sprintf($this->questionaccessPath, $v['id']);
+            $v['href'] = sprintf($this->questionaccesspath, $v['id']);
             if (is_array($v)) {
                 // model对象调用的时候会自动格式化
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
