@@ -143,7 +143,7 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::remember("questiontaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
+        $data = Cache::remember("questiontaglist_{$tag_id}_{$currentpage}{$this->suffix}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
             return $this->generateQuestionList($tag_id, $tag_name, $siteinfo, $currentpage);
         }, 0);
         return Common::Debug((new View())->fetch($template,

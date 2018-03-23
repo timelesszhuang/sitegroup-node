@@ -472,13 +472,13 @@ class Detailstatic extends Common
                     if (strpos($v, $endpointurl) === false) {
                         continue;
                     }
-                    $imgname = $this->formUniqueString();
                     //有时候有图片没有后缀
-                    $filetype = $this->analyseUrlFileType($v);
+                    list($filetype, $filename) = $this->analyseUrlFileType($v);
                     //阿里云图片生成
-                    $filepath = $imgname . '.' . $filetype;
+                    $filepath = $filename . '.' . $filetype;
+                    $localfilepath = '/images/' . $filepath;
                     if ($this->get_osswater_img($v, $filepath, $this->waterString, $this->waterImgUrl)) {
-                        $content = str_replace($v, '/images/' . $filepath, $content);
+                        $content = str_replace($v, $localfilepath, $content);
                     }
                 }
             }

@@ -216,6 +216,7 @@ trait Osstrait
     /**
      * 解析文件路径 获取文件的后缀
      * @param string $fileurl 要获取后缀的文件url 路径
+     * @return array
      * @access public
      */
     public function analyseUrlFileType($fileurl)
@@ -225,7 +226,8 @@ trait Osstrait
         if (array_key_exists('extension', $imgpathinfo)) {
             $type = $imgpathinfo['extension'];
         }
-        return $type;
+        $filename = $imgpathinfo['basename'];
+        return [$type, $filename];
     }
 
 }

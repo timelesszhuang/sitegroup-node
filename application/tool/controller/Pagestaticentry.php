@@ -68,7 +68,7 @@ class Pagestaticentry extends Common
         }
         //如果存在logo 名字就叫 ××.jpg
         $oss_logo_path = $site_logoinfo['oss_logo_path'];
-        $file_ext = $this->analyseUrlFileType($oss_logo_path);
+        list($file_ext, $filename) = $this->analyseUrlFileType($oss_logo_path);
         //logo 名称 根据站点id 拼成
         $local_img_name = "logo{$siteinfo['id']}.$file_ext";
         $update_time = $site_logoinfo['update_time'];
