@@ -34,6 +34,7 @@ class Detailrestatic extends Common
             return false;
         }
         $file_name = sprintf($this->articlepath, $id);
+        $articleaccess_path = sprintf($this->articleaccesspath, $id);
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
@@ -41,9 +42,8 @@ class Detailrestatic extends Common
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
-        $article_path = sprintf($this->articlepath, $id);
-        if (file_put_contents($article_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
-            $this->urlsCache([$this->siteurl . '/' . $article_path]);
+        if (file_put_contents($file_name, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            $this->urlsCache([$this->siteurl . '/' . $articleaccess_path]);
         }
     }
 
@@ -58,15 +58,15 @@ class Detailrestatic extends Common
             return false;
         }
         $file_name = sprintf($this->questionpath, $id);
+        $questionaccesspath = sprintf($this->questionaccesspath, $id);
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        list($template,$data) = (new Detailstatic())->question_detailinfo($id);
+        list($template, $data) = (new Detailstatic())->question_detailinfo($id);
         //需要判断下是不是当前模板存在
-        $content = Common::Debug((new View())->fetch($template,$data), $data);
-        $questionpath = sprintf($this->questionpath, $id);
-        if (file_put_contents($questionpath, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
-            $this->urlsCache([$this->siteurl . '/' . $questionpath]);
+        $content = Common::Debug((new View())->fetch($template, $data), $data);
+        if (file_put_contents($file_name, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            $this->urlsCache([$this->siteurl . '/' . $questionaccesspath]);
         }
     }
 
@@ -87,6 +87,7 @@ class Detailrestatic extends Common
             return false;
         }
         $file_name = sprintf($this->productpath, $id);
+        $productaccess_path = sprintf($this->productaccesspath, $id);
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
@@ -94,9 +95,8 @@ class Detailrestatic extends Common
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
-        $product_path = sprintf($this->productpath, $id);
-        if (file_put_contents($product_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
-            $this->urlsCache([$this->siteurl . '/' . $product_path]);
+        if (file_put_contents($file_name, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
+            $this->urlsCache([$this->siteurl . '/' . $productaccess_path]);
         }
     }
 

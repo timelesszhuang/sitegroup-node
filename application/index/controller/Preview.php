@@ -65,7 +65,6 @@ class Preview extends EntryCommon
             return;
         }
         list($template, $data) = (new Detailstatic())->question_detailinfo($id);
-
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);

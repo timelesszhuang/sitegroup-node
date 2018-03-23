@@ -31,6 +31,8 @@ trait Osstrait
      * oss 对象上传
      * @param $object 服务器上文件名
      * @param $filepath 本地文件的绝对路径 比如/home/wwwroot/***.jpg
+     * @return array
+     * @throws \OSS\Core\OssException
      */
     public function ossPutObject($object, $filepath)
     {

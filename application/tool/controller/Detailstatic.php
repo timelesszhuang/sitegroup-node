@@ -361,9 +361,10 @@ class Detailstatic extends Common
                 $data
             ), $data);
             $article_path = sprintf($this->articlepath, $item['id']);
+            $articleaccess_path = sprintf($this->articleaccesspath, $item['id']);
             if (file_put_contents($article_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
                 //需要把 每一次的都修改下
-                array_push($pingurls, $this->siteurl . '/' . $article_path);
+                array_push($pingurls, $this->siteurl . '/' . $articleaccess_path);
                 ArticleSyncCount::where($where)->update(['count' => $item['id']]);
             }
         }
@@ -376,7 +377,8 @@ class Detailstatic extends Common
      * @access public
      * @param $tags 标签
      * @param $articletype_idstr 该站点选择的文章类型列表
-     * @param $node_id 节点的node_id
+     * @param $article_typearr
+     * @param int $limit
      * @return array|false|\PDOStatement|string|\think\Collection
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
@@ -399,8 +401,7 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-
-        $tagsArticleList = Article::Where($where)->limit($limit)->field($this->commontool->articleListField)->select();
+        $tagsArticleList = (new \app\index\model\Article)->Where($where)->limit($limit)->field($this->commontool->articleListField)->select();
         if ($tagsArticleList) {
             $this->commontool->formatArticleList($tagsArticleList, $article_typearr);
             return $tagsArticleList;
@@ -544,7 +545,7 @@ class Detailstatic extends Common
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
         $next_article_sql = "id >{$id} and node_id=$this->node_id and articletype_id=$type_id";
-        $next_article = Article::where($next_article_sql)->field("id,title")->find();
+        $next_article = (new \app\index\model\Article)->where($next_article_sql)->field("id,title")->find();
         //下一页链接
         if ($next_article) {
             $next_article = $next_article->toArray();
@@ -648,8 +649,9 @@ class Detailstatic extends Common
             ), $data);
             //开始同步数据库
             $question_path = sprintf($this->questionpath, $item['id']);
+            $questionaccess_path = sprintf($this->questionaccesspath, $item['id']);
             if (file_put_contents($question_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
-                array_push($pingurls, $this->siteurl . '/' . $question_path);
+                array_push($pingurls, $this->siteurl . '/' . $questionaccess_path);
                 (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $item['id']]);
             }
         }
@@ -876,8 +878,9 @@ class Detailstatic extends Common
             //判断目录是否存在
             //开始同步数据库
             $productpath = sprintf($this->productpath, $item['id']);
+            $productaccess_path = sprintf($this->productaccesspath, $item['id']);
             if (file_put_contents($productpath, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
-                array_push($pingurls, $this->siteurl . '/' . $productpath);
+                array_push($pingurls, $this->siteurl . '/' . $productaccess_path);
                 ArticleSyncCount::where($where)->update(['count' => $item['id']]);
             }
         }

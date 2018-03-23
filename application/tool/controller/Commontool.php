@@ -20,11 +20,8 @@ class Commontool extends Common
 
     //各个列表的路径规则
     private $articleListPath = '/articlelist/%s.html';
-    public $articlePath = '/article/article%s.html';
     private $productListPath = '/productlist/%s.html';
-    public $productPath = '/product/product%s.html';
     private $questionListPath = '/questionlist/%s.html';
-    public $questionPath = '/question/question%s.html';
     //文章问答产品的tag 列表样式 需要有分页
     public $taglist = '/tag/%s.html';
 
@@ -765,7 +762,7 @@ class Commontool extends Common
             }
             unset($v['articletype_id']);
             unset($v['articletype_name']);
-            $v['href'] = sprintf($this->articlePath, $v['id']);
+            $v['href'] = sprintf($this->articleaccessPath, $v['id']);
             if (is_array($v)) {
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
             }
@@ -983,7 +980,7 @@ class Commontool extends Common
             unset($v['type_id']);
             unset($v['type_name']);
             unset($v['image_name']);
-            $v['href'] = sprintf($this->productPath, $v['id']);
+            $v['href'] = sprintf($this->productaccessPath, $v['id']);
             $v['thumbnails'] = $img;
             $v['type'] = $type;
             $tags = [];
@@ -1192,7 +1189,7 @@ class Commontool extends Common
             if (strpos($v['flag'], 'b')) {
                 $v['question'] = '<strong>' . $v['question'] . '</strong>';
             }
-            $v['href'] = sprintf($this->questionPath, $v['id']);
+            $v['href'] = sprintf($this->questionaccessPath, $v['id']);
             if (is_array($v)) {
                 // model对象调用的时候会自动格式化
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
@@ -1719,7 +1716,7 @@ code;
         $beian = $this->getBeianInfo();
         $tdk = $this->form_tdk_html($title, $keyword, $description);
         $share = $this->get_share_code();
-        //版本　copyright
+        //版本　copyright获取
         $copyright = $this->getSiteCopyright();
         //技术支持
         $powerby = $this->getSitePowerby();
@@ -1728,8 +1725,20 @@ code;
         $site_name = $this->site_name;
         $com_name = $this->com_name;
         $url = $this->siteurl;
+        //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
         return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist');
+    }
+
+
+    /**
+     * 获取该站点的子站列表
+     * @access public
+     */
+    public function getSiteList()
+    {
+        //站点信息
+        //$=$this->siteinfo;
     }
 
 
@@ -2033,7 +2042,7 @@ code;
             //首页默认选中的
             $is_current = true;
         }
-        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => $url, 'content' => '', 'current' => $is_current]);
+        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => '/', 'content' => '', 'current' => $is_current]);
         return $tree;
     }
 
@@ -2077,7 +2086,7 @@ code;
     public function getBreadCrumb($allmenu, $menu_id = 0)
     {
         $breadcrumb = [
-            ['text' => '首页', 'href' => $this->siteurl, 'title' => '首页'],
+            ['text' => '首页', 'href' => '/', 'title' => '首页'],
         ];
         switch ($this->tag) {
             case 'index':

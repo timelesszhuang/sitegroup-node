@@ -60,16 +60,22 @@ class Common extends Controller
     // 首页模板位置
     public $indextemplate = 'template/index.html';
 
-    //文章相关链接
-    public $articlepath = 'article/article%s.html';
+    // 文章静态化的路径
+    public $articlepath = 'article/%s.html';
+    // 访问静态文件的路径 为了走路由
+    public $articleaccesspath = 'article/article%s.html';
+    // 上一页 下一页页面代码
     public $prearticlepath = '';
     public $articletemplatepath = 'template/article.html';
     public $articlelisttemplate = 'template/articlelist.html';
 
     public $articlesearchlist = 'template/articlesearch.html';//查询的列表落地页
 
-    //问答相关链接
-    public $questionpath = 'question/question%s.html';
+    //问答静态化的路径
+    public $questionpath = 'question/%s.html';
+    //访问静态文件的路径
+    public $questionaccesspath = 'question/question%s.html';
+    // 上一页 下一页页面
     public $prequestionpath = '';
     public $questiontemplatepath = 'template/question.html';
     public $questionlisttemplate = 'template/questionlist.html';
@@ -77,7 +83,10 @@ class Common extends Controller
     public $questionsearchlist = 'template/questionsearch.html';//查询的列表落地页
 
     //产品相关链接
-    public $productpath = 'product/product%s.html';
+    public $productpath = 'product/%s.html';
+    //访问静态文件的路径
+    public $productaccesspath = 'product/product%s.html';
+    // 上一页 下一页页面
     public $preproductpath = '';
     public $producttemplatepath = 'template/product.html';
     public $productlisttemplate = 'template/productlist.html';
@@ -117,6 +126,7 @@ class Common extends Controller
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
+//        $this->domain = 'local.sitegroupnode.com';
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
@@ -127,9 +137,9 @@ class Common extends Controller
         });
         $this->menu_ids = $siteinfo['menu'];
         //上一页下一页链接
-        $this->prearticlepath = '/' . $this->articlepath;
-        $this->prequestionpath = '/' . $this->questionpath;
-        $this->preproductpath = '/' . $this->productpath;
+        $this->prearticlepath = '/' . $this->articleaccesspath;
+        $this->prequestionpath = '/' . $this->questionaccesspath;
+        $this->preproductpath = '/' . $this->productaccesspath;
         $this->currenturl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
         ///////////////////////////////////////////////
@@ -218,8 +228,10 @@ class Common extends Controller
      *  可能比较难理解     函数中   $reffer    $list[]  $parent 等的信息实际上只是内存中地址的引用
      * @access public
      * @param array $list 要转换的数据集
+     * @param string $pk
      * @param string $pid parent标记字段
-     * @param string $level level标记字段
+     * @param string $child
+     * @param int $root
      * @return array
      */
     function list_to_tree($list, $pk = 'id', $pid = 'pid', $child = '_child', $root = 0)
