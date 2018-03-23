@@ -762,7 +762,7 @@ class Commontool extends Common
             }
             unset($v['articletype_id']);
             unset($v['articletype_name']);
-            $v['href'] = sprintf($this->articleaccessPath, $v['id']);
+            $v['href'] = sprintf($this->articleaccesspath, $v['id']);
             if (is_array($v)) {
                 $v['create_time'] = date('Y-m-d', $v['create_time']);
             }
