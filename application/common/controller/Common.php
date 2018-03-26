@@ -160,6 +160,19 @@ class Common extends Controller
 
 
     /**
+     * 截取article111.html 中的111
+     * 截取question111.html 中的 111
+     * 截取product111.html 中的 111
+     * @access public
+     */
+    public function subNameId($filename, $type)
+    {
+        $id = str_replace($type, '', $filename);
+        return $id;
+    }
+
+
+    /**
      * 获取区域的信息
      * @access public
      */
