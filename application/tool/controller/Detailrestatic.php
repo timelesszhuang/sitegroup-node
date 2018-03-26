@@ -187,7 +187,7 @@ class Detailrestatic extends Common
         $map['id'] = ['lt',$id];
         $map['articletype_id'] = $type_id;
         $pre_article =  (new Article())->where($where)->find()['id'];
-        $next_article =  (new Article())->where($map)->find()['id'];
+        $next_article =  (new Article())->where($map)->order('id desc')->find()['id'];
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
