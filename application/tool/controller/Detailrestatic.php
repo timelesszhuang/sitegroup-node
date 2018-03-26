@@ -191,12 +191,13 @@ class Detailrestatic extends Common
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        unlink($file_name);
-        if($pre_article){
-            $this->exec_refilestatic($pre_article,'article');
-        }
-        if($next_article){
-            $this->exec_refilestatic($next_article,'article');
+        if(unlink($file_name)){
+            if($pre_article){
+                $this->exec_refilestatic($pre_article,'article');
+            }
+            if($next_article){
+                $this->exec_refilestatic($next_article,'article');
+            }
         }
         }
 
