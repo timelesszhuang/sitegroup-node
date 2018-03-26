@@ -43,7 +43,6 @@ class Detailenter extends EntryCommon
      */
     public function article($id)
     {
-        $this->entryCommon();
         if ($this->mainsite) {
             $id = $this->subNameId($id, 'article');
             $filename = sprintf('article/%s.html', $id);
