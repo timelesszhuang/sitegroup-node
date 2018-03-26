@@ -222,17 +222,19 @@ class Detailrestatic extends Common
         $map['id'] = ['lt',$id];
         $map['type_id'] = $type_id;
         $pre_question =  (new Question())->where($where)->find()['id'];
-        $next_question=  (new Question())->where($map)->find()['id'];
+        $next_question=  (new Question())->where($map)->order('id desc')->find()['id'];
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        unlink($file_name);
-        if($pre_question){
-            $this->exec_refilestatic($pre_question,'question');
+        if(unlink($file_name)){
+            if($pre_question){
+                $this->exec_refilestatic($pre_question,'question');
+            }
+            if($next_question){
+                $this->exec_refilestatic($next_question,'question');
+            }
         }
-        if($next_question){
-            $this->exec_refilestatic($next_question,'question');
-        }
+
         }
 
 
@@ -256,17 +258,19 @@ class Detailrestatic extends Common
         $map['id'] = ['lt',$id];
         $map['type_id'] = $type_id;
         $pre_product =  (new Product())->where($where)->find()['id'];
-        $next_product=  (new Product())->where($map)->find()['id'];
+        $next_product=  (new Product())->where($map)->order('id desc')->find()['id'];
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        unlink($file_name);
-        if($pre_product){
-            $this->exec_refilestatic($pre_product,'product');
+        if(unlink($file_name)){
+            if($pre_product){
+                $this->exec_refilestatic($pre_product,'product');
+            }
+            if($next_product){
+                $this->exec_refilestatic($next_product,'product');
+            }
         }
-        if($next_product){
-            $this->exec_refilestatic($next_product,'product');
-        }
+
     }
 
 
