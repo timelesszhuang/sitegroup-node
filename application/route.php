@@ -79,6 +79,7 @@ Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //重新生成文章 根据id等信息 重新生成其他各类数据
 //前端修改某篇文章之后修改
 Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
+Route::post('removeHtml', 'tool/Pagestaticentry/reMoveHtml');
 // 获取某个已经静态化的文章产品 问答之后的html 路由定义有问题
 Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
 // 修改已经生成的html 文章产品问答 代码 单页 路由定义有问题
