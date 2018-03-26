@@ -45,6 +45,7 @@ class Detailenter extends EntryCommon
     {
         $this->entryCommon();
         if ($this->mainsite) {
+            $id = $this->subNameId($id, 'article');
             $filename = sprintf('article/%s.html', $id);
             if (file_exists($filename)) {
                 exit(file_get_contents($filename));
@@ -70,6 +71,7 @@ class Detailenter extends EntryCommon
     {
         $this->entryCommon();
         if ($this->mainsite) {
+            $id = $this->subNameId($id, 'question');
             $filename = sprintf('question/%s.html', $id);
             if (file_exists($filename)) {
                 exit(file_get_contents($filename));
@@ -94,6 +96,8 @@ class Detailenter extends EntryCommon
     {
         $this->entryCommon();
         if ($this->mainsite) {
+            // 截取出id来
+            $id = $this->subNameId($id, 'product');
             $filename = sprintf('product/%s.html', $id);
             if (file_exists($filename)) {
                 exit(file_get_contents($filename));
@@ -128,7 +132,7 @@ class Detailenter extends EntryCommon
             $menu = (new \app\tool\model\Menu)->Where(['flag' => 1, 'node_id' => $this->node_id, 'generate_name' => $filename])->find();
             return $menu;
         });
-        $content = Cache::remember('detailmenu' . $filename . 'content'.$this->suffix, function () use ($menu) {
+        $content = Cache::remember('detailmenu' . $filename . 'content' . $this->suffix, function () use ($menu) {
             return (new Detailmenupagestatic)->getContent($menu);
         });
         exit($content);
