@@ -1758,8 +1758,8 @@ code;
             $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
             $v['name'] .= $v['suffix'];
             $v['current'] = false;
-            $currentsite = $v;
             if ($this->district_id == $v['id']) {
+                $currentsite = $v;
                 $v['current'] = true;
             }
             array_push($allsite, $v);
