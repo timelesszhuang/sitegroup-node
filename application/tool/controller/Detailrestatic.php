@@ -140,28 +140,30 @@ class Detailrestatic extends Common
                 break;
         }
         $this->pingEngine();
-    }    /**
+    }
+
+    /**
      * 根据id删除文章
      * @param $id
      * @param $searachType
      * @return void
      * @throws \think\Exception
      */
-    public function exec_removestatic($id, $searachType,$type_id)
+    public function exec_removestatic($id, $searachType, $type_id)
     {
         // 根据类型判断
         switch ($searachType) {
             // 文章
             case "article":
-                $this->articleremove($id,$type_id);
+                $this->articleremove($id, $type_id);
                 break;
             // 问答
             case "question":
-                $this->questionremove($id,$type_id);
+                $this->questionremove($id, $type_id);
                 break;
             // 产品
             case "product":
-                $this->productremove($id,$type_id);
+                $this->productremove($id, $type_id);
                 break;
         }
         $this->pingEngine();
@@ -174,7 +176,7 @@ class Detailrestatic extends Common
      * @return bool
      * @throws \think\Exception
      */
-    private function articleremove($id,$type_id)
+    private function articleremove($id, $type_id)
     {
         //判断目录是否存在
         if (!file_exists('article')) {
@@ -182,34 +184,34 @@ class Detailrestatic extends Common
             return false;
         }
         $file_name = sprintf($this->articlepath, $id);
-        $where['id'] = ['gt',$id];
+        $where['id'] = ['gt', $id];
         $where['articletype_id'] = $type_id;
-        $map['id'] = ['lt',$id];
+        $map['id'] = ['lt', $id];
         $map['articletype_id'] = $type_id;
-        $pre_article =  (new Article())->where($where)->find()['id'];
-        $next_article =  (new Article())->where($map)->order('id desc')->find()['id'];
+        $pre_article = (new Article())->where($where)->find();
+        $next_article = (new Article())->where($map)->order('id desc')->find();
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        if(unlink($file_name)){
-            if($pre_article){
-                $this->exec_refilestatic($pre_article,'article');
+        if (unlink($file_name)) {
+            if ($pre_article) {
+                $this->exec_refilestatic($pre_article['id'], 'article');
             }
-            if($next_article){
-                $this->exec_refilestatic($next_article,'article');
+            if ($next_article) {
+                $this->exec_refilestatic($next_article['id'], 'article');
             }
         }
-        }
+    }
 
 
-   /**
+    /**
      * 问答删除
      * @access private
      * @param $id  article的id
      * @return bool
      * @throws \think\Exception
      */
-    private function questionremove($id,$type_id)
+    private function questionremove($id, $type_id)
     {
         //判断目录是否存在
         if (!file_exists('question')) {
@@ -217,25 +219,25 @@ class Detailrestatic extends Common
             return false;
         }
         $file_name = sprintf($this->questionpath, $id);
-        $where['id'] = ['gt',$id];
+        $where['id'] = ['gt', $id];
         $where['type_id'] = $type_id;
-        $map['id'] = ['lt',$id];
+        $map['id'] = ['lt', $id];
         $map['type_id'] = $type_id;
-        $pre_question =  (new Question())->where($where)->find()['id'];
-        $next_question=  (new Question())->where($map)->order('id desc')->find()['id'];
+        $pre_question = (new Question())->where($where)->find()['id'];
+        $next_question = (new Question())->where($map)->order('id desc')->find()['id'];
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        if(unlink($file_name)){
-            if($pre_question){
-                $this->exec_refilestatic($pre_question,'question');
+        if (unlink($file_name)) {
+            if ($pre_question) {
+                $this->exec_refilestatic($pre_question, 'question');
             }
-            if($next_question){
-                $this->exec_refilestatic($next_question,'question');
+            if ($next_question) {
+                $this->exec_refilestatic($next_question, 'question');
             }
         }
 
-        }
+    }
 
 
     /**
@@ -245,7 +247,7 @@ class Detailrestatic extends Common
      * @return bool
      * @throws \think\Exception
      */
-    private function productremove($id,$type_id)
+    private function productremove($id, $type_id)
     {
         //判断目录是否存在
         if (!file_exists('product')) {
@@ -253,21 +255,21 @@ class Detailrestatic extends Common
             return false;
         }
         $file_name = sprintf($this->productpath, $id);
-        $where['id'] = ['gt',$id];
+        $where['id'] = ['gt', $id];
         $where['type_id'] = $type_id;
-        $map['id'] = ['lt',$id];
+        $map['id'] = ['lt', $id];
         $map['type_id'] = $type_id;
-        $pre_product =  (new Product())->where($where)->find()['id'];
-        $next_product=  (new Product())->where($map)->order('id desc')->find()['id'];
+        $pre_product = (new Product())->where($where)->find()['id'];
+        $next_product = (new Product())->where($map)->order('id desc')->find()['id'];
         if (!$this->checkhtmlexists($file_name)) {
             return false;
         }
-        if(unlink($file_name)){
-            if($pre_product){
-                $this->exec_refilestatic($pre_product,'product');
+        if (unlink($file_name)) {
+            if ($pre_product) {
+                $this->exec_refilestatic($pre_product, 'product');
             }
-            if($next_product){
-                $this->exec_refilestatic($next_product,'product');
+            if ($next_product) {
+                $this->exec_refilestatic($next_product, 'product');
             }
         }
 

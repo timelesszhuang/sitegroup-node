@@ -1730,10 +1730,10 @@ code;
         $site_name = $this->site_name;
         $com_name = $this->com_name;
         $url = $this->siteurl;
-        list($childsite, $childtreesite) = $sitelist = $this->getSiteList();
+        list($childsite, $childtreesite, $currentsite) = $this->getSiteList();
         //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'childsite', 'childtreesite');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'childsite', 'childtreesite', 'currentsite');
     }
 
 
@@ -1753,10 +1753,12 @@ code;
         $childsite = Db::name('District')->where(['path' => ['like', "%,{$parent_id},%"]])->field($field)->select();
         array_push($childsite, $parent);
         $allsite = [];
+        $currentsite = [];
         foreach ($childsite as $k => $v) {
             $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
             $v['name'] .= $v['suffix'];
             $v['current'] = false;
+            $currentsite = $v;
             if ($this->district_id == $v['id']) {
                 $v['current'] = true;
             }
@@ -1764,7 +1766,7 @@ code;
         }
         //生成树形结构
         $treesite = $this->list_to_tree($allsite, 'id', 'parent_id', 'childsite', $parent['parent_id']);
-        return [$allsite, $treesite];
+        return [$allsite, $treesite, $currentsite];
     }
 
 
