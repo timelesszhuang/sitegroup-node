@@ -58,14 +58,14 @@
                     if (array_key_exists('childsite', $v)) {
                         foreach ($v['childsite'] as $ke => $va) {
                             ?>
-                            <li>
+                            <li class="mainsite">
                                 <a href="{$va['url']}">{$va['name']}</a>
                                 <ul>
                                     <?php
                                     if (array_key_exists('childsite', $va)) {
                                         foreach ($va['childsite'] as $key => $val) {
                                             ?>
-                                            <li><a href="{$va['url']}">{$va['name']}</a></li>
+                                            <li><a href="{$val['url']}">{$val['name']}</a></li>
                                             <?php
                                         }
                                     }
