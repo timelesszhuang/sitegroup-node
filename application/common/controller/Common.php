@@ -59,6 +59,11 @@ class Common extends Controller
     public $detailmenupath = 'indexmenu/';
     // 首页模板位置
     public $indextemplate = 'template/index.html';
+    //泛站列表 区域展现列表
+    public $districttemplate = 'template/district.html';
+    //默认不存在跳转到的地方
+    public $defaultdistricttemplate = 'defaulttemplate/district.php';
+
 
     // 文章静态化的路径
     public $articlepath = 'article/%s.html';
@@ -125,8 +130,8 @@ class Common extends Controller
         $this->user_id = $siteinfo['user_id'];
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
-        $this->domain = $siteinfo['domain'];
-//        $this->domain = 'local.sitegroupnode.com';
+//        $this->domain = $siteinfo['domain'];
+        $this->domain = 'local.sitegroupnode.com';
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();

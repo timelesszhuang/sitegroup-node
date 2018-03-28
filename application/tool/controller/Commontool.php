@@ -1690,6 +1690,16 @@ code;
                 $breadcrumb = $this->getBreadCrumb($allmenu);
                 $menu_name = '查询结果';
                 break;
+            case 'district':
+                //区域信息
+                //文章标题相关
+                //随机选择一个a类关键词组织页面的list相关信息
+                $title = $this->site_name . '站点列表';
+                $keyword = $this->site_name . '站点列表';
+                $description = $this->site_name . '站点列表';
+                $breadcrumb = $this->getBreadCrumb($allmenu);
+                $menu_name = '查询结果';
+                break;
         }
         //获取不分类的文章 全部分类的都都获取到
         $article_list = $this->getArticleList($sync_info, $typeid_arr, 20);
@@ -2157,6 +2167,13 @@ code;
                     'text' => '站点标签',
                     'href' => '/',
                     'title' => '站点标签'
+                ]);
+                break;
+            case 'district':
+                array_push($breadcrumb, [
+                    'text' => '站点列表',
+                    'href' => '/district.html',
+                    'title' => '站点列表'
                 ]);
                 break;
         }

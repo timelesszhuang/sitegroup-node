@@ -35,9 +35,13 @@ Route::get('question/:id', 'index/Detailenter/question', ['ext' => 'html']);
 Route::get('product/:id', 'index/Detailenter/product', ['ext' => 'html']);
 //查询
 Route::get('search', 'index/Query/index');
+//区域id
+Route::get('district', 'index/Detailenter/district', ['ext' => 'html']);
+
 //模板的其他操作
 //模板文件 活动文件管理
 Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
+
 
 //安全漏洞 需要执行验证是不是有权限之类
 //模板文件列表相关操作
@@ -87,4 +91,3 @@ Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
 
 //重新生成单个活动页面
 Route::get('regenerateactivity', 'tool/Activitystatic/restatic');
-

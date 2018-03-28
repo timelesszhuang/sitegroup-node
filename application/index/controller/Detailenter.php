@@ -4,6 +4,7 @@ namespace app\index\controller;
 
 use app\common\controller\Common;
 use app\common\controller\EntryCommon;
+use app\tool\controller\Commontool;
 use app\tool\controller\Detailmenupagestatic;
 use app\tool\controller\Detailstatic;
 use app\tool\controller\Indexstatic;
@@ -136,5 +137,35 @@ class Detailenter extends EntryCommon
         });
         exit($content);
     }
+
+
+    /**
+     * 区域信息
+     * @access public
+     * @throws \think\Exception
+     */
+    public function district()
+    {
+        //伪静态实现
+        $commontool = new Commontool();
+        // 泛站 相关列表页面展现
+        $commontool->tag = 'district';
+        $assign_data = $commontool->getEssentialElement();
+        $data = [
+            'd' => $assign_data
+        ];
+        if (!file_exists($this->districttemplate)) {
+            //如果文件不存在的话
+            $content = Common::Debug((new View())->fetch($this->defaultdistricttemplate,
+                $data
+            ), $data);
+        } else {
+            $content = Common::Debug((new View())->fetch($this->districttemplate,
+                $data
+            ), $data);
+        }
+        return $content;
+    }
+
 
 }
