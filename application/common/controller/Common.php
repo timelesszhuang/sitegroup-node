@@ -130,8 +130,8 @@ class Common extends Controller
         $this->user_id = $siteinfo['user_id'];
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
-//        $this->domain = $siteinfo['domain'];
-        $this->domain = 'local.sitegroupnode.com';
+        $this->domain = $siteinfo['domain'];
+//        $this->domain = 'local.sitegroupnode.com';
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
