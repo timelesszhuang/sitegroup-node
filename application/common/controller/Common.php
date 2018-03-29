@@ -59,6 +59,11 @@ class Common extends Controller
     public $detailmenupath = 'indexmenu/';
     // 首页模板位置
     public $indextemplate = 'template/index.html';
+    //泛站列表 区域展现列表
+    public $districttemplate = 'template/district.html';
+    //默认不存在跳转到的地方
+    public $defaultdistricttemplate = 'defaulttemplate/district.php';
+
 
     // 文章静态化的路径
     public $articlepath = 'article/%s.html';

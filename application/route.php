@@ -35,9 +35,13 @@ Route::get('question/:id', 'index/Detailenter/question', ['ext' => 'html']);
 Route::get('product/:id', 'index/Detailenter/product', ['ext' => 'html']);
 //查询
 Route::get('search', 'index/Query/index');
+//区域id
+Route::get('district', 'index/Detailenter/district', ['ext' => 'html']);
+
 //模板的其他操作
 //模板文件 活动文件管理
 Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
+
 
 //安全漏洞 需要执行验证是不是有权限之类
 //模板文件列表相关操作
@@ -79,6 +83,7 @@ Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 //重新生成文章 根据id等信息 重新生成其他各类数据
 //前端修改某篇文章之后修改
 Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
+Route::post('removeHtml', 'tool/Pagestaticentry/reMoveHtml');
 // 获取某个已经静态化的文章产品 问答之后的html 路由定义有问题
 Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
 // 修改已经生成的html 文章产品问答 代码 单页 路由定义有问题
@@ -86,4 +91,3 @@ Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
 
 //重新生成单个活动页面
 Route::get('regenerateactivity', 'tool/Activitystatic/restatic');
-

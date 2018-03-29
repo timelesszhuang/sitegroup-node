@@ -1690,6 +1690,16 @@ code;
                 $breadcrumb = $this->getBreadCrumb($allmenu);
                 $menu_name = '查询结果';
                 break;
+            case 'district':
+                //区域信息
+                //文章标题相关
+                //随机选择一个a类关键词组织页面的list相关信息
+                $title = $this->site_name . '站点列表';
+                $keyword = $this->site_name . '站点列表';
+                $description = $this->site_name . '站点列表';
+                $breadcrumb = $this->getBreadCrumb($allmenu);
+                $menu_name = '查询结果';
+                break;
         }
         //获取不分类的文章 全部分类的都都获取到
         $article_list = $this->getArticleList($sync_info, $typeid_arr, 20);
@@ -1730,10 +1740,10 @@ code;
         $site_name = $this->site_name;
         $com_name = $this->com_name;
         $url = $this->siteurl;
-        list($childsite, $childtreesite) = $sitelist = $this->getSiteList();
+        list($childsite, $childtreesite, $currentsite) = $this->getSiteList();
         //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'childsite', 'childtreesite');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'childsite', 'childtreesite', 'currentsite');
     }
 
 
@@ -1746,19 +1756,28 @@ code;
         //站点信息
         $field = 'id,name,pinyin,parent_id,suffix,level';
         $parent_id = $this->siteinfo['stations_area'];
-//      $this->domain
         $parent = Db::name('District')->where(['id' => $parent_id])->field($field)->find();
         $this->district_id;
         $this->district_name;
         $childsite = Db::name('District')->where(['path' => ['like', "%,{$parent_id},%"]])->field($field)->select();
         array_push($childsite, $parent);
         $allsite = [];
+        // 当前如果是主站的话 需要有默认值
+        $currentsite = [
+            'id' => 0,
+            'name' => '主站',
+            'parent_id' => 0,
+            'url' => $this->siteurl
+        ];
         foreach ($childsite as $k => $v) {
-            if($v['level']<=$this->siteinfo['level']){
+            if($v['level']<=$this->siteinfo['level']) {
                 $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
+                unset($v['pinyin']);
                 $v['name'] .= $v['suffix'];
+                unset($v['suffix']);
                 $v['current'] = false;
                 if ($this->district_id == $v['id']) {
+                    $currentsite = $v;
                     $v['current'] = true;
                 }
                 array_push($allsite, $v);
@@ -1766,7 +1785,7 @@ code;
         }
         //生成树形结构
         $treesite = $this->list_to_tree($allsite, 'id', 'parent_id', 'childsite', $parent['parent_id']);
-        return [$allsite, $treesite];
+        return [$allsite, $treesite, $currentsite];
     }
 
 
@@ -2150,6 +2169,13 @@ code;
                     'text' => '站点标签',
                     'href' => '/',
                     'title' => '站点标签'
+                ]);
+                break;
+            case 'district':
+                array_push($breadcrumb, [
+                    'text' => '站点列表',
+                    'href' => '/district.html',
+                    'title' => '站点列表'
                 ]);
                 break;
         }

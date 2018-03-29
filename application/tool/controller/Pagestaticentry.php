@@ -280,6 +280,22 @@ class Pagestaticentry extends Common
             (new Detailrestatic())->exec_refilestatic($id, $searchType);
         }
     }
+    /**
+     * 根据id和类型 删除文件
+     * 比如 删除
+     * @param Request $request
+     * @throws \think\Exception
+     */
+    public function reMoveHtml(Request $request)
+    {
+        $id = $request->post("id");
+        $searchType = $request->post("searchType");
+        $type_id = $request->post("type_id");
+        if ($id && $searchType && $type_id) {
+            //重新生成
+            (new Detailrestatic())->exec_removestatic($id, $searchType,$type_id);
+        }
+    }
 
 
     /**

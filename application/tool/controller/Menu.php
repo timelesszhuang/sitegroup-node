@@ -17,7 +17,6 @@ class Menu extends Common
     /**
      * 菜单相关操作 返回菜单相关数据 参数是 一系列的id 数据
      * @access public
-     * @param string $menu 菜单id
      * @return false|\PDOStatement|string|\think\Collection
      */
     public function getMenuInfo()
