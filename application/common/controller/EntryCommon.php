@@ -31,7 +31,7 @@ class EntryCommon extends Common
     public function entryCommon()
     {
         $uri = $_SERVER['REQUEST_URI'];
-        $absolutepath = $this->siteurl . $uri;
+        $absolutepath =$_SERVER['REQUEST_SCHEME']."://" . $_SERVER['HTTP_HOST'] . $uri;
         $this->spidercomefrom($this->siteinfo, $absolutepath);
         $this->pv($this->siteinfo, $absolutepath);
         //获取请求的useragent
