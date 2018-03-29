@@ -1744,7 +1744,7 @@ code;
     public function getSiteList()
     {
         //站点信息
-        $field = 'id,name,pinyin,parent_id,suffix';
+        $field = 'id,name,pinyin,parent_id,suffix,level';
         $parent_id = $this->siteinfo['stations_area'];
 //      $this->domain
         $parent = Db::name('District')->where(['id' => $parent_id])->field($field)->find();
@@ -1754,13 +1754,15 @@ code;
         array_push($childsite, $parent);
         $allsite = [];
         foreach ($childsite as $k => $v) {
-            $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
-            $v['name'] .= $v['suffix'];
-            $v['current'] = false;
-            if ($this->district_id == $v['id']) {
-                $v['current'] = true;
+            if($v['level']<=$this->siteinfo['level']){
+                $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
+                $v['name'] .= $v['suffix'];
+                $v['current'] = false;
+                if ($this->district_id == $v['id']) {
+                    $v['current'] = true;
+                }
+                array_push($allsite, $v);
             }
-            array_push($allsite, $v);
         }
         //生成树形结构
         $treesite = $this->list_to_tree($allsite, 'id', 'parent_id', 'childsite', $parent['parent_id']);
