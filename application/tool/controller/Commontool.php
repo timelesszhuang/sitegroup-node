@@ -1760,7 +1760,9 @@ code;
         $this->district_id;
         $this->district_name;
         $childsite = Db::name('District')->where(['path' => ['like', "%,{$parent_id},%"]])->field($field)->select();
-        array_push($childsite, $parent);
+        if($parent){
+            array_push($childsite, $parent);
+        }
         $allsite = [];
         // 当前如果是主站的话 需要有默认值
         $currentsite = [
