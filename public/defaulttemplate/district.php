@@ -51,14 +51,24 @@
         <?php
         foreach ($d['childtreesite'] as $k => $v) {
             ?>
-            <li class="mainsite">
+            <li class="<?php
+            if (array_key_exists('childsite', $v)) { ?>
+            mainsite
+             <?php
+            }
+            ?>">
                 <a href="{$v['url']}">{$v['name']}</a>
                 <ul>
                     <?php
                     if (array_key_exists('childsite', $v)) {
                         foreach ($v['childsite'] as $ke => $va) {
                             ?>
-                            <li class="mainsite">
+                            <li class="<?php
+                            if (array_key_exists('childsite', $va)) { ?>
+                            mainsite
+                             <?php
+                            }
+                            ?>">
                                 <a href="{$va['url']}">{$va['name']}</a>
                                 <ul>
                                     <?php

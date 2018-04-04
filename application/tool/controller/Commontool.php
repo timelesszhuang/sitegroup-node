@@ -1754,13 +1754,15 @@ code;
     public function getSiteList()
     {
         //站点信息
-        $field = 'id,name,pinyin,parent_id,suffix';
+        $field = 'id,name,pinyin,parent_id,suffix,level';
         $parent_id = $this->siteinfo['stations_area'];
         $parent = Db::name('District')->where(['id' => $parent_id])->field($field)->find();
         $this->district_id;
         $this->district_name;
         $childsite = Db::name('District')->where(['path' => ['like', "%,{$parent_id},%"]])->field($field)->select();
-        array_push($childsite, $parent);
+        if($parent){
+            array_push($childsite, $parent);
+        }
         $allsite = [];
         // 当前如果是主站的话 需要有默认值
         $currentsite = [
@@ -1770,16 +1772,18 @@ code;
             'url' => $this->siteurl
         ];
         foreach ($childsite as $k => $v) {
-            $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
-            unset($v['pinyin']);
-            $v['name'] .= $v['suffix'];
-            unset($v['suffix']);
-            $v['current'] = false;
-            if ($this->district_id == $v['id']) {
-                $currentsite = $v;
-                $v['current'] = true;
+            if($v['level']<=$this->siteinfo['level']) {
+                $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
+                unset($v['pinyin']);
+                $v['name'] .= $v['suffix'];
+                unset($v['suffix']);
+                $v['current'] = false;
+                if ($this->district_id == $v['id']) {
+                    $currentsite = $v;
+                    $v['current'] = true;
+                }
+                array_push($allsite, $v);
             }
-            array_push($allsite, $v);
         }
         //生成树形结构
         $treesite = $this->list_to_tree($allsite, 'id', 'parent_id', 'childsite', $parent['parent_id']);
