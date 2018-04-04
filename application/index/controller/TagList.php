@@ -84,10 +84,11 @@ class TagList extends EntryCommon
      * @access public
      * @param $tag_id
      * @param $tag_name
-     * @param $siteinfo
      * @param $currentpage
      * @return array
      * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
      */
@@ -134,7 +135,12 @@ class TagList extends EntryCommon
     /**
      * 获取tag产品列表
      * @access public
-     * @throws \think\Exception
+     * @param $siteinfo
+     * @param $tag_id
+     * @param $tag_name
+     * @param $currentpage
+     * @return string
+     * @throws \Exception
      */
     public function questionList($siteinfo, $tag_id, $tag_name, $currentpage)
     {

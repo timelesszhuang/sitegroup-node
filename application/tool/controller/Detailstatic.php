@@ -421,6 +421,7 @@ class Detailstatic extends Common
         $description = preg_replace('/^&.+\;$/is', '', $description);
         //页面的描述
         $summary = $description ?: $item['summary'];
+        $summary = mb_substr($summary, 0, 70);
         //页面的关键词
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
@@ -505,7 +506,7 @@ class Detailstatic extends Common
             "type_id" => ['like', "%,$type_id,%"]
         ])->find();
         // 获取pageInfo信息
-        $sitePageInfo = SitePageinfo::where([
+        $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
             "site_id" => $this->site_id,
             "menu_id" => $menuInfo["id"]
@@ -563,10 +564,12 @@ class Detailstatic extends Common
      * @param $question_type_keyword
      * @param $step_limit
      * @param $question_typearr
+     * @throws \Exception
      * @throws \think\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     private function questionstatic($question_type_keyword, $step_limit, $question_typearr)
     {
@@ -765,6 +768,8 @@ class Detailstatic extends Common
     {
         $description = $item['description'];
         $description = $description ?: mb_substr(strip_tags($item['content_paragraph']), 0, 200);
+        $description = preg_replace('/^&.+\;$/is', '', $description);
+        $description = mb_substr(strip_tags($description), 0, 70);
         //页面的描述
         $keywords = $item['keywords'];
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
@@ -794,6 +799,7 @@ class Detailstatic extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \Exception
      */
     private function productstatic($product_type_keyword, $step_limit, $product_typearr)
     {
@@ -897,6 +903,7 @@ class Detailstatic extends Common
         $description = mb_substr(strip_tags($item['summary']), 0, 200);
         $description = preg_replace('/^&.+\;$/is', '', $description);
         $summary = $item['summary'] ?: $description;
+        $summary = mb_substr(strip_tags($summary), 0, 70);
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
         $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['name']], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'product');

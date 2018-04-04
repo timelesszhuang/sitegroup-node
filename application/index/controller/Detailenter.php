@@ -40,6 +40,7 @@ class Detailenter extends EntryCommon
     /**
      * @param $id
      * 判断文章页面是否存在
+     * @throws \Exception
      * @throws \think\Exception
      */
     public function article($id)
@@ -65,6 +66,7 @@ class Detailenter extends EntryCommon
     /**
      * @param $id
      * 判断问答页面是否存在
+     * @throws \Exception
      * @throws \think\Exception
      */
     public function question($id)
@@ -90,7 +92,7 @@ class Detailenter extends EntryCommon
     /**
      * @param $id
      * 判断产品页面是否存在
-     * @throws \think\Exception
+     * @throws \Exception
      */
     public function product($id)
     {
@@ -142,7 +144,13 @@ class Detailenter extends EntryCommon
     /**
      * 区域信息
      * @access public
+     * @return string
+     * @throws \Exception
      * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
     public function district()
     {

@@ -25,6 +25,7 @@ class Preview extends EntryCommon
      * @param $id  article的id
      * @return bool|void
      * @throws \think\Exception
+     * @throws \Exception
      */
     private function articlepreview($id)
     {
@@ -51,6 +52,7 @@ class Preview extends EntryCommon
      * @access private
      * @param $id product
      * @return bool
+     * @throws \Exception
      * @throws \think\Exception
      */
     private function questionpreview($id)
@@ -77,7 +79,7 @@ class Preview extends EntryCommon
      * @access private
      * @param $id  产品的id
      * @return bool|void
-     * @throws \think\Exception
+     * @throws \Exception
      */
     private function productpreview($id)
     {
@@ -121,6 +123,7 @@ class Preview extends EntryCommon
      * @param int $id
      * @param string $type
      * @return void
+     * @throws \Exception
      * @throws \think\Exception
      */
     public function preview($id = 0, $type = '')

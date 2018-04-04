@@ -32,7 +32,7 @@ class ArticleList extends EntryCommon
      * @todo 需要考虑一下  文章列表 中列出来的文章需要从  sync_count 表中获取
      * @param $id
      * @return string|void
-     * @throws \think\Exception
+     * @throws \Exception
      */
     public function index($id)
     {

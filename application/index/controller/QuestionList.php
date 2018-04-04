@@ -58,7 +58,6 @@ class QuestionList extends EntryCommon
      * question列表静态化
      * @param $menu_enname
      * @param $type_id
-     * @param $siteinfo
      * @param int $currentpage
      * @return array
      * @throws \think\Exception
