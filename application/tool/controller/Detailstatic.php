@@ -418,10 +418,10 @@ class Detailstatic extends Common
     {
         //截取出 页面的 description 信息
         $description = mb_substr(strip_tags($item['content']), 0, 200);
-        $description = preg_replace('/^&.+\;$/is', '', $description);
         //页面的描述
         $summary = $description ?: $item['summary'];
-        $summary = mb_substr($summary, 0, 70);
+        $summary = preg_replace('/^&.+\;$/is', '', $summary);
+        $summary = mb_substr(strip_tags($summary), 0, 70);
         //页面的关键词
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
