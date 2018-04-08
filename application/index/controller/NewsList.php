@@ -19,6 +19,7 @@ class NewsList extends EntryCommon
     /**
      * 首页列表
      * @access public
+     * @throws \Exception
      */
     public function index($id, $currentpage = 1)
     {
