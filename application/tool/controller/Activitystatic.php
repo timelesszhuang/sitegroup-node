@@ -111,7 +111,7 @@ class Activitystatic extends Common
         }
         //当前id的活动信息
         $water = $this->waterString;
-        $img_water = $this->waterString;
+        $img_water = $this->waterImgUrl;
         if ($ac_data['url']) {
             //表示是其他网页的链接不需要静态化页面 只需要静态化oss 相关的图片
             if ($ac_data['img_name']) {
