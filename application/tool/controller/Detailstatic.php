@@ -624,7 +624,7 @@ class Detailstatic extends Common
             }
             $next_question = [];
             if ($key < $step_limit) {
-                $next_question = (new \app\index\model\Question)->where(["id" => ['gt', $item['id']], 'id' => ['elt', $max_id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->find();
+                $next_question = (new \app\index\model\Question)->where(["node_id" => $this->node_id, "type_id" => $type_id])->where('id', ['>', $item['id']], ['<=', $max_id], 'and')->field("id,question as title")->find();
             }
             if ($next_question) {
                 $next_question = $next_question->toArray();
