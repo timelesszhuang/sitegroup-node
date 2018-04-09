@@ -21,6 +21,7 @@ Route::get('questionlist/:id', 'index/QuestionList/index', ['ext' => 'html']);
 Route::get('articlelist/:id', 'index/ArticleList/index', ['ext' => 'html']);
 //请求产品列表的时候
 Route::get('productlist/:id', 'index/ProductList/index', ['ext' => 'html']);
+
 //新支持的页面预览功能
 Route::get('preview/:type/:id', 'index/Preview/preview', ['ext' => 'html']);
 //相关的标签列表
@@ -33,6 +34,8 @@ Route::get('article/:id', 'index/Detailenter/article', ['ext' => 'html']);
 Route::get('question/:id', 'index/Detailenter/question', ['ext' => 'html']);
 //产品页面入口
 Route::get('product/:id', 'index/Detailenter/product', ['ext' => 'html']);
+//活动相关整理完善
+Route::get('activity/:id', 'index/Detailenter/activity', ['ext' => 'html']);
 //查询
 Route::get('search', 'index/Query/index');
 //区域id
@@ -63,11 +66,11 @@ Route::get('allstatic', 'tool/Pagestaticentry/allstatic');
 //整站重置 网站恢复到第一次的时候 然后生成指定数量的文章
 Route::get('resetall', 'tool/Pagestaticentry/resetall');
 //从头全部重新生成
-Route::get('allsitestatic', 'tool/Pagestaticentry/allsitestatic');
+//Route::get('allsitestatic', 'tool/Pagestaticentry/allsitestatic');
 //首页静态化
-Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
+//Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
 //菜单静态化  包含 详情型 菜单  env类型菜单
-Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
+//Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
 //文章页面静态化
 Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
 //
@@ -82,12 +85,14 @@ Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
 
 //重新生成文章 根据id等信息 重新生成其他各类数据
 //前端修改某篇文章之后修改
-Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
-Route::post('removeHtml', 'tool/Pagestaticentry/reMoveHtml');
+//Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
+//Route::post('removeHtml', 'tool/Pagestaticentry/reMoveHtml');
+
 // 获取某个已经静态化的文章产品 问答之后的html 路由定义有问题
-Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
+//Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
+
 // 修改已经生成的html 文章产品问答 代码 单页 路由定义有问题
-Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
+//Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
 
 //重新生成单个活动页面
 Route::get('regenerateactivity', 'tool/Activitystatic/restatic');

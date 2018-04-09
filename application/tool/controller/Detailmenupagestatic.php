@@ -25,6 +25,7 @@ class Detailmenupagestatic extends Common
     /**
      * 首页静态化
      * @access public
+     * @todo 删除该功能
      */
     public function index()
     {
@@ -57,6 +58,7 @@ class Detailmenupagestatic extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \Exception
      */
     public function getContent($v)
     {

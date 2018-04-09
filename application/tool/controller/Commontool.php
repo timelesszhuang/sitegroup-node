@@ -519,7 +519,6 @@ class Commontool extends Common
             return Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
                 ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description,pre_akeyword_id,akeyword_id')->find();
         });
-
         $akeyword_changestatus = false;
         $akeyword_id = 0;
         if ($page_info) {
@@ -795,6 +794,9 @@ class Commontool extends Common
      * @param $typeid_arr
      * @param int $limit
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getProductList($sync_info, $typeid_arr, $limit = 10)
     {

@@ -29,81 +29,10 @@ class Activitystatic extends Common
 
 
     /**
-     * 活动页面静态化
+     * 获取活动的内容
      * @access public
      */
-    public function index()
-    {
-        // 首先得获取到没有静态化的活动
-        $activity_ids = $this->siteinfo['sync_id'];
-        if (!$activity_ids) {
-            return;
-        }
-        $activity_status = true;
-        // 如果活动模板不存在则找些优化的地方  如果模板不存在的话怎么处理
-        if (!file_exists($this->activitytemplatepath)) {
-            //只需要静态化下图片就可以
-            $activity_status = false;
-        }
-        $ids = array_filter(explode(',', $activity_ids));
-        //修改之后怎么处理
-        foreach ($ids as $activity_id) {
-            if (!$activity_status) {
-                $this->staticImg($activity_id);
-                continue;
-            }
-            $this->staticOne($activity_id);
-        }
-    }
-
-    /**
-     * 修改单个活动之后重新生成操作
-     * @access public
-     */
-    public function restatic($id)
-    {
-        // 判断模板是否存在  如果模板不存在的话怎么处理
-        if (!file_exists($this->activitytemplatepath)) {
-            //如果没有模板的情况
-            $this->staticImg($id);
-            return;
-        }
-        $this->staticOne($id);
-    }
-
-    /**
-     * 只需要静态化图片
-     * @param $id id数据
-     * @throws \Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     * @throws \throwable
-     * @access public
-     */
-    public function staticImg($id)
-    {
-        //取出启用的活动
-        $data = (new \app\tool\model\Activity)->Where('id', '=', $id)->field('oss_img_src,img_name,smalloss_img_src,small_img_name')->find();
-        if ($data) {
-            $data = $data->toArray();
-            $img_name = $data['img_name'];
-            $oss_img_src = $data['oss_img_src'];
-            $this->get_osswater_img($oss_img_src, $img_name, $this->waterString, $this->waterImgUrl);
-            $smallimg_name = $data['small_img_name'];
-            $smalloss_img_src = $data['smalloss_img_src'];
-            if ($smallimg_name) {
-                $this->get_osswater_img($smalloss_img_src, $smallimg_name, $this->waterString, $this->waterImgUrl);
-            }
-        }
-    }
-
-
-    /**
-     * 静态化一个文件
-     * @access public
-     */
-    public function staticOne($id)
+    public function getacticitycontent($id)
     {
         $ac_data = (new \app\tool\model\Activity)->Where('id', '=', $id)->find();
         if (!$ac_data) {
@@ -149,12 +78,7 @@ class Activitystatic extends Common
         $content = Common::Debug((new View())->fetch($this->activitytemplatepath,
             $data
         ), $data);
-        //判断目录是否存在
-        $ac_path = sprintf($this->activitypath, $id);
-        if (file_put_contents($ac_path, chr(0xEF) . chr(0xBB) . chr(0xBF) . $content)) {
-            //添加到缓存中
-            $this->urlsCache([$this->siteurl . '/' . $ac_path]);
-        }
+        return $content;
     }
 
 

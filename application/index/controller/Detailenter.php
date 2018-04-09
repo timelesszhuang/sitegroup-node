@@ -4,18 +4,20 @@ namespace app\index\controller;
 
 use app\common\controller\Common;
 use app\common\controller\EntryCommon;
+use app\tool\controller\Activitystatic;
 use app\tool\controller\Commontool;
 use app\tool\controller\Detailmenupagestatic;
 use app\tool\controller\Detailstatic;
 use app\tool\controller\Indexstatic;
-use app\tool\model\Menu;
 use think\Cache;
-use think\Db;
 use think\View;
 
 /**
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
+ * @todo 需要添加修改的功能
+ * 1、crontab 静态化请求问题 1、更新数据库中已经静态化到的地方。  2、请求清除缓存。
+ * 2、手动请求静态化问题。 比如请求一次  静态化过程需要  1、更新数据库中已经静态化到的地方。  2、请求清除缓存。
  */
 class Detailenter extends EntryCommon
 {
@@ -26,11 +28,6 @@ class Detailenter extends EntryCommon
     public function index()
     {
         $this->entryCommon();
-        if ($this->mainsite) {
-            // 主站相关
-            $filename = $this->detailmenupath . 'index.html';
-            exit(file_get_contents($filename));
-        }
         //分站相关
         $index = new Indexstatic();
         return $index->indexstaticdata();
@@ -45,18 +42,9 @@ class Detailenter extends EntryCommon
      */
     public function article($id)
     {
-        if ($this->mainsite) {
-            $id = $this->subNameId($id, 'article');
-            $filename = sprintf('article/%s.html', $id);
-            if (file_exists($filename)) {
-                exit(file_get_contents($filename));
-            } else {
-                //如果不存在的话  跳转到首页
-                exit(file_get_contents('index.html'));
-            }
-        }
+        $id = $this->subNameId($id, 'article');
         // 子站相关 可以使用预览部分的相关功能
-        list($template, $data) = (new Detailstatic())->article_detailinfo(str_replace('article', '', $id));
+        list($template, $data) = (new Detailstatic())->article_detailinfo($id);
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -72,17 +60,9 @@ class Detailenter extends EntryCommon
     public function question($id)
     {
         $this->entryCommon();
-        if ($this->mainsite) {
-            $id = $this->subNameId($id, 'question');
-            $filename = sprintf('question/%s.html', $id);
-            if (file_exists($filename)) {
-                exit(file_get_contents($filename));
-            } else {
-                exit(file_get_contents('index.html'));
-            }
-        }
+        $id = $this->subNameId($id, 'question');
         // 子站相关 可以使用预览部分的相关功能
-        list($template, $data) = (new Detailstatic())->question_detailinfo(str_replace('question', '', $id));
+        list($template, $data) = (new Detailstatic())->question_detailinfo($id);
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -97,37 +77,42 @@ class Detailenter extends EntryCommon
     public function product($id)
     {
         $this->entryCommon();
-        if ($this->mainsite) {
-            // 截取出id来
-            $id = $this->subNameId($id, 'product');
-            $filename = sprintf('product/%s.html', $id);
-            if (file_exists($filename)) {
-                exit(file_get_contents($filename));
-            } else {
-                exit(file_get_contents('index.html'));
-            }
-        }
+        $id = $this->subNameId($id, 'product');
         //
-        list($template, $data) = (new Detailstatic())->product_detailinfo(str_replace('product', '', $id));
+        list($template, $data) = (new Detailstatic())->product_detailinfo($id);
+        $content = Common::Debug((new View())->fetch($template,
+            $data
+        ), $data);
+        exit($content);
+
+    }
+
+    /**
+     * 获取伪静态访问地址
+     * @access public
+     * @param $id
+     * @throws \Exception
+     */
+    public function activity($id)
+    {
+        $this->entryCommon();
+        $id = $this->subNameId($id, 'activity');
+        list($template, $data) = (new Activitystatic())->getacticitycontent($id);
         $content = Common::Debug((new View())->fetch($template,
             $data
         ), $data);
         exit($content);
     }
 
+
     /**
      * 相关详情菜单的信息 该部分实现是利用 thinkphp module not exists: 异常捕获处理实现 因为详情菜单名称定义不一致
      * @access public
+     * @param $filename
      */
     public function detailMenu($filename)
     {
         $this->entryCommon();
-        if ($this->mainsite) {
-            $filepath = $this->detailmenupath . $filename;
-            if (file_exists($filepath)) {
-                exit(file_get_contents($filepath));
-            }
-        }
         $filename = substr($filename, 0, strpos($filename, '.'));
         // 需要根据$filename 取出 menu 的信息
         $menu = Cache::remember('detailmenu' . $filename . 'menu' . $this->suffix, function () use ($filename) {
