@@ -16,7 +16,7 @@ use think\View;
  * 文章列表相关操作 列表伪静态
  * 栏目下的文章 相关操作
  * @todo 需要添加修改的功能
- * 1、crontab 静态化请求问题 1、更新数据库中已经静态化到的地方。  2、请求清除缓存。
+ * 1、crontab 静态化请求问题  1、更新数据库中已经静态化到的地方。  2、请求清除缓存。
  * 2、手动请求静态化问题。 比如请求一次  静态化过程需要  1、更新数据库中已经静态化到的地方。  2、请求清除缓存。
  */
 class Detailenter extends EntryCommon
@@ -37,71 +37,79 @@ class Detailenter extends EntryCommon
     /**
      * @param $id
      * 判断文章页面是否存在
-     * @throws \Exception
-     * @throws \think\Exception
+     * @return string
      */
     public function article($id)
     {
-        $id = $this->subNameId($id, 'article');
+        $type = 'article';
+        $id = $this->subNameId($id, $type);
         // 子站相关 可以使用预览部分的相关功能
-        list($template, $data) = (new Detailstatic())->article_detailinfo($id);
-        $content = Common::Debug((new View())->fetch($template,
-            $data
-        ), $data);
-        exit($content);
+        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+            list($template, $data) = (new Detailstatic())->article_detailinfo($id);
+            $content = Common::Debug((new View())->fetch($template,
+                $data
+            ), $data);
+            return $content;
+        });
     }
 
     /**
      * @param $id
      * 判断问答页面是否存在
+     * @return string
      * @throws \Exception
-     * @throws \think\Exception
      */
     public function question($id)
     {
+        $type = 'question';
         $this->entryCommon();
-        $id = $this->subNameId($id, 'question');
-        // 子站相关 可以使用预览部分的相关功能
-        list($template, $data) = (new Detailstatic())->question_detailinfo($id);
-        $content = Common::Debug((new View())->fetch($template,
-            $data
-        ), $data);
-        exit($content);
+        $id = $this->subNameId($id, $type);
+        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+            // 子站相关 可以使用预览部分的相关功能
+            list($template, $data) = (new Detailstatic())->question_detailinfo($id);
+            return Common::Debug((new View())->fetch($template,
+                $data
+            ), $data);
+        });
     }
 
     /**
      * @param $id
      * 判断产品页面是否存在
+     * @return string
      * @throws \Exception
      */
     public function product($id)
     {
+        $type = 'product';
         $this->entryCommon();
-        $id = $this->subNameId($id, 'product');
-        //
-        list($template, $data) = (new Detailstatic())->product_detailinfo($id);
-        $content = Common::Debug((new View())->fetch($template,
-            $data
-        ), $data);
-        exit($content);
-
+        $id = $this->subNameId($id, $type);
+        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+            list($template, $data) = (new Detailstatic())->product_detailinfo($id);
+            return Common::Debug((new View())->fetch($template,
+                $data
+            ), $data);
+        });
     }
 
     /**
      * 获取伪静态访问地址
      * @access public
      * @param $id
+     * @return string
      * @throws \Exception
      */
     public function activity($id)
     {
+        $type = 'activity';
         $this->entryCommon();
-        $id = $this->subNameId($id, 'activity');
-        list($template, $data) = (new Activitystatic())->getacticitycontent($id);
-        $content = Common::Debug((new View())->fetch($template,
-            $data
-        ), $data);
-        exit($content);
+        $id = $this->subNameId($id, $type);
+        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+            list($template, $data) = (new Activitystatic())->getacticitycontent($id);
+            return Common::Debug((new View())->fetch($template,
+                $data
+            ), $data);
+        });
     }
 
 
@@ -109,6 +117,7 @@ class Detailenter extends EntryCommon
      * 相关详情菜单的信息 该部分实现是利用 thinkphp module not exists: 异常捕获处理实现 因为详情菜单名称定义不一致
      * @access public
      * @param $filename
+     * @return mixed
      */
     public function detailMenu($filename)
     {
@@ -122,7 +131,7 @@ class Detailenter extends EntryCommon
         $content = Cache::remember('detailmenu' . $filename . 'content' . $this->suffix, function () use ($menu) {
             return (new Detailmenupagestatic)->getContent($menu);
         });
-        exit($content);
+        return $content;
     }
 
 
@@ -159,6 +168,5 @@ class Detailenter extends EntryCommon
         }
         return $content;
     }
-
 
 }

@@ -1271,32 +1271,34 @@ class Commontool extends Common
      */
     public function getActivity()
     {
-        $where["id"] = ['in', explode(',', $this->siteinfo['sync_id'])];
-        $where["status"] = 10;
-        $activity = Activity::where($where)->field('id,en_name,title,img_name,small_img_name,url,summary')->select();
-        $activity_list = [];
-        $activity_small_list = [];
-        $activity_en_list = [];
-        foreach ($activity as $k => $v) {
-            $has_small = false;
-            $activity = [];
-            $activity['text'] = $v['title'];
-            $activity['summary'] = $v['summary'];
-            $activity['src'] = "/images/{$v['img_name']}";
-            //默认小图不存在赋值大图
-            $activity['smallsrc'] = "/images/{$v['img_name']}";
-            if ($v['small_img_name']) {
-                $has_small = true;
-                $activity['smallsrc'] = "/images/{$v['small_img_name']}";
+        return Cache::remember('common_activity', function () {
+            $where["id"] = ['in', explode(',', $this->siteinfo['sync_id'])];
+            $where["status"] = 10;
+            $activity = Activity::where($where)->field('id,en_name,title,img_name,small_img_name,url,summary')->select();
+            $activity_list = [];
+            $activity_small_list = [];
+            $activity_en_list = [];
+            foreach ($activity as $k => $v) {
+                $has_small = false;
+                $activity = [];
+                $activity['text'] = $v['title'];
+                $activity['summary'] = $v['summary'];
+                $activity['src'] = "/images/{$v['img_name']}";
+                //默认小图不存在赋值大图
+                $activity['smallsrc'] = "/images/{$v['img_name']}";
+                if ($v['small_img_name']) {
+                    $has_small = true;
+                    $activity['smallsrc'] = "/images/{$v['small_img_name']}";
+                }
+                $activity['href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
+                $activity_list[] = $activity;
+                if ($has_small) {
+                    $activity_small_list[] = $activity;
+                }
+                $activity_en_list[$v['en_name']] = $activity;
             }
-            $activity['href'] = $v['url'] ?: "/activity/activity{$v['id']}.html";
-            $activity_list[] = $activity;
-            if ($has_small) {
-                $activity_small_list[] = $activity;
-            }
-            $activity_en_list[$v['en_name']] = $activity;
-        }
-        return [$activity_list, $activity_small_list, $activity_en_list];
+            return [$activity_list, $activity_small_list, $activity_en_list];
+        });
     }
 
 
@@ -1762,7 +1764,7 @@ code;
         $this->district_id;
         $this->district_name;
         $childsite = Db::name('District')->where(['path' => ['like', "%,{$parent_id},%"]])->field($field)->select();
-        if($parent){
+        if ($parent) {
             array_push($childsite, $parent);
         }
         $allsite = [];
@@ -1774,7 +1776,7 @@ code;
             'url' => $this->siteurl
         ];
         foreach ($childsite as $k => $v) {
-            if($v['level']<=$this->siteinfo['level']) {
+            if ($v['level'] <= $this->siteinfo['level']) {
                 $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
                 unset($v['pinyin']);
                 $v['name'] .= $v['suffix'];

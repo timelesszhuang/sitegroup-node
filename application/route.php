@@ -40,11 +40,12 @@ Route::get('activity/:id', 'index/Detailenter/activity', ['ext' => 'html']);
 Route::get('search', 'index/Query/index');
 //区域id
 Route::get('district', 'index/Detailenter/district', ['ext' => 'html']);
+//站点地图
+Route::get('sitemap', 'tool/SiteMap/index',['ext' => 'xml']);
 
 //模板的其他操作
 //模板文件 活动文件管理
 Route::get('filemanage/uploadFile/:id', 'tool/Filemanage/uploadFile');
-
 
 //安全漏洞 需要执行验证是不是有权限之类
 //模板文件列表相关操作
@@ -58,23 +59,10 @@ Route::get('manageTemplateFile', 'tool/Template/manageTemplateFile');
 //下载相关链接
 Route::get('downloadtemplatefile', 'tool/DownloadTemplate/downloadtemplatefile');
 
-
-//全部页面静态化
-Route::get('crontabstatic', 'tool/Pagestaticentry/crontabstatic');
 //整站生成 每一次只会生成指定数量的文章
 Route::get('allstatic', 'tool/Pagestaticentry/allstatic');
 //整站重置 网站恢复到第一次的时候 然后生成指定数量的文章
 Route::get('resetall', 'tool/Pagestaticentry/resetall');
-//从头全部重新生成
-//Route::get('allsitestatic', 'tool/Pagestaticentry/allsitestatic');
-//首页静态化
-//Route::get('indexstatic', 'tool/Pagestaticentry/indexstatic');
-//菜单静态化  包含 详情型 菜单  env类型菜单
-//Route::get('menustatic', 'tool/Pagestaticentry/menustatic');
-//文章页面静态化
-Route::get('articlestatic', 'tool/Pagestaticentry/articlestatic');
-//
-Route::get('sitemap', 'tool/SiteMap/index');
 
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
@@ -82,17 +70,3 @@ Route::get('clearCache', 'tool/Commontool/clearCache');
 Route::post('Rejection', 'tool/Site/Rejection');
 //自定义表单提交
 Route::post('DefinedRejection', 'tool/Site/DefinedRejection');
-
-//重新生成文章 根据id等信息 重新生成其他各类数据
-//前端修改某篇文章之后修改
-//Route::post('generateHtml', 'tool/Pagestaticentry/reGenerateHtml');
-//Route::post('removeHtml', 'tool/Pagestaticentry/reMoveHtml');
-
-// 获取某个已经静态化的文章产品 问答之后的html 路由定义有问题
-//Route::get('getStaticOne/:type/:name', 'tool/Pagestaticentry/staticOneHtml');
-
-// 修改已经生成的html 文章产品问答 代码 单页 路由定义有问题
-//Route::post('generateOne/:type/:name', 'tool/Pagestaticentry/generateOne');
-
-//重新生成单个活动页面
-Route::get('regenerateactivity', 'tool/Activitystatic/restatic');

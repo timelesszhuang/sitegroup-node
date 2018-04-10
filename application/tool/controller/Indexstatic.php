@@ -25,26 +25,6 @@ class Indexstatic extends Common
 
 
     /**
-     * 首恶静态化
-     * @access public
-     */
-    public function index()
-    {
-        // 判断模板是否存在
-        if (!$this->fileExists($this->indextemplate)) {
-            return;
-        }
-        $content = $this->indexstaticdata();
-        // 使用该命名是为了 防止请求不经过 index.php 有些服务器的index 优先级 index.html 大于index.php
-        if (file_put_contents($this->detailmenupath . 'index.html', $content) === 'false') {
-            return false;
-        }
-        $this->urlsCache([$this->siteurl . '/index.html']);
-        return true;
-    }
-
-
-    /**
      * 获取渲染之后的页面的字符串 有时需要静态化 有时需要直接返回给浏览器
      * @access public
      */

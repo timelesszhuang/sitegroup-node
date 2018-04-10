@@ -26,7 +26,9 @@ class Detailstatic extends Common
     public function __construct()
     {
         parent::__construct();
-        $data = Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find();
+        $data = cache::remember('system_config', function () {
+            return Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find();
+        });
         if ($data && array_key_exists('value', $data)) {
             // 系统中默认能静态化的数量
             self::$system_default_count = $data['value'];
@@ -45,140 +47,134 @@ class Detailstatic extends Common
      * @access private
      * @param $site_id 站点的site_id
      * @param $requesttype 请求的类型 crontab 或者是 后台动态请求
-     * @return array
+     * @return void
      */
     private static function check_static_time($site_id, $requesttype)
     {
-        $default_count = self::$system_default_count;
-        if ($requesttype == '') {
-            //如果是 点击更新来的请求的话 只需要同步5条
-            return [true, $default_count, true, $default_count, true, $default_count];
-        }
-        //这种情况是 crontab配置的 定时请求
-        $config_sync_info = self::get_staticconfig_info($site_id);
-        $article_status = false;
-        $article_count = $default_count;
-        $question_status = false;
-        $question_count = $default_count;
-        $product_status = false;
-        $product_count = $default_count;
-        if (array_key_exists('article', $config_sync_info)) {
-            //表示该站点包含静态化配置  需要遵从 静态化配置 指定时间段内生成多少数据
-            foreach ($config_sync_info['article'] as $k => $v) {
-                //比较时间
-                //上次静态化的时间点
-                $laststatic_time = $v['laststatic_time'];
-                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
-                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
-                $time = time();
-                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
-                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
-                    break;
-                }
-                if ($time > $starttime && $time < $stoptime) {
-                    $article_count = $v['staticcount'];
-                    $article_status = true;
-                    //更新下 上次静态化时间
-                    self::set_laststatic_time($v['id']);
-                    break;
-                }
-            }
-        } else {
-            //没有相关配置的话 默认是5条
-            $article_status = true;
-        }
-        if (array_key_exists('question', $config_sync_info)) {
-            foreach ($config_sync_info['question'] as $k => $v) {
-                //上次静态化的时间点
-                $laststatic_time = $v['laststatic_time'];
-                //比较时间
-                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
-                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
-                $time = time();
-                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
-                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
-                    break;
-                }
-                if ($time > $starttime && $time < $stoptime) {
-                    $question_count = $v['staticcount'];
-                    $question_status = true;
-                    self::set_laststatic_time($v['id']);
-                    break;
-                }
-            }
-        } else {
-            //没有相关配置的话 默认是5条
-            $question_status = true;
-        }
-        if (array_key_exists('product', $config_sync_info)) {
-            foreach ($config_sync_info['product'] as $k => $v) {
-                //上次静态化的时间点
-                $laststatic_time = $v['laststatic_time'];
-                //比较时间
-                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
-                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
-                $time = time();
-                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
-                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
-                    break;
-                }
-                if ($time > $starttime && $time < $stoptime) {
-                    $product_count = $v['staticcount'];
-                    $product_status = true;
-                    self::set_laststatic_time($v['id']);
-                    break;
-                }
-            }
-        } else {
-            $product_status = true;
-        }
-        return [$article_status, intval($article_count), $question_status, intval($question_count), $product_status, intval($product_count)];
+        //改箱操作需要修改到总后台
+//        //这种情况是 crontab配置的 定时请求这种情况
+//        $config_sync_info = self::get_staticconfig_info($site_id);
+//        $article_status = false;
+//        $article_count = $default_count;
+//        $question_status = false;
+//        $question_count = $default_count;
+//        $product_status = false;
+//        $product_count = $default_count;
+//        if (array_key_exists('article', $config_sync_info)) {
+//            //表示该站点包含静态化配置  需要遵从 静态化配置 指定时间段内生成多少数据
+//            foreach ($config_sync_info['article'] as $k => $v) {
+//                //比较时间
+//                //上次静态化的时间点
+//                $laststatic_time = $v['laststatic_time'];
+//                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
+//                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
+//                $time = time();
+//                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
+//                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
+//                    break;
+//                }
+//                if ($time > $starttime && $time < $stoptime) {
+//                    $article_count = $v['staticcount'];
+//                    $article_status = true;
+//                    //更新下 上次静态化时间
+//                    self::set_laststatic_time($v['id']);
+//                    break;
+//                }
+//            }
+//        } else {
+//            //没有相关配置的话 默认是5条
+//            $article_status = true;
+//        }
+//        if (array_key_exists('question', $config_sync_info)) {
+//            foreach ($config_sync_info['question'] as $k => $v) {
+//                //上次静态化的时间点
+//                $laststatic_time = $v['laststatic_time'];
+//                //比较时间
+//                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
+//                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
+//                $time = time();
+//                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
+//                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
+//                    break;
+//                }
+//                if ($time > $starttime && $time < $stoptime) {
+//                    $question_count = $v['staticcount'];
+//                    $question_status = true;
+//                    self::set_laststatic_time($v['id']);
+//                    break;
+//                }
+//            }
+//        } else {
+//            //没有相关配置的话 默认是5条
+//            $question_status = true;
+//        }
+//        if (array_key_exists('product', $config_sync_info)) {
+//            foreach ($config_sync_info['product'] as $k => $v) {
+//                //上次静态化的时间点
+//                $laststatic_time = $v['laststatic_time'];
+//                //比较时间
+//                $starttime = strtotime(date('Y-m-d') . ' ' . $v['starttime']);
+//                $stoptime = strtotime(date('Y-m-d') . ' ' . $v['stoptime']);
+//                $time = time();
+//                if ($laststatic_time > $starttime && $laststatic_time < $stoptime) {
+//                    //上次静态化的时间 在 该时间段内 则不需要更新 说明之前已经有 生成过
+//                    break;
+//                }
+//                if ($time > $starttime && $time < $stoptime) {
+//                    $product_count = $v['staticcount'];
+//                    $product_status = true;
+//                    self::set_laststatic_time($v['id']);
+//                    break;
+//                }
+//            }
+//        } else {
+//            $product_status = true;
+//        }
+//        return [$article_status, intval($article_count), $question_status, intval($question_count), $product_status, intval($product_count)];
     }
 
-    /**
-     * 获取配置信息
-     * @access private
-     */
-    private static function get_staticconfig_info($site_id)
-    {
-        $config_info = Db::name('site_staticconfig')->where(['site_id' => $site_id])->field('id,type,starttime,stoptime,staticcount,laststatic_time')->select();
-        $config_sync_info = [];
-        foreach ($config_info as $k => $v) {
-            if (!array_key_exists($v['type'], $config_sync_info)) {
-                $config_sync_info[$v['type']] = [];
-            }
-            $config_sync_info[$v['type']][] = [
-                'id' => $v['id'],
-                'starttime' => $v['starttime'],
-                'stoptime' => $v['stoptime'],
-                'staticcount' => $v['staticcount'],
-                'laststatic_time' => $v['laststatic_time']
-            ];
-        }
-        return $config_sync_info;
-    }
+//    /**
+//     * 获取配置信息
+//     * @access private
+//     */
+//    private static function get_staticconfig_info($site_id)
+//    {
+//        $config_info = Db::name('site_staticconfig')->where(['site_id' => $site_id])->field('id,type,starttime,stoptime,staticcount,laststatic_time')->select();
+//        $config_sync_info = [];
+//        foreach ($config_info as $k => $v) {
+//            if (!array_key_exists($v['type'], $config_sync_info)) {
+//                $config_sync_info[$v['type']] = [];
+//            }
+//            $config_sync_info[$v['type']][] = [
+//                'id' => $v['id'],
+//                'starttime' => $v['starttime'],
+//                'stoptime' => $v['stoptime'],
+//                'staticcount' => $v['staticcount'],
+//                'laststatic_time' => $v['laststatic_time']
+//            ];
+//        }
+//        return $config_sync_info;
+//    }
 
 
-    /**
-     * 上次 静态化时间
-     * @access private
-     */
-    private static function set_laststatic_time($id)
-    {
-        Db::name('site_staticconfig')->where(['id' => $id])->update(['laststatic_time' => time()]);
-    }
+//    /**
+//     * 上次 静态化时间
+//     * @access private
+//     */
+//    private static function set_laststatic_time($id)
+//    {
+//        Db::name('site_staticconfig')->where(['id' => $id])->update(['laststatic_time' => time()]);
+//    }
 
 
     /**
-     * 首先第一次入口
+     * 设置文章等继续静态化指定的数量
      * @access public
      * 静态化 文章 问答 零散段落等相关数据
-     * @param string $requesttype 如果 $requestype 为 crontab 的话 会 按照配置的 时间段跟文章数量来生成静态页面
-     *                            如果 为空的话 表示 从页面点击操作之后触发的操作
      */
-    public function index($requesttype = '')
+    public function setStaticCount()
     {
-        list($articlestatic_status, $articlestatic_count, $questionstatic_status, $questionstatic_count, $productstatic_status, $productstatic_count) = self::check_static_time($this->site_id, $requesttype);
+        $default_count = self::$system_default_count;
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $articletypeid_str = implode(',', array_keys($article_typearr));
@@ -191,33 +187,30 @@ class Detailstatic extends Common
             'site_id' => $this->site_id,
             'type_name' => 'article'
         ];
-        if ($articlestatic_status) {
-            $articlepre_stop = $this->detail_maxid('article');
-            $article_list_sql = "id >= $articlepre_stop and node_id=$this->node_id and articletype_id in ($articletypeid_str)";
-            // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
-            $articlemax_id = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($articlestatic_count + 1)->max('id');
-            if ($articlemax_id) {
-                ArticleSyncCount::where($where)->update(['count' => $articlemax_id]);
-            }
+        $articlepre_stop = $this->detail_maxid('article');
+        $article_list_sql = "id >= $articlepre_stop and node_id=$this->node_id and articletype_id in ($articletypeid_str)";
+        // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
+        $article_ids = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
+        if ($article_ids) {
+            $articlemax_id = max($article_ids);
+            (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $articlemax_id]);
         }
-        if ($questionstatic_status) {
-            $questionpre_stop = $this->detail_maxid('question');
-            $question_list_sql = "id >= $questionpre_stop and node_id=$this->node_id and type_id in ($questiontypeid_str)";
-            $questionmax_id = (new \app\index\model\Question)->where($question_list_sql)->order("id", "asc")->limit($questionstatic_count + 1)->max('id');
-            $where['type_name'] = 'question';
-            if ($questionmax_id) {
-                ArticleSyncCount::where($where)->update(['count' => $questionmax_id]);
-            }
+        $questionpre_stop = $this->detail_maxid('question');
+        $question_list_sql = "id >= $questionpre_stop and node_id=$this->node_id and type_id in ($questiontypeid_str)";
+        $question_ids = (new \app\index\model\Question)->where($question_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
+        $where['type_name'] = 'question';
+        if ($question_ids) {
+            $questionmax_id = max($question_ids);
+            (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $questionmax_id]);
         }
-        if ($productstatic_status) {
-            //产品相关操作
-            $productpre_stop = $this->detail_maxid('product');
-            $productsql = "id >= $productpre_stop and node_id=$this->node_id and type_id in ($producttypeid_str)";
-            $productmax_id = (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($productstatic_count + 1)->max('id');
-            $where['type_name'] = 'product';
-            if ($productmax_id) {
-                ArticleSyncCount::where($where)->update(['count' => $productmax_id]);
-            }
+        //产品相关操作
+        $productpre_stop = $this->detail_maxid('product');
+        $productsql = "id >= $productpre_stop and node_id=$this->node_id and type_id in ($producttypeid_str)";
+        $product_ids= (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($default_count + 1)->max('id');
+        $where['type_name'] = 'product';
+        if ($product_ids) {
+            $productmax_id=max($product_ids);
+            (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $productmax_id]);
         }
     }
 

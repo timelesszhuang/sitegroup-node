@@ -45,6 +45,8 @@ class Common extends Controller
 
     //该网站的url
     public $siteurl = '';
+    //子站点的相关url
+    public $realsiteurl = '';
     public $site_id = '';
     public $node_id = '';
     public $site_name = '';
@@ -123,6 +125,7 @@ class Common extends Controller
         //绝对网址
         $siteinfo = Site::getSiteInfo();
         $this->siteurl = $siteinfo['url'];
+
         $this->site_id = $siteinfo['id'];
         $this->site_name = $siteinfo['site_name'];
         $this->node_id = $siteinfo['node_id'];
@@ -131,7 +134,6 @@ class Common extends Controller
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
-//        $this->domain = 'local.sitegroupnode.com';
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
@@ -140,13 +142,14 @@ class Common extends Controller
             }
             return '';
         });
+        $this->siteInit();
         $this->menu_ids = $siteinfo['menu'];
         //上一页下一页链接
         $this->prearticlepath = '/' . $this->articleaccesspath;
         $this->prequestionpath = '/' . $this->questionaccesspath;
         $this->preproductpath = '/' . $this->productaccesspath;
-        $this->currenturl = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-
+        $this->realsiteurl = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'];
+        $this->currenturl = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
         ///////////////////////////////////////////////
         //截取下相关域名是 主站 还是子站 以及 获取到的区域的id 跟 name
         $host = $_SERVER['HTTP_HOST'];
@@ -160,7 +163,126 @@ class Common extends Controller
             $this->mainsite = false;
             $this->getDistrictInfo($suffix);
         }
-        ///////////////////////////////////////////////
+    }
+
+
+    /**
+     * 站点静态化的时候需要检查 更新的相关数据
+     * @access private
+     */
+    private function siteInit()
+    {
+        //查看站点logo 是不是有修改
+        $this->checkSiteLogo();
+        $this->checkSiteIco();
+        //验证 图片集的静态化相关功能
+        $this->checkImgList();
+        //用于验证内容中图片加载状态
+        $this->checkGetContent();
+    }
+
+    /**
+     * 用于验证是不是调用内容中的图片是不是已经静态化了
+     * @access public
+     */
+    public function checkGetContent()
+    {
+        //oss图片可以根据已经有的来更新 暂时不考虑 建议根据content 的相关name 还有 正则匹配到的索引来匹配数据
+    }
+
+    /**
+     * 判断站点logo是不是有更新 有更新的话直接重新生成
+     * @access private
+     */
+    private function checkSiteLogo()
+    {
+        $logo_id = $this->siteinfo['sitelogo_id'];
+        if (!$logo_id) {
+            return;
+        }
+        $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($logo_id) {
+            return Db::name('site_logo')->where('id', $logo_id)->find();
+        });
+        //如果logo记录被删除的话怎么操作
+        if (!$site_logoinfo) {
+            return;
+        }
+        //如果存在logo 名字就叫 ××.jpg
+        $oss_logo_path = $site_logoinfo['oss_logo_path'];
+        list($file_ext, $filename) = $this->analyseUrlFileType($oss_logo_path);
+        //logo 名称 根据站点id 拼成
+        $local_img_name = "logo{$this->site_id}.$file_ext";
+        $update_time = $site_logoinfo['update_time'];
+        $logo_path = "images/$local_img_name";
+        if (file_exists($logo_path) && filectime($logo_path) < $update_time) {
+            //logo 存在 且 文件创建时间在更新时间之前
+            $this->ossGetObject($oss_logo_path, $logo_path);
+        } else if (!file_exists($logo_path)) {
+            //logo 存在需要更新
+            $this->ossGetObject($oss_logo_path, $logo_path);
+        }
+    }
+
+    /**
+     * 判断站点logo是不是有更新 有更新的话直接重新生成
+     * @access private
+     */
+    private function checkSiteIco()
+    {
+        $ico_id = $this->siteinfo['siteico_id'];
+        if (!$ico_id) {
+            return;
+        }
+        $site_icoinfo = Cache::remember('siteicoinfo', function () use ($ico_id) {
+            return Db::name('site_ico')->where('id', $ico_id)->find();
+        });
+        //如果logo记录被删除的话怎么操作
+        if (!$site_icoinfo) {
+            return;
+        }
+        //如果存在logo 名字就叫 ××.jpg
+        $oss_ico_path = $site_icoinfo['oss_ico_path'];
+        //logo 名称 根据站点id 拼成
+        $update_time = $site_icoinfo['update_time'];
+        $ico_path = "./favicon.ico";
+        if (file_exists($ico_path) && filectime($ico_path) < $update_time) {
+            //logo 存在 且 文件创建时间在更新时间之前
+            $this->ossGetObject($oss_ico_path, $ico_path);
+        } else if (!file_exists($ico_path)) {
+            //logo 存在需要更新
+            $this->ossGetObject($oss_ico_path, $ico_path);
+        }
+    }
+
+
+    /**
+     * 检测图片集的图片是不是都已经静态化了  某个节点下的所有图片都会替换掉
+     * @access private
+     */
+    private function checkImgList()
+    {
+        $endpoint = Config::get('oss.endpoint');
+        $bucket = Config::get('oss.bucket');
+        $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
+        $imglist = Db::name('imglist')->where('node_id', $this->node_id)->where('status', '10')->select();
+        foreach ($imglist as $v) {
+            $imgser = $v['imgser'];
+            if ($imgser) {
+                $imglist_arr = unserialize($imgser);
+                foreach ($imglist_arr as $perimg) {
+                    $imgname = $perimg['imgname'];
+                    $osssrc = $perimg['osssrc'];
+                    if (strpos($osssrc, $endpointurl) === false) {
+                        //如果路径有问题的话
+                        continue;
+                    }
+                    if ($this->get_osswater_img($osssrc, $imgname, $this->waterString)) {
+                        //获取网站水印图片
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
 

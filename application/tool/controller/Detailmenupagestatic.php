@@ -22,31 +22,6 @@ class Detailmenupagestatic extends Common
         $this->commontool->tag = 'menu';
     }
 
-    /**
-     * 首页静态化
-     * @access public
-     * @todo 删除该功能
-     */
-    public function index()
-    {
-        $info = (new Menu)->getDetailMenuInfo();
-        $pingUrls = [];
-        foreach ($info as $v) {
-            $content = $this->getContent($v);
-            if (!$content) {
-                continue;
-            }
-            if (file_put_contents($this->detailmenupath . "{$v['generate_name']}.html", $content) === 'false') {
-                continue;
-            } else {
-                array_push($pingUrls, $this->siteurl . "/{$v['generate_name']}.html");
-            }
-        }
-        //推送搜索引擎更新数据
-        $this->urlsCache($pingUrls);
-        return true;
-    }
-
 
     /**
      * 获取详情页面的内容

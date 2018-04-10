@@ -9,6 +9,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use think\Cache;
 
 class SiteMap extends Common
 {
@@ -30,65 +31,69 @@ class SiteMap extends Common
      */
     public function index()
     {
-        $host = $this->siteurl;
-        //首先获取全部链接的路径 从menu 中
-        $menu = (new Menu)->getMergedMenu();
-        //然后获取相关的文章链接 产品链接 问答链接
-        $sync_info = $this->commontool->getDbArticleListId();
-        //获取最新的200篇文章 各个分类 生成sitemap
-        list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-        $article_list = $this->commontool->getArticleList($sync_info, $typeid_arr, 200);
-        $question_list = $this->commontool->getQuestionList($sync_info, $typeid_arr, 200);
-        $product_list = $this->commontool->getProductList($sync_info, $typeid_arr, 200);
-        $sitemap = [];
-        foreach ($menu as $v) {
-            $sitemap[] = [
-                'loc' => $host . $v['href'],
-                'lastmod' => date('Y-m-d', time()),
-                'changefreq' => 'daily',
-                'priority' => '0.9',
-            ];
-        }
-        foreach ($article_list['list'] as $v) {
-            $sitemap[] = [
-                'loc' => $host . $v['href'],
-                'lastmod' => date('Y-m-d', time()),
-                'changefreq' => 'daily',
-                'priority' => '0.7',
-            ];
-        }
-        foreach ($product_list['list'] as $v) {
-            $sitemap[] = [
-                'loc' => $host . $v['href'],
-                'lastmod' => date('Y-m-d', time()),
-                'changefreq' => 'daily',
-                'priority' => '0.9',
-            ];
-        }
-        foreach ($question_list['list'] as $v) {
-            $sitemap[] = [
-                'loc' => $host . $v['href'],
-                'lastmod' => date('Y-m-d', time()),
-                'changefreq' => 'daily',
-                'priority' => '0.6',
-            ];
-        }
-        $xml_wrapper = <<<XML
+        header("Content-type: text/xml");
+        $host = $this->realsiteurl;
+        $xmldata = Cache::remember($host . 'sitemap', function () use ($host) {
+            //首先获取全部链接的路径 从menu 中
+            $menu = (new Menu)->getMergedMenu();
+            //然后获取相关的文章链接 产品链接 问答链接
+            $sync_info = $this->commontool->getDbArticleListId();
+            //获取最新的200篇文章 各个分类 生成sitemap
+            list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
+            $article_list = $this->commontool->getArticleList($sync_info, $typeid_arr, 200);
+            $question_list = $this->commontool->getQuestionList($sync_info, $typeid_arr, 200);
+            $product_list = $this->commontool->getProductList($sync_info, $typeid_arr, 200);
+            $sitemap = [];
+            foreach ($menu as $v) {
+                $sitemap[] = [
+                    'loc' => $host . $v['href'],
+                    'lastmod' => date('Y-m-d', time()),
+                    'changefreq' => 'daily',
+                    'priority' => '0.9',
+                ];
+            }
+            foreach ($article_list['list'] as $v) {
+                $sitemap[] = [
+                    'loc' => $host . $v['href'],
+                    'lastmod' => date('Y-m-d', time()),
+                    'changefreq' => 'daily',
+                    'priority' => '0.7',
+                ];
+            }
+            foreach ($product_list['list'] as $v) {
+                $sitemap[] = [
+                    'loc' => $host . $v['href'],
+                    'lastmod' => date('Y-m-d', time()),
+                    'changefreq' => 'daily',
+                    'priority' => '0.9',
+                ];
+            }
+            foreach ($question_list['list'] as $v) {
+                $sitemap[] = [
+                    'loc' => $host . $v['href'],
+                    'lastmod' => date('Y-m-d', time()),
+                    'changefreq' => 'daily',
+                    'priority' => '0.6',
+                ];
+            }
+            $xml_wrapper = <<<XML
 <?xml version='1.0' encoding='utf-8'?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </urlset>
 XML;
-        $xml = new \SimpleXMLElement($xml_wrapper);
-        foreach ($sitemap as $data) {
-            $item = $xml->addChild('url'); //使用addChild添加节点
-            if (is_array($data)) {
-                foreach ($data as $key => $row) {
-                    $item->addChild($key, $row);
+            $xml = new \SimpleXMLElement($xml_wrapper);
+            foreach ($sitemap as $data) {
+                $item = $xml->addChild('url'); //使用addChild添加节点
+                if (is_array($data)) {
+                    foreach ($data as $key => $row) {
+                        $item->addChild($key, $row);
+                    }
                 }
             }
-        }
-        $xmldata = $xml->asXML(); //用asXML方法输出xml，默认只构造不输出。
-        file_put_contents('sitemap.xml', $xmldata);
+            $xmldata = $xml->asXML(); //用asXML方法输出xml，默认只构造不输出。
+            return $xmldata;
+        });
+        exit($xmldata);
     }
 
 }
