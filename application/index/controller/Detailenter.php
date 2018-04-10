@@ -105,10 +105,7 @@ class Detailenter extends EntryCommon
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
         return Cache::remember($this->suffix . $type . $id, function () use ($id) {
-            list($template, $data) = (new Activitystatic())->getacticitycontent($id);
-            return Common::Debug((new View())->fetch($template,
-                $data
-            ), $data);
+            return (new Activitystatic())->getacticitycontent($id);
         });
     }
 
