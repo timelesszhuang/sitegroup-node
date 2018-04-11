@@ -32,7 +32,7 @@ class Commontool extends Common
     public $taglist = '/tag/%s.html';
     public $articleListField = 'id,flag,title,title_color,articletype_name,articletype_id,thumbnails,thumbnails_name,summary,tags,create_time';
     public $questionListField = 'id,flag,question,type_id,type_name,tags,create_time';
-    public $productListField = 'id,flag,name,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
+    public $productListField = 'id,flag,name,image,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
     //  h 头条 c 推荐 b 加粗 a 特荐 f 幻灯
     public $flag = ['h' => '头条', 'c' => '推荐', 'b' => '加粗', 'a' => '特荐', 'f' => '幻灯'];
 
@@ -729,6 +729,8 @@ class Commontool extends Common
      * @access public
      * @param $article
      * @param $article_typearr
+     * @throws \Exception
+     * @throws \throwable
      */
     public function formatArticleList(&$article, $article_typearr)
     {
@@ -750,6 +752,10 @@ class Commontool extends Common
             if (!empty($v["thumbnails_name"])) {
                 //如果有本地图片则 为本地图片
                 $src = "/images/" . $v['thumbnails_name'];
+                // oss tupian
+                if ($v['thumbnails']) {
+                    $this->get_osswater_img($v['thumbnails'], $v['thumbnails_name'], $this->waterString, $this->waterImgUrl);
+                }
                 $img = sprintf($img_template, $src);
             } else if (!empty($v["thumbnails"])) {
                 $src = $v['thumbnails'];
@@ -977,6 +983,9 @@ class Commontool extends Common
                     'name' => $v['type_name'],
                     'href' => $product_typearr[$v['type_id']]['href']
                 ];
+            }
+            if ($v['image_name']) {
+                $this->get_osswater_img($v['image'], $v['image_name'], $this->waterString, $this->waterImgUrl);
             }
             if (is_array($v)) {
                 $v['create_time'] = date('Y-m-d', $v['create_time']);

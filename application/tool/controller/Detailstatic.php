@@ -191,6 +191,7 @@ class Detailstatic extends Common
         $article_list_sql = "id >= $articlepre_stop and node_id=$this->node_id and articletype_id in ($articletypeid_str)";
         // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
         $article_ids = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
+        // 这个地方需要 拉取文章缩略图
         if ($article_ids) {
             $articlemax_id = max($article_ids);
             (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $articlemax_id]);
