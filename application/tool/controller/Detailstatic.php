@@ -206,7 +206,7 @@ class Detailstatic extends Common
         //产品相关操作
         $productpre_stop = $this->detail_maxid('product');
         $productsql = "id >= $productpre_stop and node_id=$this->node_id and type_id in ($producttypeid_str)";
-        $product_ids= (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($default_count + 1)->max('id');
+        $product_ids= (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($default_count + 1)->column('id');
         $where['type_name'] = 'product';
         if ($product_ids) {
             $productmax_id=max($product_ids);
