@@ -224,9 +224,11 @@ class Detailstatic extends Common
      * @param $article_typearr
      * @param int $limit
      * @return array|false|\PDOStatement|string|\think\Collection
+     * @throws \Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
     public function getTagArticleList($tags, $articletype_idstr, $article_typearr, $limit = 10)
     {
@@ -337,7 +339,13 @@ class Detailstatic extends Common
     /**
      * 获取文章详细信息相关
      * @access public
-     * @throws \think\Exception
+     * @param $id
+     * @return array
+     * @throws \Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
      */
     public function article_detailinfo($id)
     {
@@ -437,7 +445,15 @@ class Detailstatic extends Common
 
     /**
      * 问答预览重新生成时候调取数据需要的数据
+     * @param $id
+     * @return array
+     * @throws \Exception
      * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function question_detailinfo($id)
     {

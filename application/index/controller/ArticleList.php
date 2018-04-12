@@ -64,11 +64,13 @@ class ArticleList extends EntryCommon
      * @param $type_id
      * @param int $currentpage
      * @return array
+     * @throws \Exception
      * @throws \think\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function generateArticleList($menu_enname, $type_id, $currentpage = 1)
     {
