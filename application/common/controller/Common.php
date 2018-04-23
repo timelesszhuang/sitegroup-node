@@ -112,6 +112,8 @@ class Common extends Controller
 
     public $currenturl = '';
 
+    public $app_debug = 'product';
+
     /**
      * 获取公共的数据
      * @access public
@@ -133,6 +135,7 @@ class Common extends Controller
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
+        $this->app_debug = $siteinfo['app_debug'];
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
@@ -404,13 +407,12 @@ class Common extends Controller
 
 
     /**
-     * 网站正在建设中
+     * 网站正在建设中 打印出相关站点状态 修改到数据库中
      * @access public
      */
-    public static function Debug($content, $data)
+    public function Debug($content, $data)
     {
-        $debug = Config::get('app_debug');
-        if ($debug) {
+        if ($this->app_debug == 'dev') {
             $str = json_encode($data);
             $script = "<script>console.log($str)</script>";
             $content .= $script;
