@@ -35,7 +35,6 @@ class Commontool extends Common
     public $productListField = 'id,flag,name,image,image_name,sn,payway,type_id,type_name,summary,tags,field1,field2,field3,field4,create_time';
     //  h 头条 c 推荐 b 加粗 a 特荐 f 幻灯
     public $flag = ['h' => '头条', 'c' => '推荐', 'b' => '加粗', 'a' => '特荐', 'f' => '幻灯'];
-
     public $tag = 'index';
 
     /**
@@ -603,7 +602,7 @@ class Commontool extends Common
             // 子站显示文章
             $where .= ' and  stations ="10"';
         }
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order('id desc')->limit($limit)->select();
+        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -685,7 +684,7 @@ class Commontool extends Common
             if (!$this->mainsite) {
                 $whereflag .= ' and stations = "10"';
             }
-            $article = Db::name('Article')->where($whereflag)->field($this->articleListField)->order('id desc')->limit($limit)->select();
+            $article = Db::name('Article')->where($whereflag)->field($this->articleListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
             $this->formatArticleList($article, $article_typearr);
             //组织数据
             $article_flaglist[$flag] = [
@@ -718,7 +717,7 @@ class Commontool extends Common
             $where .= ' and stations = "10"';
         }
         //后期可以考虑置顶之类操作
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order('id desc')->limit($limit)->select();
+        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -840,7 +839,7 @@ class Commontool extends Common
         if (!$this->mainsite) {
             $where .= ' and stations ="10"';
         }
-        $product = Db::name('Product')->where($where)->field($this->productListField)->order('id desc')->limit($limit)->select();
+        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -922,7 +921,7 @@ class Commontool extends Common
             if (!$this->mainsite) {
                 $whereflag .= ' and stations ="10"';
             }
-            $product = Db::name('Product')->where($whereflag)->field($this->productListField)->order('id desc')->limit($limit)->select();
+            $product = Db::name('Product')->where($whereflag)->field($this->productListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
             $this->formatProductList($product, $product_typearr);
             //组织数据
             $product_flaglist[$flag] = [
@@ -954,7 +953,7 @@ class Commontool extends Common
             $where .= ' and stations ="10"';
         }
         //后期可以考虑置顶之类操作
-        $product = Db::name('Product')->where($where)->field($this->productListField)->order('id desc')->limit($limit)->select();
+        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -1061,7 +1060,7 @@ class Commontool extends Common
         if (!$this->mainsite) {
             $where .= ' and stations ="10"';
         }
-        $question = Db::name('Question')->where($where)->field($this->questionListField)->order('id desc')->limit($limit)->select();
+        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -1145,7 +1144,7 @@ class Commontool extends Common
             if (!$this->mainsite) {
                 $whereflag .= ' and stations ="10"';
             }
-            $question = Db::name('Question')->where($whereflag)->field($this->questionListField)->order('id desc')->limit($limit)->select();
+            $question = Db::name('Question')->where($whereflag)->field($this->questionListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
             $this->formatQuestionList($question, $question_typearr);
             //组织数据
             $question_flaglist[$flag] = [
@@ -1177,7 +1176,7 @@ class Commontool extends Common
         if (!$this->mainsite) {
             $where .= ' and stations ="10"';
         }
-        $question = Db::name('Question')->where($where)->field($this->questionListField)->order('id desc')->limit($limit)->select();
+        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -1734,6 +1733,8 @@ code;
         $question_flaglist = $this->getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
         // 产品相关flag
         $product_flaglist = $this->getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        //菜单对应的分类的链接  比如 新闻资讯 下 公司新闻 companynews  科技新闻 technews
+        $menu_typelist = $this->getMenuTypeList();
         //获取友链
         $partnersite = $this->getPatternLink();
         //获取公共代码
@@ -1756,7 +1757,7 @@ code;
         list($childsite, $childtreesite, $currentsite) = $this->getSiteList();
         //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'childsite', 'childtreesite', 'currentsite');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
     }
 
 
@@ -1948,6 +1949,7 @@ code;
                     'menu_enname' => $menu_enname,
                     'type_id' => $val['id'],
                     'type_name' => $val['name'],
+                    'type_enname' => $val['alias'],
                     'href' => sprintf($listpath, "{$menu_enname}_t{$val['id']}")
                 ];
                 if (!array_key_exists($type, $type_aliasarr)) {
@@ -1964,6 +1966,33 @@ code;
             //查询当前的menu_id
             $this->getTypeInfo(\app\tool\model\Menu::Where('p_id', $menu_id)->field('id,generate_name,name,flag,type_id')->select(), $type_aliasarr, $typeid_arr);
         }
+    }
+
+
+    /**
+     * 获取菜单对应的类型的列表 比如
+     * [
+     *    xinwen=>[list=>[[text=>行业新闻,href=>/articlelist/xx.html],[]],menuname=>企业新闻],
+     *    wenda =>[list=>[[text=>行业须知,href=>/articlelist/xx.html].[]],menuname=>常见问题]
+     * ]
+     * @access public
+     */
+    public function getMenuTypeList()
+    {
+        list($type_aliasarr, $typeid_arr) = $this->getTypeIdInfo();
+        $menutypeinfo = [];
+        foreach ($typeid_arr as $list) {
+            foreach ($list as $k => $v) {
+                $menu_enname = $v['menu_enname'];
+                $menu_name = $v['menu_name'];
+                if (!array_key_exists($menu_enname, $menutypeinfo)) {
+                    $menutypeinfo[$menu_enname] = ['menuname' => $menu_name, 'list' => []];
+                }
+                $type = ['text' => $v['type_name'], 'href' => $v['href'], 'en_name' => $v['type_enname']];
+                array_push($menutypeinfo[$menu_enname]['list'], $type);
+            }
+        }
+        return $menutypeinfo;
     }
 
 

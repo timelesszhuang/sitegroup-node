@@ -98,7 +98,7 @@ class QuestionList extends EntryCommon
                 $where .= ' and stations = "10"';
             }
             if ($typeid_str) {
-                $question = (new \app\index\model\Question)->order('id', "desc")->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
+                $question = (new \app\index\model\Question)->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
@@ -112,7 +112,7 @@ class QuestionList extends EntryCommon
                 $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
             }
             if ($typeid_str) {
-                $currentquestion = (new \app\index\model\Question)->order('id', "desc")->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
+                $currentquestion = (new \app\index\model\Question)->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/questionlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage

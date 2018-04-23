@@ -254,7 +254,7 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-        $tagsArticleList = (new \app\index\model\Article)->Where($where)->limit($limit)->field($this->commontool->articleListField)->select();
+        $tagsArticleList = (new \app\index\model\Article)->Where($where)->limit($limit)->field($this->commontool->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->select();
         if ($tagsArticleList) {
             $this->commontool->formatArticleList($tagsArticleList, $article_typearr);
             return $tagsArticleList;
@@ -539,7 +539,7 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-        $tagsQuestionList = (new \app\index\model\Question)->where($where)->limit($limit)->field($this->commontool->questionListField)->select();
+        $tagsQuestionList = (new \app\index\model\Question)->where($where)->limit($limit)->field($this->commontool->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->select();
         if ($tagsQuestionList) {
             $this->commontool->formatQuestionList($tagsQuestionList, $question_typearr);
             return $tagsQuestionList;
@@ -658,7 +658,7 @@ class Detailstatic extends Common
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
         $where = sprintf($where, $tagwhere);
-        $tagsProductList = (new \app\index\model\Product)->where($where)->limit($limit)->field($this->commontool->productListField)->select();
+        $tagsProductList = (new \app\index\model\Product)->where($where)->limit($limit)->field($this->commontool->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->select();
         if ($tagsProductList) {
             $this->commontool->formatProductList($tagsProductList, $produt_typearr);
             return $tagsProductList;

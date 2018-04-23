@@ -103,7 +103,7 @@ demo;
                 $where['stations'] = '10';
             }
             //多少条记录
-            $article = (new Article())->order('id', "desc")->field($this->commontool->articleListField)->where($where)
+            $article = (new Article())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->articleListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
@@ -159,7 +159,7 @@ demo;
                 $where['stations'] = '10';
             }
             //多少条记录
-            $product = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where($where)
+            $product = (new Product())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->productListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
@@ -214,7 +214,7 @@ demo;
                 $where['stations'] = '10';
             }
             //多少条记录
-            $question = (new Question())->order('id', "desc")->field($this->commontool->questionListField)->where($where)
+            $question = (new Question())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->questionListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page

@@ -112,7 +112,7 @@ class TagList extends EntryCommon
             if (!$this->mainsite) {
                 $where .= ' and stations = "10"';
             }
-            $article = (new \app\index\model\Article())->order('id', "desc")->field($this->commontool->articleListField)->where($where)
+            $article = (new \app\index\model\Article())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->articleListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
                     'page' => $currentpage
@@ -188,7 +188,7 @@ class TagList extends EntryCommon
             if (!$this->mainsite) {
                 $where .= ' and stations = "10"';
             }
-            $question = Question::order('id', "desc")->field($this->commontool->questionListField)->where($where)
+            $question = Question::order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->questionListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
                     'page' => $currentpage
@@ -258,7 +258,7 @@ class TagList extends EntryCommon
             if (!$this->mainsite) {
                 $where .= ' and stations = "10"';
             }
-            $product = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where($where)
+            $product = (new Product())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->productListField)->where($where)
                 ->paginate($listsize, false, [
                     'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
                     'page' => $currentpage

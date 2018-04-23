@@ -125,7 +125,6 @@ class Common extends Controller
         //绝对网址
         $siteinfo = Site::getSiteInfo();
         $this->siteurl = $siteinfo['url'];
-
         $this->site_id = $siteinfo['id'];
         $this->site_name = $siteinfo['site_name'];
         $this->node_id = $siteinfo['node_id'];

@@ -96,7 +96,7 @@ class ProductList extends EntryCommon
                     $wheretemplate .= ' and stations = "10"';
                 }
                 //获取当前type_id的文章
-                $productlist = (new Product())->order('id', "desc")->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
+                $productlist = (new Product())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
@@ -110,7 +110,7 @@ class ProductList extends EntryCommon
                 $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
             }
             if ($typeid_str) {
-                $currentproductlist =  (new Product())->order('id', "desc")->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
+                $currentproductlist =  (new Product())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage

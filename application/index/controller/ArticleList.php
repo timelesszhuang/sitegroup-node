@@ -108,7 +108,7 @@ class ArticleList extends EntryCommon
             }
             if ($typeid_str) {
                 //获取当前type_id的文章
-                $article = (new \app\index\model\Article())->order('id', "desc")->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
+                $article = (new \app\index\model\Article())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
@@ -122,7 +122,7 @@ class ArticleList extends EntryCommon
                 $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
             }
             if ($typeid_str) {
-                $currentarticle = (new \app\index\model\Article())->order('id', "desc")->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
+                $currentarticle = (new \app\index\model\Article())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
                     ->paginate($listsize, false, [
                         'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                         'page' => $currentpage
