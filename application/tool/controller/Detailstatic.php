@@ -187,31 +187,37 @@ class Detailstatic extends Common
             'site_id' => $this->site_id,
             'type_name' => 'article'
         ];
-        $articlepre_stop = $this->detail_maxid('article');
-        $article_list_sql = "id >= $articlepre_stop and node_id=$this->node_id and articletype_id in ($articletypeid_str)";
-        // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
-        $article_ids = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
-        // 这个地方需要 拉取文章缩略图
-        if ($article_ids) {
-            $articlemax_id = max($article_ids);
-            (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $articlemax_id]);
+        if ($articletypeid_str) {
+            $articlepre_stop = $this->detail_maxid('article');
+            $article_list_sql = "id >= $articlepre_stop and node_id=$this->node_id and articletype_id in ($articletypeid_str)";
+            // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
+            $article_ids = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
+            // 这个地方需要 拉取文章缩略图
+            if ($article_ids) {
+                $articlemax_id = max($article_ids);
+                (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $articlemax_id]);
+            }
         }
-        $questionpre_stop = $this->detail_maxid('question');
-        $question_list_sql = "id >= $questionpre_stop and node_id=$this->node_id and type_id in ($questiontypeid_str)";
-        $question_ids = (new \app\index\model\Question)->where($question_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
-        $where['type_name'] = 'question';
-        if ($question_ids) {
-            $questionmax_id = max($question_ids);
-            (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $questionmax_id]);
+        if ($questiontypeid_str) {
+            $questionpre_stop = $this->detail_maxid('question');
+            $question_list_sql = "id >= $questionpre_stop and node_id=$this->node_id and type_id in ($questiontypeid_str)";
+            $question_ids = (new \app\index\model\Question)->where($question_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
+            $where['type_name'] = 'question';
+            if ($question_ids) {
+                $questionmax_id = max($question_ids);
+                (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $questionmax_id]);
+            }
         }
-        //产品相关操作
-        $productpre_stop = $this->detail_maxid('product');
-        $productsql = "id >= $productpre_stop and node_id=$this->node_id and type_id in ($producttypeid_str)";
-        $product_ids= (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($default_count + 1)->column('id');
-        $where['type_name'] = 'product';
-        if ($product_ids) {
-            $productmax_id=max($product_ids);
-            (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $productmax_id]);
+        if ($producttypeid_str) {
+            //产品相关操作
+            $productpre_stop = $this->detail_maxid('product');
+            $productsql = "id >= $productpre_stop and node_id=$this->node_id and type_id in ($producttypeid_str)";
+            $product_ids = (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($default_count + 1)->column('id');
+            $where['type_name'] = 'product';
+            if ($product_ids) {
+                $productmax_id = max($product_ids);
+                (new \app\index\model\ArticleSyncCount)->where($where)->update(['count' => $productmax_id]);
+            }
         }
     }
 
