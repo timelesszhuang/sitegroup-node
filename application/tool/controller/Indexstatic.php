@@ -42,10 +42,11 @@ class Indexstatic extends Common
         $data = [
             'd' => $assign_data
         ];
-        $content = Common::Debug((new View())->fetch($this->indextemplate,
+        $content = $this->Debug((new View())->fetch($this->indextemplate,
             $data
         ), $data);
         return $content;
     }
+
 
 }

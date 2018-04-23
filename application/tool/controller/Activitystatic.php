@@ -75,7 +75,7 @@ class Activitystatic extends Common
             'd' => $assign_data,
             'activity' => $ac_data
         ];
-        $content = Common::Debug((new View())->fetch($this->activitytemplatepath,
+        $content = $this->Debug((new View())->fetch($this->activitytemplatepath,
             $data
         ), $data);
         return $content;

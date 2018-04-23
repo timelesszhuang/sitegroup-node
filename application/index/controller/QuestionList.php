@@ -49,7 +49,7 @@ class QuestionList extends EntryCommon
             return;
         }
         //页面中还需要填写隐藏的 表单 node_id site_id
-        return Common::Debug((new View())->fetch($template,
+        return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
     }

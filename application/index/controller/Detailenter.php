@@ -46,7 +46,7 @@ class Detailenter extends EntryCommon
         // 子站相关 可以使用预览部分的相关功能
         return Cache::remember($this->suffix . $type . $id, function () use ($id) {
             list($template, $data) = (new Detailstatic())->article_detailinfo($id);
-            $content = Common::Debug((new View())->fetch($template,
+            $content = $this->Debug((new View())->fetch($template,
                 $data
             ), $data);
             return $content;
@@ -67,7 +67,7 @@ class Detailenter extends EntryCommon
         return Cache::remember($this->suffix . $type . $id, function () use ($id) {
             // 子站相关 可以使用预览部分的相关功能
             list($template, $data) = (new Detailstatic())->question_detailinfo($id);
-            return Common::Debug((new View())->fetch($template,
+            return $this->Debug((new View())->fetch($template,
                 $data
             ), $data);
         });
@@ -86,7 +86,7 @@ class Detailenter extends EntryCommon
         $id = $this->subNameId($id, $type);
         return Cache::remember($this->suffix . $type . $id, function () use ($id) {
             list($template, $data) = (new Detailstatic())->product_detailinfo($id);
-            return Common::Debug((new View())->fetch($template,
+            return $this->Debug((new View())->fetch($template,
                 $data
             ), $data);
         });
@@ -155,11 +155,11 @@ class Detailenter extends EntryCommon
         ];
         if (!file_exists($this->districttemplate)) {
             //如果文件不存在的话
-            $content = Common::Debug((new View())->fetch($this->defaultdistricttemplate,
+            $content = $this->Debug((new View())->fetch($this->defaultdistricttemplate,
                 $data
             ), $data);
         } else {
-            $content = Common::Debug((new View())->fetch($this->districttemplate,
+            $content = $this->Debug((new View())->fetch($this->districttemplate,
                 $data
             ), $data);
         }

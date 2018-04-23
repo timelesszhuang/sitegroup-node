@@ -52,7 +52,7 @@ class ArticleList extends EntryCommon
         if (!$this->fileExists($template)) {
             return;
         }
-        return Common::Debug((new View())->fetch($template,
+        return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
     }

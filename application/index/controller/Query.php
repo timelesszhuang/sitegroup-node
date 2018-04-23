@@ -122,7 +122,7 @@ demo;
             'list' => $article,
             'keyword' => $keyword
         ];
-        exit(Common::Debug((new View())->fetch($template,
+        exit($this->Debug((new View())->fetch($template,
             $data
         ), $data));
     }
@@ -179,7 +179,7 @@ demo;
             'list' => $product,
             'keyword' => $keyword
         ];
-        exit(Common::Debug((new View())->fetch($template,
+        exit($this->Debug((new View())->fetch($template,
             $data
         ), $data));
     }
@@ -234,7 +234,7 @@ demo;
             'list' => $question,
             'keyword' => $keyword
         ];
-        exit(Common::Debug((new View())->fetch($template,
+        exit($this->Debug((new View())->fetch($template,
             $data
         ), $data));
     }

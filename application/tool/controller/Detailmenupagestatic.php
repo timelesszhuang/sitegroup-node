@@ -94,7 +94,7 @@ class Detailmenupagestatic extends Common
             //下级列表
             'childlist' => $childmenulist,
         ];
-        $content = Common::Debug((new View())->fetch($template,
+        $content = $this->Debug((new View())->fetch($template,
             $data
         ), $data);
         return $content;

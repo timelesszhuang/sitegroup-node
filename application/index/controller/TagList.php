@@ -73,7 +73,7 @@ class TagList extends EntryCommon
         $data = Cache::remember("articletaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
             return $this->generateArticleList($tag_id, $tag_name, $currentpage);
         }, 0);
-        return Common::Debug((new View())->fetch($template,
+        return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
     }
@@ -152,7 +152,7 @@ class TagList extends EntryCommon
         $data = Cache::remember("questiontaglist_{$tag_id}_{$currentpage}{$this->suffix}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
             return $this->generateQuestionList($tag_id, $tag_name, $siteinfo, $currentpage);
         }, 0);
-        return Common::Debug((new View())->fetch($template,
+        return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
     }
@@ -222,7 +222,7 @@ class TagList extends EntryCommon
         $data = Cache::remember("producttaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
             return $this->generateProductList($tag_id, $tag_name, $currentpage);
         }, 0);
-        return Common::Debug((new View())->fetch($template,
+        return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
     }

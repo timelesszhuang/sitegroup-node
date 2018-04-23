@@ -40,7 +40,7 @@ class Preview extends EntryCommon
             return;
         }
         list($template, $data) = (new Detailstatic())->article_detailinfo($id);
-        $content = Common::Debug((new View())->fetch($template,
+        $content = $this->Debug((new View())->fetch($template,
             $data
         ), $data);
         exit($content);
@@ -67,7 +67,7 @@ class Preview extends EntryCommon
             return;
         }
         list($template, $data) = (new Detailstatic())->question_detailinfo($id);
-        $content = Common::Debug((new View())->fetch($template,
+        $content = $this->Debug((new View())->fetch($template,
             $data
         ), $data);
         exit($content);
@@ -95,7 +95,7 @@ class Preview extends EntryCommon
         }
         list($template, $data) = (new Detailstatic())->product_detailinfo($id);
 
-        $content = Common::Debug((new View())->fetch($template,
+        $content = $this->Debug((new View())->fetch($template,
             $data
         ), $data);
         exit($content);
