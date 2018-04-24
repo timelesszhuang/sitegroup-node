@@ -602,7 +602,7 @@ class Commontool extends Common
             // 子站显示文章
             $where .= ' and  stations ="10"';
         }
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -684,7 +684,7 @@ class Commontool extends Common
             if (!$this->mainsite) {
                 $whereflag .= ' and stations = "10"';
             }
-            $article = Db::name('Article')->where($whereflag)->field($this->articleListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+            $article = Db::name('Article')->where($whereflag)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
             $this->formatArticleList($article, $article_typearr);
             //组织数据
             $article_flaglist[$flag] = [
@@ -717,7 +717,7 @@ class Commontool extends Common
             $where .= ' and stations = "10"';
         }
         //后期可以考虑置顶之类操作
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -839,7 +839,7 @@ class Commontool extends Common
         if (!$this->mainsite) {
             $where .= ' and stations ="10"';
         }
-        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -921,7 +921,7 @@ class Commontool extends Common
             if (!$this->mainsite) {
                 $whereflag .= ' and stations ="10"';
             }
-            $product = Db::name('Product')->where($whereflag)->field($this->productListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+            $product = Db::name('Product')->where($whereflag)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
             $this->formatProductList($product, $product_typearr);
             //组织数据
             $product_flaglist[$flag] = [
@@ -953,7 +953,7 @@ class Commontool extends Common
             $where .= ' and stations ="10"';
         }
         //后期可以考虑置顶之类操作
-        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -1060,7 +1060,7 @@ class Commontool extends Common
         if (!$this->mainsite) {
             $where .= ' and stations ="10"';
         }
-        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -1144,7 +1144,7 @@ class Commontool extends Common
             if (!$this->mainsite) {
                 $whereflag .= ' and stations ="10"';
             }
-            $question = Db::name('Question')->where($whereflag)->field($this->questionListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+            $question = Db::name('Question')->where($whereflag)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
             $this->formatQuestionList($question, $question_typearr);
             //组织数据
             $question_flaglist[$flag] = [
@@ -1176,7 +1176,7 @@ class Commontool extends Common
         if (!$this->mainsite) {
             $where .= ' and stations ="10"';
         }
-        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort'=>'desc','id'=>'desc'])->limit($limit)->select();
+        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -2081,7 +2081,6 @@ code;
     private function getTreeMenuInfo($generate_name, $menu_id)
     {
         $site_name = $this->site_name;
-        $url = $this->siteurl;
         //需要把首页链接追加进来 而且需要在首位
         $menu = (new Menu())->getMergedMenu();
         //循环为树状结构
@@ -2133,7 +2132,7 @@ code;
             //首页默认选中的
             $is_current = true;
         }
-        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => '/', 'content' => '', 'current' => $is_current]);
+        array_unshift($tree, ['id' => 0, 'name' => '首页', 'path' => '', 'p_id' => 0, 'title' => $site_name, 'href' => '/', 'content' => '', 'visibility' => 'show', 'current' => $is_current]);
         return $tree;
     }
 
