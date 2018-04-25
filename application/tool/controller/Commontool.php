@@ -17,7 +17,6 @@ use think\Db;
  */
 class Commontool extends Common
 {
-
     //各个列表的路径规则
     private $articleListPath = '/articlelist/%s.html';
     // 文章列表相关 需要
@@ -641,6 +640,52 @@ class Commontool extends Common
         return $articlealias_list;
     }
 
+
+    /**
+     * 获取菜单下的文章下文章列表 比如 行业新闻菜单 下 行业新闻 科技新闻分类  调取出该分类下的两个文章
+     * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
+     */
+    public function getArticleMenuList($sync_info, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
+        echo '<pre>';
+        print_r($typeid_arr);
+        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
+        print_r($article_typearr);
+        //每个菜单下 的type 组织为数组
+        $menu_typelist = [];
+        foreach ($article_typearr as $k => $v) {
+            $menu_enname = $v['menu_enname'];
+            if (!array_key_exists($menu_enname, $menu_typelist)) {
+                $menu_typelist[$menu_enname] = ['list' => [], 'menu_name' => $v['menu_name']];
+            }
+            array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
+        }
+        print_r($menu_typelist);
+        // 文章菜单列表
+        $articlemenulist = [];
+        foreach ($menu_typelist as $k => $v) {
+            $more = ['title' => $v['menu_name'], 'href' => sprintf($this->articleListPath, $k), 'text' => '更多', 'menu_name' => $v['menu_name']];
+            $articlelist = $this->getArticleTypesList($v['list'], $max_id, $article_typearr, $limit);
+            $articlemenulist[$k] = [
+                'list' => $articlelist,
+                'more' => $more,
+                'menu_name' => $v['menu_name'],
+            ];
+        }
+        return $articlemenulist;
+    }
+
+
     /**
      * 获取产品flag相关list
      * 最多取出10条
@@ -715,6 +760,34 @@ class Commontool extends Common
         $where = " `id`<= {$max_id} and articletype_id = {$type_id}";
         if (!$this->mainsite) {
             $where .= ' and stations = "10"';
+        }
+        //后期可以考虑置顶之类操作
+        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $this->formatArticleList($article, $article_typearr);
+        return $article;
+    }
+
+    /**
+     * 获取多个分类的类型列表
+     * @access public
+     * @param $type_ids 文章分类的ids
+     * @param $max_id  已经静态化到的max_id
+     * @param $article_typearr 文章分类的数组 格式化字段时候使用
+     * @param $limit 每次取出多少
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
+     */
+    public function getArticleTypesList($type_ids, $max_id, $article_typearr, $limit)
+    {
+        $where = [
+            'id' => ['elt', $max_id],
+            'articletype_id' => ['in', $type_ids],
+        ];
+        if (!$this->mainsite) {
+            $where['stations'] = '10';
         }
         //后期可以考虑置顶之类操作
         $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
@@ -879,6 +952,47 @@ class Commontool extends Common
     }
 
     /**
+     * 获取菜单下的文章下文章列表 比如 行业新闻菜单 下 行业新闻 科技新闻分类  调取出该分类下的两个文章
+     * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
+     */
+    public function getProductMenuList($sync_info, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
+        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
+        //每个菜单下 的type 组织为数组
+        $menu_typelist = [];
+        foreach ($product_typearr as $k => $v) {
+            $menu_enname = $v['menu_enname'];
+            if (!array_key_exists($menu_enname, $menu_typelist)) {
+                $menu_typelist[$menu_enname] = ['list' => [], 'menu_name' => $v['menu_name']];
+            }
+            array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
+        }
+        // 文章菜单列表
+        $productmenulist = [];
+        foreach ($menu_typelist as $k => $v) {
+            $more = ['title' => $v['menu_name'], 'href' => sprintf($this->productListPath, $k), 'text' => '更多', 'menu_name' => $v['menu_name']];
+            $productlist = $this->getProductTypesList($v['list'], $max_id, $product_typearr, $limit);
+            $productmenulist[$k] = [
+                'list' => $productlist,
+                'more' => $more,
+                'menu_name' => $v['menu_name'],
+            ];
+        }
+        return $productmenulist;
+    }
+
+
+    /**
      * 获取产品flag 相关list
      * @access public
      * @param $sync_info
@@ -954,6 +1068,35 @@ class Commontool extends Common
         }
         //后期可以考虑置顶之类操作
         $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $this->formatProductList($product, $product_typearr);
+        return $product;
+    }
+
+
+    /**
+     * 获取多个分类的类型列表
+     * @access public
+     * @param $type_ids
+     * @param $max_id
+     * @param $product_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
+     */
+    public function getProductTypesList($type_ids, $max_id, $product_typearr, $limit)
+    {
+        $where = [
+            'id' => ['elt', $max_id],
+            'type_id' => ['in', $type_ids],
+        ];
+        if (!$this->mainsite) {
+            $where['stations'] = '10';
+        }
+        //后期可以考虑置顶之类操作
+        $product = Db::name('product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -1099,6 +1242,73 @@ class Commontool extends Common
         return $questionalias_list;
     }
 
+
+    /**
+     * 获取菜单下的文章下文章列表 比如 问答菜单 下 购买须知 常见疑问分类  调取出该分类下的分类
+     * @access public
+     * @param $sync_info
+     * @param $type_aliasarr
+     * @param $typeid_arr
+     * @param int $limit
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \throwable
+     */
+    public function getQuestionMenuList($sync_info, $typeid_arr, $limit = 10)
+    {
+        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
+        $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
+        //每个菜单下 的type 组织为数组
+        $menu_typelist = [];
+        foreach ($question_typearr as $k => $v) {
+            $menu_enname = $v['menu_enname'];
+            if (!array_key_exists($menu_enname, $menu_typelist)) {
+                $menu_typelist[$menu_enname] = ['list' => [], 'menu_name' => $v['menu_name']];
+            }
+            array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
+        }
+        // 问答菜单列表
+        $questionmenulist = [];
+        foreach ($menu_typelist as $k => $v) {
+            $more = ['title' => $v['menu_name'], 'href' => sprintf($this->questionListPath, $k), 'text' => '更多', 'menu_name' => $v['menu_name']];
+            $questionlist = $this->getQuestionTypesList($v['list'], $max_id, $question_typearr, $limit);
+            $questionmenulist[$k] = [
+                'list' => $questionlist,
+                'more' => $more,
+                'menu_name' => $v['menu_name'],
+            ];
+        }
+        return $questionmenulist;
+    }
+
+    /**
+     * 获取多个分类的类型列表
+     * @access public
+     * @param $type_ids
+     * @param $max_id
+     * @param $question_typearr
+     * @param $limit
+     * @return false|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getQuestionTypesList($type_ids, $max_id, $question_typearr, $limit)
+    {
+        $where = [
+            'id' => ['elt', $max_id],
+            'type_id' => ['in', $type_ids],
+        ];
+        if (!$this->mainsite) {
+            $where['stations'] = '10';
+        }
+        //后期可以考虑置顶之类操作
+        $question = Db::name('question')->where($where)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $this->formatQuestionList($question, $question_typearr);
+        return $question;
+    }
 
     /**
      * 获取产品flag 相关list
@@ -1733,6 +1943,12 @@ code;
         $question_flaglist = $this->getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
         // 产品相关flag
         $product_flaglist = $this->getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        //获取文章形菜单下的所有文章列表 list 以及 more
+        $article_menulist = $this->getArticleMenuList($sync_info, $typeid_arr, 20);
+        //获取问答形菜单下的所有文章列表 list 以及 more
+        $question_menulist = $this->getQuestionMenuList($sync_info, $typeid_arr, 20);
+        //根据产品形菜单下的所有产品列表 list 以及 more
+        $product_menulist = $this->getProductmenuList($sync_info, $typeid_arr, 20);
         //菜单对应的分类的链接  比如 新闻资讯 下 公司新闻 companynews  科技新闻 technews
         $menu_typelist = $this->getMenuTypeList();
         //获取友链
@@ -1757,7 +1973,7 @@ code;
         list($childsite, $childtreesite, $currentsite) = $this->getSiteList();
         //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'article_menulist', 'question_menulist', 'product_menulist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
     }
 
 
