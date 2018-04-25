@@ -657,10 +657,7 @@ class Commontool extends Common
     public function getArticleMenuList($sync_info, $typeid_arr, $limit = 10)
     {
         $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
-        echo '<pre>';
-        print_r($typeid_arr);
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
-        print_r($article_typearr);
         //每个菜单下 的type 组织为数组
         $menu_typelist = [];
         foreach ($article_typearr as $k => $v) {
@@ -670,7 +667,6 @@ class Commontool extends Common
             }
             array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
         }
-        print_r($menu_typelist);
         // 文章菜单列表
         $articlemenulist = [];
         foreach ($menu_typelist as $k => $v) {
