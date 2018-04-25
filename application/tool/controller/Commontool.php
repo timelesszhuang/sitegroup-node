@@ -2212,7 +2212,7 @@ code;
      * 获取页面的分享代码
      * @access private
      */
-    private function get_share_code()
+    public function get_share_code()
     {
         return <<<code
     <div class="bdsharebuttonbox">

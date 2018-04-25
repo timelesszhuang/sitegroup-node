@@ -175,6 +175,17 @@ class Detailstatic extends Common
         return [];
     }
 
+    /**
+     * 添加分享代码
+     * @access private
+     */
+    private function add_share_code($content)
+    {
+        $share_code = (new Commontool())->get_share_code();
+        $content = $content . '<br/>' . $share_code;
+        return $content;
+    }
+
 
     /**
      * 生成单独的文章内容 预览跟重新生成的时候会
@@ -207,6 +218,7 @@ class Detailstatic extends Common
         if ($contentWIthLink) {
             $item['content'] = $contentWIthLink;
         }
+        $item['content'] = $this->add_share_code($item['content']);
         $articletags = [];
         if ($item['tags']) {
             $tag_arr = explode(',', $item['tags']);
@@ -485,6 +497,7 @@ class Detailstatic extends Common
         //页面的描述
         $keywords = $item['keywords'];
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
+        $item['content_paragraph'] = $this->add_share_code($item['content_paragraph']);
         $questiontags = [];
         if ($item['tags']) {
             $tag_arr = explode(',', $item['tags']);
@@ -519,6 +532,7 @@ class Detailstatic extends Common
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
+        $item['detail'] = $this->add_share_code($item['detail']);
         // 相关图片
         $imgser = $item['imgser'];
         $local_img = [];
