@@ -311,7 +311,7 @@ class Detailstatic extends Common
             'pre_page' => $pre_article,
             'next_page' => $next_article,
             'relevant_pages' => $tagsArticleList,
-            'menu_typelist' => $currentmenu_typelist
+            'currentmenu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
     }
@@ -421,7 +421,7 @@ class Detailstatic extends Common
             'pre_page' => $pre_question,
             'next_page' => $next_question,
             'relevant_pages' => $tagsQuestionList,
-            'menu_typelist' => $currentmenu_typelist
+            'currentmenu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
     }
@@ -637,7 +637,7 @@ class Detailstatic extends Common
             'pre_page' => $pre_product,
             'next_page' => $next_product,
             'relevant_pages' => $tagsArticleList,
-            'menu_typelist' => $currentmenu_typelist
+            'currentmenu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
     }
