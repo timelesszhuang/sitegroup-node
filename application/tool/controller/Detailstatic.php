@@ -303,12 +303,15 @@ class Detailstatic extends Common
         $tags = $this->commontool->getTags('article');
         $assign_data = $this->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $menuInfo['generate_name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
+        $type_id = $article['articletype_id'];
+        $currentmenu_typelist = $this->getDetailMenutypeList($type_id, $article_typearr);
         $data = [
             'd' => $assign_data,
             'page' => $article,
             'pre_page' => $pre_article,
             'next_page' => $next_article,
-            'relevant_pages' => $tagsArticleList
+            'relevant_pages' => $tagsArticleList,
+            'menu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
     }
@@ -410,12 +413,15 @@ class Detailstatic extends Common
         $tags = $this->commontool->getTags('article');
         $assign_data = $this->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $menuInfo['generate_name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
+        $type_id = $question['type_id'];
+        $currentmenu_typelist = $this->getDetailMenutypeList($type_id, $question_typearr);
         $data = [
             'd' => $assign_data,
             'page' => $question,
             'pre_page' => $pre_question,
             'next_page' => $next_question,
-            'relevant_pages' => $tagsQuestionList
+            'relevant_pages' => $tagsQuestionList,
+            'menu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
     }
@@ -622,14 +628,50 @@ class Detailstatic extends Common
         $tagsArticleList = $this->getTagProductList($product['tags'], $producttype_idstr, $product_typearr);
         $assign_data = $this->form_perproduct_content($product, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $menuInfo['generate_name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'product');
+        // 需要列出现当前文章所选栏目下的所有分类 以及当前选中
+        $type_id = $product['type_id'];
+        $currentmenu_typelist = $this->getDetailMenutypeList($type_id, $product_typearr);
         $data = [
             'd' => $assign_data,
             'page' => $product,
             'pre_page' => $pre_product,
             'next_page' => $next_product,
-            'relevant_pages' => $tagsArticleList
+            'relevant_pages' => $tagsArticleList,
+            'menu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
+    }
+
+
+    /**
+     * 获取详情页面的所属栏目的 type列表 包含当前
+     * @access public
+     */
+    public function getDetailMenutypeList($type_id, $type_arr)
+    {
+        $menutype_list = [];
+        //当前的菜单的英文名
+        $currentmenu_enname = '';
+        $currentmenu_name = '';
+        foreach ($type_arr as $k => $v) {
+            $menu_enname = $v['menu_enname'];
+            if (!array_key_exists($menu_enname, $menutype_list)) {
+                $menutype_list[$menu_enname] = [];
+            }
+            $current = $v['type_id'] == $type_id ? true : false;
+            if ($currentmenu_enname == '' && $current) {
+                $currentmenu_enname = $v['menu_enname'];
+                $currentmenu_name = $v['menu_name'];
+            }
+            $type = [
+                'href' => $v['href'],
+                'text' => $v['type_name'],
+                'title' => $v['type_name'],
+                'current' => $current
+            ];
+            array_push($menutype_list[$menu_enname], $type);
+        }
+        return ['list' => $menutype_list[$currentmenu_enname], 'menu_name' => $currentmenu_name, 'menu_enname' => $currentmenu_enname];
     }
 
 
