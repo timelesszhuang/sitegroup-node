@@ -79,7 +79,7 @@ class QuestionList extends EntryCommon
         $menu_id = $menu_info->id;
         //列表页多少条分页
         $listsize = $menu_info->listsize ?: 10;
-        $assign_data = $this->commontool->getEssentialElement($menu_info->generate_name, $menu_info->name, $menu_info->id, 'questionlist');
+        $assign_data = $this->commontool->getEssentialElement($menu_info->generate_name, ['menu_name' => $menu_info->name, 'menu_enname' => $menu_info->generate_name], $menu_info->id, 'questionlist');
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         $sync_info = $this->commontool->getDbArticleListId();
         $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;

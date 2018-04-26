@@ -11,7 +11,6 @@
 
 use think\Route;
 
-
 //只有当后缀是 html 的元素的时候才会有
 //当请求文章列表 的时候 首先隐藏 index.php
 Route::get('newslist/:id', 'index/NewsList/index', ['ext' => 'html']);

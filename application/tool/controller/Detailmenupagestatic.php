@@ -44,7 +44,7 @@ class Detailmenupagestatic extends Common
         if (!$this->fileExists($template)) {
             return false;
         }
-        $assign_data = $this->commontool->getEssentialElement($v['generate_name'], $v['name'], $v['id']);
+        $assign_data = $this->commontool->getEssentialElement($v['generate_name'], ['menu_name' => $v['name'], 'menu_enname' => $v['generate_name']], $v['id']);
         //获取该详情形式下级的菜单相关内容
         $childmenu = (new \app\tool\model\Menu)->Where('p_id', $menu_id)->Where('flag', '1')->Where('node_id', $this->node_id)->field('id,name,generate_name,title,content,covertemplate')->order('sort', 'desc')->select();
         //同级的菜单列表

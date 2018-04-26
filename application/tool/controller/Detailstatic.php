@@ -191,7 +191,7 @@ class Detailstatic extends Common
      * 生成单独的文章内容 预览跟重新生成的时候会
      * @access public
      */
-    public function form_perarticle_content(&$item, $keyword_id, $menu_id, $menu_name, $tags)
+    public function form_perarticle_content(&$item, $keyword_id, $menu_id, $menu_name, $menu_enname, $tags)
     {
         //截取出 页面的 description 信息
         $description = mb_substr(strip_tags($item['content']), 0, 200);
@@ -202,7 +202,7 @@ class Detailstatic extends Common
         //页面的关键词
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
-        $assign_data = $this->commontool->getEssentialElement($item, $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'article');
+        $assign_data = $this->commontool->getEssentialElement($item, $summary, $keywords, $keyword_id, $menu_id, ['menu_name' => $menu_name, 'menu_enname' => $menu_enname], 'article');
         if ($item['thumbnails_name']) {
             //表示是oss的
             $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString, $this->waterImgUrl);
@@ -301,7 +301,7 @@ class Detailstatic extends Common
         $articletype_idstr = implode(',', array_keys($article_typearr));
         $tagsArticleList = $this->getTagArticleList($article['tags'], $articletype_idstr, $article_typearr);
         $tags = $this->commontool->getTags('article');
-        $assign_data = $this->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
+        $assign_data = $this->form_perarticle_content($article, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $menuInfo['generate_name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'article');
         $data = [
             'd' => $assign_data,
@@ -408,7 +408,7 @@ class Detailstatic extends Common
         $questiontype_idstr = implode(',', array_keys($question_typearr));
         $tagsQuestionList = $this->getTagArticleList($question['tags'], $questiontype_idstr, $question_typearr);
         $tags = $this->commontool->getTags('article');
-        $assign_data = $this->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
+        $assign_data = $this->form_perquestion($question, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $menuInfo['generate_name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'question');
         $data = [
             'd' => $assign_data,
@@ -488,7 +488,7 @@ class Detailstatic extends Common
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
      */
-    public function form_perquestion(&$item, $keyword_id, $menu_id, $menu_name, $tags)
+    public function form_perquestion(&$item, $keyword_id, $menu_id, $menu_name, $menu_enname, $tags)
     {
         $description = $item['description'];
         $description = $description ?: mb_substr(strip_tags($item['content_paragraph']), 0, 200);
@@ -508,7 +508,7 @@ class Detailstatic extends Common
             }
         }
         $item['tags'] = $questiontags;
-        $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['question']], $description, $keywords, $keyword_id, $menu_id, $menu_name, 'question');
+        $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['question']], $description, $keywords, $keyword_id, $menu_id, ['menu_name' => $menu_name, 'menu_enname' => $menu_enname], 'question');
         return $assign_data;
     }
 
@@ -517,7 +517,7 @@ class Detailstatic extends Common
      * 生成单个产品 因为不用考虑定期生成 多少篇
      * @access public
      */
-    public function form_perproduct_content(&$item, $keyword_id, $menu_id, $menu_name, $tags)
+    public function form_perproduct_content(&$item, $keyword_id, $menu_id, $menu_name, $menu_enname, $tags)
     {
         //截取出 页面的 description 信息
         $description = mb_substr(strip_tags($item['summary']), 0, 200);
@@ -526,7 +526,7 @@ class Detailstatic extends Common
         $summary = mb_substr(strip_tags($summary), 0, 70);
         $keywords = $item['keywords'];
         //获取网站的 tdk 文章列表等相关 公共元素
-        $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['name']], $summary, $keywords, $keyword_id, $menu_id, $menu_name, 'product');
+        $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['name']], $summary, $keywords, $keyword_id, $menu_id, ['menu_name' => $menu_name, 'menu_enname' => $menu_enname], 'product');
         if ($item['image_name']) {
             $this->get_osswater_img($item['image'], $item['image_name'], $this->waterString, $this->waterImgUrl);
         }
@@ -620,7 +620,7 @@ class Detailstatic extends Common
         $producttype_idstr = implode(',', array_keys($product_typearr));
         $tags = $this->commontool->getTags('product');
         $tagsArticleList = $this->getTagProductList($product['tags'], $producttype_idstr, $product_typearr);
-        $assign_data = $this->form_perproduct_content($product, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $tags);
+        $assign_data = $this->form_perproduct_content($product, $sitePageInfo['akeyword_id'], $menuInfo['id'], $menuInfo['name'], $menuInfo['generate_name'], $tags);
         $template = $this->getTemplate('detail', $menuInfo['id'], 'product');
         $data = [
             'd' => $assign_data,

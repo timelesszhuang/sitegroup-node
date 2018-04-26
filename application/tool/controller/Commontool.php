@@ -1845,12 +1845,14 @@ code;
                 //Breadcrumb 面包屑
                 $breadcrumb = $this->getBreadCrumb($allmenu);
                 $menu_name = '首页';
+                $menu_enname = 'home';
                 break;
             case 'menu':
                 //菜单 页面的TDK 分为两种 一种是已经存在的 另外一种为详情形式的列表 栏目的英文名
                 $page_id = $param;
                 //栏目名
-                $menu_name = $param2;
+                $menu_name = $param2['menu_name'];
+                $menu_enname = $param2['menu_enname'];
                 //栏目的id
                 $menu_id = $param3;
                 //文章分类的id
@@ -1876,7 +1878,8 @@ code;
                 //当前栏目的id
                 $menu_id = $param5;
                 //当前栏目的name
-                $menu_name = $param6;
+                $menu_name = $param6['menu_name'];
+                $menu_enname = $param6['menu_enname'];
                 $type = $param7;
                 list($title, $keyword, $description) = $this->getDetailPageTDK($page_id, $type, $keyword_info, $articletitle, $articlecontent, $keywords, $a_keyword_id);
                 //获取详情页面的面包屑
@@ -1890,6 +1893,7 @@ code;
                 //面包屑是空的
                 $breadcrumb = $this->getBreadCrumb($allmenu);
                 $menu_name = '活动创意';
+                $menu_enname = 'Activity';
                 break;
             case 'query':
                 //查询操作
@@ -1898,6 +1902,7 @@ code;
                 $description = $param3;
                 $breadcrumb = $this->getBreadCrumb($allmenu);
                 $menu_name = '查询结果';
+                $menu_enname = 'Query Result';
                 break;
             case 'tag':
                 //文章之类的标签
@@ -1906,7 +1911,8 @@ code;
                 //随机选择一个a类关键词组织页面的list相关信息
                 list($title, $keyword, $description) = $this->getTaglistPageTDK($keyword_info, $tag_name);
                 $breadcrumb = $this->getBreadCrumb($allmenu);
-                $menu_name = '查询结果';
+                $menu_name = '标签列表';
+                $menu_enname = 'Tag List';
                 break;
             case 'district':
                 //区域信息
@@ -1916,7 +1922,8 @@ code;
                 $keyword = $this->site_name . '站点列表';
                 $description = $this->site_name . '站点列表';
                 $breadcrumb = $this->getBreadCrumb($allmenu);
-                $menu_name = '查询结果';
+                $menu_name = '子站列表';
+                $menu_enname = 'Child Site List';
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
@@ -1969,7 +1976,7 @@ code;
         list($childsite, $childtreesite, $currentsite) = $this->getSiteList();
         //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'article_menulist', 'question_menulist', 'product_menulist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'menu_enname', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'article_menulist', 'question_menulist', 'product_menulist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
     }
 
 
