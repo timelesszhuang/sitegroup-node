@@ -1544,20 +1544,20 @@ class Commontool extends Common
     public function getJsPingBaidu()
     {
         return <<<code
-<script>
-(function(){
-    var bp = document.createElement('script');
-    var curProtocol = window.location.protocol.split(':')[0];
-    if (curProtocol === 'https') {
-        bp.src = 'https://zz.bd.com/linksubmit/push.js';
-    }
-    else {
-        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-    }
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(bp, s);
-})();
-</script>
+        <script>
+            (function(){
+                var bp = document.createElement('script');
+                var curProtocol = window.location.protocol.split(':')[0];
+                if (curProtocol === 'https') {
+                    bp.src = 'https://zz.bd.com/linksubmit/push.js';
+                }
+                else {
+                    bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+                }
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(bp, s);
+            })();
+        </script>
 code;
     }
 
@@ -2264,7 +2264,7 @@ code;
     private function getImgList()
     {
         $node_id = $this->node_id;
-        return Cache::remember('imglist', function () use ($node_id) {
+        return Cache::remember('imgset', function () use ($node_id) {
             $imglist = Db::name('imglist')->where('node_id', $node_id)->where('status', '10')->select();
             $imgset = [];
             foreach ($imglist as $imgs) {
