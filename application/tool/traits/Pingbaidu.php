@@ -51,7 +51,7 @@ trait Pingbaidu
      * ping百度程序
      * @param $data
      */
-    public function pingBaidu($api, $urls)
+    private function pingBaidu($api, $urls)
     {
 //        print_r($api);
 //        print_r($urls);

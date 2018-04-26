@@ -22,7 +22,6 @@ class Detailstatic extends Common
     public $typeid_arr = '';
     public $commontool;
 
-
     public function __construct()
     {
         parent::__construct();
@@ -50,6 +49,7 @@ class Detailstatic extends Common
      */
     public function setStaticCount()
     {
+        //需要推送到百度后台
         $default_count = self::$system_default_count;
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
@@ -85,6 +85,7 @@ class Detailstatic extends Common
                     ]);
                 }
             }
+            $this->formBaiduUrls($article_ids, 'article');
         }
         if ($questiontypeid_str) {
             $questionpre_stop = $this->detail_maxid('question');
@@ -106,6 +107,7 @@ class Detailstatic extends Common
                         'count' => $questionmax_id
                     ]);
                 }
+                $this->formBaiduUrls($question_ids, 'question');
             }
         }
         if ($producttypeid_str) {
@@ -129,9 +131,37 @@ class Detailstatic extends Common
                         'count' => $productmax_id
                     ]);
                 }
-
+                $this->formBaiduUrls($product_ids, 'product');
             }
         }
+    }
+
+
+    /**
+     * 生成并添加百度的url到缓存中
+     * @access public
+     */
+    public function formBaiduUrls($ids, $type)
+    {
+        $urls = [];
+        switch ($type) {
+            case 'article':
+                foreach ($ids as $id) {
+                    array_push($urls, sprintf($this->articleaccesspath, $id));
+                }
+                break;
+            case 'product':
+                foreach ($ids as $id) {
+                    array_push($urls, sprintf($this->productaccesspath, $id));
+                }
+                break;
+            case 'question':
+                foreach ($ids as $id) {
+                    array_push($urls, sprintf($this->questionaccesspath, $id));
+                }
+                break;
+        }
+        $this->urlsCache($urls);
     }
 
 
