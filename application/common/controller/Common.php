@@ -266,7 +266,9 @@ class Common extends Controller
         $endpoint = Config::get('oss.endpoint');
         $bucket = Config::get('oss.bucket');
         $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
-        $imglist = Db::name('imglist')->where('node_id', $this->node_id)->where('status', '10')->select();
+        $imglist = cache::remember('imglist', function () {
+            return Db::name('imglist')->where('node_id', $this->node_id)->where('status', '10')->select();
+        });
         foreach ($imglist as $v) {
             $imgser = $v['imgser'];
             if ($imgser) {
