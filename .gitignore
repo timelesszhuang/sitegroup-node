@@ -22,3 +22,4 @@ composer.phar
 将删除 public/log/questionlist.txt
 将删除 application/common/model/
 /thinkphp/
+/runtime
