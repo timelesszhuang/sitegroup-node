@@ -6,6 +6,7 @@ composer.phar
 .idea/modules.xml
 .idea/vcs.xml
 /thinkphp/*
+/application/extra/site.php
 # Commit your application's lock file http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file
 # You may choose to ignore a library lock file http://getcomposer.org/doc/02-libraries.md#lock-file
 # composer.lock
@@ -19,6 +20,5 @@ composer.phar
 将删除 public/article/article265.html
 将删除 public/log/index.txt
 将删除 public/log/questionlist.txt
-/application/extra/
 将删除 application/common/model/
 /thinkphp/
