@@ -446,6 +446,7 @@ class Common extends Controller
     }
 
 
+
     /**
      * 获取站点id
      */

@@ -21,9 +21,6 @@ class EntryCommon extends Common
     use SearchEngineComefrom;
 
 
-
-
-
     /**
      * 浏览页面之后的公共操作
      * @access public
@@ -31,11 +28,12 @@ class EntryCommon extends Common
     public function entryCommon()
     {
         $uri = $_SERVER['REQUEST_URI'];
-        $absolutepath =$_SERVER['REQUEST_SCHEME']."://" . $_SERVER['HTTP_HOST'] . $uri;
+        $absolutepath = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . $uri;
         $this->spidercomefrom($this->siteinfo, $absolutepath);
         $this->pv($this->siteinfo, $absolutepath);
         //获取请求的useragent
         $this->pagecomefrom($this->siteinfo, $absolutepath);
     }
+
 
 }
