@@ -8,7 +8,6 @@ use app\index\model\Producttype;
 use app\index\model\QuestionType;
 use app\tool\model\Activity;
 use think\Cache;
-use think\Config;
 use think\Db;
 
 
@@ -1625,7 +1624,7 @@ code;
         $id = $this->siteinfo['sitelogo_id'];
         $site_name = $this->siteinfo['site_name'];
         if (!$id) {
-            return $site_name;
+            return [$site_name, ''];
         }
         $site_id = $this->siteinfo['id'];
         $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($id) {
@@ -1639,11 +1638,11 @@ code;
                 if (array_key_exists('extension', $pathinfo)) {
                     $ext = '.' . $pathinfo['extension'];
                 }
-                return "<img src='/images/logo{$site_id}{$ext}' title='$site_name' alt='$site_name'>";
+                $path = "/images/logo{$site_id}{$ext}";
+                return ["<img src='{$path}' title='$site_name' alt='$site_name'>", $path];
             }
-            return $site_name;
+            return [$site_name, ''];
         });
-
     }
 
 
@@ -1777,7 +1776,7 @@ code;
     public function getEssentialElement($param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '', $param7 = '', $suffix = '', $mainsite = true, $district_name = '')
     {
         //获取站点的logo
-        $logo = $this->getSiteLogo();
+        list($logo, $logosrc) = $this->getSiteLogo();
         $keyword_info = (new Keyword())->getKeywordInfo();
         //菜单如果是 详情页面 也就是 文章内容页面  详情类型的 需要 /
         //该站点的网址
@@ -1976,7 +1975,7 @@ code;
         list($childsite, $childtreesite, $currentsite) = $this->getSiteList();
         //获取站点list
         //其中tdk是已经嵌套完成的html代码title keyword description为单独的代码。
-        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'menu_enname', 'logo', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'article_menulist', 'question_menulist', 'product_menulist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
+        return compact('breadcrumb', 'com_name', 'url', 'site_name', 'menu_name', 'menu_enname', 'logo', 'logosrc', 'contact', 'beian', 'copyright', 'powerby', 'getcontent', 'tdk', 'title', 'keyword', 'description', 'share', 'm_url', 'redirect_code', 'menu', 'imgset', 'activity', 'activity_small', 'activity_en', 'partnersite', 'pre_head_js', 'after_head_js', 'article_list', 'question_list', 'product_list', 'article_more', 'article_typelist', 'question_typelist', 'product_typelist', 'article_flaglist', 'question_flaglist', 'product_flaglist', 'article_menulist', 'question_menulist', 'product_menulist', 'menu_typelist', 'childsite', 'childtreesite', 'currentsite');
     }
 
 
