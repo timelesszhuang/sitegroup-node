@@ -8,7 +8,6 @@
 
 namespace app\index\controller;
 
-use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\index\model\Product;
 use app\index\model\Question;
@@ -91,6 +90,7 @@ class TagList extends EntryCommon
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function generateArticleList($tag_id, $tag_name, $currentpage)
     {

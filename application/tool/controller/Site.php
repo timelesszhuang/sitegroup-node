@@ -3,14 +3,11 @@
 namespace app\tool\controller;
 
 use app\tool\model\UserDefinedForm as userForm;
-use app\index\model\Pv;
 use app\tool\model\Rejection;
 use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
 use app\tool\model\SiteUser;
 use app\tool\model\UserDefinedForm;
-use app\tool\traits\FileExistsTraits;
-use think\Cache;
 use think\Config;
 use think\Db;
 use think\Request;

@@ -12,7 +12,6 @@ use app\tool\controller\Site;
 use app\tool\traits\FileExistsTraits;
 use app\tool\traits\Osstrait;
 use app\tool\traits\Params;
-use app\tool\traits\Pingbaidu;
 use app\tool\traits\Template;
 use think\Config;
 use think\Controller;
@@ -24,7 +23,6 @@ class Common extends Controller
 {
     use FileExistsTraits;
     use Osstrait;
-    use Pingbaidu;
     use Params;
     use Template;
 
@@ -164,6 +162,19 @@ class Common extends Controller
             $this->suffix = $suffix;
             $this->mainsite = false;
             $this->getDistrictInfo($suffix);
+        }
+    }
+
+    /**
+     * 代码测试打印
+     * @param $data
+     */
+    public function print_pre($data, $exit = false)
+    {
+        echo '<pre>';
+        print_r($data);
+        if ($exit) {
+            exit;
         }
     }
 
@@ -444,7 +455,6 @@ class Common extends Controller
             'msg' => $msg
         ];
     }
-
 
 
     /**

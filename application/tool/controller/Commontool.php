@@ -591,6 +591,7 @@ class Commontool extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
     public function getTypesArticleList($max_id, $article_typearr, $limit)
     {
@@ -617,6 +618,7 @@ class Commontool extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
     public function getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -658,11 +660,16 @@ class Commontool extends Common
         $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         //每个菜单下 的type 组织为数组
+        $this->print_pre($article_typearr);
         $menu_typelist = [];
         foreach ($article_typearr as $k => $v) {
             $menu_enname = $v['menu_enname'];
+            $childMenuTypeids = [];
             if (!array_key_exists($menu_enname, $menu_typelist)) {
                 $menu_typelist[$menu_enname] = ['list' => [], 'menu_name' => $v['menu_name']];
+                //同时还需要取出子栏目的type_ids
+                $childMenuTypeids = $this->getChildMenuTypelists($v['menu_id']);
+                $menu_typelist[$menu_enname]['list'] = $childMenuTypeids;
             }
             array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
         }
@@ -678,6 +685,24 @@ class Commontool extends Common
             ];
         }
         return $articlemenulist;
+    }
+
+
+    /**
+     * 获取 子菜单选择的所有分类ids
+     * @param $pmenuid 父菜单的id
+     * @return array
+     */
+    private function getChildMenuTypelists($pmenuid)
+    {
+        $idlists = [];
+        $menuinfo = (new Menu())->getMenuInfo();
+        foreach ($menuinfo as $k => $v) {
+            if (strpos($v['path'], ",$pmenuid,") !== false) {
+                $idlists = array_merge($idlists, array_filter(explode(',', $v['type_id'])));
+            }
+        }
+        return $idlists;
     }
 
 
@@ -971,6 +996,9 @@ class Commontool extends Common
             $menu_enname = $v['menu_enname'];
             if (!array_key_exists($menu_enname, $menu_typelist)) {
                 $menu_typelist[$menu_enname] = ['list' => [], 'menu_name' => $v['menu_name']];
+                //同时还需要取出子栏目的type_ids
+                $childMenuTypeids = $this->getChildMenuTypelists($v['menu_id']);
+                $menu_typelist[$menu_enname]['list'] = $childMenuTypeids;
             }
             array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
         }
@@ -1263,6 +1291,9 @@ class Commontool extends Common
             $menu_enname = $v['menu_enname'];
             if (!array_key_exists($menu_enname, $menu_typelist)) {
                 $menu_typelist[$menu_enname] = ['list' => [], 'menu_name' => $v['menu_name']];
+                //同时还需要取出子栏目的type_ids
+                $childMenuTypeids = $this->getChildMenuTypelists($v['menu_id']);
+                $menu_typelist[$menu_enname]['list'] = $childMenuTypeids;
             }
             array_push($menu_typelist[$menu_enname]['list'], $v['type_id']);
         }

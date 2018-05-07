@@ -85,7 +85,6 @@ class Detailstatic extends Common
                     ]);
                 }
             }
-            $this->formBaiduUrls($article_ids, 'article');
         }
         if ($questiontypeid_str) {
             $questionpre_stop = $this->detail_maxid('question');
@@ -107,7 +106,6 @@ class Detailstatic extends Common
                         'count' => $questionmax_id
                     ]);
                 }
-                $this->formBaiduUrls($question_ids, 'question');
             }
         }
         if ($producttypeid_str) {
@@ -131,38 +129,10 @@ class Detailstatic extends Common
                         'count' => $productmax_id
                     ]);
                 }
-                $this->formBaiduUrls($product_ids, 'product');
             }
         }
     }
 
-
-    /**
-     * 生成并添加百度的url到缓存中
-     * @access public
-     */
-    public function formBaiduUrls($ids, $type)
-    {
-        $urls = [];
-        switch ($type) {
-            case 'article':
-                foreach ($ids as $id) {
-                    array_push($urls, sprintf($this->articleaccesspath, $id));
-                }
-                break;
-            case 'product':
-                foreach ($ids as $id) {
-                    array_push($urls, sprintf($this->productaccesspath, $id));
-                }
-                break;
-            case 'question':
-                foreach ($ids as $id) {
-                    array_push($urls, sprintf($this->questionaccesspath, $id));
-                }
-                break;
-        }
-        $this->urlsCache($urls);
-    }
 
 
     /**
@@ -523,6 +493,7 @@ class Detailstatic extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function form_perquestion(&$item, $keyword_id, $menu_id, $menu_name, $menu_enname, $tags)
     {

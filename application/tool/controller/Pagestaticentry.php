@@ -4,9 +4,7 @@ namespace app\tool\controller;
 
 use app\common\controller\Common;
 use think\Cache;
-use think\Config;
 use think\Db;
-use think\Request;
 
 /**
  * 页面静态化 入口文件
@@ -34,9 +32,8 @@ class Pagestaticentry extends Common
     {
         // 详情页面生成
         (new Detailstatic())->setStaticCount();
-        $this->pingEngine();
         // 详情类性的页面的静态化
-        exit(['status' => 'success', 'msg' => '静态化生成完成。']);
+        exit(json_encode(['status' => 'success', 'msg' => '静态化生成完成。']));
     }
 
     /**
@@ -51,8 +48,7 @@ class Pagestaticentry extends Common
         //重置下站点的已经同步到的地方
         Db::name('ArticleSyncCount')->where(['site_id' => $this->site_id, 'node_id' => $this->node_id])->update(['count' => 0]);
         (new Detailstatic())->setStaticCount();
-        $this->pingEngine();
-        exit(['status' => 'success', 'msg' => '静态化生成完成。']);
+        exit(json_encode(['status' => 'success', 'msg' => '静态化生成完成。']));
     }
 
 }

@@ -8,18 +8,13 @@
 
 namespace app\tool\traits;
 
-use app\index\model\Question;
-use app\index\model\ScatteredTitle;
+
 use app\tool\controller\Site;
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\ArticleReplaceKeyword;
 use app\tool\model\SiteErrorInfo;
-use app\tool\model\SitePageinfo;
-use think\Cache;
 use app\tool\model\SystemConfig;
-use think\Config;
-use think\View;
 
 trait FileExistsTraits
 {
@@ -119,6 +114,11 @@ trait FileExistsTraits
      * 组织a链接
      * @param $node_id
      * @param $site_id
+     * @param $content
+     * @return bool|string
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function contentJonintALink($node_id, $site_id, $content)
     {

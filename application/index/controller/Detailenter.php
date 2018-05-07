@@ -2,7 +2,6 @@
 
 namespace app\index\controller;
 
-use app\common\controller\Common;
 use app\common\controller\EntryCommon;
 use app\tool\controller\Activitystatic;
 use app\tool\controller\Commontool;

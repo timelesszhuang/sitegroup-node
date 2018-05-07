@@ -10,7 +10,6 @@
 namespace app\tool\traits;
 
 use app\tool\controller\Commontool;
-use think\Config;
 
 trait Params
 {
