@@ -89,8 +89,8 @@ class ProductList extends EntryCommon
         $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
         //取出当前栏目下级的文章分类 根据path 中的menu_id
         $typeid_str = implode(',', $typeidarr);
+        $wheretemplate = "id <={$productmax_id} and node_id={$this->node_id} and type_id in (%s)";
         if ($typeid_str && $productmax_id) {
-            $wheretemplate = "id <={$productmax_id} and node_id={$this->node_id} and type_id in (%s)";
             if (!$this->mainsite) {
                 $wheretemplate .= ' and stations = "10"';
             }
