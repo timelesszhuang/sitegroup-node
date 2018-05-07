@@ -660,7 +660,6 @@ class Commontool extends Common
         $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         //每个菜单下 的type 组织为数组
-        $this->print_pre($article_typearr);
         $menu_typelist = [];
         foreach ($article_typearr as $k => $v) {
             $menu_enname = $v['menu_enname'];
