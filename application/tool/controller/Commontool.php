@@ -692,6 +692,7 @@ class Commontool extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
     public function getArticleFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
     {
@@ -749,6 +750,7 @@ class Commontool extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
     public function getTypeArticleList($type_id, $max_id, $article_typearr, $limit)
     {
@@ -1766,12 +1768,13 @@ code;
      * @param string $suffix
      * @param bool $mainsite
      * @param string $district_name
-     * @return array
      * @throws \think\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
+     * @return array
      */
     public function getEssentialElement($param = '', $param2 = '', $param3 = '', $param4 = '', $param5 = '', $param6 = '', $param7 = '', $suffix = '', $mainsite = true, $district_name = '')
     {
@@ -2306,7 +2309,6 @@ code;
         //创建基于主键的数组引用
         $refer = array();
         foreach ($menu as $key => $data) {
-            unset($data['generate_name']);
             unset($data['flag']);
             unset($data['type_id']);
             unset($data['detailtemplate']);
