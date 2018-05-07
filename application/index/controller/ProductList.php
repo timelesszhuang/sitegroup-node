@@ -90,10 +90,10 @@ class ProductList extends EntryCommon
         //取出当前栏目下级的文章分类 根据path 中的menu_id
         $typeid_str = implode(',', $typeidarr);
         $wheretemplate = "id <={$productmax_id} and node_id={$this->node_id} and type_id in (%s)";
+        if (!$this->mainsite) {
+            $wheretemplate .= ' and stations = "10"';
+        }
         if ($typeid_str && $productmax_id) {
-            if (!$this->mainsite) {
-                $wheretemplate .= ' and stations = "10"';
-            }
             //获取当前type_id的文章
             $productlist = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
                 ->paginate($listsize, false, [

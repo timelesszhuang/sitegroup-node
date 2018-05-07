@@ -96,79 +96,80 @@ class ArticleList extends EntryCommon
         $typelist = [];
         $siblingstypelist = [];
         //需要获取到当前分类下的所有二级目录
-        if ($articlemax_id) {
-            //该栏目下的所有分类id 包含子menu的分类
-            $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
-            //取出当前栏目下级的文章分类 根据path 中的menu_id
-            $typeid_str = implode(',', $typeidarr);
-            $where_template = "id <=$articlemax_id and node_id={$this->node_id} and articletype_id in (%s)";
-            if (!$this->mainsite) {
-                $where_template .= ' and stations = "10"';
+        //该栏目下的所有分类id 包含子menu的分类
+        $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
+        //取出当前栏目下级的文章分类 根据path 中的menu_id
+        $typeid_str = implode(',', $typeidarr);
+        $where_template = "id <=$articlemax_id and node_id={$this->node_id} and articletype_id in (%s)";
+        if (!$this->mainsite) {
+            $where_template .= ' and stations = "10"';
+        }
+        if ($typeid_str && $articlemax_id) {
+            //获取当前type_id的文章
+            $article = (new \app\index\model\Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
+                ->paginate($listsize, false, [
+                    'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
+                    'page' => $currentpage
+                ]);
+            $this->commontool->formatArticleList($article, $article_typearr);
+        }
+        //取出当前菜单的列表 不包含子菜单的
+        if ($type_id != 0) {
+            $typeid_str = "$type_id";
+        } else {
+            $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
+        }
+        if ($typeid_str) {
+            $currentarticle = (new \app\index\model\Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
+                ->paginate($listsize, false, [
+                    'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
+                    'page' => $currentpage
+                ]);
+            $this->commontool->formatArticleList($currentarticle, $article_typearr);
+        }
+        foreach ($typeidarr as $ptype_id) {
+            $current = false;
+            if ($type_id == $ptype_id) {
+                $current = true;
             }
-            if ($typeid_str) {
-                //获取当前type_id的文章
-                $article = (new \app\index\model\Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
-                    ->paginate($listsize, false, [
-                        'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
-                        'page' => $currentpage
-                    ]);
-                $this->commontool->formatArticleList($article, $article_typearr);
+            if (!array_key_exists($ptype_id, $article_typearr)) {
+                // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
+                continue;
             }
-            //取出当前菜单的列表 不包含子菜单的
-            if ($type_id != 0) {
-                $typeid_str = "$type_id";
-            } else {
-                $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
-            }
-            if ($typeid_str) {
-                $currentarticle = (new \app\index\model\Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
-                    ->paginate($listsize, false, [
-                        'path' => url('/articlelist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
-                        'page' => $currentpage
-                    ]);
-                $this->commontool->formatArticleList($currentarticle, $article_typearr);
-            }
-            foreach ($typeidarr as $ptype_id) {
-                $current = false;
-                if ($type_id == $ptype_id) {
-                    $current = true;
-                }
-                if (!array_key_exists($ptype_id, $article_typearr)) {
-                    // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
-                    continue;
-                }
-                $type_info = $article_typearr[$ptype_id];
+            $type_info = $article_typearr[$ptype_id];
+            $list = [];
+            if ($articlemax_id) {
                 $list = $this->commontool->getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 20);
-                $typelist[] = [
-                    'text' => $type_info['type_name'],
-                    'href' => $type_info['href'],
-                    //当前为true
-                    'current' => $current,
-                    'list' => $list
-                ];
             }
-            //获取当前菜单的同级别菜单
-            $flag = 3;
-            $sibilingtypeidarr = $this->commontool->getMenuSiblingMenuTypeid($menu_id, $flag);
-            foreach ($sibilingtypeidarr as $ptype_id) {
-                $current = false;
-                if ($type_id == $ptype_id) {
-                    $current = true;
-                }
-                if (!array_key_exists($ptype_id, $article_typearr)) {
-                    // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
-                    continue;
-                }
-                $type_info = $article_typearr[$ptype_id];
-                $list = $this->commontool->getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 20);
-                $siblingstypelist[] = [
-                    'text' => $type_info['type_name'],
-                    'href' => $type_info['href'],
-                    //当前为true
-                    'current' => $current,
-                    'list' => $list
-                ];
+            $typelist[] = [
+                'text' => $type_info['type_name'],
+                'href' => $type_info['href'],
+                //当前为true
+                'current' => $current,
+                'list' => $list
+            ];
+        }
+        //获取当前菜单的同级别菜单
+        $flag = 3;
+        $sibilingtypeidarr = $this->commontool->getMenuSiblingMenuTypeid($menu_id, $flag);
+        foreach ($sibilingtypeidarr as $ptype_id) {
+            $current = false;
+            if ($type_id == $ptype_id) {
+                $current = true;
             }
+            if (!array_key_exists($ptype_id, $article_typearr)) {
+                // 表示菜单中虽然选择了该菜单    但是分类中没有已经删除掉了
+                continue;
+            }
+            $type_info = $article_typearr[$ptype_id];
+            $list = $this->commontool->getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 20);
+            $siblingstypelist[] = [
+                'text' => $type_info['type_name'],
+                'href' => $type_info['href'],
+                //当前为true
+                'current' => $current,
+                'list' => $list
+            ];
         }
         $assign_data['menu_id'] = $menu_id;
         return [
