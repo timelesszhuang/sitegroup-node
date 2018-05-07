@@ -161,8 +161,6 @@ class ProductList extends EntryCommon
                 'list' => $list
             ];
         }
-
-        $this->print_pre($typelist, true);
         $assign_data['menu_id'] = $menu_id;
         //说明每个列表作用
         return [
