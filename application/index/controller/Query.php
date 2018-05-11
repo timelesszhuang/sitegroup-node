@@ -79,12 +79,9 @@ demo;
      */
     public function articleIndex($type, $page, $keyword)
     {
-        $siteinfo = \app\tool\controller\Site::getSiteInfo();
         //该网站已经同步到的id
-        $sync_info = $this->commontool->getDbArticleListId();
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //获取当前的 typeid_arr
-        $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $typeidarr = [];
         if ($article_typearr) {
@@ -94,16 +91,11 @@ demo;
             //没有分类的情况下
             $article = [];
         } else {
-            $where = [
-                'id' => ['elt', $articlemax_id],
-                'articletype_id' => ['in', $typeidarr],
-                'title|content' => ['like', "%$keyword%"],
-            ];
-            if (!$this->mainsite) {
-                $where['stations'] = '10';
-            }
+            list($where, $articlemax_id) = $this->commontool->getArticleQueryWhere();
+            $where = sprintf($where, implode(',', $typeidarr));
+            $where .= " and (title like '%$keyword%' or content like '$keyword')";
             //多少条记录
-            $article = (new Article())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->articleListField)->where($where)
+            $article = (new Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
@@ -130,17 +122,20 @@ demo;
     /**
      * 产品列表
      * @access public
-     * @throws \think\exception\DbException
+     * @param $type
+     * @param $page
+     * @param $keyword
      * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function productIndex($type, $page, $keyword)
     {
-        $siteinfo = \app\tool\controller\Site::getSiteInfo();
-        //该网站已经同步到的id
-        $sync_info = $this->commontool->getDbArticleListId();
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //获取当前的 typeid_arr
-        $productmax_id = array_key_exists('article', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['product'] : [];
         $typeidarr = [];
         if ($product_typearr) {
@@ -150,16 +145,11 @@ demo;
             //没有分类的情况下
             $product = [];
         } else {
-            $where = [
-                'id' => ['elt', $productmax_id],
-                'type_id' => ['in', $typeidarr],
-                'title|summary|detail' => ['like', "%$keyword%"],
-            ];
-            if (!$this->mainsite) {
-                $where['stations'] = '10';
-            }
+            list($where, $max_id) = $this->commontool->getProductQueryWhere();
+            $where = sprintf($where, implode(',', $typeidarr));
+            $where .= " and (title like '%$keyword%' or detail like '$keyword' or summary like '$keyword')";
             //多少条记录
-            $product = (new Product())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->productListField)->where($where)
+            $product = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
@@ -188,14 +178,12 @@ demo;
      * 问答列表
      * @throws \think\exception\DbException
      * @throws \think\Exception
+     * @throws \throwable
      */
     public function questionIndex($type, $page, $keyword)
     {
-        //该网站已经同步到的id
-        $sync_info = $this->commontool->getDbArticleListId();
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //获取当前的 typeid_arr
-        $questionmax_id = array_key_exists('article', $sync_info) ? $sync_info['product'] : 0;
         $question_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['product'] : [];
         $typeidarr = [];
         if ($question_typearr) {
@@ -205,16 +193,11 @@ demo;
             //没有分类的情况下
             $question = [];
         } else {
-            $where = [
-                'id' => ['elt', $questionmax_id],
-                'type_id' => ['in', $typeidarr],
-                'question|content_paragraph' => ['like', "%$keyword%"],
-            ];
-            if (!$this->mainsite) {
-                $where['stations'] = '10';
-            }
+            list($where, $max_id) = $this->commontool->getQuestionQueryWhere();
+            $where = sprintf($where, implode(',', $typeidarr));
+            $where .= " and (question like '%$keyword%' or content_paragraph like '$keyword')";
             //多少条记录
-            $question = (new Question())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->questionListField)->where($where)
+            $question = (new Question())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->questionListField)->where($where)
                 ->paginate(10, false, [
                     'path' => url('/query', '', '') . "?type={$type}&q={$keyword}&p=[PAGE]",
                     'page' => $page
@@ -238,6 +221,7 @@ demo;
             $data
         ), $data));
     }
+
 
     /**
      * 全部查看只会列出制定10条

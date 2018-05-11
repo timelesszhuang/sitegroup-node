@@ -77,8 +77,6 @@ class QuestionList extends EntryCommon
         $listsize = $menu_info->listsize ?: 10;
         $assign_data = $this->commontool->getEssentialElement($menu_info->generate_name, ['menu_name' => $menu_info->name, 'menu_enname' => $menu_info->generate_name], $menu_info->id, 'questionlist');
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-        $sync_info = $this->commontool->getDbArticleListId();
-        $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $question = [];
         $currentquestion = [];
@@ -88,10 +86,7 @@ class QuestionList extends EntryCommon
         $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
         //取出当前栏目下级的文章分类 根据path 中的menu_id
         $typeid_str = implode(',', $typeidarr);
-        $where = "id <={$questionmax_id} and node_id={$this->node_id} and type_id in (%s)";
-        if (!$this->mainsite) {
-            $where .= ' and stations = "10"';
-        }
+        list($where,$questionmax_id)=$this->commontool->getQuestionQueryWhere();
         if ($typeid_str && $questionmax_id) {
             $question = (new \app\index\model\Question)->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->questionListField)->where(sprintf($where, $typeid_str))
                 ->paginate($listsize, false, [
@@ -125,7 +120,7 @@ class QuestionList extends EntryCommon
                 continue;
             }
             $type_info = $question_typearr[$ptype_id];
-            $list = $this->commontool->getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
+            $list = $this->commontool->getTypeQuestionList($ptype_id, $question_typearr, 20);
             $typelist[] = [
                 'text' => $type_info['type_name'],
                 'href' => $type_info['href'],
@@ -149,7 +144,7 @@ class QuestionList extends EntryCommon
             $type_info = $question_typearr[$ptype_id];
             $list = [];
             if ($questionmax_id) {
-                $list = $this->commontool->getTypeQuestionList($ptype_id, $questionmax_id, $question_typearr, 20);
+                $list = $this->commontool->getTypeQuestionList($ptype_id, $question_typearr, 20);
             }
             $siblingstypelist[] = [
                 'text' => $type_info['type_name'],

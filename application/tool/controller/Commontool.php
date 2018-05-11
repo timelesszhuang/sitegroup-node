@@ -3,6 +3,7 @@
 namespace app\tool\controller;
 
 use app\common\controller\Common;
+use app\index\model\ArticleSyncCount;
 use app\index\model\Articletype;
 use app\index\model\Producttype;
 use app\index\model\QuestionType;
@@ -552,25 +553,24 @@ class Commontool extends Common
     /**
      * 获取 文章列表 获取十条　文件名如 article1 　article2
      * @access public
-     * @param $sync_info 该站点所有文章分类的 静态化状况
      * @param $typeid_arr
      * @param int $limit
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
-    public function getArticleList($sync_info, $typeid_arr, $limit = 10)
+    public function getArticleList($typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
-        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
         //随机取值
         //测试
-        if (!($max_id && $article_typearr)) {
+        $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
+        $articlelist = $this->getTypesArticleList($article_typearr, $limit);
+        if (!$articlelist) {
             return ['list' => [], 'more' => $more];
         }
-        $articlelist = $this->getTypesArticleList($max_id, $article_typearr, $limit);
         //随机取值来生成静态页
         $rand_key = array_rand($article_typearr);
         $rand_type = $article_typearr[$rand_key];
@@ -593,15 +593,14 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getTypesArticleList($max_id, $article_typearr, $limit)
+    public function getTypesArticleList($article_typearr, $limit)
     {
-        $typeid_str = implode(',', array_keys($article_typearr));
-        $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
-        if (!$this->mainsite) {
-            // 子站显示文章
-            $where .= ' and  stations ="10"';
+        list($where, $max_id) = $this->getArticleQueryWhere();
+        if (!$max_id || !$article_typearr) {
+            return [];
         }
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $typeid_str = implode(',', array_keys($article_typearr));
+        $article = Db::name('Article')->where(sprintf($where, $typeid_str))->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -610,7 +609,6 @@ class Commontool extends Common
     /**
      * 获取文章分类下的文章列表 比如 行业新闻直接调取分类下的id 调取的时候建议使用 array_key_exists
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -620,15 +618,14 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    public function getArticleTypeList($type_aliasarr, $typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_type_aliasarr = array_key_exists('article', $type_aliasarr) ? $type_aliasarr['article'] : [];
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $articlealias_list = [];
         foreach ($article_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];
-            $articlelist = $this->getTypeArticleList($type_id, $max_id, $article_typearr, $limit);
+            $articlelist = $this->getTypeArticleList($type_id, $article_typearr, $limit);
             $more = ['title' => $v['menu_name'], 'href' => sprintf($this->articleListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
             //组织数据
             $articlealias_list[$type_alias] = [
@@ -645,7 +642,6 @@ class Commontool extends Common
     /**
      * 获取菜单下的文章下文章列表 比如 行业新闻菜单 下 行业新闻 科技新闻分类  调取出该分类下的两个文章
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -655,9 +651,8 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getArticleMenuList($sync_info, $typeid_arr, $limit = 10)
+    public function getArticleMenuList($typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         //每个菜单下 的type 组织为数组
         $menu_typelist = [];
@@ -676,7 +671,7 @@ class Commontool extends Common
         $articlemenulist = [];
         foreach ($menu_typelist as $k => $v) {
             $more = ['title' => $v['menu_name'], 'href' => sprintf($this->articleListPath, $k), 'text' => '更多', 'menu_name' => $v['menu_name']];
-            $articlelist = $this->getArticleTypesList($v['list'], $max_id, $article_typearr, $limit);
+            $articlelist = $this->getArticleTypesList($v['list'], $article_typearr, $limit);
             $articlemenulist[$k] = [
                 'list' => $articlelist,
                 'more' => $more,
@@ -708,7 +703,6 @@ class Commontool extends Common
     /**
      * 获取产品flag相关list
      * 最多取出10条
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -718,9 +712,9 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getArticleFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    public function getArticleFlagList($type_aliasarr, $typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
+        $max_id = $this->detail_maxid('article');
         $article_type_aliasarr = array_key_exists('article', $type_aliasarr) ? $type_aliasarr['article'] : [];
         $more = [];
         foreach ($article_type_aliasarr as $type_alias => $v) {
@@ -743,12 +737,10 @@ class Commontool extends Common
             return $article_flaglist;
         }
         $typeid_str = implode(',', array_keys($article_typearr));
-        $where = " `id`<= {$max_id} and articletype_id in ({$typeid_str})";
+        list($where, $max_id) = $this->getArticleQueryWhere();
+        $where = sprintf($where, $typeid_str);
         foreach ($this->flag as $flag => $name) {
             $whereflag = $where . " and flag like '%,$flag,%'";
-            if (!$this->mainsite) {
-                $whereflag .= ' and stations = "10"';
-            }
             $article = Db::name('Article')->where($whereflag)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
             $this->formatArticleList($article, $article_typearr);
             //组织数据
@@ -767,7 +759,6 @@ class Commontool extends Common
      * 获取单个分类下的文章列表
      * @access public
      * @param $type_id
-     * @param $max_id
      * @param $article_typearr
      * @param $limit
      * @return false|\PDOStatement|string|\think\Collection
@@ -776,14 +767,11 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getTypeArticleList($type_id, $max_id, $article_typearr, $limit)
+    public function getTypeArticleList($type_id, $article_typearr, $limit)
     {
-        $where = " `id`<= {$max_id} and articletype_id = {$type_id}";
-        if (!$this->mainsite) {
-            $where .= ' and stations = "10"';
-        }
+        list($where, $max_id) = $this->getArticleQueryWhere();
         //后期可以考虑置顶之类操作
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $article = Db::name('Article')->where(sprintf($where, $type_id))->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -792,7 +780,6 @@ class Commontool extends Common
      * 获取多个分类的类型列表
      * @access public
      * @param $type_ids 文章分类的ids
-     * @param $max_id  已经静态化到的max_id
      * @param $article_typearr 文章分类的数组 格式化字段时候使用
      * @param $limit 每次取出多少
      * @return false|\PDOStatement|string|\think\Collection
@@ -801,17 +788,12 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getArticleTypesList($type_ids, $max_id, $article_typearr, $limit)
+    public function getArticleTypesList($type_ids, $article_typearr, $limit)
     {
-        $where = [
-            'id' => ['elt', $max_id],
-            'articletype_id' => ['in', $type_ids],
-        ];
-        if (!$this->mainsite) {
-            $where['stations'] = '10';
-        }
+        $typeid_str = implode(',', $type_ids);
+        list($where, $max_id) = $this->getArticleQueryWhere();
         //后期可以考虑置顶之类操作
-        $article = Db::name('Article')->where($where)->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $article = Db::name('Article')->where(sprintf($where, $typeid_str))->field($this->articleListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatArticleList($article, $article_typearr);
         return $article;
     }
@@ -889,23 +871,22 @@ class Commontool extends Common
     /**
      * 获取 产品列表 获取十条产品
      * @access public
-     * @param $sync_info 该站点所有文章分类的 静态化状况
      * @param $typeid_arr
      * @param int $limit
      * @return array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
-    public function getProductList($sync_info, $typeid_arr, $limit = 10)
+    public function getProductList($typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
-        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-        if (!($max_id && $product_typearr)) {
+        $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
+        $productlist = $this->getTypesProductList($product_typearr, $limit);
+        if (!$productlist) {
             return ['list' => [], 'more' => $more];
         }
-        $productlist = $this->getTypesProductList($max_id, $product_typearr, $limit);
         //随机取值来生成静态页
         $rand_key = array_rand($product_typearr);
         $rand_type = $product_typearr[$rand_key];
@@ -918,22 +899,22 @@ class Commontool extends Common
     /**
      * 获取多个类型types 产品列表
      * @access public
-     * @param $max_id
      * @param $product_typearr
      * @param $limit
      * @return false|\PDOStatement|string|\think\Collection
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
-    public function getTypesProductList($max_id, $product_typearr, $limit)
+    public function getTypesProductList($product_typearr, $limit)
     {
-        $typeid_str = implode(',', array_keys($product_typearr));
-        $where = " `type_id` in ($typeid_str) and `id`<= {$max_id}";
-        if (!$this->mainsite) {
-            $where .= ' and stations ="10"';
+        list($where, $max_id) = $this->getProductQueryWhere();
+        if (!$max_id || !$product_typearr) {
+            return [];
         }
-        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $typeid_str = implode(',', array_keys($product_typearr));
+        $product = Db::name('Product')->where(sprintf($where, $typeid_str))->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -942,7 +923,6 @@ class Commontool extends Common
     /**
      * 获取产品分类下的文章列表 比如 行业新闻直接调取分类下的id 调取的时候建议使用 array_key_exists
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -950,16 +930,16 @@ class Commontool extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
-    private function getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    private function getProductTypeList($type_aliasarr, $typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_type_aliasarr = array_key_exists('product', $type_aliasarr) ? $type_aliasarr['product'] : [];
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $productalias_list = [];
         foreach ($product_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];
-            $productlist = $this->getTypeProductList($type_id, $max_id, $product_typearr, $limit);
+            $productlist = $this->getTypeProductList($type_id, $product_typearr, $limit);
             $more = ['title' => $v['menu_name'], 'href' => sprintf($this->productListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
             //组织数据
             $productalias_list[$type_alias] = [
@@ -975,7 +955,6 @@ class Commontool extends Common
     /**
      * 获取菜单下的文章下文章列表 比如 行业新闻菜单 下 行业新闻 科技新闻分类  调取出该分类下的两个文章
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -985,9 +964,8 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getProductMenuList($sync_info, $typeid_arr, $limit = 10)
+    public function getProductMenuList($typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         //每个菜单下 的type 组织为数组
         $menu_typelist = [];
@@ -1005,7 +983,7 @@ class Commontool extends Common
         $productmenulist = [];
         foreach ($menu_typelist as $k => $v) {
             $more = ['title' => $v['menu_name'], 'href' => sprintf($this->productListPath, $k), 'text' => '更多', 'menu_name' => $v['menu_name']];
-            $productlist = $this->getProductTypesList($v['list'], $max_id, $product_typearr, $limit);
+            $productlist = $this->getProductTypesList($v['list'], $product_typearr, $limit);
             $productmenulist[$k] = [
                 'list' => $productlist,
                 'more' => $more,
@@ -1019,7 +997,6 @@ class Commontool extends Common
     /**
      * 获取产品flag 相关list
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -1027,10 +1004,11 @@ class Commontool extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
-    public function getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    public function getProductFlagList($type_aliasarr, $typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
+        $max_id = $this->detail_maxid('product');
         $product_type_aliasarr = array_key_exists('product', $type_aliasarr) ? $type_aliasarr['product'] : [];
         $more = [];
         foreach ($product_type_aliasarr as $type_alias => $v) {
@@ -1053,12 +1031,10 @@ class Commontool extends Common
             return $product_flaglist;
         }
         $typeid_str = implode(',', array_keys($product_typearr));
-        $where = " `id`<= {$max_id} and type_id in ({$typeid_str})";
+        list($where, $max_id) = $this->getProductQueryWhere();
+        $where = sprintf($where, $typeid_str);
         foreach ($this->flag as $flag => $name) {
             $whereflag = $where . " and flag like '%,$flag,%'";
-            if (!$this->mainsite) {
-                $whereflag .= ' and stations ="10"';
-            }
             $product = Db::name('Product')->where($whereflag)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
             $this->formatProductList($product, $product_typearr);
             //组织数据
@@ -1076,22 +1052,19 @@ class Commontool extends Common
      * 获取单个类型type 产品列表
      * @access public
      * @param $type_id
-     * @param $max_id
      * @param $product_typearr
      * @param $limit
      * @return false|\PDOStatement|string|\think\Collection
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
+     * @throws \throwable
      */
-    public function getTypeProductList($type_id, $max_id, $product_typearr, $limit)
+    public function getTypeProductList($type_id, $product_typearr, $limit)
     {
-        $where = " `id`<= {$max_id} and type_id = {$type_id}";
-        if (!$this->mainsite) {
-            $where .= ' and stations ="10"';
-        }
+        list($where, $max_id) = $this->getProductQueryWhere();
         //后期可以考虑置顶之类操作
-        $product = Db::name('Product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $product = Db::name('Product')->where(sprintf($where, $type_id))->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -1101,7 +1074,6 @@ class Commontool extends Common
      * 获取多个分类的类型列表
      * @access public
      * @param $type_ids
-     * @param $max_id
      * @param $product_typearr
      * @param $limit
      * @return false|\PDOStatement|string|\think\Collection
@@ -1110,17 +1082,12 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getProductTypesList($type_ids, $max_id, $product_typearr, $limit)
+    public function getProductTypesList($type_ids, $product_typearr, $limit)
     {
-        $where = [
-            'id' => ['elt', $max_id],
-            'type_id' => ['in', $type_ids],
-        ];
-        if (!$this->mainsite) {
-            $where['stations'] = '10';
-        }
+        list($where, $max_id) = $this->getProductQueryWhere();
+        $typeid_str = implode(',', $type_ids);
         //后期可以考虑置顶之类操作
-        $product = Db::name('product')->where($where)->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $product = Db::name('product')->where(sprintf($where, $typeid_str))->field($this->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatProductList($product, $product_typearr);
         return $product;
     }
@@ -1131,6 +1098,7 @@ class Commontool extends Common
      * @access private
      * @param $product
      * @param $product_typearr
+     * @throws \throwable
      */
     public function formatProductList(&$product, $product_typearr)
     {
@@ -1183,7 +1151,6 @@ class Commontool extends Common
     /**
      * 获取 问题列表 获取十条　文件名如 question1 　question2
      * @access public
-     * @param $sync_info
      * @param $typeid_arr
      * @param int $limit
      * @return array
@@ -1191,15 +1158,14 @@ class Commontool extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getQuestionList($sync_info, $typeid_arr, $limit = 10)
+    public function getQuestionList($typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
-        $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $more = ['title' => '', 'href' => '/', 'text' => '更多'];
-        if (!($max_id && $question_typearr)) {
+        $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
+        $questionlist = $this->getTypesQuestionList($question_typearr, $limit);
+        if (!$questionlist) {
             return ['list' => [], 'more' => $more];
         }
-        $questionlist = $this->getTypesQuestionList($max_id, $question_typearr, $limit);
         $rand_key = array_rand($question_typearr);
         $rand_type = $question_typearr[$rand_key];
         if ($more['href'] == '/') {
@@ -1212,7 +1178,6 @@ class Commontool extends Common
     /**
      * 获取多个类型types 问答列表
      * @access public
-     * @param $max_id
      * @param $question_typearr
      * @param $limit
      * @return false|\PDOStatement|string|\think\Collection
@@ -1220,14 +1185,14 @@ class Commontool extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getTypesQuestionList($max_id, $question_typearr, $limit)
+    public function getTypesQuestionList($question_typearr, $limit)
     {
-        $typeid_str = implode(',', array_keys($question_typearr));
-        $where = "`type_id` in ($typeid_str)  and `id`<= {$max_id}";
-        if (!$this->mainsite) {
-            $where .= ' and stations ="10"';
+        list($where, $max_id) = $this->getQuestionQueryWhere();
+        if (!$max_id || !$question_typearr) {
+            return [];
         }
-        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $typeid_str = implode(',', array_keys($question_typearr));
+        $question = Db::name('Question')->where(sprintf($where, $typeid_str))->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -1236,7 +1201,6 @@ class Commontool extends Common
     /**
      * 获取问答分类的相关列表数据
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -1245,15 +1209,14 @@ class Commontool extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    public function getQuestionTypeList($type_aliasarr, $typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_type_aliasarr = array_key_exists('question', $type_aliasarr) ? $type_aliasarr['question'] : [];
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         $questionalias_list = [];
         foreach ($question_type_aliasarr as $type_alias => $v) {
             $type_id = $v['type_id'];
-            $questionlist = $this->getTypeQuestionList($type_id, $max_id, $question_typearr, $limit);
+            $questionlist = $this->getTypeQuestionList($type_id, $question_typearr, $limit);
             $more = ['title' => $v['menu_name'], 'href' => sprintf($this->questionListPath, "{$v['menu_enname']}_t{$type_id}"), 'text' => '更多', 'menu_name' => $v['menu_name'], 'type_name' => $v['type_name']];
             //组织数据
             $questionalias_list[$type_alias] = [
@@ -1270,7 +1233,6 @@ class Commontool extends Common
     /**
      * 获取菜单下的文章下文章列表 比如 问答菜单 下 购买须知 常见疑问分类  调取出该分类下的分类
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -1280,9 +1242,8 @@ class Commontool extends Common
      * @throws \think\exception\DbException
      * @throws \throwable
      */
-    public function getQuestionMenuList($sync_info, $typeid_arr, $limit = 10)
+    public function getQuestionMenuList($typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
         //每个菜单下 的type 组织为数组
         $menu_typelist = [];
@@ -1300,7 +1261,7 @@ class Commontool extends Common
         $questionmenulist = [];
         foreach ($menu_typelist as $k => $v) {
             $more = ['title' => $v['menu_name'], 'href' => sprintf($this->questionListPath, $k), 'text' => '更多', 'menu_name' => $v['menu_name']];
-            $questionlist = $this->getQuestionTypesList($v['list'], $max_id, $question_typearr, $limit);
+            $questionlist = $this->getQuestionTypesList($v['list'], $question_typearr, $limit);
             $questionmenulist[$k] = [
                 'list' => $questionlist,
                 'more' => $more,
@@ -1322,17 +1283,12 @@ class Commontool extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getQuestionTypesList($type_ids, $max_id, $question_typearr, $limit)
+    public function getQuestionTypesList($type_ids, $question_typearr, $limit)
     {
-        $where = [
-            'id' => ['elt', $max_id],
-            'type_id' => ['in', $type_ids],
-        ];
-        if (!$this->mainsite) {
-            $where['stations'] = '10';
-        }
+        list($where, $max_id) = $this->getQuestionQueryWhere();
+        $typeid_str = implode(',', $type_ids);
         //后期可以考虑置顶之类操作
-        $question = Db::name('question')->where($where)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        $question = Db::name('question')->where(sprintf($where, $typeid_str))->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -1340,7 +1296,6 @@ class Commontool extends Common
     /**
      * 获取产品flag 相关list
      * @access public
-     * @param $sync_info
      * @param $type_aliasarr
      * @param $typeid_arr
      * @param int $limit
@@ -1349,9 +1304,9 @@ class Commontool extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, $limit = 10)
+    public function getQuestionFlagList($type_aliasarr, $typeid_arr, $limit = 10)
     {
-        $max_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
+        $max_id = $this->detail_maxid('question');
         $question_type_aliasarr = array_key_exists('question', $type_aliasarr) ? $type_aliasarr['question'] : [];
         $questionalias_list = [];
         $more = [];
@@ -1375,12 +1330,10 @@ class Commontool extends Common
             return $question_flaglist;
         }
         $typeid_str = implode(',', array_keys($question_typearr));
-        $where = " `id`<= {$max_id} and type_id in ({$typeid_str})";
+        list($where, $max_id) = $this->getQuestionQueryWhere();
+        $where = sprintf($where, $typeid_str);
         foreach ($this->flag as $flag => $name) {
             $whereflag = $where . " and flag like '%,$flag,%'";
-            if (!$this->mainsite) {
-                $whereflag .= ' and stations ="10"';
-            }
             $question = Db::name('Question')->where($whereflag)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
             $this->formatQuestionList($question, $question_typearr);
             //组织数据
@@ -1406,14 +1359,10 @@ class Commontool extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getTypeQuestionList($type_id, $max_id, $question_typearr, $limit)
+    public function getTypeQuestionList($type_id, $question_typearr, $limit)
     {
-        $where = " `id`<= {$max_id} and type_id = {$type_id}";
-        //后期可以考虑置顶之类操作
-        if (!$this->mainsite) {
-            $where .= ' and stations ="10"';
-        }
-        $question = Db::name('Question')->where($where)->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
+        list($where, $max_id) = $this->getQuestionQueryWhere();
+        $question = Db::name('Question')->where(sprintf($where, $type_id))->field($this->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->limit($limit)->select();
         $this->formatQuestionList($question, $question_typearr);
         return $question;
     }
@@ -1488,26 +1437,49 @@ class Commontool extends Common
 
 
     /**
-     * 获取分类中已经静态化到的地方 需要的文章列表  内容列表 问答列表
-     * @access public
-     * @return array
+     * 获取文章查询的查询语句
      */
-    public function getDbArticleListId()
+    public function getArticleQueryWhere()
     {
-        $site_id = $this->site_id;
-        return Cache::remember('sync_info', function () use ($site_id) {
-            //文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
-            $article_sync_info = Db::name('ArticleSyncCount')->where(['site_id' => $site_id])->field('type_name,count')->select();
-            $article_sync_list = [];
-            if ($article_sync_info) {
-                foreach ($article_sync_info as $v) {
-                    if (!array_key_exists($v['type_name'], $article_sync_list)) {
-                        $article_sync_list[$v['type_name']] = $v['count'];
-                    }
-                }
-            }
-            return $article_sync_list;//文章同步表中获取文章同步到的位置 需要考虑到 一个站点新建的时候会是空值
-        });
+        $max_id = $this->detail_maxid();
+        $where_template = "id <=$max_id and node_id={$this->node_id} and articletype_id in (%s)";
+        if ($this->mainsite) {
+            $where_template .= ' and stations in (10,20) ';
+        } else {
+            $where_template .= " and (stations ='10' or stations='30' or (stations='40' and stations_ids like('%%,{$this->district_id},%%')))";
+        }
+        return [$where_template, $max_id];
+    }
+
+
+    /**
+     * 获取文章查询的查询语句
+     */
+    public function getQuestionQueryWhere()
+    {
+        $max_id = $this->detail_maxid('question');
+        $where_template = "id <=$max_id and node_id={$this->node_id} and type_id in (%s)";
+        if ($this->mainsite) {
+            $where_template .= ' and stations in (10,20) ';
+        } else {
+            $where_template .= " and (stations ='10' or stations='30' or (stations='40' and stations_ids like('%%,{$this->district_id},%%')))";
+        }
+        return [$where_template, $max_id];
+    }
+
+    /**
+     * 获取文章查询的查询语句
+     */
+    public function getProductQueryWhere()
+    {
+        $max_id = $this->detail_maxid('product');
+        $where_template = "id <=$max_id and node_id={$this->node_id} and type_id in (%s)";
+        if ($this->mainsite) {
+            $where_template .= ' and stations in (10,20) ';
+        } else {
+            $where_template .= " and (stations ='10' or stations='30' or (stations='40' and stations_ids like('%%,{$this->district_id},%%')))";
+        }
+        return [$where_template, $max_id];
     }
 
     /**
@@ -1864,8 +1836,6 @@ code;
         list($activity, $activity_small, $activity_en) = $this->getActivity();
         //获取站点的类型 手机站的域名 手机站点的跳转链接
         list($m_url, $redirect_code) = $this->getMobileSiteInfo();
-        //这个不需要存到缓存中
-        $sync_info = $this->getDbArticleListId();
         $breadcrumb = [];
         //每个页面特殊的变量存在
         switch ($this->tag) {
@@ -1959,31 +1929,31 @@ code;
                 break;
         }
         //获取不分类的文章 全部分类的都都获取到
-        $article_list = $this->getArticleList($sync_info, $typeid_arr, 20);
+        $article_list = $this->getArticleList($typeid_arr, 20);
         //获取不分类的文章 全部分类都获取到
-        $question_list = $this->getQuestionList($sync_info, $typeid_arr, 20);
+        $question_list = $this->getQuestionList($typeid_arr, 20);
         //获取零散段落类型  全部分类都获取到
         //list($scatteredarticle_list, $news_more) = $this->getScatteredArticleList($artiletype_sync_info, $typeid_arr);
         //产品类型 列表获取 全部分类都获取到
-        $product_list = $this->getProductList($sync_info, $typeid_arr, 20);
+        $product_list = $this->getProductList($typeid_arr, 20);
         //根据文章分类展现列表以及more
-        $article_typelist = $this->getArticleTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        $article_typelist = $this->getArticleTypeList($type_aliasarr, $typeid_arr, 20);
         //根据文章分类展现列表以及more
-        $question_typelist = $this->getQuestionTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        $question_typelist = $this->getQuestionTypeList($type_aliasarr, $typeid_arr, 20);
         //根据文章分类展现列表以及more
-        $product_typelist = $this->getProductTypeList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        $product_typelist = $this->getProductTypeList($type_aliasarr, $typeid_arr, 20);
         // 根据文章flag 相关
-        $article_flaglist = $this->getArticleFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        $article_flaglist = $this->getArticleFlagList($type_aliasarr, $typeid_arr, 20);
         // 根据问答查询flag
-        $question_flaglist = $this->getQuestionFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        $question_flaglist = $this->getQuestionFlagList($type_aliasarr, $typeid_arr, 20);
         // 产品相关flag
-        $product_flaglist = $this->getProductFlagList($sync_info, $type_aliasarr, $typeid_arr, 20);
+        $product_flaglist = $this->getProductFlagList($type_aliasarr, $typeid_arr, 20);
         //获取文章形菜单下的所有文章列表 list 以及 more
-        $article_menulist = $this->getArticleMenuList($sync_info, $typeid_arr, 20);
+        $article_menulist = $this->getArticleMenuList($typeid_arr, 20);
         //获取问答形菜单下的所有文章列表 list 以及 more
-        $question_menulist = $this->getQuestionMenuList($sync_info, $typeid_arr, 20);
+        $question_menulist = $this->getQuestionMenuList($typeid_arr, 20);
         //根据产品形菜单下的所有产品列表 list 以及 more
-        $product_menulist = $this->getProductmenuList($sync_info, $typeid_arr, 20);
+        $product_menulist = $this->getProductmenuList($typeid_arr, 20);
         //菜单对应的分类的链接  比如 新闻资讯 下 公司新闻 companynews  科技新闻 technews
         $menu_typelist = $this->getMenuTypeList();
         //获取友链
@@ -2019,39 +1989,28 @@ code;
     public function getSiteList()
     {
         //站点信息
-        $field = 'id,name,pinyin,parent_id,suffix,level';
-        $parent_id = $this->siteinfo['stations_area'];
-        $parent = Db::name('District')->where(['id' => $parent_id])->field($field)->find();
-        $this->district_id;
-        $this->district_name;
-        $childsite = Db::name('District')->where(['path' => ['like', "%,{$parent_id},%"]])->field($field)->select();
-        if ($parent) {
-            array_push($childsite, $parent);
-        }
+        $info = Db::name('childsitelist')->where(['site_id' => $this->site_id])->field('district_id as id,en_name,name,p_id')->order('sort', 'desc')->select();
         $allsite = [];
         // 当前如果是主站的话 需要有默认值
         $currentsite = [
             'id' => 0,
             'name' => '主站',
-            'parent_id' => 0,
+            'p_id' => 0,
             'url' => $this->siteurl
         ];
-        foreach ($childsite as $k => $v) {
-            if ($v['level'] <= $this->siteinfo['level']) {
-                $v['url'] = 'http://' . $v['pinyin'] . '.' . $this->domain;
-                unset($v['pinyin']);
-                $v['name'] .= $v['suffix'];
-                unset($v['suffix']);
-                $v['current'] = false;
-                if ($this->district_id == $v['id']) {
-                    $currentsite = $v;
-                    $v['current'] = true;
-                }
-                array_push($allsite, $v);
+        array_push($allsite, $currentsite);
+        foreach ($info as $k => $v) {
+            $v['url'] = 'http://' . $v['en_name'] . '.' . $this->domain;
+            unset($v['en_name']);
+            $v['current'] = false;
+            if ($this->district_id == $v['id']) {
+                $currentsite = $v;
+                $v['current'] = true;
             }
+            array_push($allsite, $v);
         }
         //生成树形结构
-        $treesite = $this->list_to_tree($allsite, 'id', 'parent_id', 'childsite', $parent['parent_id']);
+        $treesite = $this->list_to_tree($allsite, 'id', 'p_id', 'childsite', 0);
         return [$allsite, $treesite, $currentsite];
     }
 
@@ -2473,6 +2432,39 @@ code;
                 break;
         }
         return $breadcrumb;
+    }
+
+    /***
+     * 获取每个详情的上次静态化到的max_id
+     * @param string $type_name
+     * @return mixed
+     */
+    public function detail_maxid($type_name = 'article')
+    {
+        //获取 站点 某个栏目同步到的文章id
+        return Cache::remember($type_name . "_max_id", function () use ($type_name) {
+            $max_id = 0;
+            $where = [
+                'type_name' => $type_name,
+                "node_id" => $this->node_id,
+                "site_id" => $this->site_id
+            ];
+            $Count = (new ArticleSyncCount)->where($where)->find();
+            //判断下是否有数据 没有就创建模型
+            if (isset($Count->count) && $Count->count >= 0) {
+                $max_id = $Count->count;
+            } else {
+                //article 暂时没有静态化到的位置数据
+                ArticleSyncCount::create([
+                    'node_id' => $this->node_id,
+                    'site_id' => $this->site_id,
+                    'site_name' => $this->site_name,
+                    'type_name' => $type_name,
+                    'count' => 0
+                ]);
+            }
+            return $max_id;
+        });
     }
 
 }

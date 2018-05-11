@@ -78,8 +78,6 @@ class ProductList extends EntryCommon
         $listsize = $menu_info->listsize ?: 10;
         $assign_data = $this->commontool->getEssentialElement($menu_info->generate_name, ['menu_name' => $menu_info->name, 'menu_enname' => $menu_info->generate_name], $menu_info->id, 'productlist');
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-        $sync_info = $this->commontool->getDbArticleListId();
-        $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
         $typelist = [];
         $siblingstypelist = [];
@@ -89,13 +87,10 @@ class ProductList extends EntryCommon
         $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
         //取出当前栏目下级的文章分类 根据path 中的menu_id
         $typeid_str = implode(',', $typeidarr);
-        $wheretemplate = "id <={$productmax_id} and node_id={$this->node_id} and type_id in (%s)";
-        if (!$this->mainsite) {
-            $wheretemplate .= ' and stations = "10"';
-        }
+        list($where,$productmax_id)=$this->commontool->getProductQueryWhere();
         if ($typeid_str && $productmax_id) {
             //获取当前type_id的文章
-            $productlist = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
+            $productlist = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where(sprintf($where, $typeid_str))
                 ->paginate($listsize, false, [
                     'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
@@ -109,7 +104,7 @@ class ProductList extends EntryCommon
             $typeid_str = implode(',', array_filter(explode(',', $menu_info->type_id)));
         }
         if ($typeid_str) {
-            $currentproductlist = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where(sprintf($wheretemplate, $typeid_str))
+            $currentproductlist = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where(sprintf($where, $typeid_str))
                 ->paginate($listsize, false, [
                     'path' => url('/productlist', '', '') . "/{$menu_enname}_t{$type_id}_p[PAGE].html",
                     'page' => $currentpage
@@ -130,7 +125,7 @@ class ProductList extends EntryCommon
             $type_info = $product_typearr[$ptype_id];
             $list = [];
             if ($productmax_id) {
-                $list = $this->commontool->getTypeProductList($ptype_id, $productmax_id, $product_typearr, 20);
+                $list = $this->commontool->getTypeProductList($ptype_id, $product_typearr, 20);
             }
             $typelist[] = [
                 'text' => $type_info['type_name'],
@@ -152,7 +147,7 @@ class ProductList extends EntryCommon
                 continue;
             }
             $type_info = $product_typearr[$ptype_id];
-            $list = $this->commontool->getTypeProductList($ptype_id, $productmax_id, $product_typearr, 20);
+            $list = $this->commontool->getTypeProductList($ptype_id, $product_typearr, 20);
             $siblingstypelist[] = [
                 'text' => $type_info['type_name'],
                 'href' => $type_info['href'],

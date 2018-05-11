@@ -88,8 +88,6 @@ class ArticleList extends EntryCommon
         //获取列表页面必须的元素
         $assign_data = $this->commontool->getEssentialElement($menu_info->generate_name, ['menu_name' => $menu_info->name, 'menu_enname' => $menu_info->generate_name], $menu_info->id, $type_id, 'articlelist');
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-        $sync_info = $this->commontool->getDbArticleListId();
-        $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
         $article = [];
         $currentarticle = [];
@@ -100,10 +98,7 @@ class ArticleList extends EntryCommon
         $typeidarr = $this->commontool->getMenuChildrenMenuTypeid($menu_id, array_filter(explode(',', $menu_info->type_id)));
         //取出当前栏目下级的文章分类 根据path 中的menu_id
         $typeid_str = implode(',', $typeidarr);
-        $where_template = "id <=$articlemax_id and node_id={$this->node_id} and articletype_id in (%s)";
-        if (!$this->mainsite) {
-            $where_template .= ' and stations = "10"';
-        }
+        list($where_template, $articlemax_id) = $this->commontool->getArticleQueryWhere();
         if ($typeid_str && $articlemax_id) {
             //获取当前type_id的文章
             $article = (new \app\index\model\Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where(sprintf($where_template, $typeid_str))
@@ -139,7 +134,7 @@ class ArticleList extends EntryCommon
             $type_info = $article_typearr[$ptype_id];
             $list = [];
             if ($articlemax_id) {
-                $list = $this->commontool->getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 20);
+                $list = $this->commontool->getTypeArticleList($ptype_id, $article_typearr, 20);
             }
             $typelist[] = [
                 'text' => $type_info['type_name'],
@@ -162,7 +157,7 @@ class ArticleList extends EntryCommon
                 continue;
             }
             $type_info = $article_typearr[$ptype_id];
-            $list = $this->commontool->getTypeArticleList($ptype_id, $articlemax_id, $article_typearr, 20);
+            $list = $this->commontool->getTypeArticleList($ptype_id, $article_typearr, 20);
             $siblingstypelist[] = [
                 'text' => $type_info['type_name'],
                 'href' => $type_info['href'],
