@@ -1989,7 +1989,7 @@ code;
     public function getSiteList()
     {
         //站点信息
-        $info = Db::name('childsitelist')->where(['site_id' => $this->site_id])->field('district_id as id,en_name,name,p_id')->order('sort', 'desc')->select();
+        $info = Db::name('childsitelist')->where(['site_id' => $this->site_id])->field('district_id as id,en_name,name,p_id')->order(['sort' => 'desc', 'district_id' => 'asc'])->select();
         $allsite = [];
         // 当前如果是主站的话 需要有默认值
         $currentsite = [
