@@ -287,7 +287,8 @@ class Detailstatic extends Common
         // 获取menu信息
         $menuInfo = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
+            "type_id" => ['like', "%,$type_id,%"],
+            "id" => ['in', array_filter(explode(',',$this->menu_ids))]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
