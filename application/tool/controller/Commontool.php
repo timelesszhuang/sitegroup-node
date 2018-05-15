@@ -1678,7 +1678,7 @@ code;
             $contact = [];
             foreach ($contact_field as $field) {
                 //以站点中设置为主
-                $contact[$field] = $siteinfo[$field] ?: array_key_exists($field, $commoncontact) ? $commoncontact[$field] : '';
+                $contact[$field] = array_key_exists($field, $commoncontact) ? $commoncontact[$field] : '';
             }
             return $contact;
         });
