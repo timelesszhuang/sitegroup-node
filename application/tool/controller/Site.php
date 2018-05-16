@@ -54,7 +54,6 @@ class Site extends Common
         if (!$main_site) {
             // 如果没有设置主站的 默认设置第一个站点为主站
             $site = (new  \app\tool\model\Site())->where(['site_type' => $site_type_id])->find();
-            $this->print_pre($site, true);
             $sitename = $site->site_name;
             $site->main_site = '20';
             $site->save();

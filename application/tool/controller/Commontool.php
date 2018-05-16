@@ -1749,7 +1749,6 @@ code;
                 'text' => $next_mainsite->site_name
             ];
         }
-        $this->print_pre($partnersite, true);
         return $partnersite;
     }
 
