@@ -29,8 +29,10 @@ class EntryCommon extends Common
     {
         $uri = $_SERVER['REQUEST_URI'];
         $absolutepath = $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . $uri;
-        $this->spidercomefrom($this->siteinfo, $absolutepath);
-        $this->pv($this->siteinfo, $absolutepath);
+        $is_robot = $this->spidercomefrom($this->siteinfo, $absolutepath);
+        if(!$is_robot){
+            $this->pv($this->siteinfo, $absolutepath);
+        }
         //获取请求的useragent
         $this->pagecomefrom($this->siteinfo, $absolutepath);
     }
