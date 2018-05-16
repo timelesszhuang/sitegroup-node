@@ -1622,6 +1622,7 @@ code;
      * 获取站点的logo 相关信息
      * @access private
      * @return string
+     * @throws \throwable
      */
     private function getSiteLogo()
     {
@@ -1688,6 +1689,7 @@ code;
     /**
      * 获取外链
      * @access public
+     * @throws \throwable
      */
     public function getPatternLink()
     {
@@ -1703,28 +1705,50 @@ code;
                 'text' => $v['name']
             ];
         }
-        //链轮的类型
-        $chain_type = '';
-        //该站点需要链接到的站点
-        $next_site = [];
-        //主站是哪个
-        $main_site = [];
         $is_mainsite = $this->siteinfo['main_site'];
         if ($is_mainsite == '10') {
             //表示不是主站
             //站点类型 用于取出主站 以及链轮类型 来
             list($chain_type, $next_site, $main_site) = (new Site())->getLinkInfo();
-        }
-        if ($next_site) {
+            if ($next_site) {
+                $partnersite[] = [
+                    'href' => $next_site['url'],
+                    'text' => $next_site['site_name']
+                ];
+            }
+            if ($main_site) {
+                $partnersite[] = [
+                    'href' => $main_site['url'],
+                    'text' => $main_site['site_name']
+                ];
+            }
+        } else {
+            //表示自己是同node内主站
+            //主站都链接到最新上线的主站上 也就是全部网站的主站
+            $allmain_site = Cache::remember('allmainsite', function () {
+                $allmain_site = (new \app\tool\model\Site())->where(['main_site' => '20'])->order('id', 'desc')->find();
+                return collection($allmain_site)->toArray();
+            });
+            if ($allmain_site) {
+                $partnersite[] = [
+                    'href' => $allmain_site['url'],
+                    'text' => $allmain_site['site_name']
+                ];
+            }
+            // 链接到下个主站  id小的主站链接到大的 最大的链接到最小的形成单向环
+            $next_mainsite = Cache::remember('next_mainsite', function () {
+                $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['gt', $this->site_id]])->find();
+                $next = collection($next_mainsite)->toArray();
+                if (!$next_mainsite) {
+                    //说明比该网站大的已经没有了 取出最小的链接起来
+                    $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20'])->order('id', 'asc')->find();
+                    $next = collection($next_mainsite)->toArray();
+                }
+                return $next;
+            });
             $partnersite[] = [
-                'href' => $next_site['url'],
-                'text' => $next_site['site_name']
-            ];
-        }
-        if ($main_site) {
-            $partnersite[] = [
-                'href' => $main_site['url'],
-                'text' => $main_site['site_name']
+                'href' => $next_mainsite['url'],
+                'text' => $next_mainsite['site_name']
             ];
         }
         return $partnersite;
@@ -1734,6 +1758,7 @@ code;
      * 获取站点内容调取列表 比如相关站点
      * @access private
      * @return mixed
+     * @throws \throwable
      */
     private function getSiteGetContent()
     {

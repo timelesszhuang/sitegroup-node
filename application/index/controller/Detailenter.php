@@ -38,6 +38,7 @@ class Detailenter extends EntryCommon
      * @param $id
      * 判断文章页面是否存在
      * @return string
+     * @throws \throwable
      */
     public function article($id)
     {
@@ -58,6 +59,7 @@ class Detailenter extends EntryCommon
      * 判断问答页面是否存在
      * @return string
      * @throws \Exception
+     * @throws \throwable
      */
     public function question($id)
     {
@@ -78,6 +80,7 @@ class Detailenter extends EntryCommon
      * 判断产品页面是否存在
      * @return string
      * @throws \Exception
+     * @throws \throwable
      */
     public function product($id)
     {
@@ -97,7 +100,7 @@ class Detailenter extends EntryCommon
      * @access public
      * @param $id
      * @return string
-     * @throws \Exception
+     * @throws \throwable
      */
     public function activity($id)
     {
@@ -115,6 +118,7 @@ class Detailenter extends EntryCommon
      * @access public
      * @param $filename
      * @return mixed
+     * @throws \throwable
      */
     public function detailMenu($filename)
     {
