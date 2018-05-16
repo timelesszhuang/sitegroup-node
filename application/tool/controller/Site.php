@@ -196,6 +196,10 @@ class Site extends Common
         if (!$tag) {
             return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
         }
+        if($request->post('code')){
+        if (!captcha_check($request->post('code'))) {
+            return $this->resultArray("尊敬的客户，验证码错误", "failed");
+        }};
         $definedform = userForm::get(['tag' => $tag]);
         //唯一标志
         //node_id 获取到的node_id
