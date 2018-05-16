@@ -133,6 +133,7 @@ class Common extends Controller
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
+        $this->domain = 'local.sitegroupnode.com';
         $this->app_debug = $siteinfo['app_debug'];
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
@@ -176,6 +177,17 @@ class Common extends Controller
         if ($exit) {
             exit;
         }
+    }
+
+
+    /**
+     * 获取随机字符串 不保证唯一
+     * @access public
+     */
+    public function getRandomStr($length)
+    {
+        $str = "QWERTYUIOPASDFGHJKLZXCVBNM1234567890qwertyuiopasdfghjklzxcvbnm";
+        return strtolower(substr(str_shuffle($str), 1, $length));
     }
 
 
@@ -322,12 +334,12 @@ class Common extends Controller
     {
         $suffix = $this->suffix;
         $info = Cache::remember("{$this->suffix}info", function () use ($suffix) {
-            return Db::name('district')->where(['pinyin' => $suffix])->find();
+            return Db::name('childsitelist')->where(['en_name' => $suffix, 'site_id' => $this->site_id])->order('sort', 'desc')->find();
         });
         // 相关后缀获取相关bug
         if ($info) {
             // 后缀存储在缓存中
-            $this->district_id = $info['id'];
+            $this->district_id = $info['district_id'];
             $this->district_name = $info['name'];
             $this->mainsite = false;
         } else {

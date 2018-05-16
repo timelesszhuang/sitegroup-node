@@ -285,11 +285,7 @@ class Detailstatic extends Common
         $article = (new \app\index\model\Article)->where($articlesql)->find()->toArray();
         $type_id = $article['articletype_id'];
         // 获取menu信息
-        $menuInfo = (new \app\tool\model\Menu)->where([
-            "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"],
-            "id" => ['in', array_filter(explode(',',$this->menu_ids))]
-        ])->find();
+        $menuInfo = $this->getDetailmenuinfo($type_id);
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
@@ -363,10 +359,7 @@ class Detailstatic extends Common
         $question = (new \app\index\model\Question)->where($questionsql)->find()->toArray();
         // 获取menu信息
         $type_id = $question['type_id'];
-        $menuInfo = (new \app\tool\model\Menu)->where([
-            "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
-        ])->find();
+        $menuInfo = $this->getDetailmenuinfo($type_id);
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
@@ -582,10 +575,7 @@ class Detailstatic extends Common
         $product = (new \app\index\model\Product)->where($productsql)->find()->toArray();
         $type_id = $product['type_id'];
         // 获取menu信息
-        $menuInfo = (new \app\tool\model\Menu)->where([
-            "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
-        ])->find();
+        $menuInfo = $this->getDetailmenuinfo($type_id);
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
@@ -612,6 +602,41 @@ class Detailstatic extends Common
             'currentmenu_typelist' => $currentmenu_typelist
         ];
         return [$template, $data];
+    }
+
+    /**
+     *  获取特定内容对应的菜单
+     * @access public
+     * @param $type_id
+     * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public function getDetailmenuinfo($type_id)
+    {
+        $menu = (new \app\tool\model\Menu)->where([
+            "node_id" => $this->node_id,
+            "type_id" => ['like', "%,$type_id,%"]
+        ])->find();
+        //如果一个文章分类被多个菜单选择则可能会选择出多个
+        $menu = collection($menu)->toArray();
+        if (count($menu) == 1) {
+            //如果只有一个的则直接取出来就可以。
+            $menuInfo = $menu[0];
+        } else if (count($menu) == 0) {
+            //该文章对应的分类没有选择菜单
+            exit('该文章分类对应菜单无效');
+        } else {
+            //需要验证哪个是该站选择的菜单
+            $menu_idarr = array_column((new Menu())->getMenuInfo(), 'id');
+            foreach ($menu as $k => $v) {
+                if (in_array($v['id'], $menu_idarr)) {
+                    $menuInfo = $v;
+                }
+            }
+        }
+        return $menuInfo;
     }
 
 
