@@ -133,7 +133,7 @@ class Common extends Controller
         $this->com_name = $siteinfo['com_name'];
         //主域名相关
         $this->domain = $siteinfo['domain'];
-        $this->domain = 'local.sitegroupnode.com';
+//        $this->domain = 'local.sitegroupnode.com';
         $this->app_debug = $siteinfo['app_debug'];
         $this->siteinfo = $siteinfo;
         $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
