@@ -471,6 +471,10 @@ class Detailstatic extends Common
         //页面的描述
         $keywords = $item['keywords'];
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content_paragraph'],"question".$item['id']);
+        if ($contentWIthFLink) {
+            $item['content_paragraph'] = $contentWIthFLink;
+        }
         $item['content_paragraph'] = $this->add_share_code($item['content_paragraph']);
         $questiontags = [];
         if ($item['tags']) {
@@ -480,10 +484,6 @@ class Detailstatic extends Common
                     $questiontags[] = $tags[$val];
                 }
             }
-        }
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content_paragraph'],"question".$item['id']);
-        if ($contentWIthFLink) {
-            $item['content_paragraph'] = $contentWIthFLink;
         }
         $item['tags'] = $questiontags;
         $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['question']], $description, $keywords, $keyword_id, $menu_id, ['menu_name' => $menu_name, 'menu_enname' => $menu_enname], 'question');
@@ -510,6 +510,10 @@ class Detailstatic extends Common
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['detail'],"product".$item['id']);
+        if ($contentWIthFLink) {
+            $item['detail'] = $contentWIthFLink;
+        }
         $item['detail'] = $this->add_share_code($item['detail']);
         // 相关图片
         $imgser = $item['imgser'];
@@ -534,10 +538,6 @@ class Detailstatic extends Common
                     $producttags[] = $tags[$val];
                 }
             }
-        }
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['detail'],"product".$item['id']);
-        if ($contentWIthFLink) {
-            $item['detail'] = $contentWIthFLink;
         }
         $item['tags'] = $producttags;
         $item['images'] = $local_img;
