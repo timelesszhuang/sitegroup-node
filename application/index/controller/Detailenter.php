@@ -9,6 +9,7 @@ use app\tool\controller\Detailmenupagestatic;
 use app\tool\controller\Detailstatic;
 use app\tool\controller\Indexstatic;
 use think\Cache;
+use think\Db;
 use think\View;
 
 /**
@@ -135,12 +136,12 @@ class Detailenter extends EntryCommon
      * 区域信息
      * @access public
      * @return string
-     * @throws \Exception
      * @throws \think\Exception
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function district()
     {

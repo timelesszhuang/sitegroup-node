@@ -26,6 +26,7 @@ class Preview extends EntryCommon
      * @return bool|void
      * @throws \think\Exception
      * @throws \Exception
+     * @throws \throwable
      */
     private function articlepreview($id)
     {
@@ -54,6 +55,7 @@ class Preview extends EntryCommon
      * @return bool
      * @throws \Exception
      * @throws \think\Exception
+     * @throws \throwable
      */
     private function questionpreview($id)
     {
@@ -123,8 +125,8 @@ class Preview extends EntryCommon
      * @param int $id
      * @param string $type
      * @return void
-     * @throws \Exception
      * @throws \think\Exception
+     * @throws \throwable
      */
     public function preview($id = 0, $type = '')
     {

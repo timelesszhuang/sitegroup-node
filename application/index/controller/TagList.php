@@ -100,25 +100,18 @@ class TagList extends EntryCommon
         $assign_data = $this->commontool->getEssentialElement($tag_name, 'taglist');
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
         //查询出来已经静态化到的地方
-        $sync_info = $this->commontool->getDbArticleListId();
-        $articlemax_id = array_key_exists('article', $sync_info) ? $sync_info['article'] : 0;
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
-        $article = [];
         //需要获取到当前分类下的所有二级目录
-        if ($articlemax_id) {
-            $typeid_str = implode(',', array_keys($article_typearr));
-            $where = "id <=$articlemax_id and node_id={$this->node_id} and tags like '%,$tag_id,%' and articletype_id in ($typeid_str)";
-            //获取当前type_id的文章
-            if (!$this->mainsite) {
-                $where .= ' and stations = "10"';
-            }
-            $article = (new \app\index\model\Article())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->articleListField)->where($where)
-                ->paginate($listsize, false, [
-                    'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
-                    'page' => $currentpage
-                ]);
-            $this->commontool->formatArticleList($article, $article_typearr);
-        }
+        $typeid_str = implode(',', array_keys($article_typearr));
+        list($where, $articlemax_id) = $this->commontool->getArticleQueryWhere();
+        $where .= " and tags like '%,$tag_id,%'";
+        $where = sprintf($where, $typeid_str);
+        $article = (new \app\index\model\Article())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->articleListField)->where($where)
+            ->paginate($listsize, false, [
+                'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
+                'page' => $currentpage
+            ]);
+        $this->commontool->formatArticleList($article, $article_typearr);
         return [
             'd' => $assign_data,
             //子集的数据也需要展现出来
@@ -168,6 +161,7 @@ class TagList extends EntryCommon
      * @throws \think\Exception
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function generateQuestionList($tag_id, $tag_name, $currentpage)
     {
@@ -176,25 +170,18 @@ class TagList extends EntryCommon
         //获取列表页面必须的元素
         $assign_data = $this->commontool->getEssentialElement($tag_name, $this->currenturl);
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-        //查询出来已经静态化到的地方
-        $sync_info = $this->commontool->getDbArticleListId();
-        $questionmax_id = array_key_exists('question', $sync_info) ? $sync_info['question'] : 0;
         $question_typearr = array_key_exists('question', $typeid_arr) ? $typeid_arr['question'] : [];
-        $question = [];
         //需要获取到当前分类下的所有二级目录
-        if ($questionmax_id) {
-            $typeid_str = implode(',', array_keys($question_typearr));
-            $where = "id <={$questionmax_id} and node_id={$this->node_id} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
-            if (!$this->mainsite) {
-                $where .= ' and stations = "10"';
-            }
-            $question = Question::order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->questionListField)->where($where)
-                ->paginate($listsize, false, [
-                    'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
-                    'page' => $currentpage
-                ]);
-            $this->commontool->formatQuestionList($question, $question_typearr);
-        }
+        $typeid_str = implode(',', array_keys($question_typearr));
+        list($where, $questionmax_id) = $this->commontool->getQuestionQueryWhere();
+        $where .= " and tags like '%,$tag_id,%'";
+        $where = sprintf($where, $typeid_str);
+        $question = Question::order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->questionListField)->where($where)
+            ->paginate($listsize, false, [
+                'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
+                'page' => $currentpage
+            ]);
+        $this->commontool->formatQuestionList($question, $question_typearr);
         return [
             'd' => $assign_data,
             //子集的数据也需要展现出来
@@ -236,8 +223,11 @@ class TagList extends EntryCommon
      * @param $currentpage
      * @return array
      * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
+     * @throws \throwable
      */
     public function generateProductList($tag_id, $tag_name, $currentpage)
     {
@@ -246,25 +236,18 @@ class TagList extends EntryCommon
         //获取列表页面必须的元素
         $assign_data = $this->commontool->getEssentialElement($tag_name, $this->currenturl);
         list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-        //查询出来已经静态化到的地方
-        $sync_info = $this->commontool->getDbArticleListId();
-        $productmax_id = array_key_exists('product', $sync_info) ? $sync_info['product'] : 0;
         $product_typearr = array_key_exists('product', $typeid_arr) ? $typeid_arr['product'] : [];
-        $product = [];
         //需要获取到当前分类下的所有二级目录
-        if ($productmax_id) {
-            $typeid_str = implode(',', array_keys($product_typearr));
-            $where = "id <={$productmax_id} and node_id={$this->node_id} and type_id in ($typeid_str) and tags like '%,$tag_id,%'";
-            if (!$this->mainsite) {
-                $where .= ' and stations = "10"';
-            }
-            $product = (new Product())->order(['sort'=>'desc','id'=>'desc'])->field($this->commontool->productListField)->where($where)
-                ->paginate($listsize, false, [
-                    'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
-                    'page' => $currentpage
-                ]);
-            $this->commontool->formatProductList($product, $product_typearr);
-        }
+        $typeid_str = implode(',', array_keys($product_typearr));
+        list($where, $productmax_id) = $this->commontool->getProductQueryWhere();
+        $where .= " and tags like '%,$tag_id,%'";
+        $where = sprintf($where, $typeid_str);
+        $product = (new Product())->order(['sort' => 'desc', 'id' => 'desc'])->field($this->commontool->productListField)->where($where)
+            ->paginate($listsize, false, [
+                'path' => url('/tag', '', '') . "/{$tag_id}_p[PAGE].html",
+                'page' => $currentpage
+            ]);
+        $this->commontool->formatProductList($product, $product_typearr);
         return [
             'd' => $assign_data,
             //子集的数据也需要展现出来

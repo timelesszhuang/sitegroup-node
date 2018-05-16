@@ -64,7 +64,7 @@ class Detailstatic extends Common
             'type_name' => 'article'
         ];
         if ($articletypeid_str) {
-            $articlepre_stop = $this->detail_maxid('article');
+            $articlepre_stop = $this->commontool->detail_maxid('article');
             $article_list_sql = "id >= $articlepre_stop and node_id=$this->node_id and articletype_id in ($articletypeid_str)";
             // 要 step_limit+1 因为要 获取上次的最后一条 最后一条的下一篇需要重新生成链接
             $article_ids = (new \app\index\model\Article)->where($article_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
@@ -87,7 +87,7 @@ class Detailstatic extends Common
             }
         }
         if ($questiontypeid_str) {
-            $questionpre_stop = $this->detail_maxid('question');
+            $questionpre_stop = $this->commontool->detail_maxid('question');
             $question_list_sql = "id >= $questionpre_stop and node_id=$this->node_id and type_id in ($questiontypeid_str)";
             $question_ids = (new \app\index\model\Question)->where($question_list_sql)->order("id", "asc")->limit($default_count + 1)->column('id');
             $where['type_name'] = 'question';
@@ -110,7 +110,7 @@ class Detailstatic extends Common
         }
         if ($producttypeid_str) {
             //产品相关操作
-            $productpre_stop = $this->detail_maxid('product');
+            $productpre_stop = $this->commontool->detail_maxid('product');
             $productsql = "id >= $productpre_stop and node_id=$this->node_id and type_id in ($producttypeid_str)";
             $product_ids = (new \app\index\model\Product)->where($productsql)->order("id", "asc")->limit($default_count + 1)->column('id');
             $where['type_name'] = 'product';
@@ -134,7 +134,6 @@ class Detailstatic extends Common
     }
 
 
-
     /**
      * 获取制定文章tag 的列表
      * @access public
@@ -151,13 +150,14 @@ class Detailstatic extends Common
      */
     public function getTagArticleList($tags, $articletype_idstr, $article_typearr, $limit = 10)
     {
-        $max_id = $this->detail_maxid('article');
         $tags = array_filter(explode(',', $tags));
         if (!$tags) {
             //tag 没有选择的情况
             return [];
         }
-        $where = " node_id=$this->node_id and articletype_id in ($articletype_idstr) and (%s) and id<={$max_id}";
+        list($where, $max_id) = $this->commontool->getArticleQueryWhere();
+        $where = sprintf($where, $articletype_idstr);
+        $where .= 'and (%s)';
         $tagwhere = '';
         foreach ($tags as $k => $v) {
             $seperator = ' ';
@@ -287,7 +287,8 @@ class Detailstatic extends Common
         // 获取menu信息
         $menuInfo = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
+            "type_id" => ['like', "%,$type_id,%"],
+            "id" => ['in', array_filter(explode(',',$this->menu_ids))]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
@@ -316,39 +317,6 @@ class Detailstatic extends Common
         return [$template, $data];
     }
 
-    /***
-     * 获取每个详情的上次静态化到的max_id
-     * @param string $type_name
-     * @return mixed
-     */
-    public function detail_maxid($type_name = 'article')
-    {
-        //获取 站点 某个栏目同步到的文章id
-        return Cache::remember($type_name . "_max_id", function () use ($type_name) {
-            $max_id = 0;
-            $where = [
-                'type_name' => $type_name,
-                "node_id" => $this->node_id,
-                "site_id" => $this->site_id
-            ];
-            $Count = (new \app\index\model\ArticleSyncCount)->where($where)->find();
-            //判断下是否有数据 没有就创建模型
-            if (isset($Count->count) && $Count->count >= 0) {
-                $max_id = $Count->count;
-            } else {
-                //article 暂时没有静态化到的位置数据
-                ArticleSyncCount::create([
-                    'node_id' => $this->node_id,
-                    'site_id' => $this->site_id,
-                    'site_name' => $this->site_name,
-                    'type_name' => $type_name,
-                    'count' => 0
-                ]);
-            }
-            return $max_id;
-        });
-    }
-
 
     /**
      * 获取文章上一页下一页
@@ -356,8 +324,8 @@ class Detailstatic extends Common
      */
     private function get_article_prenextinfo($id, $type_id)
     {
-        $max_id = $this->detail_maxid('article');
-        $pre_article_sql = "id <{$id} and node_id=$this->node_id and articletype_id=$type_id";
+        list($where, $max_id) = $this->commontool->getArticleQueryWhere();
+        $pre_article_sql = "id  <{$id} and " . sprintf($where, $type_id);
         $pre_article = Article::where($pre_article_sql)->field("id,title")->order("id", "desc")->find();
         //上一页链接
         if ($pre_article) {
@@ -366,7 +334,7 @@ class Detailstatic extends Common
         }
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
-        $next_article_sql = "id >{$id} and id<={$max_id} and node_id=$this->node_id and articletype_id=$type_id";
+        $next_article_sql = "id  >{$id} and " . sprintf($where, $type_id);
         $next_article = (new \app\index\model\Article)->where($next_article_sql)->field("id,title")->find();
         //下一页链接
         if ($next_article) {
@@ -433,14 +401,15 @@ class Detailstatic extends Common
      */
     private function get_question_prenextinfo($id, $type_id)
     {
-        $max_id = $this->detail_maxid('question');
         //获取上一篇和下一篇
-        $pre_question = (new \app\index\model\Question)->where(["id" => ["lt", $id], "node_id" => $this->node_id, "type_id" => $type_id])->field("id,question as title")->order("id", "desc")->find();
+        list($where, $max_id) = $this->commontool->getQuestionQueryWhere();
+        $pre_question_sql = "id  <{$id} and " . sprintf($where, $type_id);
+        $pre_question = (new \app\index\model\Question)->where($pre_question_sql)->field("id,question as title")->order("id", "desc")->find();
         if ($pre_question) {
             $pre_question['href'] = sprintf($this->prequestionpath, $pre_question['id']);
         }
         //下一篇可能会导致其他问题
-        $next_sql = "id >{$id} and id<={$max_id} and node_id=$this->node_id and type_id=$type_id";
+        $next_sql = "id > {$id} and " . sprintf($where, $type_id);
         $next_question = (new \app\index\model\Question)->where($next_sql)->field("id,question as title")->find();
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
@@ -454,13 +423,14 @@ class Detailstatic extends Common
      */
     public function getTagQuestionList($tags, $questiontype_idstr, $question_typearr, $limit = 10)
     {
-        $max_id = $this->detail_maxid('question');
         $tags = array_filter(explode(',', $tags));
         if (!$tags) {
             //tag 没有选择的情况
             return [];
         }
-        $where = " node_id=$this->node_id and type_id in ($questiontype_idstr) and (%s) and id<={$max_id} ";
+        list($where, $max_id) = $this->commontool->getQuestionQueryWhere();
+        $where = sprintf($where, $max_id);
+        $where .= ' and (%s)';
         $tagwhere = '';
         foreach ($tags as $k => $v) {
             $seperator = ' ';
@@ -576,13 +546,14 @@ class Detailstatic extends Common
      */
     public function getTagProductList($tags, $producttype_idstr, $produt_typearr, $limit = 10)
     {
-        $max_id = $this->detail_maxid('product');
         $tags = array_filter(explode(',', $tags));
         if (!$tags) {
             //tag 没有选择的情况
             return [];
         }
-        $where = " node_id=$this->node_id and type_id in ($producttype_idstr) and (%s) and id<={$max_id} ";
+        list($where, $max_id) = $this->commontool->getProductQueryWhere();
+        $where = sprintf($where, $producttype_idstr);
+        $where .= 'and (%s)';
         $tagwhere = '';
         foreach ($tags as $k => $v) {
             $seperator = ' ';
@@ -685,17 +656,17 @@ class Detailstatic extends Common
         // 把 站点的相关的数据写入数据库中
         //获取上一篇和下一篇
         //获取上一篇
-        $max_id = $this->detail_maxid('product');
-        $pre_productcommon_sql = "id <{$id} and node_id=$this->node_id and type_id={$type_id} ";
-        $pre_product = (new \app\index\model\Product)->where($pre_productcommon_sql)->field("id,name,image_name")->order("id", "desc")->find();
+        list($where, $max_id) = $this->commontool->getProductQueryWhere();
+        $pre_product_sql = "id  <{$id} and " . sprintf($where, $type_id);
+        $pre_product = (new \app\index\model\Product)->where($pre_product_sql)->field("id,name,image_name")->order("id", "desc")->find();
         //上一页链接
         if ($pre_product) {
             $pre_product = $pre_product->toArray();
             $pre_product = ['href' => sprintf($this->preproductpath, $pre_product['id']), 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
         }
         //最后一条 不需要有 下一页 需要判断下 是不是下一篇包含最大id
-        $next_productcommon_sql = "id >{$id} and id<={$max_id} and node_id=$this->node_id and type_id={$type_id} ";
-        $next_product = (new \app\index\model\Product)->where($next_productcommon_sql)->field("id,name,image_name")->find();
+        $next_product_sql = "id >{$id} and " . sprintf($where, $type_id);
+        $next_product = (new \app\index\model\Product)->where($next_product_sql)->field("id,name,image_name")->find();
         //下一页链接
         if ($next_product) {
             $next_product = $next_product->toArray();

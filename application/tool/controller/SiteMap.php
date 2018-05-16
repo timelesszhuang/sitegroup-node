@@ -36,13 +36,11 @@ class SiteMap extends Common
         $xmldata = Cache::remember($host . 'sitemap', function () use ($host) {
             //首先获取全部链接的路径 从menu 中
             $menu = (new Menu)->getMergedMenu();
-            //然后获取相关的文章链接 产品链接 问答链接
-            $sync_info = $this->commontool->getDbArticleListId();
             //获取最新的200篇文章 各个分类 生成sitemap
             list($type_aliasarr, $typeid_arr) = $this->commontool->getTypeIdInfo();
-            $article_list = $this->commontool->getArticleList($sync_info, $typeid_arr, 200);
-            $question_list = $this->commontool->getQuestionList($sync_info, $typeid_arr, 200);
-            $product_list = $this->commontool->getProductList($sync_info, $typeid_arr, 200);
+            $article_list = $this->commontool->getArticleList($typeid_arr, 200);
+            $question_list = $this->commontool->getQuestionList($typeid_arr, 200);
+            $product_list = $this->commontool->getProductList($typeid_arr, 200);
             $sitemap = [];
             foreach ($menu as $v) {
                 $sitemap[] = [
