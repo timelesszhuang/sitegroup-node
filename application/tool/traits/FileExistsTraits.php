@@ -13,8 +13,11 @@ use app\tool\controller\Site;
 use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\ArticleReplaceKeyword;
+use app\tool\model\Childsitelist;
 use app\tool\model\SiteErrorInfo;
 use app\tool\model\SystemConfig;
+use think\Cache;
+use think\Db;
 
 trait FileExistsTraits
 {
@@ -120,7 +123,7 @@ trait FileExistsTraits
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function contentJonintALink($node_id, $site_id, $content)
+    public function contentJonintALink($node_id, $site_id, $content, $cache_id)
     {
 //        取数据
         $data = ArticleInsertA::where(["node_id" => $node_id, "site_id" => $site_id])->select();
@@ -134,7 +137,33 @@ trait FileExistsTraits
         if ($count <= 5) {
             $keys = $count;
         }
-        return $this->runGetKeys($content, $keys, $temp_data);
+        return $this->runGetKeys($content, $keys, $temp_data, $cache_id);
+    }
+
+    /**
+     * 组织a链接
+     * @param $cache_id
+     * @param $site_id
+     * @param $content
+     * @return bool|string
+     * @throws \think\Exception
+     * @throws \think\exception\DbException
+     */
+    public function contentJonintAFLink($node_id, $site_id, $content, $cache_id)
+    {
+//        取数据
+        $data = (new Childsitelist)->childsitelistcache($site_id);
+        if (empty($data)) {
+            return false;
+        }
+        $temp_data = collection($data)->toArray();
+        foreach ($temp_data as $key => $valus) {
+            $temp_data[$key]['title'] = $valus['name'];
+            $temp_data[$key]['href'] = $valus['url'];
+            $temp_data[$key]['content'] = $valus['name'];
+        }
+        $keys = 3;
+        return $this->runGetKeys($content, $keys, $temp_data, $cache_id);
     }
 
     /**
@@ -142,16 +171,23 @@ trait FileExistsTraits
      * @param $content
      * @param $count
      * @param $links_data
+     * @param $cache_id
      * @return string
      */
-    public function runGetKeys($content, $count, $links_data)
+    public function runGetKeys($content, $count, $links_data, $cache_id)
     {
-        //获取文章中的指定点  并且是从大到小排好序的
-        $positions = $this->getKey($content, $count);
-        $links = [];
-        foreach ($this->foreachLink($links_data, $count) as $item) {
-            array_push($links, $item);
-        }
+        //将结果缓存到缓存驱动replace,保证清除的时候不会清除
+        $cache = Cache::store('replace')->remember($cache_id, function () use ($content, $count, $links_data) {
+            //获取文章中的指定点  并且是从大到小排好序的
+            $positions = $this->getKey($content, $count);
+            $links = [];
+            foreach ($this->foreachLink($links_data, $count) as $item) {
+                array_push($links, $item);
+            }
+            return ['positions' => $positions, 'links' => $links];
+        });
+        $positions = $cache['positions'];
+        $links = $cache['links'];
         $tempContent = $content;
         for ($i = ($count - 1); $i > -1; $i--) {
             $pre_one = mb_substr($tempContent, 0, $positions[$i]);

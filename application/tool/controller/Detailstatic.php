@@ -214,9 +214,13 @@ class Detailstatic extends Common
         // 替换关键字
         $item['content'] = $this->replaceKeyword($this->node_id, $this->site_id, $item['content']);
         // 将A链接插入到内容中去
-        $contentWIthLink = $this->contentJonintALink($this->node_id, $this->site_id, $item['content']);
+        $contentWIthLink = $this->contentJonintALink($this->node_id, $this->site_id, $item['content'],"aarticle".$item['id']);
         if ($contentWIthLink) {
             $item['content'] = $contentWIthLink;
+        }
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content'],"article".$item['id']);
+        if ($contentWIthFLink) {
+            $item['content'] = $contentWIthFLink;
         }
         $item['content'] = $this->add_share_code($item['content']);
         $articletags = [];
@@ -288,7 +292,6 @@ class Detailstatic extends Common
         $menuInfo = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
             "type_id" => ['like', "%,$type_id,%"],
-            "id" => ['in', array_filter(explode(',',$this->menu_ids))]
         ])->find();
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
@@ -484,6 +487,10 @@ class Detailstatic extends Common
                 }
             }
         }
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content_paragraph'],"question".$item['id']);
+        if ($contentWIthFLink) {
+            $item['content_paragraph'] = $contentWIthFLink;
+        }
         $item['tags'] = $questiontags;
         $assign_data = $this->commontool->getEssentialElement(['id' => $item['id'], 'title' => $item['question']], $description, $keywords, $keyword_id, $menu_id, ['menu_name' => $menu_name, 'menu_enname' => $menu_enname], 'question');
         return $assign_data;
@@ -533,6 +540,10 @@ class Detailstatic extends Common
                     $producttags[] = $tags[$val];
                 }
             }
+        }
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['detail'],"product".$item['id']);
+        if ($contentWIthFLink) {
+            $item['detail'] = $contentWIthFLink;
         }
         $item['tags'] = $producttags;
         $item['images'] = $local_img;
