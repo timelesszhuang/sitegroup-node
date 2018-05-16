@@ -8,6 +8,7 @@ use app\tool\model\SiteErrorInfo;
 use app\common\controller\Common;
 use app\tool\model\SiteUser;
 use app\tool\model\UserDefinedForm;
+use think\Cache;
 use think\Config;
 use think\Db;
 use think\Request;
@@ -34,30 +35,40 @@ class Site extends Common
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
-     * @todo  还要考虑到手机站的情况 手机站的互链情况
+     * @todo  后期还要考虑到手机站的情况 手机站的互链情况
+     * @throws \throwable
      */
     public function getLinkInfo()
     {
         $site_type_id = $this->siteinfo['site_type'];
         //首先获取当前的节点id
-        $site_type = Db::name('site_type')->where('id', $site_type_id)->find();
+        $site_type = Cache::remember('site_type', function () use ($site_type_id) {
+            return Db::name('site_type')->where('id', $site_type_id)->find();
+        });
         $chain_type = $site_type['chain_type'];
         //10表示循环链轮 20 表示 金字塔型链轮
         //获取主节点////////////////////////////////////////////
         //返回 主站的域名 id 等
         //有可能没有设置主站  需要有个地方记录下错误信息
-        $main_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '20'])->field('id,site_name,url')->find();
+        $main_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '20','node_id'=>$this->node_id])->field('id,site_name,url')->find();
         if (!$main_site) {
+            // 如果没有设置主站的 默认设置第一个站点为主站
+            $site = (new  \app\tool\model\Site())->where(['site_type' => $site_type_id])->find();
+            $this->print_pre($site, true);
+            $sitename = $site->site_name;
+            $site->main_site = '20';
+            $site->save();
+            $main_site = collection($site)->toArray();
             //没有设置主节点 需要提示下错误信息
             $site_info = new SiteErrorInfo();
             $site_info->addError([
-                'msg' => $site_type['name'] . "站点分类没有设置主站点",
+                'msg' => $site_type['name'] . "站点分类没有设置主站点,已经默认设置{$sitename}为主站。",
                 'operator' => '页面静态化',
                 'site_id' => $this->site_id,
                 'site_name' => $this->site_name,
                 'node_id' => $this->node_id,
             ]);
-            //错误信息
+            //需要默认一个站点设置主站
         }
         //判断主节点是不是当前的节点
         if ($this->site_id == $main_site['id']) {
@@ -190,16 +201,17 @@ class Site extends Common
      */
     public function DefinedRejection()
     {
-//        session_write_close();
+//      session_write_close();
         $request = Request::instance();
         $tag = $request->post('tag');
         if (!$tag) {
             return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
         }
-        if($request->post('code')){
-        if (!captcha_check($request->post('code'))) {
-            return $this->resultArray("尊敬的客户，验证码错误", "failed");
-        }};
+        if ($request->post('code')) {
+            if (!captcha_check($request->post('code'))) {
+                return $this->resultArray("尊敬的客户，验证码错误", "failed");
+            }
+        };
         $definedform = userForm::get(['tag' => $tag]);
         //唯一标志
         //node_id 获取到的node_id

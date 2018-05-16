@@ -1726,31 +1726,30 @@ code;
             //表示自己是同node内主站
             //主站都链接到最新上线的主站上 也就是全部网站的主站
             $allmain_site = Cache::remember('allmainsite', function () {
-                $allmain_site = (new \app\tool\model\Site())->where(['main_site' => '20'])->order('id', 'desc')->find();
-                return collection($allmain_site)->toArray();
+                return (new \app\tool\model\Site())->where(['main_site' => '20'])->order('id', 'desc')->find();
             });
+            $allmainsite_id = $allmain_site->id;
             if ($allmain_site) {
                 $partnersite[] = [
-                    'href' => $allmain_site['url'],
-                    'text' => $allmain_site['site_name']
+                    'href' => $allmain_site->url,
+                    'text' => $allmain_site->site_name
                 ];
             }
             // 链接到下个主站  id小的主站链接到大的 最大的链接到最小的形成单向环
-            $next_mainsite = Cache::remember('next_mainsite', function () {
-                $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['gt', $this->site_id]])->find();
-                $next = collection($next_mainsite)->toArray();
+            $next_mainsite = Cache::remember('next_mainsite', function () use ($allmainsite_id) {
+                $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['gt', $this->site_id], 'id' => ['neq', $allmainsite_id]])->find();
                 if (!$next_mainsite) {
                     //说明比该网站大的已经没有了 取出最小的链接起来
-                    $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20'])->order('id', 'asc')->find();
-                    $next = collection($next_mainsite)->toArray();
+                    $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['neq', $allmainsite_id]])->order('id', 'asc')->find();
                 }
-                return $next;
+                return $next_mainsite;
             });
             $partnersite[] = [
-                'href' => $next_mainsite['url'],
-                'text' => $next_mainsite['site_name']
+                'href' => $next_mainsite->url,
+                'text' => $next_mainsite->site_name
             ];
         }
+        $this->print_pre($partnersite, true);
         return $partnersite;
     }
 
