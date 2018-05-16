@@ -102,7 +102,7 @@ trait FileExistsTraits
                         $i = 0;
                         continue;
                     } else {
-                        file_put_contents("code.txt", $arr[0][$item] . "\r\n", FILE_APPEND);
+                        //file_put_contents("code.txt", $arr[0][$item] . "\r\n", FILE_APPEND);
                         $i++;
                     }
                 }
