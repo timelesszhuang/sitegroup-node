@@ -18,6 +18,7 @@ trait SpiderComefrom
         $data['node_id'] = $siteinfo['node_id'];
         $data['site_id'] = $siteinfo['id'];
         $data['useragent'] = $_SERVER['HTTP_USER_AGENT'];
+        $is_robot = true;
         if (preg_match("/Baiduspider/i", $_SERVER['HTTP_USER_AGENT'])) {
             //百度搜索
             $data['engine'] = "baidu";
@@ -41,6 +42,9 @@ trait SpiderComefrom
         } elseif (preg_match("/Slurp/i", $_SERVER['HTTP_USER_AGENT'])) {
             $data['engine'] = 'yahoo';
             Useragent::create($data);
+        }else{
+            $is_robot = false;
         }
+        return $is_robot;
     }
 }
