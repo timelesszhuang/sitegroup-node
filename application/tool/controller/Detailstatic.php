@@ -426,7 +426,6 @@ class Detailstatic extends Common
         }
         list($where, $max_id) = $this->commontool->getQuestionQueryWhere();
         $where = sprintf($where, $max_id);
-        $where .= ' and (%s)';
         $tagwhere = '';
         foreach ($tags as $k => $v) {
             $seperator = ' ';
@@ -435,7 +434,7 @@ class Detailstatic extends Common
             }
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
-        $where = sprintf($where, $tagwhere);
+        $where .= sprintf(' and (%s)', $tagwhere);
         $tagsQuestionList = (new \app\index\model\Question)->where($where)->limit($limit)->field($this->commontool->questionListField)->order(['sort' => 'desc', 'id' => 'desc'])->select();
         if ($tagsQuestionList) {
             $this->commontool->formatQuestionList($tagsQuestionList, $question_typearr);
@@ -557,7 +556,6 @@ class Detailstatic extends Common
         }
         list($where, $max_id) = $this->commontool->getProductQueryWhere();
         $where = sprintf($where, $producttype_idstr);
-        $where .= 'and (%s)';
         $tagwhere = '';
         foreach ($tags as $k => $v) {
             $seperator = ' ';
@@ -566,7 +564,7 @@ class Detailstatic extends Common
             }
             $tagwhere .= $seperator . " tags like '%,$v,%' ";
         }
-        $where = sprintf($where, $tagwhere);
+        $where .= sprintf(' and (%s)', $tagwhere);
         $tagsProductList = (new \app\index\model\Product)->where($where)->limit($limit)->field($this->commontool->productListField)->order(['sort' => 'desc', 'id' => 'desc'])->select();
         if ($tagsProductList) {
             $this->commontool->formatProductList($tagsProductList, $produt_typearr);
