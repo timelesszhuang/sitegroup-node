@@ -8,7 +8,6 @@ use app\index\model\ArticleSyncCount;
 use think\Cache;
 use think\Config;
 use think\Db;
-use think\model\Collection;
 
 /**
  * 详情页 静态化 比如 文章 之类

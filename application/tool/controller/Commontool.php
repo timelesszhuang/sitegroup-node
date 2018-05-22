@@ -1644,7 +1644,7 @@ code;
                     $ext = '.' . $pathinfo['extension'];
                 }
                 $path = "/images/logo{$site_id}{$ext}";
-                return ["<img src='{$path}' title='$site_name' alt='$site_name'>", $path];
+                return ["<img src='{$path}' title='{$site_name}' alt='{$site_name}'>", $path];
             }
             return [$site_name, ''];
         });
