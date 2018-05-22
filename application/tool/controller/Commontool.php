@@ -9,6 +9,7 @@ use app\index\model\Producttype;
 use app\index\model\QuestionType;
 use app\tool\model\Activity;
 use think\Cache;
+use think\Collection;
 use think\Db;
 
 
@@ -1693,6 +1694,7 @@ code;
      */
     public function getPatternLink()
     {
+        $site_field = 'id,url,site_name';
         $link_id = $this->siteinfo['link_id'];
         //友链信息
         $link_info = Cache::remember('linkinfo', function () use ($link_id) {
@@ -1725,8 +1727,8 @@ code;
         } else {
             //表示自己是同node内主站
             //主站都链接到最新上线的主站上 也就是全部网站的主站
-            $allmain_site = Cache::remember('allmainsite', function () {
-                return (new \app\tool\model\Site())->where(['main_site' => '20'])->order('id', 'desc')->find();
+            $allmain_site = Cache::remember('allmainsite', function () use ($site_field) {
+                return (new \app\tool\model\Site())->where(['main_site' => '20'])->order('id', 'desc')->field($site_field)->find();
             });
             $allmainsite_id = $allmain_site->id;
             if ($allmain_site) {
@@ -1736,17 +1738,28 @@ code;
                 ];
             }
             // 链接到下个主站  id小的主站链接到大的 最大的链接到最小的形成单向环
-            $next_mainsite = Cache::remember('next_mainsite', function () use ($allmainsite_id) {
-                $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['gt', $this->site_id], 'id' => ['neq', $allmainsite_id]])->find();
+            $next_mainsite = Cache::remember('next_mainsite', function () use ($allmainsite_id, $site_field) {
+                $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['gt', $this->site_id], 'id' => ['neq', $allmainsite_id]])->field($site_field)->find();
                 if (!$next_mainsite) {
                     //说明比该网站大的已经没有了 取出最小的链接起来
-                    $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['neq', $allmainsite_id]])->order('id', 'asc')->find();
+                    $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['neq', $allmainsite_id]])->order('id', 'asc')->field($site_field)->find();
                 }
                 return $next_mainsite;
             });
             $partnersite[] = [
                 'href' => $next_mainsite->url,
                 'text' => $next_mainsite->site_name
+            ];
+        }
+        //然后从数据库中随机选择几个站点 作为友链 这个目前是永久的 除非后来主动
+        $sitearr = Cache::store('replace')->remember('randompattersite', function () use ($site_field) {
+            $site = (new \app\tool\model\Site())->order('rand()')->limit('10')->field($site_field)->select();
+            return collection($site)->toArray();
+        });
+        foreach ($sitearr as $k => $v) {
+            $partnersite[] = [
+                'href' => $v['url'],
+                'text' => $v['site_name']
             ];
         }
         return $partnersite;
