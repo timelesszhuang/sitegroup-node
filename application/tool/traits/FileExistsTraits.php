@@ -91,15 +91,18 @@ trait FileExistsTraits
         if (!empty($content)) {
             preg_match_all("/./u", $content, $arr);
             $i = 0;
-            while ($i < $count) {
+            $j = 10;
+            while ($i < $count && $j < 10) {
+                $j++;
                 $temp_arr = array_rand($arr[0], $count);
                 // 如果count是1 有可能返回的不是数组 需要判断下
                 if (!is_array($temp_arr)) {
                     $temp_arr = [$temp_arr];
                 }
                 foreach ($temp_arr as $item) {
-                    if (!$this->checkAscii($arr[0][$item]) || $item < 15) {
+                    if (!$this->checkAscii($arr[0][$item]) || $item < 15 || preg_match("/<[^>]+" . $arr[0][$item] . "[^>]+>/u", $content)) {
                         $i = 0;
+                        $temp_arr=[];
                         continue;
                     } else {
                         //file_put_contents("code.txt", $arr[0][$item] . "\r\n", FILE_APPEND);
@@ -184,7 +187,7 @@ trait FileExistsTraits
             foreach ($this->foreachLink($links_data, $count) as $item) {
                 array_push($links, $item);
             }
-            return ['positions' => $positions, 'links' => $links];
+            return ['positions' => $positions, 'links' => $links, 'content' => $content];
         });
         $positions = $cache['positions'];
         $links = $cache['links'];
@@ -192,7 +195,7 @@ trait FileExistsTraits
         for ($i = ($count - 1); $i > -1; $i--) {
             $pre_one = mb_substr($tempContent, 0, $positions[$i]);
             $next_one = mb_substr($tempContent, $positions[$i]);
-            $next_one=$next_one?$next_one:'';
+            $next_one = $next_one ? $next_one : '';
             $tempContent = $pre_one . $links[$i] . $next_one;
         }
         return $tempContent;
