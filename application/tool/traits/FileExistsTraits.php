@@ -121,8 +121,8 @@ trait FileExistsTraits
      * @param $node_id
      * @param $site_id
      * @param $content
-     * @param $cache_id
-     * @param $last_time
+     * @param $cache_id 缓存name
+     * @param $last_time 缓存文章最后更新时间
      * @return bool|string
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
@@ -150,8 +150,8 @@ trait FileExistsTraits
      * @param $node_id
      * @param $site_id
      * @param $content
-     * @param $cache_id
-     * @param $last_time
+     * @param $cache_id 缓存name
+     * @param $last_time 缓存文章最后更新时间
      * @return bool|string
      */
     public function contentJonintAFLink($node_id, $site_id, $content, $cache_id, $last_time)
