@@ -192,6 +192,7 @@ trait FileExistsTraits
             }
             return ['positions' => $positions, 'links' => $links, 'last_time' => $last_time];
         });
+        //如果更新时间比缓存时间新,则删除原有缓存并重新缓存
         if ($cache['last_time'] < $last_time) {
             Cache::store('replace')->rm($cache_id);
             $cache = Cache::store('replace')->remember($cache_id, function () use ($content, $count, $links_data, $last_time) {
