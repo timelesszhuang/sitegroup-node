@@ -102,7 +102,7 @@ trait FileExistsTraits
                 foreach ($temp_arr as $item) {
                     if (!$this->checkAscii($arr[0][$item]) || $item < 15 || preg_match("/<[^>]+" . $arr[0][$item] . "[^>]+>/u", $content)) {
                         $i = 0;
-                        $temp_arr=[];
+                        $temp_arr = [];
                         continue;
                     } else {
                         //file_put_contents("code.txt", $arr[0][$item] . "\r\n", FILE_APPEND);
@@ -121,12 +121,14 @@ trait FileExistsTraits
      * @param $node_id
      * @param $site_id
      * @param $content
+     * @param $cache_id
+     * @param $last_time
      * @return bool|string
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function contentJonintALink($node_id, $site_id, $content, $cache_id)
+    public function contentJonintALink($node_id, $site_id, $content, $cache_id, $last_time)
     {
 //        取数据
         $data = ArticleInsertA::where(["node_id" => $node_id, "site_id" => $site_id])->select();
@@ -140,19 +142,19 @@ trait FileExistsTraits
         if ($count <= 5) {
             $keys = $count;
         }
-        return $this->runGetKeys($content, $keys, $temp_data, $cache_id);
+        return $this->runGetKeys($content, $keys, $temp_data, $cache_id, $last_time);
     }
 
     /**
      * 组织a链接
-     * @param $cache_id
+     * @param $node_id
      * @param $site_id
      * @param $content
+     * @param $cache_id
+     * @param $last_time
      * @return bool|string
-     * @throws \think\Exception
-     * @throws \think\exception\DbException
      */
-    public function contentJonintAFLink($node_id, $site_id, $content, $cache_id)
+    public function contentJonintAFLink($node_id, $site_id, $content, $cache_id, $last_time)
     {
 //        取数据
         $data = (new Childsitelist)->childsitelistcache($site_id);
@@ -166,7 +168,7 @@ trait FileExistsTraits
             $temp_data[$key]['content'] = $valus['name'];
         }
         $keys = 3;
-        return $this->runGetKeys($content, $keys, $temp_data, $cache_id);
+        return $this->runGetKeys($content, $keys, $temp_data, $cache_id, $last_time);
     }
 
     /**
@@ -175,20 +177,33 @@ trait FileExistsTraits
      * @param $count
      * @param $links_data
      * @param $cache_id
+     * @param int $last_time
      * @return string
      */
-    public function runGetKeys($content, $count, $links_data, $cache_id)
+    public function runGetKeys($content, $count, $links_data, $cache_id, $last_time = 0)
     {
         //将结果缓存到缓存驱动replace,保证清除的时候不会清除
-        $cache = Cache::store('replace')->remember($cache_id, function () use ($content, $count, $links_data) {
+        $cache = Cache::store('replace')->remember($cache_id, function () use ($content, $count, $links_data, $last_time) {
             //获取文章中的指定点  并且是从大到小排好序的
             $positions = $this->getKey($content, $count);
             $links = [];
             foreach ($this->foreachLink($links_data, $count) as $item) {
                 array_push($links, $item);
             }
-            return ['positions' => $positions, 'links' => $links, 'content' => $content];
+            return ['positions' => $positions, 'links' => $links, 'last_time' => $last_time];
         });
+        if ($cache['last_time'] < $last_time) {
+            Cache::store('replace')->rm($cache_id);
+            $cache = Cache::store('replace')->remember($cache_id, function () use ($content, $count, $links_data, $last_time) {
+                //获取文章中的指定点  并且是从大到小排好序的
+                $positions = $this->getKey($content, $count);
+                $links = [];
+                foreach ($this->foreachLink($links_data, $count) as $item) {
+                    array_push($links, $item);
+                }
+                return ['positions' => $positions, 'links' => $links, 'last_time' => $last_time];
+            });
+        }
         $positions = $cache['positions'];
         $links = $cache['links'];
         $tempContent = $content;
