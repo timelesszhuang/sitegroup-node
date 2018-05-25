@@ -141,7 +141,6 @@ class Common extends Controller
             if ($SiteWaterImage_info) {
                 return $SiteWaterImage_info['oss_water_image_path'];
             }
-            return '';
         });
         $this->siteInit();
         $this->menu_ids = $siteinfo['menu'];
