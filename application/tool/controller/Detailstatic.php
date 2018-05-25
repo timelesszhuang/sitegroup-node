@@ -212,11 +212,11 @@ class Detailstatic extends Common
         // 替换关键字
         $item['content'] = $this->replaceKeyword($this->node_id, $this->site_id, $item['content']);
         // 将A链接插入到内容中去
-        $contentWIthLink = $this->contentJonintALink($this->node_id, $this->site_id, $item['content'], "aarticle" . $item['id']);
+        $contentWIthLink = $this->contentJonintALink($this->node_id, $this->site_id, $item['content'], "aarticle" . $item['id'], $item['update_time']);
         if ($contentWIthLink) {
             $item['content'] = $contentWIthLink;
         }
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content'], "article" . $item['id']);
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content'], "article" . $item['id'], $item['update_time']);
         if ($contentWIthFLink) {
             $item['content'] = $contentWIthFLink;
         }
@@ -468,7 +468,7 @@ class Detailstatic extends Common
         //页面的描述
         $keywords = $item['keywords'];
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content_paragraph'], "question" . $item['id']);
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content_paragraph'], "question" . $item['id'], $item['update_time']);
         if ($contentWIthFLink) {
             $item['content_paragraph'] = $contentWIthFLink;
         }
@@ -507,7 +507,7 @@ class Detailstatic extends Common
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['detail'], "product" . $item['id']);
+        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['detail'], "product" . $item['id'], $item['update_time']);
         if ($contentWIthFLink) {
             $item['detail'] = $contentWIthFLink;
         }
