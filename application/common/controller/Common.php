@@ -136,12 +136,13 @@ class Common extends Controller
 //        $this->domain = 'local.sitegroupnode.com';
         $this->app_debug = $siteinfo['app_debug'];
         $this->siteinfo = $siteinfo;
-        $this->waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
+        $waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
             if ($SiteWaterImage_info) {
                 return $SiteWaterImage_info['oss_water_image_path'];
             }
         });
+        $this->waterImgUrl = $waterImgUrl ?: '';
         $this->siteInit();
         $this->menu_ids = $siteinfo['menu'];
         //上一页下一页链接
