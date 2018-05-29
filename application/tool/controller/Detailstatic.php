@@ -339,7 +339,6 @@ class Detailstatic extends Common
         if ($next_article) {
             $next_article = $next_article->toArray();
             $next_article['href'] = sprintf($this->prearticlepath, $next_article['id']);
-            dump($next_article);
         }
         return [$pre_article, $next_article];
     }
@@ -411,6 +410,7 @@ class Detailstatic extends Common
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
         }
+        return [$pre_question, $next_question];
     }
 
 
