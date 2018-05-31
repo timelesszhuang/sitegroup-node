@@ -401,11 +401,12 @@ class Detailstatic extends Common
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
         $next_article_sql = "id  >{$id} and " . sprintf($where, $type_id);
-        $next_article = (new \app\index\model\Article)->where($next_article_sql)->field("id,title")->find();
+        $next_article = (new \app\index\model\Article)->where($next_article_sql)->field("id,title")->order("id", "desc")->find();
+
         //下一页链接
         if ($next_article) {
             $next_article = $next_article->toArray();
-            $next_article['href'] = sprintf($this->prearticlepath, $id);
+            $next_article['href'] = sprintf($this->prearticlepath, $next_article['id']);
         }
         return [$pre_article, $next_article];
     }
@@ -477,6 +478,7 @@ class Detailstatic extends Common
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
         }
+        return [$pre_question, $next_question];
     }
 
 
