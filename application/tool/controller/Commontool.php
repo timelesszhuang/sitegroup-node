@@ -1752,7 +1752,7 @@ code;
             ];
         }
         //然后从数据库中随机选择几个站点 作为友链 这个目前是永久的 除非后来主动
-        $sitearr = Cache::store('replace')->remember('randompattersite', function () use ($site_field) {
+        $sitearr = Cache::store('pagecache')->remember('randompattersite', function () use ($site_field) {
             $site = (new \app\tool\model\Site())->order('rand()')->limit('10')->field($site_field)->select();
             return collection($site)->toArray();
         });
