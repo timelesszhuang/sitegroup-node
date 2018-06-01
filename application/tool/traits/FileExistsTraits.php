@@ -208,12 +208,12 @@ trait FileExistsTraits
         $positions = $cache['positions'];
         $links = $cache['links'];
         $tempContent = $content;
-        for ($i = ($count - 1); $i > -1; $i--) {
-            $pre_one = mb_substr($tempContent, 0, $positions[$i]);
-            $next_one = mb_substr($tempContent, $positions[$i]);
-            $next_one = $next_one ? $next_one : '';
-            $tempContent = $pre_one . $links[$i] . $next_one;
-        }
+//        for ($i = ($count - 1); $i > -1; $i--) {
+//            $pre_one = mb_substr($tempContent, 0, $positions[$i]);
+//            $next_one = mb_substr($tempContent, $positions[$i]);
+//            $next_one = $next_one ? $next_one : '';
+//            $tempContent = $pre_one . $links[$i] . $next_one;
+//        }
         return $tempContent;
     }
 
