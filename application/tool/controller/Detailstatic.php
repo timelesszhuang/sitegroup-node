@@ -5,6 +5,8 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\index\model\Article;
 use app\index\model\ArticleSyncCount;
+use app\tool\model\ArticleInsertA;
+use app\tool\model\Childsitelist;
 use think\Cache;
 use think\Config;
 use think\Db;
@@ -211,15 +213,9 @@ class Detailstatic extends Common
         $item['content'] = $this->articleReplaceKeyword($item['content']);
         // 替换关键字
         $item['content'] = $this->replaceKeyword($this->node_id, $this->site_id, $item['content']);
-        // 将A链接插入到内容中去
-        $contentWIthLink = $this->contentJonintALink($this->node_id, $this->site_id, $item['content'], "aarticle" . $item['id'], $item['update_time']);
-        if ($contentWIthLink) {
-            $item['content'] = $contentWIthLink;
-        }
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content'], "article" . $item['id'], $item['update_time']);
-        if ($contentWIthFLink) {
-            $item['content'] = $contentWIthFLink;
-        }
+        // 将设置好的 A链接插入到内容中去 吸引流量
+        $links = $this->getLinks();
+        $item['content'] = $this->contentJoinALink($item['content'], $links, $item['id']);
         $item['content'] = $this->add_share_code($item['content']);
         $articletags = [];
         if ($item['tags']) {
@@ -232,6 +228,78 @@ class Detailstatic extends Common
         }
         $item['tags'] = $articletags;
         return $assign_data;
+    }
+
+
+    /**
+     * 网站中插入链接
+     * @access public
+     * @throws \throwable
+     */
+    public function getLinks()
+    {
+        /**随机获取设置的插入链接***************************************/
+        $maxCount = 3;
+        //取数据
+        $data = ArticleInsertA::where(["node_id" => $this->node_id, "site_id" => $this->site_id])->field('href,title,content')->select();
+        $temp_data = collection($data)->toArray();
+        //随机选择
+        $arr_count = count($temp_data);
+        if ($arr_count) {
+            $keywordCount = $arr_count <= $maxCount ? $arr_count : rand(1, $maxCount);
+            //随机选择几个关键词
+            $rand_arr = array_rand($temp_data, $keywordCount);
+            if (!is_array($rand_arr)) {
+                $rand_arr = [$rand_arr];
+            }
+            $link = [];
+            foreach ($rand_arr as $k) {
+                $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $temp_data[$k]['href'], $temp_data[$k]['title'], $temp_data[$k]['content']);
+            }
+        }
+        /*****************************************/
+        //取数据
+        $data = (new Childsitelist)->childsitelistcache($this->site_id);
+        $site_data = collection($data)->toArray();
+        $arr_count = count($site_data);
+        $childSiteCount = $arr_count <= $maxCount ? $arr_count : rand(1, $maxCount);
+        //随机选择几个关键词
+        $rand_arr = array_rand($site_data, $childSiteCount);
+        if (!is_array($rand_arr)) {
+            $rand_arr = [$rand_arr];
+        }
+        foreach ($rand_arr as $k) {
+            $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $site_data[$k]['url'], $site_data[$k]['name'], $site_data[$k]['name']);
+        }
+        return $link;
+    }
+
+    /**
+     * 向内容中添加A链接
+     * @param $content
+     * @param $links
+     * @param $id
+     * @return string
+     * @throws \throwable
+     */
+    public function contentJoinALink($content, $links)
+    {
+        $arr = explode('>', $content);
+        $splitcount = count($arr);
+        $linkcount = count($links);
+        if ($linkcount < $splitcount) {
+            //分割之后的 数量大于 要插入的数量
+            $randkeys = array_rand($arr, $linkcount);
+            $i = 0;
+            foreach ($randkeys as $k) {
+                $arr[$k] = $links[$i] . $arr[$k];
+                $i++;
+            }
+        } else {
+            //如果少于5个的 不插入链接
+            return $content;
+        }
+        return implode('>', $arr);
     }
 
 
@@ -470,10 +538,6 @@ class Detailstatic extends Common
         //页面的描述
         $keywords = $item['keywords'];
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['content_paragraph'], "question" . $item['id'], $item['update_time']);
-        if ($contentWIthFLink) {
-            $item['content_paragraph'] = $contentWIthFLink;
-        }
         $item['content_paragraph'] = $this->add_share_code($item['content_paragraph']);
         $questiontags = [];
         if ($item['tags']) {
@@ -509,10 +573,6 @@ class Detailstatic extends Common
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
-        $contentWIthFLink = $this->contentJonintAFLink($this->node_id, $this->site_id, $item['detail'], "product" . $item['id'], $item['update_time']);
-        if ($contentWIthFLink) {
-            $item['detail'] = $contentWIthFLink;
-        }
         $item['detail'] = $this->add_share_code($item['detail']);
         // 相关图片
         $imgser = $item['imgser'];

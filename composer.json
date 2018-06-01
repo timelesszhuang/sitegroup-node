@@ -15,15 +15,15 @@
             "email": "liu21st@gmail.com"
         }
     ],
-     "repositories": {
-    	"packagist": {
-        	"type": "composer",
-        	"url": "https://packagist.phpcomposer.com"
-    	}
-	},
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
+    },
     "require": {
         "php": ">=5.4.0",
-        "topthink/framework": "^5.0",
+        "topthink/framework": "5.0.16",
         "topthink/think-image": "^1.0",
         "topthink/think-captcha": "^1.0",
         "topthink/think-mongo": "^1.0",
@@ -34,8 +34,7 @@
         "topthink/think-queue": "^1.0",
         "topthink/think-testing": "^1.0",
         "phpmailer/phpmailer": "~5.2",
-        "topthink/think-testing": "^1.0",
-        "aliyuncs/oss-sdk-php": "^2.2"
+        "topthink/think-testing": "^1.0"
 
     },
     "extra": {

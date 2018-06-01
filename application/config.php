@@ -156,6 +156,7 @@ return [
     // 显示错误信息
     'show_error_msg' => false,
     // 异常处理handle类 留空使用 \think\exception\Handle
+
     'exception_handle' => '\\app\\common\\exception\\Http',
 
     // +----------------------------------------------------------------------
@@ -194,11 +195,12 @@ return [
             // 缓存有效期 0表示永久缓存
             'expire' => 0,
         ],
-        'replace' => [
+        'pagecache' => [
+            // 用于存储 文章 问答 产品等
             // 驱动方式
             'type' => 'File',
             // 缓存保存目录
-            'path' => RUNTIME_PATH . "replace" . DS,
+            'path' => RUNTIME_PATH . "article" . DS,
             // 缓存前缀
             'prefix' => '',
             // 缓存有效期 0表示永久缓存

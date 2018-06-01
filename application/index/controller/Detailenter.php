@@ -9,7 +9,6 @@ use app\tool\controller\Detailmenupagestatic;
 use app\tool\controller\Detailstatic;
 use app\tool\controller\Indexstatic;
 use think\Cache;
-use think\Db;
 use think\View;
 
 /**
@@ -46,7 +45,7 @@ class Detailenter extends EntryCommon
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
         // 子站相关 可以使用预览部分的相关功能
-        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+        return Cache::store('pagecache')->tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
             list($template, $data) = (new Detailstatic())->article_detailinfo($id);
             $content = $this->Debug((new View())->fetch($template,
                 $data
@@ -67,7 +66,7 @@ class Detailenter extends EntryCommon
         $type = 'question';
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
-        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+        return Cache::store('pagecache')->tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
             // 子站相关 可以使用预览部分的相关功能
             list($template, $data) = (new Detailstatic())->question_detailinfo($id);
             return $this->Debug((new View())->fetch($template,
@@ -88,7 +87,7 @@ class Detailenter extends EntryCommon
         $type = 'product';
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
-        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+        return Cache::store('pagecache')->tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
             list($template, $data) = (new Detailstatic())->product_detailinfo($id);
             return $this->Debug((new View())->fetch($template,
                 $data
@@ -108,7 +107,7 @@ class Detailenter extends EntryCommon
         $type = 'activity';
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
-        return Cache::remember($this->suffix . $type . $id, function () use ($id) {
+        return Cache::store('pagecache')->tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
             return (new Activitystatic())->getacticitycontent($id);
         });
     }
