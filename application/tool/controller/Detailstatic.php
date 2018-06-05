@@ -290,6 +290,9 @@ class Detailstatic extends Common
         if ($linkcount < $splitcount) {
             //分割之后的 数量大于 要插入的数量
             $randkeys = array_rand($arr, $linkcount);
+            if (!is_array($randkeys)) {
+                $randkeys = [$randkeys];
+            }
             $i = 0;
             foreach ($randkeys as $k) {
                 $arr[$k] = $links[$i] . $arr[$k];
