@@ -45,7 +45,7 @@ class Detailenter extends EntryCommon
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
         // 子站相关 可以使用预览部分的相关功能
-        Cache::store('pagecache')->clear($type . $id);
+        Cache::clear($type . $id);
         return Cache::store('pagecache')->tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
             list($template, $data) = (new Detailstatic())->article_detailinfo($id);
             $content = $this->Debug((new View())->fetch($template,
