@@ -40,7 +40,7 @@ Route::get('search', 'index/Query/index');
 //区域id
 Route::get('district', 'index/Detailenter/district', ['ext' => 'html']);
 //站点地图
-Route::get('sitemap', 'tool/SiteMap/index',['ext' => 'xml']);
+Route::get('sitemap', 'tool/SiteMap/index', ['ext' => 'xml']);
 
 //模板的其他操作
 //模板文件 活动文件管理
@@ -65,6 +65,7 @@ Route::get('resetall', 'tool/Pagestaticentry/resetall');
 
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
+Route::get('clearPageCache', 'tool/Commontool/clearCache');
 //页面 pv 操作 每个页面获取下
 Route::post('Rejection', 'tool/Site/Rejection');
 //自定义表单提交
