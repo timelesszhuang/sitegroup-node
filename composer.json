@@ -34,7 +34,8 @@
         "topthink/think-queue": "^1.0",
         "topthink/think-testing": "^1.0",
         "phpmailer/phpmailer": "~5.2",
-        "topthink/think-testing": "^1.0"
+        "topthink/think-testing": "^1.0",
+        "aliyuncs/oss-sdk-php": "^2.3"
 
     },
     "extra": {
