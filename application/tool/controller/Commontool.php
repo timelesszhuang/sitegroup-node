@@ -44,6 +44,7 @@ class Commontool extends Common
     public function clearCache()
     {
         if (Cache::clear()) {
+            $this->clearPageCache();
             exit(json_encode(['status' => 'success', 'msg' => '清除缓存成功。']));
         }
         exit(json_encode(['status' => 'failed', 'msg' => '清除缓存失败。']));
@@ -54,7 +55,7 @@ class Commontool extends Common
      * 清楚pagecache
      * @access public
      */
-    public function clearPageCache()
+    private function clearPageCache()
     {
         if (Cache::store('pagecache')->clear()) {
             exit(json_encode(['status' => 'success', 'msg' => '清除缓存成功。']));
