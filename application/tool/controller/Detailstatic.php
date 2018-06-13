@@ -216,6 +216,8 @@ class Detailstatic extends Common
         // 将设置好的 A链接插入到内容中去 吸引流量
         $links = $this->getLinks();
         $item['content'] = $this->contentJoinALink($item['content'], $links, $item['id']);
+        //添加默认没有分享的内容
+        $item['noshare_content'] = $item['content'];
         $item['content'] = $this->add_share_code($item['content']);
         $articletags = [];
         if ($item['tags']) {
@@ -245,6 +247,7 @@ class Detailstatic extends Common
         $temp_data = collection($data)->toArray();
         //随机选择
         $arr_count = count($temp_data);
+        $link = [];
         if ($arr_count) {
             $keywordCount = $arr_count <= $maxCount ? $arr_count : rand(1, $maxCount);
             //随机选择几个关键词
@@ -252,7 +255,6 @@ class Detailstatic extends Common
             if (!is_array($rand_arr)) {
                 $rand_arr = [$rand_arr];
             }
-            $link = [];
             foreach ($rand_arr as $k) {
                 $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $temp_data[$k]['href'], $temp_data[$k]['title'], $temp_data[$k]['content']);
             }
@@ -261,15 +263,17 @@ class Detailstatic extends Common
         //取数据
         $data = (new Childsitelist)->childsitelistcache($this->site_id);
         $site_data = collection($data)->toArray();
-        $arr_count = count($site_data);
-        $childSiteCount = $arr_count <= $maxCount ? $arr_count : rand(1, $maxCount);
-        //随机选择几个关键词
-        $rand_arr = array_rand($site_data, $childSiteCount);
-        if (!is_array($rand_arr)) {
-            $rand_arr = [$rand_arr];
-        }
-        foreach ($rand_arr as $k) {
-            $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $site_data[$k]['url'], $site_data[$k]['name'], $site_data[$k]['name']);
+        if ($site_data) {
+            $arr_count = count($site_data);
+            $childSiteCount = $arr_count <= $maxCount ? $arr_count : rand(1, $maxCount);
+            //随机选择几个关键词
+            $rand_arr = array_rand($site_data, $childSiteCount);
+            if (!is_array($rand_arr)) {
+                $rand_arr = [$rand_arr];
+            }
+            foreach ($rand_arr as $k) {
+                $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $site_data[$k]['url'], $site_data[$k]['name'], $site_data[$k]['name']);
+            }
         }
         return $link;
     }
@@ -287,7 +291,7 @@ class Detailstatic extends Common
         $arr = explode('>', $content);
         $splitcount = count($arr);
         $linkcount = count($links);
-        if ($linkcount < $splitcount) {
+        if ($linkcount < $splitcount and count($links) > 0) {
             //分割之后的 数量大于 要插入的数量
             $randkeys = array_rand($arr, $linkcount);
             if (!is_array($randkeys)) {
@@ -541,6 +545,7 @@ class Detailstatic extends Common
         //页面的描述
         $keywords = $item['keywords'];
         $item['content_paragraph'] = $this->form_content_img($item['content_paragraph']);
+        $item['noshare_content_paragraph'] = $item['content_paragraph'];
         $item['content_paragraph'] = $this->add_share_code($item['content_paragraph']);
         $questiontags = [];
         if ($item['tags']) {
@@ -576,6 +581,8 @@ class Detailstatic extends Common
         }
         //替换图片 base64 为 图片文件
         $item['detail'] = $this->form_content_img($item['detail']);
+        //添加不带分享的内容
+        $item['noshare_detail'] = $item['detail'];
         $item['detail'] = $this->add_share_code($item['detail']);
         // 相关图片
         $imgser = $item['imgser'];
