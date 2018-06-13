@@ -49,7 +49,6 @@ trait SearchEngineComefrom
             }
             $engine = "sogou";
         } else if (stripos($referer, 'so.com')) {
-            echo $referer;
             $arr = explode('&', $referer);
             foreach ($arr as $k => $v) {
                 $refererdata = explode('=', $v);
