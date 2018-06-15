@@ -423,7 +423,7 @@ class Detailstatic extends Common
         }
         if (!$next_article) {
             $next_article['href'] = '#';
-            $pre_article['title'] = '没有了';
+            $next_article['title'] = '没有了';
             $next_article['text'] = '没有了';
         }
         return [$pre_article, $next_article];
