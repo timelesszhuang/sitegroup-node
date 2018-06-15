@@ -207,6 +207,7 @@ class Detailstatic extends Common
             //表示是oss的
             $this->get_osswater_img($item['thumbnails'], $item['thumbnails_name'], $this->waterString, $this->waterImgUrl);
         }
+        $item['color_title'] = $item['title_color'] ? sprintf('<span style="color:%s">%s</span>', $item['title_color'], $item['title']) : $item['title'];
         //替换图片静态化内容中图片文件
         $item['content'] = $this->form_content_img($item['content']);
         // 替换关键词为指定链接 遍历全文和所有关键词
@@ -403,7 +404,7 @@ class Detailstatic extends Common
         //上一页链接
         if ($pre_article) {
             $pre_article = $pre_article->toArray();
-            $pre_article = ['href' => sprintf($this->prearticlepath, $pre_article['id']), 'title' => $pre_article['title']];
+            $pre_article = ['href' => sprintf($this->prearticlepath, $pre_article['id']), 'text' => $pre_article['title'], 'title' => $pre_article['title']];
         }
         //获取下一篇 的网址
         //最后一条 不需要有 下一页
@@ -413,7 +414,17 @@ class Detailstatic extends Common
         //下一页链接
         if ($next_article) {
             $next_article = $next_article->toArray();
-            $next_article['href'] = sprintf($this->prearticlepath, $next_article['id']);
+            $next_article = ['href' => sprintf($this->prearticlepath, $next_article['id']), 'text' => $next_article['title'], 'title' => $next_article['title']];
+        }
+        if (!$pre_article) {
+            $pre_article['href'] = '#';
+            $pre_article['title'] = '没有了';
+            $pre_article['text'] = '没有了';
+        }
+        if (!$next_article) {
+            $next_article['href'] = '#';
+            $pre_article['title'] = '没有了';
+            $next_article['text'] = '没有了';
         }
         return [$pre_article, $next_article];
     }
@@ -475,15 +486,27 @@ class Detailstatic extends Common
         //获取上一篇和下一篇
         list($where, $max_id) = $this->commontool->getQuestionQueryWhere();
         $pre_question_sql = "id  <{$id} and " . sprintf($where, $type_id);
-        $pre_question = (new \app\index\model\Question)->where($pre_question_sql)->field("id,question as title")->order("id", "desc")->find();
+        $pre_question = (new \app\index\model\Question)->where($pre_question_sql)->field("id,question as text")->order("id", "desc")->find();
         if ($pre_question) {
             $pre_question['href'] = sprintf($this->prequestionpath, $pre_question['id']);
+            $pre_question['title'] = $pre_question['text'];
         }
         //下一篇可能会导致其他问题
         $next_sql = "id > {$id} and " . sprintf($where, $type_id);
-        $next_question = (new \app\index\model\Question)->where($next_sql)->field("id,question as title")->find();
+        $next_question = (new \app\index\model\Question)->where($next_sql)->field("id,question as text")->find();
         if ($next_question) {
             $next_question['href'] = "/question/question{$next_question['id']}.html";
+            $next_question['title'] = $next_question['text'];
+        }
+        if (!$pre_question) {
+            $pre_question['href'] = '#';
+            $pre_question['title'] = '没有了';
+            $pre_question['text'] = '没有了';
+        }
+        if (!$next_question) {
+            $next_question['href'] = '#';
+            $next_question['title'] = '没有了';
+            $next_question['text'] = '没有了';
         }
         return [$pre_question, $next_question];
     }
@@ -767,7 +790,12 @@ class Detailstatic extends Common
         //上一页链接
         if ($pre_product) {
             $pre_product = $pre_product->toArray();
-            $pre_product = ['href' => sprintf($this->preproductpath, $pre_product['id']), 'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>", 'title' => $pre_product['name']];
+            $pre_product = [
+                'href' => sprintf($this->preproductpath, $pre_product['id']),
+                'img' => "<img src='/images/{$pre_product['image_name']}' alt='{$pre_product['name']}'>",
+                'title' => $pre_product['name'],
+                'text' => $pre_product['name'],
+            ];
         }
         //最后一条 不需要有 下一页 需要判断下 是不是下一篇包含最大id
         $next_product_sql = "id >{$id} and " . sprintf($where, $type_id);
@@ -775,7 +803,22 @@ class Detailstatic extends Common
         //下一页链接
         if ($next_product) {
             $next_product = $next_product->toArray();
-            $next_product = ['href' => sprintf($this->preproductpath, $next_product['id']), 'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>", 'title' => $next_product['name']];
+            $next_product = [
+                'href' => sprintf($this->preproductpath, $next_product['id']),
+                'img' => "<img src='/images/{$next_product['image_name']}' alt='{$next_product['name']}'>",
+                'title' => $next_product['name'],
+                'text' => $next_product['name'],
+            ];
+        }
+        if (!$pre_product) {
+            $pre_product['href'] = '#';
+            $pre_product['title'] = '没有了';
+            $pre_product['text'] = '没有了';
+        }
+        if (!$next_product) {
+            $next_product['href'] = '#';
+            $next_product['title'] = '没有了';
+            $pre_product['text'] = '没有了';
         }
         return [$pre_product, $next_product];
     }
