@@ -1,6 +1,8 @@
 Sitemap: /sitemap.xml
 User-agent: MJ12bot
 Disallow: /
+User-agent: CCBot
+Disallow: /
 User-agent: *
 Disallow: /cgi-bin
 Disallow:/upload/
