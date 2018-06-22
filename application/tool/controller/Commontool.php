@@ -579,7 +579,7 @@ class Commontool extends Common
      */
     public function getArticleList($typeid_arr, $limit = 10)
     {
-        $more = ['title' => '', 'href' => '/', 'text' => '更多'];
+        $more = ['title' => '', 'href' => '/', 'text' => '更多', 'menu_name' => '', 'type_name' => ''];
         //随机取值
         //测试
         $article_typearr = array_key_exists('article', $typeid_arr) ? $typeid_arr['article'] : [];
@@ -907,7 +907,7 @@ class Commontool extends Common
         $rand_key = array_rand($product_typearr);
         $rand_type = $product_typearr[$rand_key];
         if ($more['href'] == '/') {
-            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf($this->productListPath, $rand_type['menu_enname']), 'text' => '更多'];
+            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf($this->productListPath, $rand_type['menu_enname']), 'text' => '更多','menu_name' => $rand_type['menu_name'], 'type_name' => $rand_type['type_name']];
         }
         return ['list' => $productlist, 'more' => $more];
     }
@@ -1185,7 +1185,7 @@ class Commontool extends Common
         $rand_key = array_rand($question_typearr);
         $rand_type = $question_typearr[$rand_key];
         if ($more['href'] == '/') {
-            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf($this->questionListPath, $rand_type['menu_enname']), 'text' => '更多'];
+            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf($this->questionListPath, $rand_type['menu_enname']), 'text' => '更多', 'menu_name' => $rand_type['menu_name'], 'type_name' => $rand_type['type_name']];
         }
         return ['list' => $questionlist, 'more' => $more];
     }
