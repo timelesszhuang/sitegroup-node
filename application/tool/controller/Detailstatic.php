@@ -716,9 +716,9 @@ class Detailstatic extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function getDetailmenuinfo($type_id)
+    public function getDetailmenuinfo($type_id, $type)
     {
-        switch ($type_id) {
+        switch ($type) {
             case 'product':
                 $flag = '5';
                 break;
