@@ -363,7 +363,7 @@ class Detailstatic extends Common
         $article = (new \app\index\model\Article)->where($articlesql)->find()->toArray();
         $type_id = $article['articletype_id'];
         // 获取menu信息
-        $menuInfo = $this->getDetailmenuinfo($type_id);
+        $menuInfo = $this->getDetailmenuinfo($type_id, 'article');
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
@@ -448,7 +448,7 @@ class Detailstatic extends Common
         $question = (new \app\index\model\Question)->where($questionsql)->find()->toArray();
         // 获取menu信息
         $type_id = $question['type_id'];
-        $menuInfo = $this->getDetailmenuinfo($type_id);
+        $menuInfo = $this->getDetailmenuinfo($type_id, 'question');
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
@@ -678,7 +678,7 @@ class Detailstatic extends Common
         $product = (new \app\index\model\Product)->where($productsql)->find()->toArray();
         $type_id = $product['type_id'];
         // 获取menu信息
-        $menuInfo = $this->getDetailmenuinfo($type_id);
+        $menuInfo = $this->getDetailmenuinfo($type_id, 'product');
         // 获取pageInfo信息
         $sitePageInfo = (new \app\tool\model\SitePageinfo)->where([
             "node_id" => $this->node_id,
@@ -718,9 +718,21 @@ class Detailstatic extends Common
      */
     public function getDetailmenuinfo($type_id)
     {
+        switch ($type_id) {
+            case 'product':
+                $flag = '5';
+                break;
+            case 'article':
+                $flag = '3';
+                break;
+            case 'question':
+                $flag = '2';
+                break;
+        }
         $menuobj = (new \app\tool\model\Menu)->where([
             "node_id" => $this->node_id,
-            "type_id" => ['like', "%,$type_id,%"]
+            "type_id" => ['like', "%,$type_id,%"],
+            "flag" => $flag
         ])->select();
         //如果一个文章分类被多个菜单选择则可能会选择出多个
         $menu = collection($menuobj)->toArray();
