@@ -136,7 +136,7 @@ class Common extends Controller
 //        $this->domain = 'local.sitegroupnode.com';
         $this->app_debug = $siteinfo['app_debug'];
         $this->siteinfo = $siteinfo;
-        $waterImgUrl = Cache::remember('waterImgUrl', function () use ($siteinfo) {
+        $waterImgUrl = Cache::tag('variable')->remember('waterImgUrl', function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
             if ($SiteWaterImage_info) {
                 return $SiteWaterImage_info['oss_water_image_path'];
@@ -225,7 +225,7 @@ class Common extends Controller
         if (!$logo_id) {
             return;
         }
-        $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($logo_id) {
+        $site_logoinfo = Cache::tag('variable')->remember('sitelogoinfo', function () use ($logo_id) {
             return Db::name('site_logo')->where('id', $logo_id)->find();
         });
         //如果logo记录被删除的话怎么操作
@@ -258,7 +258,7 @@ class Common extends Controller
         if (!$ico_id) {
             return;
         }
-        $site_icoinfo = Cache::remember('siteicoinfo', function () use ($ico_id) {
+        $site_icoinfo = Cache::tag('variable')->remember('siteicoinfo', function () use ($ico_id) {
             return Db::name('site_ico')->where('id', $ico_id)->find();
         });
         //如果logo记录被删除的话怎么操作
@@ -289,7 +289,7 @@ class Common extends Controller
         $endpoint = Config::get('oss.endpoint');
         $bucket = Config::get('oss.bucket');
         $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
-        $imglist = cache::remember('imglist', function () {
+        $imglist = Cache::tag('variable')->remember('imglist', function () {
             return Db::name('imglist')->where('node_id', $this->node_id)->where('status', '10')->select();
         });
         foreach ($imglist as $v) {
@@ -333,7 +333,7 @@ class Common extends Controller
     public function getDistrictInfo()
     {
         $suffix = $this->suffix;
-        $info = Cache::remember("{$this->suffix}info", function () use ($suffix) {
+        $info = Cache::tag('variable')->remember("{$this->suffix}info", function () use ($suffix) {
             return Db::name('childsitelist')->where(['en_name' => $suffix, 'site_id' => $this->site_id])->order('sort', 'desc')->find();
         });
         // 相关后缀获取相关bug

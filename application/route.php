@@ -65,7 +65,7 @@ Route::get('resetall', 'tool/Pagestaticentry/resetall');
 
 //清除缓存 默认使用文件缓存
 Route::get('clearCache', 'tool/Commontool/clearCache');
-Route::get('clearPageCache', 'tool/Commontool/clearCache');
+Route::get('clearPageCache/:type/:id', 'tool/Commontool/clearPageCache');
 //页面 pv 操作 每个页面获取下
 Route::post('Rejection', 'tool/Site/Rejection');
 //自定义表单提交

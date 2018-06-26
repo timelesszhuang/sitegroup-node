@@ -43,8 +43,7 @@ class Commontool extends Common
      */
     public function clearCache()
     {
-        if (Cache::clear()) {
-            $this->clearPageCache();
+        if (Cache::clear('variable')) {
             exit(json_encode(['status' => 'success', 'msg' => '清除缓存成功。']));
         }
         exit(json_encode(['status' => 'failed', 'msg' => '清除缓存失败。']));
@@ -55,9 +54,9 @@ class Commontool extends Common
      * 清楚pagecache
      * @access public
      */
-    private function clearPageCache()
+    private function clearPageCache($type, $id)
     {
-        if (Cache::store('pagecache')->clear()) {
+        if (Cache::clear($type . $id)) {
             exit(json_encode(['status' => 'success', 'msg' => '清除缓存成功。']));
         }
         exit(json_encode(['status' => 'failed', 'msg' => '清除缓存成功。']));
@@ -71,7 +70,7 @@ class Commontool extends Common
     public function getMobileSiteInfo()
     {
         $siteinfo = $this->siteinfo;
-        return Cache::remember('mobileinfo', function () use ($siteinfo) {
+        return Cache::tag('variable')->remember('mobileinfo', function () use ($siteinfo) {
             //获取手机相关信息
             $m_site_url = '';
             //手机重定向的站点
@@ -99,7 +98,7 @@ class Commontool extends Common
     public function getTags($type = '')
     {
         $node_id = $this->node_id;
-        $tags = Cache::remember('tags', function () use ($node_id) {
+        $tags = Cache::tag('variable')->remember('tags', function () use ($node_id) {
             return Db::name('tags')->where('node_id', $node_id)->field('id,name,type')->select();
         });
         $type_tags = [];
@@ -529,7 +528,7 @@ class Commontool extends Common
      */
     public function getDbPageTDK($menu_id, $page_type)
     {
-        $page_info = Cache::remember($menu_id . $page_type . $this->suffix, function () use ($menu_id, $page_type) {
+        $page_info = Cache::tag('variable')->remember($menu_id . $page_type . $this->suffix, function () use ($menu_id, $page_type) {
             return Db::name('site_pageinfo')->where(['menu_id' => $menu_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'page_type' => $page_type])
                 ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description,pre_akeyword_id,akeyword_id')->find();
         });
@@ -555,7 +554,7 @@ class Commontool extends Common
      */
     public function getDbDetailPageTDK($page_id, $type)
     {
-        $page_info = Cache::remember($page_id . $type . $this->suffix, function () use ($page_id, $type) {
+        $page_info = Cache::tag('variable')->remember($page_id . $type . $this->suffix, function () use ($page_id, $type) {
             return Db::name('site_detail_pageinfo')->where(['page_id' => $page_id, 'node_id' => $this->node_id, 'site_id' => $this->site_id, 'type' => $type])
                 ->field('id,title,keyword,description,childsite_title,childsite_keyword,childsite_description')->find();
         });
@@ -907,7 +906,7 @@ class Commontool extends Common
         $rand_key = array_rand($product_typearr);
         $rand_type = $product_typearr[$rand_key];
         if ($more['href'] == '/') {
-            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf($this->productListPath, $rand_type['menu_enname']), 'text' => '更多','menu_name' => $rand_type['menu_name'], 'type_name' => $rand_type['type_name']];
+            $more = ['title' => $rand_type['menu_name'], 'href' => sprintf($this->productListPath, $rand_type['menu_enname']), 'text' => '更多', 'menu_name' => $rand_type['menu_name'], 'type_name' => $rand_type['type_name']];
         }
         return ['list' => $productlist, 'more' => $more];
     }
@@ -1504,7 +1503,7 @@ class Commontool extends Common
      */
     public function getActivity()
     {
-        return Cache::remember('common_activity', function () {
+        return Cache::tag('variable')->remember('common_activity', function () {
             $where["id"] = ['in', explode(',', $this->siteinfo['sync_id'])];
             $where["status"] = 10;
             $activity = Activity::where($where)->field('id,en_name,title,img_name,small_img_name,url,summary')->select();
@@ -1623,7 +1622,7 @@ code;
         $domain_id = $this->siteinfo['domain_id'];
         if ($domain_id) {
             //这个地方应该也添加缓存
-            $domain_info = Cache::remember('domain_info', function () use ($domain_id) {
+            $domain_info = Cache::tag('variable')->remember('domain_info', function () use ($domain_id) {
                 return Db::name('domain')->where('id', $domain_id)->find();
             });
             if ($domain_info) {
@@ -1648,10 +1647,10 @@ code;
             return [$site_name, ''];
         }
         $site_id = $this->siteinfo['id'];
-        $site_logoinfo = Cache::remember('sitelogoinfo', function () use ($id) {
+        $site_logoinfo = Cache::tag('variable')->remember('sitelogoinfo', function () use ($id) {
             return Db::name('site_logo')->where('id', $id)->find();
         });
-        return Cache::remember('sitelogo', function () use ($site_logoinfo, $site_id, $site_name) {
+        return Cache::tag('variable')->remember('sitelogo', function () use ($site_logoinfo, $site_id, $site_name) {
             if ($site_logoinfo) {
                 $oss_file_path = $site_logoinfo['oss_logo_path'];
                 $pathinfo = pathinfo(parse_url($oss_file_path)['path']);
@@ -1674,7 +1673,7 @@ code;
     public function getContactInfo()
     {
         $siteinfo = $this->siteinfo;
-        return Cache::remember('contactway', function () use ($siteinfo) {
+        return Cache::tag('variable')->remember('contactway', function () use ($siteinfo) {
             //支持的字段
             $contact_field = [
                 'address', 'telephone', 'mobile', 'email', 'zipcode', 'four00', 'qq', 'weixin', 'fax'
@@ -1712,7 +1711,7 @@ code;
         $site_field = 'id,url,site_name';
         $link_id = $this->siteinfo['link_id'];
         //友链信息
-        $link_info = Cache::remember('linkinfo', function () use ($link_id) {
+        $link_info = Cache::tag('variable')->remember('linkinfo', function () use ($link_id) {
             return Db::name('links')->where(['id' => ['in', array_filter(explode(',', $link_id))]])->field('id,name,domain')->select();
         });
         $partnersite = [];
@@ -1742,7 +1741,7 @@ code;
         } else {
             //表示自己是同node内主站
             //主站都链接到最新上线的主站上 也就是全部网站的主站
-            $allmain_site = Cache::remember('allmainsite', function () use ($site_field) {
+            $allmain_site = Cache::tag('variable')->remember('allmainsite', function () use ($site_field) {
                 return (new \app\tool\model\Site())->where(['main_site' => '20'])->order('id', 'desc')->field($site_field)->find();
             });
             $allmainsite_id = $allmain_site->id;
@@ -1753,7 +1752,7 @@ code;
                 ];
             }
             // 链接到下个主站  id小的主站链接到大的 最大的链接到最小的形成单向环
-            $next_mainsite = Cache::remember('next_mainsite', function () use ($allmainsite_id, $site_field) {
+            $next_mainsite = Cache::tag('variable')->remember('next_mainsite', function () use ($allmainsite_id, $site_field) {
                 $next_mainsite = (new \app\tool\model\Site)->where(['main_site' => '20', 'id' => ['gt', $this->site_id], 'id' => ['neq', $allmainsite_id]])->field($site_field)->find();
                 if (!$next_mainsite) {
                     //说明比该网站大的已经没有了 取出最小的链接起来
@@ -1789,7 +1788,7 @@ code;
     private function getSiteGetContent()
     {
         $node_id = $this->siteinfo['node_id'];
-        return Cache::remember('contentlist', function () use ($node_id) {
+        return Cache::tag('variable')->remember('contentlist', function () use ($node_id) {
             $contentlist = Db::name('content_get')->where('node_id', $node_id)->field('en_name,name,content,href')->select();
             $list = [];
             foreach ($contentlist as $v) {
@@ -2076,7 +2075,7 @@ code;
     public function getMenuChildrenMenuTypeid($menu_id, $ptypeidarr)
     {
         // 因为会选择三级栏目所以需要选出子栏目的type_id 来
-        return Cache::remember('menu_children' . $menu_id, function () use ($menu_id, $ptypeidarr) {
+        return Cache::tag('variable')->remember('menu_children' . $menu_id, function () use ($menu_id, $ptypeidarr) {
             $menulist = \app\tool\model\Menu::Where('path', 'like', "%,$menu_id,%")->select();
             foreach ($menulist as $menu) {
                 //子孙栏目选择type_id
@@ -2130,7 +2129,7 @@ code;
     public function getTypeIdInfo()
     {
         $menu_idstr = $this->menu_ids;
-        return Cache::remember('TypeId', function () use ($menu_idstr) {
+        return Cache::tag('variable')->remember('TypeId', function () use ($menu_idstr) {
             //站点所选择的菜单
             $menu_idarr = array_filter(explode(',', $menu_idstr));
             //获取每个菜单下的type_id
@@ -2306,7 +2305,7 @@ code;
     private function getImgList()
     {
         $node_id = $this->node_id;
-        return Cache::remember('imgset', function () use ($node_id) {
+        return Cache::tag('variable')->remember('imgset', function () use ($node_id) {
             $imglist = Db::name('imglist')->where('node_id', $node_id)->where('status', '10')->select();
             $imgset = [];
             foreach ($imglist as $imgs) {
@@ -2493,7 +2492,7 @@ code;
     public function detail_maxid($type_name = 'article')
     {
         //获取 站点 某个栏目同步到的文章id
-        return Cache::remember($type_name . "_max_id", function () use ($type_name) {
+        return Cache::tag('variable')->remember($type_name . "_max_id", function () use ($type_name) {
             $max_id = 0;
             $where = [
                 'type_name' => $type_name,

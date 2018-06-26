@@ -33,7 +33,7 @@ class QuestionList extends EntryCommon
         $this->entryCommon();
         // 从缓存中获取数据
         $templatepath = $this->questionlisttemplate;
-        $data = Cache::remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}{$this->suffix}", function () use ($menu_enname, $type_id, $templatepath, $currentpage) {
+        $data = Cache::tag('variable')->remember("questionlist_{$menu_enname}_{$type_id}_{$currentpage}{$this->suffix}", function () use ($menu_enname, $type_id, $templatepath, $currentpage) {
             return $this->generateQuestionList($menu_enname, $type_id, $currentpage);
         }, 0);
         $assign_data = $data['d'];

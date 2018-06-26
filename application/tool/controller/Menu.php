@@ -25,7 +25,7 @@ class Menu extends Common
         $site_id = $this->site_id;
         $site_name = $this->site_name;
         $node_id = $this->node_id;
-        return Cache::remember('menu', function () use ($menu_ids, $site_id, $site_name, $node_id) {
+        return Cache::tag('variable')->remember('menu', function () use ($menu_ids, $site_id, $site_name, $node_id) {
             $menu_idarr = array_filter(explode(',', $menu_ids));
             $where['node_id'] = $node_id;
             $where['id'] = ['in', $menu_idarr];

@@ -58,7 +58,7 @@ class NewsList extends EntryCommon
         $siteinfo = Site::getSiteInfo();
         $this->spidercomefrom($siteinfo);
         // 从缓存中获取数据
-        $assign_data = Cache::remember("newslist" . "-" . $id . "-" . $currentpage, function () use ($id, $siteinfo, $templatepath, $currentpage) {
+        $assign_data = Cache::tag('variable')->remember("newslist" . "-" . $id . "-" . $currentpage, function () use ($id, $siteinfo, $templatepath, $currentpage) {
             return $this->generateNewsList($id, $siteinfo, $currentpage);
         }, 0);
         //file_put_contents('log/newslist.txt', $this->separator . date('Y-m-d H:i:s') . print_r($assign_data, true) . $this->separator, FILE_APPEND);

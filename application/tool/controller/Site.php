@@ -42,55 +42,57 @@ class Site extends Common
     {
         $site_type_id = $this->siteinfo['site_type'];
         //首先获取当前的节点id
-        $site_type = Cache::remember('site_type', function () use ($site_type_id) {
+        $site_type = Cache::tag('variable')->remember('site_type', function () use ($site_type_id) {
             return Db::name('site_type')->where('id', $site_type_id)->find();
         });
-        $chain_type = $site_type['chain_type'];
-        //10表示循环链轮 20 表示 金字塔型链轮
-        //获取主节点////////////////////////////////////////////
-        //返回 主站的域名 id 等
-        //有可能没有设置主站  需要有个地方记录下错误信息
-        $main_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '20','node_id'=>$this->node_id])->field('id,site_name,url')->find();
-        if (!$main_site) {
-            // 如果没有设置主站的 默认设置第一个站点为主站
-            $site = (new  \app\tool\model\Site())->where(['site_type' => $site_type_id])->find();
-            $sitename = $site->site_name;
-            $site->main_site = '20';
-            $site->save();
-            $main_site = collection($site)->toArray();
-            //没有设置主节点 需要提示下错误信息
-            $site_info = new SiteErrorInfo();
-            $site_info->addError([
-                'msg' => $site_type['name'] . "站点分类没有设置主站点,已经默认设置{$sitename}为主站。",
-                'operator' => '页面静态化',
-                'site_id' => $this->site_id,
-                'site_name' => $this->site_name,
-                'node_id' => $this->node_id,
-            ]);
-            //需要默认一个站点设置主站
-        }
-        //判断主节点是不是当前的节点
-        if ($this->site_id == $main_site['id']) {
-            $main_site = [];
-        }
-        $next_site = [];
-        if ($chain_type == '10' && Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->count() > 2) {
-            //如果该分类下的非主节点的数量小于 3个 则 不需要互相链接  否则形成的 互链 bug，容易被搜索引擎 K掉
-            //链轮的时候为 id 小的 链接到id 大的，然后最终 id 最大的连接到 最小的id
-            $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10', 'id' => ['gt', $this->site_id]])->field('url,site_name')->find();
-            if ($chain_site) {
-                $next_site = $chain_site;
-            } else {
-                //说明没有取到id 比较大的
-                //取下id 最小的
-                $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->order('id asc')->field('url,site_name')->find();
-                $next_site = $chain_site;
+        return Cache::tag('variable')->remember('siteLinkInfo', function () use ($site_type, $site_type_id) {
+            $chain_type = $site_type['chain_type'];
+            //10表示循环链轮 20 表示 金字塔型链轮
+            //获取主节点////////////////////////////////////////////
+            //返回 主站的域名 id 等
+            //有可能没有设置主站  需要有个地方记录下错误信息
+            $main_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '20', 'node_id' => $this->node_id])->field('id,site_name,url')->find();
+            if (!$main_site) {
+                // 如果没有设置主站的 默认设置第一个站点为主站
+                $site = (new  \app\tool\model\Site())->where(['site_type' => $site_type_id])->find();
+                $sitename = $site->site_name;
+                $site->main_site = '20';
+                $site->save();
+                $main_site = collection($site)->toArray();
+                //没有设置主节点 需要提示下错误信息
+                $site_info = new SiteErrorInfo();
+                $site_info->addError([
+                    'msg' => $site_type['name'] . "站点分类没有设置主站点,已经默认设置{$sitename}为主站。",
+                    'operator' => '页面静态化',
+                    'site_id' => $this->site_id,
+                    'site_name' => $this->site_name,
+                    'node_id' => $this->node_id,
+                ]);
+                //需要默认一个站点设置主站
             }
-        } else if ($chain_type == '20') {
-            //表示金字塔型的 链轮
-            //不需要返回 其他信息
-        }
-        return [$chain_type, $next_site, $main_site];
+            //判断主节点是不是当前的节点
+            if ($this->site_id == $main_site['id']) {
+                $main_site = [];
+            }
+            $next_site = [];
+            if ($chain_type == '10' && Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->count() > 2) {
+                //如果该分类下的非主节点的数量小于 3个 则 不需要互相链接  否则形成的 互链 bug，容易被搜索引擎 K掉
+                //链轮的时候为 id 小的 链接到id 大的，然后最终 id 最大的连接到 最小的id
+                $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10', 'id' => ['gt', $this->site_id]])->field('url,site_name')->find();
+                if ($chain_site) {
+                    $next_site = $chain_site;
+                } else {
+                    //说明没有取到id 比较大的
+                    //取下id 最小的
+                    $chain_site = Db::name('site')->where(['site_type' => $site_type_id, 'main_site' => '10'])->order('id asc')->field('url,site_name')->find();
+                    $next_site = $chain_site;
+                }
+            } else if ($chain_type == '20') {
+                //表示金字塔型的 链轮
+                //不需要返回 其他信息
+            }
+            return [$chain_type, $next_site, $main_site];
+        });
     }
 
 
@@ -102,7 +104,10 @@ class Site extends Common
     {
         $site_id = Config::get('site.SITE_ID');
         //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
-        $info = Db::name('site')->where('id', $site_id)->find();
+        $info = Cache::tag('variable')->remember('siteInfo', function () use ($site_id) {
+            $info = Db::name('site')->where('id', $site_id)->find();
+            return $info;
+        });
         if (empty($info)) {
             //如果为空的话 处理方式
             //表示该

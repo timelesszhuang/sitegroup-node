@@ -153,7 +153,7 @@ trait Osstrait
                 return true;
             }
             if ($img_water) {
-                $code = Cache::remember('img_water', function () use ($img_water) {
+                $code = Cache::tag('variable')->remember('img_water', function () use ($img_water) {
                     return $this->urlsafe_b64encode(substr(parse_url($img_water)['path'], 1));
                 });
                 $options = array(

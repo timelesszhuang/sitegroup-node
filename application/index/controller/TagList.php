@@ -69,7 +69,7 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::remember("articletaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
+        $data = Cache::tag('variable')->remember("articletaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
             return $this->generateArticleList($tag_id, $tag_name, $currentpage);
         }, 0);
         return $this->Debug((new View())->fetch($template,
@@ -142,7 +142,7 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::remember("questiontaglist_{$tag_id}_{$currentpage}{$this->suffix}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
+        $data = Cache::tag('variable')->remember("questiontaglist_{$tag_id}_{$currentpage}{$this->suffix}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
             return $this->generateQuestionList($tag_id, $tag_name, $siteinfo, $currentpage);
         }, 0);
         return $this->Debug((new View())->fetch($template,
@@ -206,7 +206,7 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::remember("producttaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
+        $data = Cache::tag('variable')->remember("producttaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
             return $this->generateProductList($tag_id, $tag_name, $currentpage);
         }, 0);
         return $this->Debug((new View())->fetch($template,

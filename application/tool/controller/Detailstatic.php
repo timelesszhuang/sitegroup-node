@@ -26,7 +26,7 @@ class Detailstatic extends Common
     public function __construct()
     {
         parent::__construct();
-        $data = cache::remember('system_config', function () {
+        $data = Cache::tag('variable')->remember('system_config', function () {
             return Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find();
         });
         if ($data && array_key_exists('value', $data)) {
