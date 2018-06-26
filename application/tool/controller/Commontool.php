@@ -54,7 +54,7 @@ class Commontool extends Common
      * 清楚pagecache
      * @access public
      */
-    private function clearPageCache($type, $id)
+    public function clearPageCache($type, $id)
     {
         if (Cache::clear($type . $id)) {
             exit(json_encode(['status' => 'success', 'msg' => '清除缓存成功。']));
@@ -62,6 +62,17 @@ class Commontool extends Common
         exit(json_encode(['status' => 'failed', 'msg' => '清除缓存成功。']));
     }
 
+    /**
+     * 清楚pagecache
+     * @access public
+     */
+    public function clearAllCache()
+    {
+        if (Cache::clear()) {
+            exit(json_encode(['status' => 'success', 'msg' => '清除缓存成功。']));
+        }
+        exit(json_encode(['status' => 'failed', 'msg' => '清除缓存成功。']));
+    }
 
     /**
      * 获取手机站的域名 跟 跳转的js 存储在缓存中
