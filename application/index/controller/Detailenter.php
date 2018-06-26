@@ -28,6 +28,7 @@ class Detailenter extends EntryCommon
     {
         $this->entryCommon();
         //分站相关
+        $type = 'index';
         return Cache::tag('variable')->remember($this->suffix . $type, function () {
             $index = new Indexstatic();
             return $index->indexstaticdata();
