@@ -265,17 +265,16 @@ class Detailstatic extends Common
         /*****************************************/
         //取数据
         $data = $this->childsitelistcache();
-        $site_data = collection($data)->toArray();
-        if ($site_data) {
-            $arr_count = count($site_data);
+        if ($data) {
+            $arr_count = count($data);
             $childSiteCount = $arr_count <= $maxCount ? $arr_count : rand(1, $maxCount);
             //随机选择几个关键词
-            $rand_arr = array_rand($site_data, $childSiteCount);
+            $rand_arr = array_rand($data, $childSiteCount);
             if (!is_array($rand_arr)) {
                 $rand_arr = [$rand_arr];
             }
             foreach ($rand_arr as $k) {
-                $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $site_data[$k]['url'], $site_data[$k]['name'], $site_data[$k]['name']);
+                $link[] = sprintf('<a href="%s" title="%s" target="_blank">%s</a>', $data[$k]['url'], $data[$k]['name'], $data[$k]['name']);
             }
         }
         return $link;
