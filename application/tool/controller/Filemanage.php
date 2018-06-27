@@ -80,7 +80,7 @@ class Filemanage extends CommonToken
      */
     private function manageTemplate()
     {
-        $siteinfo = Site::getSiteInfo();
+        $siteinfo = $this->siteinfo;
         //模板id
         $template = \app\common\model\Template::get($siteinfo["template_id"]);
         $pathinfo = pathinfo($template->path_oss);

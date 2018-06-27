@@ -26,7 +26,8 @@ class Keyword extends Common
         $site_id = $this->site_id;
         $site_name = $this->site_name;
         $node_id = $this->node_id;
-        return Cache::tag('variable')->remember('keyword', function () use ($aKeyword_ids, $site_id, $site_name, $node_id) {
+        $key = 'keyword';
+        $keyword = Cache::remember($key, function () use ($aKeyword_ids, $site_id, $site_name, $node_id) {
             $field = 'id,name,parent_id,path,tag';
             $keyword = [];
             //获取全部的a类 客户
@@ -60,6 +61,8 @@ class Keyword extends Common
             $keyword = (new Common())->list_to_tree(array_merge($aKeyword, $bcKeyword), 'id', 'parent_id', 'children', $parent_id = 0);
             return $keyword;
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        return $keyword;
     }
 
 

@@ -29,10 +29,13 @@ class Detailenter extends EntryCommon
         $this->entryCommon();
         //分站相关
         $type = 'index';
-        return Cache::tag('variable')->remember($this->suffix . $type, function () {
+        $key = $this->suffix . $type;
+        $indexhtml = Cache::remember($key, function () {
             $index = new Indexstatic();
             return $index->indexstaticdata();
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        return $indexhtml;
     }
 
 
@@ -48,13 +51,17 @@ class Detailenter extends EntryCommon
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
         // 子站相关 可以使用预览部分的相关功能
-        return Cache::tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
+        $tag = $type . $id;
+        $key = $this->suffix . $type . $id;
+        $html = Cache::remember($key, function () use ($id) {
             list($template, $data) = (new Detailstatic())->article_detailinfo($id);
             $content = $this->Debug((new View())->fetch($template,
                 $data
             ), $data);
             return $content;
         });
+        Cache::tag($tag, [$key]);
+        return $html;
     }
 
 
@@ -70,13 +77,17 @@ class Detailenter extends EntryCommon
         $type = 'question';
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
-        return Cache::tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
+        $tag = $type . $id;
+        $key = $this->suffix . $type . $id;
+        $html = Cache::remember($key, function () use ($id) {
             // 子站相关 可以使用预览部分的相关功能
             list($template, $data) = (new Detailstatic())->question_detailinfo($id);
             return $this->Debug((new View())->fetch($template,
                 $data
             ), $data);
         });
+        Cache::tag($tag, [$key]);
+        return $html;
     }
 
     /**
@@ -91,12 +102,16 @@ class Detailenter extends EntryCommon
         $type = 'product';
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
-        return Cache::tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
+        $tag = $type . $id;
+        $key = $this->suffix . $type . $id;
+        $html = Cache::remember($key, function () use ($id) {
             list($template, $data) = (new Detailstatic())->product_detailinfo($id);
             return $this->Debug((new View())->fetch($template,
                 $data
             ), $data);
         });
+        Cache::tag($tag, [$key]);
+        return $html;
     }
 
     /**
@@ -111,9 +126,13 @@ class Detailenter extends EntryCommon
         $type = 'activity';
         $this->entryCommon();
         $id = $this->subNameId($id, $type);
-        return Cache::tag($type . $id)->remember($this->suffix . $type . $id, function () use ($id) {
+        $tag = $type . $id;
+        $key = $this->suffix . $type . $id;
+        $html = Cache::remember($key, function () use ($id) {
             return (new Activitystatic())->getacticitycontent($id);
         });
+        Cache::tag($tag, [$key]);
+        return $html;
     }
 
 
@@ -129,12 +148,16 @@ class Detailenter extends EntryCommon
         $this->entryCommon();
         $filename = substr($filename, 0, strpos($filename, '.'));
         // 需要根据$filename 取出 menu 的信息
-        $menu = Cache::tag('variable')->remember('detailmenu' . $filename . 'menu', function () use ($filename) {
+        $key = 'detailmenu' . $filename . 'menu';
+        $menu = Cache::remember($key, function () use ($filename) {
             return (new \app\tool\model\Menu)->Where(['flag' => 1, 'node_id' => $this->node_id, 'generate_name' => $filename])->find();
         });
-        $content = Cache::tag('variable')->remember('detailmenu' . $filename . 'content' . $this->suffix, function () use ($menu) {
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        $key = 'detailmenu' . $filename . 'content' . $this->suffix;
+        $content = Cache::remember($key, function () use ($menu) {
             return (new Detailmenupagestatic)->getContent($menu);
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         // 这里只能是这样 用 return会有问题。
         exit($content);
     }

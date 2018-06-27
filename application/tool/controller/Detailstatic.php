@@ -26,9 +26,11 @@ class Detailstatic extends Common
     public function __construct()
     {
         parent::__construct();
-        $data = Cache::tag('variable')->remember('system_config', function () {
+        $key = 'system_config';
+        $data = Cache::remember($key, function () {
             return Db::name('system_config')->where(['name' => 'SYSTEM_DEFAULTSTATIC_COUNT', 'need_auth' => 0])->field('value')->find();
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         if ($data && array_key_exists('value', $data)) {
             // 系统中默认能静态化的数量
             self::$system_default_count = $data['value'];
@@ -262,7 +264,7 @@ class Detailstatic extends Common
         }
         /*****************************************/
         //取数据
-        $data = (new Childsitelist)->childsitelistcache($this->site_id);
+        $data = $this->childsitelistcache();
         $site_data = collection($data)->toArray();
         if ($site_data) {
             $arr_count = count($site_data);
@@ -278,6 +280,24 @@ class Detailstatic extends Common
         }
         return $link;
     }
+
+    /**
+     * 子站点列表
+     * @access public
+     */
+    public function childsitelistcache()
+    {
+        $childsitelist = (new Site())->getSiteList();
+        $domain = $this->domain;
+        if (!$childsitelist) {
+            return [];
+        }
+        foreach ($childsitelist as $key => $value) {
+            $childsitelist[$key]['url'] = 'http://' . $value['en_name'] . "." . $domain;
+        }
+        return $childsitelist;
+    }
+
 
     /**
      * 向内容中添加A链接

@@ -8,15 +8,10 @@
 
 namespace app\tool\traits;
 
-
-use app\tool\controller\Site;
-use app\tool\model\ArticleInsertA;
 use app\tool\model\ArticlekeywordSubstitution;
 use app\tool\model\ArticleReplaceKeyword;
-use app\tool\model\Childsitelist;
 use app\tool\model\SiteErrorInfo;
 use app\tool\model\SystemConfig;
-use think\Cache;
 
 trait FileExistsTraits
 {
@@ -28,7 +23,7 @@ trait FileExistsTraits
      */
     public function fileExists($filename, $operator = '页面静态化')
     {
-        $siteinfo = Site::getSiteInfo();
+        $siteinfo = $this->siteinfo;
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
@@ -51,7 +46,7 @@ trait FileExistsTraits
      */
     public function make_error($directory)
     {
-        $siteinfo = Site::getSiteInfo();
+        $siteinfo = $this->siteinfo;
         $site_id = $siteinfo['id'];
         $site_name = $siteinfo['site_name'];
         $node_id = $siteinfo['node_id'];
@@ -63,8 +58,6 @@ trait FileExistsTraits
             'node_id' => $node_id,
         ]);
     }
-
-
 
 
     /**
@@ -147,19 +140,15 @@ trait FileExistsTraits
      */
     public function getEmailAccount()
     {
-        $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $site_name = $siteinfo['site_name'];
-        $node_id = $siteinfo['node_id'];
         //support邮箱
         $email = SystemConfig::where(["name" => "SYSTEM_EMAIL", "need_auth" => 1])->find();
         if (!isset($email->value)) {
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱不存在!",
                 'operator' => 'support邮箱不存在',
-                'site_id' => $site_id,
-                'site_name' => $site_name,
-                'node_id' => $node_id,
+                'site_id' => $this->site_id,
+                'site_name' => $this->site_name,
+                'node_id' => $this->node_id,
             ]);
             return false;
         }
@@ -169,9 +158,9 @@ trait FileExistsTraits
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱密码不存在!",
                 'operator' => 'support邮箱密码不存在',
-                'site_id' => $site_id,
-                'site_name' => $site_name,
-                'node_id' => $node_id,
+                'site_id' => $this->site_id,
+                'site_name' => $this->site_name,
+                'node_id' => $this->node_id,
             ]);
             return false;
         }
@@ -181,9 +170,9 @@ trait FileExistsTraits
             (new SiteErrorInfo)->addError([
                 'msg' => "support邮箱host不存在!",
                 'operator' => 'support邮箱host不存在',
-                'site_id' => $site_id,
-                'site_name' => $site_name,
-                'node_id' => $node_id,
+                'site_id' => $this->site_id,
+                'site_name' => $this->site_name,
+                'node_id' => $this->node_id,
             ]);
             return false;
         }
@@ -205,12 +194,9 @@ trait FileExistsTraits
      */
     public function articleReplaceKeyword($content)
     {
-        $siteinfo = Site::getSiteInfo();
-        $site_id = $siteinfo['id'];
-        $node_id = $siteinfo['node_id'];
         $data = ArticleReplaceKeyword::where([
-            "node_id" => $node_id,
-            "site_id" => $site_id
+            "node_id" => $this->node_id,
+            "site_id" => $this->site_id
         ])->select();
         if (empty($data)) {
             return $content;

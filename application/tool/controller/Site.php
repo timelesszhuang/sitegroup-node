@@ -32,20 +32,18 @@ class Site extends Common
      *              2 金字塔型  需要返回要指向的 主节点  二级节点之间不需要互相链
      * @access public
      * @return mixed  第一个字段是 链轮的类型 10 表示 循环链轮 20 表示 金字塔型链轮
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
      * @todo  后期还要考虑到手机站的情况 手机站的互链情况
-     * @throws \throwable
      */
     public function getLinkInfo()
     {
         $site_type_id = $this->siteinfo['site_type'];
         //首先获取当前的节点id
-        $site_type = Cache::tag('variable')->remember('site_type', function () use ($site_type_id) {
+        $key = 'site_type';
+        $site_type = Cache::remember($key, function () use ($site_type_id) {
             return Db::name('site_type')->where('id', $site_type_id)->find();
         });
-        return Cache::tag('variable')->remember('siteLinkInfo', function () use ($site_type, $site_type_id) {
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        $siteLinkInfo = Cache::remember('siteLinkInfo', function () use ($site_type, $site_type_id) {
             $chain_type = $site_type['chain_type'];
             //10表示循环链轮 20 表示 金字塔型链轮
             //获取主节点////////////////////////////////////////////
@@ -93,27 +91,25 @@ class Site extends Common
             }
             return [$chain_type, $next_site, $main_site];
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        return $siteLinkInfo;
     }
 
 
     /**
-     * 获取站点相关配置信息
+     * 获取站点的list
      * @access public
      */
-    public static function getSiteInfo()
+    public function getSiteList()
     {
-        $site_id = Config::get('site.SITE_ID');
-        //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
-        $info = Cache::tag('variable')->remember('siteInfo', function () use ($site_id) {
-            $info = Db::name('site')->where('id', $site_id)->find();
-            return $info;
+        $key = 'childsitelist';
+        $site_id = $this->site_id;
+        $childsitelist = Cache::remember($key, function () use ($site_id) {
+            $childsitelist = Db::name('childsitelist')->where(['site_id' => $site_id])->field('district_id as id,en_name,name,p_id')->order(['sort' => 'desc', 'district_id' => 'asc'])->select();
+            return $childsitelist;
         });
-        if (empty($info)) {
-            //如果为空的话 处理方式
-            //表示该
-            exit("未找到站点id {$site_id} 的配置信息");
-        }
-        return $info;
+        Cache::tag(self::$clearableCacheTag, $key);
+        return $childsitelist;
     }
 
 
@@ -134,7 +130,6 @@ class Site extends Common
         $request = Request::instance();
         $nowip = $request->ip();
         $ipdata = $this->get_ip_info($nowip);
-        $siteinfo = Site::getSiteInfo();
         $formdata = $this->request->post();
         if (empty($ipdata['data'])) {
             $data['country_id'] = "";
@@ -147,8 +142,8 @@ class Site extends Common
             $data['country_id'] = "";
             $data['ip'] = "";
         } else {
-            $data['node_id'] = $siteinfo['node_id'];
-            $data['site_id'] = $siteinfo['id'];
+            $data['node_id'] = $this->node_id;
+            $data['site_id'] = $this->site_id;
             //国家
             $data['country'] = $ipdata['data']['country'];
             $data['country_id'] = $ipdata['data']['country_id'];
@@ -186,7 +181,7 @@ class Site extends Common
         }
         $email = $this->getEmailAccount();
         if ($email) {
-            $site_obj = \app\tool\model\Site::get($siteinfo['id']);
+            $site_obj = \app\tool\model\Site::get($this->site_id);
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
                 if ($siteUser) {
@@ -205,7 +200,7 @@ class Site extends Common
      */
     public function DefinedRejection()
     {
-//      session_write_close();
+        session_write_close();
         $request = Request::instance();
         $tag = $request->post('tag');
         if (!$tag) {
@@ -221,11 +216,9 @@ class Site extends Common
         //node_id 获取到的node_id
         $node_id = $definedform->node_id;
         //表单数据
-        $siteinfo = Site::getSiteInfo();
-        if ($node_id != $siteinfo['node_id']) {
+        if ($node_id != $this->node_id) {
             return $this->resultArray("尊敬的客户，提交错误，请稍后再试。", "failed");
         }
-        //dump($definedform->form_info);die;
         $form_info = unserialize($definedform->form_info);
         //dump($form_info);die;
         $rule = [];
@@ -238,10 +231,9 @@ class Site extends Common
         $nowip = $request->ip();
         $ipdata = $this->get_ip_info($nowip);
         $formdata = $this->request->post();
-//        dump($formdata);die;
         if (empty($ipdata['data'])) {
-            $data['node_id'] = $siteinfo['node_id'];
-            $data['site_id'] = $siteinfo['id'];
+            $data['node_id'] = $this->node_id;
+            $data['site_id'] = $this->site_id;
             $data['country_id'] = "";
             $data['area_id'] = "";
             $data['region'] = "";
@@ -252,8 +244,8 @@ class Site extends Common
             $data['country_id'] = "";
             $data['ip'] = "";
         } else {
-            $data['node_id'] = $siteinfo['node_id'];
-            $data['site_id'] = $siteinfo['id'];
+            $data['node_id'] = $this->node_id;
+            $data['site_id'] = $this->site_id;
             //国家
             $data['country'] = $ipdata['data']['country'];
             $data['country_id'] = $ipdata['data']['country_id'];
@@ -322,20 +314,12 @@ class Site extends Common
             return $this->resultArray("申请失败", "failed");
         }
         $email = $this->getEmailAccount();
-//        $this->phpmailerSend($email['email'], $email['password'], $email["host"], "您有新的线索","1318911846@qq.com", "sfasd",$email['email']);
-//        die;
-//        dump($email);die;
         if ($email) {
-            $site_obj = \app\tool\model\Site::get($siteinfo['id']);
+            $site_obj = \app\tool\model\Site::get($this->site_id);
             if (isset($site_obj->user_id)) {
                 $siteUser = SiteUser::get($site_obj->user_id);
                 if ($siteUser) {
                     $content = $data["field1"] . "</br>" . $data["field2"] . "</br>" . $data["field3"] . "</br>" . $data["field4"] . '</br>' . '【乐销易－北京易至信科技有限公司】';
-//                    file_put_contents('demo.txt', print_r($content, true), FILE_APPEND);
-//                    file_put_contents('demo.txt', print_r($email, true), FILE_APPEND);
-//                    file_put_contents('demo.txt', $siteUser->name . $siteUser->email, FILE_APPEND);
-                    //这个地方有问题
-//                    dump();die;
                     $this->phpmailerSend($email['email'], $email['password'], $email["host"], $siteUser->name . "您有新的线索", $siteUser->email, $content, $email["email"]);
                 }
             }

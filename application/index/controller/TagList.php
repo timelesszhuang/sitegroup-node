@@ -43,7 +43,6 @@ class TagList extends EntryCommon
             exit('没有找到相关的标签。');
         }
         //爬虫来源 统计
-        $siteinfo = Site::getSiteInfo();
         $this->entryCommon();
         switch ($type) {
             case 'article':
@@ -69,9 +68,11 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::tag('variable')->remember("articletaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
+        $key = "articletaglist_{$tag_id}_{$currentpage}";
+        $data = Cache::remember($key, function () use ($tag_id, $tag_name, $currentpage) {
             return $this->generateArticleList($tag_id, $tag_name, $currentpage);
         }, 0);
+        Cache::tag(self::$clearableCacheTag, [$key]);
         return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -142,9 +143,11 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::tag('variable')->remember("questiontaglist_{$tag_id}_{$currentpage}{$this->suffix}", function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
+        $key = "questiontaglist_{$tag_id}_{$currentpage}{$this->suffix}";
+        $data = Cache::remember($key, function () use ($tag_id, $tag_name, $siteinfo, $currentpage) {
             return $this->generateQuestionList($tag_id, $tag_name, $siteinfo, $currentpage);
         }, 0);
+        Cache::tag(self::$clearableCacheTag, [$key]);
         return $this->Debug((new View())->fetch($template,
             $data
         ), $data);
@@ -206,9 +209,11 @@ class TagList extends EntryCommon
         if (!$this->fileExists($template)) {
             exit('文章标签模板不存在');
         }
-        $data = Cache::tag('variable')->remember("producttaglist_{$tag_id}_{$currentpage}", function () use ($tag_id, $tag_name, $currentpage) {
+        $key = "producttaglist_{$tag_id}_{$currentpage}";
+        $data = Cache::remember($key, function () use ($tag_id, $tag_name, $currentpage) {
             return $this->generateProductList($tag_id, $tag_name, $currentpage);
         }, 0);
+        Cache::tag(self::$clearableCacheTag, [$key]);
         return $this->Debug((new View())->fetch($template,
             $data
         ), $data);

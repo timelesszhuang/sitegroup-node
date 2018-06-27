@@ -5,6 +5,7 @@ namespace app\tool\controller;
 use app\common\controller\Common;
 use app\tool\model\SiteErrorInfo;
 use think\Cache;
+use think\Config;
 use think\Db;
 
 
@@ -25,7 +26,8 @@ class Menu extends Common
         $site_id = $this->site_id;
         $site_name = $this->site_name;
         $node_id = $this->node_id;
-        return Cache::tag('variable')->remember('menu', function () use ($menu_ids, $site_id, $site_name, $node_id) {
+        $key = 'menu';
+        $menu = Cache::remember($key, function () use ($menu_ids, $site_id, $site_name, $node_id) {
             $menu_idarr = array_filter(explode(',', $menu_ids));
             $where['node_id'] = $node_id;
             $where['id'] = ['in', $menu_idarr];
@@ -50,6 +52,8 @@ class Menu extends Common
             }
             return $menu;
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        return $menu;
     }
 
     /**

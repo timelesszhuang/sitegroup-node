@@ -33,7 +33,8 @@ class SiteMap extends Common
     {
         header("Content-type: text/xml");
         $host = $this->realsiteurl;
-        $xmldata = Cache::tag('variable')->remember($host . 'sitemap', function () use ($host) {
+        $key = $host . 'sitemap';
+        $xmldata = Cache::remember($key, function () use ($host) {
             //首先获取全部链接的路径 从menu 中
             $menu = (new Menu)->getMergedMenu();
             //获取最新的200篇文章 各个分类 生成sitemap
@@ -91,6 +92,7 @@ XML;
             $xmldata = $xml->asXML(); //用asXML方法输出xml，默认只构造不输出。
             return $xmldata;
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         exit($xmldata);
     }
 

@@ -153,9 +153,11 @@ trait Osstrait
                 return true;
             }
             if ($img_water) {
-                $code = Cache::tag('variable')->remember('img_water', function () use ($img_water) {
+                $key = 'img_water';
+                $code = Cache::remember($key, function () use ($img_water) {
                     return $this->urlsafe_b64encode(substr(parse_url($img_water)['path'], 1));
                 });
+                Cache::tag(self::$clearableCacheTag, [$key]);
                 $options = array(
                     OssClient::OSS_FILE_DOWNLOAD => $localfilename,
                     OssClient::OSS_PROCESS => "image/watermark,image_{$code},t_90,g_se,x_10,y_10"

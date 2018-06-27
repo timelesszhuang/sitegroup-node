@@ -7,8 +7,6 @@
 
 namespace app\common\controller;
 
-
-use app\tool\controller\Site;
 use app\tool\traits\FileExistsTraits;
 use app\tool\traits\Osstrait;
 use app\tool\traits\Params;
@@ -40,6 +38,8 @@ class Common extends Controller
     public $separator = '||||||||||||||||||||||||';
 
     public $childsite_tdkplaceholder = '{{site}}';
+
+    public static $clearableCacheTag = 'variable';
 
     //该网站的url
     public $siteurl = '';
@@ -123,7 +123,7 @@ class Common extends Controller
         set_time_limit(0);
         $this->getSiteId();
         //绝对网址
-        $siteinfo = Site::getSiteInfo();
+        $siteinfo = $this->getSiteInfo();
         $this->siteurl = $siteinfo['url'];
         $this->site_id = $siteinfo['id'];
         $this->site_name = $siteinfo['site_name'];
@@ -136,12 +136,14 @@ class Common extends Controller
 //        $this->domain = 'local.sitegroupnode.com';
         $this->app_debug = $siteinfo['app_debug'];
         $this->siteinfo = $siteinfo;
-        $waterImgUrl = Cache::tag('variable')->remember('waterImgUrl', function () use ($siteinfo) {
+        $key = 'waterImgUrl';
+        $waterImgUrl = Cache::remember($key, function () use ($siteinfo) {
             $SiteWaterImage_info = (new SiteWaterImage())->where(['id' => $siteinfo['site_water_image_id']])->find();
             if ($SiteWaterImage_info) {
                 return $SiteWaterImage_info['oss_water_image_path'];
             }
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         $this->waterImgUrl = $waterImgUrl ?: '';
         $this->siteInit();
         $this->menu_ids = $siteinfo['menu'];
@@ -165,6 +167,29 @@ class Common extends Controller
             $this->getDistrictInfo($suffix);
         }
     }
+
+
+    /**
+     * 获取站点相关配置信息
+     * @access public
+     */
+    public function getSiteInfo()
+    {
+        $site_id = Config::get('site.SITE_ID');
+        //第一次进来的时候就需要获取下全部的栏目 获取全部的关键词
+        $key = 'siteInfo';
+        $info = Cache::remember($key, function () use ($site_id) {
+            $info = Db::name('site')->where('id', $site_id)->find();
+            return $info;
+        });
+        Cache::tag(self::$clearableCacheTag, [$key]);
+        if (empty($info)) {
+            //如果为空的话 处理方式
+            exit("未找到站点id {$site_id} 的配置信息");
+        }
+        return $info;
+    }
+
 
     /**
      * 代码测试打印
@@ -225,9 +250,11 @@ class Common extends Controller
         if (!$logo_id) {
             return;
         }
-        $site_logoinfo = Cache::tag('variable')->remember('sitelogoinfo', function () use ($logo_id) {
+        $key = 'sitelogoinfo';
+        $site_logoinfo = Cache::remember($key, function () use ($logo_id) {
             return Db::name('site_logo')->where('id', $logo_id)->find();
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         //如果logo记录被删除的话怎么操作
         if (!$site_logoinfo) {
             return;
@@ -258,9 +285,11 @@ class Common extends Controller
         if (!$ico_id) {
             return;
         }
-        $site_icoinfo = Cache::tag('variable')->remember('siteicoinfo', function () use ($ico_id) {
+        $key = 'siteicoinfo';
+        $site_icoinfo = Cache::remember($key, function () use ($ico_id) {
             return Db::name('site_ico')->where('id', $ico_id)->find();
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         //如果logo记录被删除的话怎么操作
         if (!$site_icoinfo) {
             return;
@@ -289,9 +318,11 @@ class Common extends Controller
         $endpoint = Config::get('oss.endpoint');
         $bucket = Config::get('oss.bucket');
         $endpointurl = sprintf("https://%s.%s/", $bucket, $endpoint);
-        $imglist = Cache::tag('variable')->remember('imglist', function () {
+        $key = 'imglist';
+        $imglist = Cache::remember('imglist', function () {
             return Db::name('imglist')->where('node_id', $this->node_id)->where('status', '10')->select();
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         foreach ($imglist as $v) {
             $imgser = $v['imgser'];
             if ($imgser) {
@@ -333,9 +364,11 @@ class Common extends Controller
     public function getDistrictInfo()
     {
         $suffix = $this->suffix;
-        $info = Cache::tag('variable')->remember("{$this->suffix}info", function () use ($suffix) {
+        $key = "{$this->suffix}info";
+        $info = Cache::remember($key, function () use ($suffix) {
             return Db::name('childsitelist')->where(['en_name' => $suffix, 'site_id' => $this->site_id])->order('sort', 'desc')->find();
         });
+        Cache::tag(self::$clearableCacheTag, [$key]);
         // 相关后缀获取相关bug
         if ($info) {
             // 后缀存储在缓存中
