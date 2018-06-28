@@ -17,9 +17,9 @@ return [
     // 应用命名空间
     'app_namespace' => 'app',
     // 应用调试模式
-    'app_debug' => false,
+    'app_debug' => true,
     // 应用Trace
-    'app_trace' => false,
+    'app_trace' => true,
     // 应用模式状态
     'app_status' => '',
     // 是否支持多模块
@@ -184,28 +184,14 @@ return [
     // | 缓存设置
     // +----------------------------------------------------------------------
     'cache' => [
-        'type' => 'complex',
-        'default' => [
-            // 驱动方式
-            'type' => 'File',
-            // 缓存保存目录
-            'path' => CACHE_PATH,
-            // 缓存前缀
-            'prefix' => '',
-            // 缓存有效期 0表示永久缓存
-            'expire' => 0,
-        ],
-        'pagecache' => [
-            // 用于存储 文章 问答 产品等
-            // 驱动方式
-            'type' => 'File',
-            // 缓存保存目录
-            'path' => RUNTIME_PATH . "article" . DS,
-            // 缓存前缀
-            'prefix' => '',
-            // 缓存有效期 0表示永久缓存
-            'expire' => 0,
-        ],
+        // 驱动方式
+        'type' => 'File',
+        // 缓存保存目录
+        'path' => CACHE_PATH,
+        // 缓存前缀
+        'prefix' => '',
+        // 缓存有效期 0表示永久缓存
+        'expire' => 0,
     ],
     // +----------------------------------------------------------------------
     // | 会话设置
