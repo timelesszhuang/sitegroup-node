@@ -44,6 +44,7 @@ class Detailenter extends EntryCommon
      * 判断文章页面是否存在
      * @return string
      * @throws \throwable
+     * @todo 需要考虑到如果文章没有的话或者不是该站点的文章怎么处理
      */
     public function article($id)
     {

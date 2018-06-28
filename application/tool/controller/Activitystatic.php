@@ -36,7 +36,7 @@ class Activitystatic extends Common
     {
         $ac_data = (new \app\tool\model\Activity)->Where('id', '=', $id)->find();
         if (!$ac_data) {
-            return;
+            $this->go404();
         }
         //当前id的活动信息
         $water = $this->waterString;

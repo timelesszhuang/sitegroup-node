@@ -16,6 +16,7 @@ use think\Controller;
 use think\Cache;
 use app\tool\model\SiteWaterImage;
 use think\Db;
+use think\View;
 
 class Common extends Controller
 {
@@ -61,9 +62,10 @@ class Common extends Controller
     public $indextemplate = 'template/index.html';
     //泛站列表 区域展现列表
     public $districttemplate = 'template/district.html';
-    //默认不存在跳转到的地方
+    //子站区域跳转到的地方
     public $defaultdistricttemplate = 'defaulttemplate/district.php';
-
+    //默认404 不存在跳转到的地方
+    public $t404template = 'defaulttemplate/404.html';
 
     // 文章静态化的路径
     public $articlepath = 'article/%s.html';
@@ -188,6 +190,17 @@ class Common extends Controller
             exit("未找到站点id {$site_id} 的配置信息");
         }
         return $info;
+    }
+
+
+    /**
+     * 页面不存在的情况下跳转到 404相关操作
+     * @access public
+     */
+    public function go404()
+    {
+        $data = [];
+        exit((new View())->fetch($this->t404template, $data));
     }
 
 

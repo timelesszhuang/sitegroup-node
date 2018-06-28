@@ -379,7 +379,12 @@ class Detailstatic extends Common
     {
         // 取出指定id的文章
         $articlesql = "id = $id and node_id=$this->node_id";
-        $article = (new \app\index\model\Article)->where($articlesql)->find()->toArray();
+        $article = (new \app\index\model\Article)->where($articlesql)->find();
+        if (!$article) {
+            // 该文章不存在的情况下
+            $this->go404();
+        }
+        $article = $article->toArray();
         $type_id = $article['articletype_id'];
         // 获取menu信息
         $menuInfo = $this->getDetailmenuinfo($type_id, 'article');
@@ -464,7 +469,11 @@ class Detailstatic extends Common
     public function question_detailinfo($id)
     {
         $questionsql = "id = $id and node_id=$this->node_id";
-        $question = (new \app\index\model\Question)->where($questionsql)->find()->toArray();
+        $question = (new \app\index\model\Question)->where($questionsql)->find();
+        if (!$question) {
+            $this->go404();
+        }
+        $question = $question->toArray();
         // 获取menu信息
         $type_id = $question['type_id'];
         $menuInfo = $this->getDetailmenuinfo($type_id, 'question');
@@ -694,7 +703,12 @@ class Detailstatic extends Common
     {
         // 取出指定id的文章
         $productsql = "id = $id and node_id=$this->node_id";
-        $product = (new \app\index\model\Product)->where($productsql)->find()->toArray();
+        $product = (new \app\index\model\Product)->where($productsql)->find();
+        if (!$product) {
+            // 该文章不存在的情况下
+            $this->go404();
+        }
+        $product = $product->toArray();
         $type_id = $product['type_id'];
         // 获取menu信息
         $menuInfo = $this->getDetailmenuinfo($type_id, 'product');

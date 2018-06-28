@@ -2085,7 +2085,6 @@ code;
     {
         //站点信息
         $childsitelist = (new Site())->getSiteList();
-
         $allsite = [];
         // 当前如果是主站的话 需要有默认值
         $currentsite = [

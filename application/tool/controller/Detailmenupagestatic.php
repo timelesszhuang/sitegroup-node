@@ -33,7 +33,7 @@ class Detailmenupagestatic extends Common
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      * @throws \think\exception\PDOException
-     * @throws \Exception
+     * @throws \throwable
      */
     public function getContent($v)
     {
@@ -42,7 +42,7 @@ class Detailmenupagestatic extends Common
         $template = $this->getTemplate('cover', $menu_id);
         //模板不存在的情况
         if (!$this->fileExists($template)) {
-            return false;
+            $this->go404();
         }
         $assign_data = $this->commontool->getEssentialElement($v['generate_name'], ['menu_name' => $v['name'], 'menu_enname' => $v['generate_name']], $v['id']);
         //获取该详情形式下级的菜单相关内容
