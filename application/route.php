@@ -66,7 +66,7 @@ Route::get('resetall', 'tool/Pagestaticentry/resetall');
 //清除缓存 默认使用文件缓存 区分tag的
 Route::get('clearCache', 'tool/Commontool/clearCache');
 //清除所有缓存 不区分tag的
-Route::get('clearCache', 'tool/Commontool/clearCache');
+Route::get('clearAllCache', 'tool/Commontool/clearAllCache');
 Route::get('clearPageCache/:type/:id', 'tool/Commontool/clearPageCache');
 
 //页面 pv 操作 每个页面获取下
